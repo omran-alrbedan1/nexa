@@ -1,6 +1,6 @@
 export const env = {
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL as string,
-  APP_NAME: (import.meta.env.VITE_APP_NAME as string) || 'MyApp',
+  APP_NAME: (import.meta.env.VITE_APP_NAME as string) || 'Marketplace',
 } as const;
 
 if (!env.API_BASE_URL) {

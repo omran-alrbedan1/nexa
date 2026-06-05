@@ -3,20 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '../AuthContext';
-import { authApi } from '@/features/auth/api/authApi';
 import type { ReactNode } from 'react';
 
-// Mock the auth API
-vi.mock('@/features/auth/api/authApi', () => ({
-  authApi: {
-    login: vi.fn(),
-    register: vi.fn(),
-    me: vi.fn(),
-    logout: vi.fn(),
-  },
-}));
-
-// Mock the toast store — supports both hook usage (with selector) and getState()
+// Mock the toast store
 const mockAddToast = vi.fn();
 vi.mock('@/stores/toastStore', () => ({
   useToastStore: Object.assign(
@@ -27,17 +16,6 @@ vi.mock('@/stores/toastStore', () => ({
     { getState: () => ({ addToast: mockAddToast }) }
   ),
 }));
-
-const mockUser = {
-  id: 1,
-  name: 'Test User',
-  email: 'test@example.com',
-  role: 'viewer' as const,
-  avatar: null,
-  isActive: true,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -56,14 +34,17 @@ function createWrapper() {
   };
 }
 
-function clearAuthToken() {
-  try { localStorage.removeItem('auth_token'); } catch { /* noop */ }
+function clearLocalStorage() {
+  try {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+  } catch { /* noop */ }
 }
 
-describe('useAuth', () => {
+describe('useAuth (dummy data)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    clearAuthToken();
+    clearLocalStorage();
   });
 
   it('throws when used outside AuthProvider', () => {
@@ -85,9 +66,21 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(false);
   });
 
-  it('fetches user on mount when token exists', async () => {
-    localStorage.setItem('auth_token', 'test-token');
-    vi.mocked(authApi.me).mockResolvedValue({ data: mockUser });
+  it('restores user from localStorage on mount', async () => {
+    const savedUser = {
+      id: 1,
+      name: 'Test User',
+      email: 'admin@test.com',
+      phone: '+966501234567',
+      role: 'admin' as const,
+      avatar: null,
+      isActive: true,
+      regionId: null,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+    };
+    localStorage.setItem('auth_token', 'dummy-token');
+    localStorage.setItem('auth_user', JSON.stringify(savedUser));
 
     const { result } = renderHook(() => useAuth(), {
       wrapper: createWrapper(),
@@ -97,31 +90,11 @@ describe('useAuth', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(authApi.me).toHaveBeenCalledOnce();
-    expect(result.current.user).toEqual(mockUser);
+    expect(result.current.user).toEqual(savedUser);
     expect(result.current.isAuthenticated).toBe(true);
   });
 
-  it('clears token when me() fails', async () => {
-    localStorage.setItem('auth_token', 'invalid-token');
-    vi.mocked(authApi.me).mockRejectedValue(new Error('Unauthorized'));
-
-    renderHook(() => useAuth(), {
-      wrapper: createWrapper(),
-    });
-
-    await waitFor(() => {
-      expect(localStorage.getItem('auth_token')).toBeNull();
-    });
-  });
-
-  it('logs in successfully', async () => {
-    vi.mocked(authApi.login).mockResolvedValue({
-      data: { user: mockUser, token: 'new-token' },
-      message: 'Success',
-      success: true,
-    });
-
+  it('logs in with valid dummy credentials', async () => {
     const { result } = renderHook(() => useAuth(), {
       wrapper: createWrapper(),
     });
@@ -129,110 +102,16 @@ describe('useAuth', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     await act(async () => {
-      await result.current.login('test@example.com', 'password123');
+      await result.current.login('admin@test.com', 'password123');
     });
 
-    expect(authApi.login).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      password: 'password123',
-    });
-    expect(localStorage.getItem('auth_token')).toBe('new-token');
-    expect(result.current.user).toEqual(mockUser);
     expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user?.name).toBe('Admin User');
+    expect(result.current.user?.role).toBe('admin');
+    expect(localStorage.getItem('auth_token')).toContain('dummy-token');
   });
 
-  it('registers successfully', async () => {
-    vi.mocked(authApi.register).mockResolvedValue({
-      data: { user: mockUser, token: 'new-token' },
-      message: 'Success',
-      success: true,
-    });
-
-    const { result } = renderHook(() => useAuth(), {
-      wrapper: createWrapper(),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    await act(async () => {
-      await result.current.register('Test User', 'test@example.com', 'password123');
-    });
-
-    expect(authApi.register).toHaveBeenCalledWith({
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'password123',
-    });
-    expect(localStorage.getItem('auth_token')).toBe('new-token');
-    expect(result.current.user).toEqual(mockUser);
-    expect(result.current.isAuthenticated).toBe(true);
-  });
-
-  it('logs out successfully', async () => {
-    vi.mocked(authApi.login).mockResolvedValue({
-      data: { user: mockUser, token: 'test-token' },
-      message: 'Success',
-      success: true,
-    });
-
-    const { result } = renderHook(() => useAuth(), {
-      wrapper: createWrapper(),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    await act(async () => {
-      await result.current.login('test@example.com', 'password123');
-    });
-    expect(result.current.isAuthenticated).toBe(true);
-
-    vi.mocked(authApi.logout).mockResolvedValue(undefined);
-
-    await act(async () => {
-      await result.current.logout();
-    });
-
-    expect(authApi.logout).toHaveBeenCalledOnce();
-    expect(localStorage.getItem('auth_token')).toBeNull();
-    expect(result.current.user).toBeNull();
-    expect(result.current.isAuthenticated).toBe(false);
-  });
-
-  it('clears local state even if logout API fails', async () => {
-    vi.mocked(authApi.login).mockResolvedValue({
-      data: { user: mockUser, token: 'test-token' },
-      message: 'Success',
-      success: true,
-    });
-
-    const { result } = renderHook(() => useAuth(), {
-      wrapper: createWrapper(),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    await act(async () => {
-      await result.current.login('test@example.com', 'password123');
-    });
-
-    vi.mocked(authApi.logout).mockRejectedValue(new Error('Network error'));
-
-    await act(async () => {
-      await result.current.logout();
-    });
-
-    expect(localStorage.getItem('auth_token')).toBeNull();
-    expect(result.current.user).toBeNull();
-    expect(result.current.isAuthenticated).toBe(false);
-  });
-
-  it('propagates login errors to the caller', async () => {
-    const apiError = new Error('Invalid credentials');
-    (apiError as Record<string, unknown>).response = {
-      data: { message: 'Invalid email or password' },
-    };
-    vi.mocked(authApi.login).mockRejectedValue(apiError);
-
+  it('throws error for invalid credentials', async () => {
     const { result } = renderHook(() => useAuth(), {
       wrapper: createWrapper(),
     });
@@ -241,8 +120,82 @@ describe('useAuth', () => {
 
     await expect(
       act(async () => {
-        await result.current.login('wrong@example.com', 'wrong');
+        await result.current.login('wrong@test.com', 'wrongpass');
       })
-    ).rejects.toThrow('Invalid credentials');
+    ).rejects.toThrow(/Invalid credentials/i);
+  });
+
+  it('registers a new user as customer role', async () => {
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 2000 });
+
+    await act(async () => {
+      await result.current.register('New User', 'new@test.com', 'password123');
+    });
+
+    expect(result.current).not.toBeNull();
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user?.name).toBe('New User');
+    expect(result.current.user?.role).toBe('customer');
+    expect(localStorage.getItem('auth_token')).toContain('dummy-token');
+  });
+
+  it('logs out successfully', async () => {
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 2000 });
+
+    // Login first
+    await act(async () => {
+      await result.current.login('admin@test.com', 'password123');
+    });
+    expect(result.current).not.toBeNull();
+    expect(result.current.isAuthenticated).toBe(true);
+
+    // Logout
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    expect(result.current).not.toBeNull();
+    expect(localStorage.getItem('auth_token')).toBeNull();
+    expect(localStorage.getItem('auth_user')).toBeNull();
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('can login with all 6 dummy accounts', async () => {
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const accounts = [
+      { email: 'admin@test.com', expectedRole: 'admin' },
+      { email: 'operations@test.com', expectedRole: 'operations' },
+      { email: 'warehouse@test.com', expectedRole: 'aggregation' },
+      { email: 'supplier@test.com', expectedRole: 'supplier' },
+      { email: 'driver@test.com', expectedRole: 'driver' },
+      { email: 'customer@test.com', expectedRole: 'customer' },
+    ];
+
+    for (const account of accounts) {
+      await act(async () => {
+        await result.current.login(account.email, 'password123');
+      });
+      expect(result.current.user?.role).toBe(account.expectedRole);
+    }
   });
 });

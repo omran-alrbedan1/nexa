@@ -6,13 +6,13 @@ export interface CreateUserDto {
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'editor' | 'viewer';
+  role: 'admin' | 'operations' | 'aggregation' | 'supplier' | 'driver' | 'customer';
 }
 
 export interface UpdateUserDto {
   name?: string;
   email?: string;
-  role?: 'admin' | 'editor' | 'viewer';
+  role?: 'admin' | 'operations' | 'aggregation' | 'supplier' | 'driver' | 'customer';
   isActive?: boolean;
 }
 

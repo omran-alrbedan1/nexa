@@ -1,5 +1,5 @@
 export const APP = {
-  NAME: 'MyApp',
+  NAME: 'Marketplace',
   VERSION: '1.0.0',
 } as const;
 

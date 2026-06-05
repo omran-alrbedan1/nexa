@@ -67,8 +67,11 @@ export function UserList({
         >
           <option value="">All roles</option>
           <option value="admin">Admin</option>
-          <option value="editor">Editor</option>
-          <option value="viewer">Viewer</option>
+          <option value="operations">Operations</option>
+          <option value="aggregation">Warehouse</option>
+          <option value="supplier">Supplier</option>
+          <option value="driver">Driver</option>
+          <option value="customer">Customer</option>
         </select>
       </div>
 

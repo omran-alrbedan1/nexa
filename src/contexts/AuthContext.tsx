@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
-import type { User } from '@/features/users/types/userTypes';
+import type { User, UserRole } from '@/features/users/types/userTypes';
 
 interface AuthContextValue {
   user: User | null;
@@ -21,16 +21,100 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const DUMMY_USER: User = {
-  id: 1,
-  name: 'Test User',
-  email: 'test@example.com',
-  role: 'admin',
-  avatar: null,
-  isActive: true,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+// ──────────────────────────────────────────────
+// Dummy users — one for each platform role
+// All use password: "password123"
+// ──────────────────────────────────────────────
+const DUMMY_USERS: User[] = [
+  {
+    id: 1,
+    name: 'Admin User',
+    email: 'admin@test.com',
+    phone: '+966501234567',
+    role: 'admin',
+    avatar: null,
+    isActive: true,
+    regionId: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 2,
+    name: 'Operations Staff',
+    email: 'operations@test.com',
+    phone: '+966501234568',
+    role: 'operations',
+    avatar: null,
+    isActive: true,
+    regionId: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 3,
+    name: 'Warehouse Staff',
+    email: 'warehouse@test.com',
+    phone: '+966501234569',
+    role: 'aggregation',
+    avatar: null,
+    isActive: true,
+    regionId: null,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 4,
+    name: 'Supplier Account',
+    email: 'supplier@test.com',
+    phone: '+966501234570',
+    role: 'supplier',
+    avatar: null,
+    isActive: true,
+    regionId: 1,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 5,
+    name: 'Driver Name',
+    email: 'driver@test.com',
+    phone: '+966501234571',
+    role: 'driver',
+    avatar: null,
+    isActive: true,
+    regionId: 1,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 6,
+    name: 'Customer Name',
+    email: 'customer@test.com',
+    phone: '+966501234572',
+    role: 'customer',
+    avatar: null,
+    isActive: true,
+    regionId: 1,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+];
+
+/** Map email → user for O(1) lookup */
+const DUMMY_USER_MAP = new Map(DUMMY_USERS.map((u) => [u.email, u]));
+
+/** Default route per role after login */
+export function getDefaultRoute(role: UserRole | undefined): string {
+  const routes: Record<UserRole, string> = {
+    admin: '/dashboard',
+    operations: '/dashboard',
+    aggregation: '/dashboard',
+    supplier: '/dashboard',
+    driver: '/dashboard',
+    customer: '/dashboard',
+  };
+  return role ? routes[role] : '/dashboard';
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -53,38 +137,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+  const login = useCallback(
+    async (email: string, password: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-    if (email === 'test@example.com' && password === 'password123') {
-      localStorage.setItem('auth_token', 'dummy-token-123');
-      localStorage.setItem('auth_user', JSON.stringify(DUMMY_USER));
-      setUser(DUMMY_USER);
-      addToast('success', 'Signed in successfully');
-    } else {
-      throw new Error('Invalid credentials. Use test@example.com and password123.');
-    }
-  }, [addToast]);
+      const dummyUser = DUMMY_USER_MAP.get(email);
 
-  const register = useCallback(async (name: string, email: string, _password: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+      if (dummyUser && password === 'password123') {
+        localStorage.setItem('auth_token', `dummy-token-${dummyUser.role}-${Date.now()}`);
+        localStorage.setItem('auth_user', JSON.stringify(dummyUser));
+        setUser(dummyUser);
+        addToast(
+          'success',
+          `Signed in as ${dummyUser.name} (${dummyUser.role})`
+        );
+      } else {
+        throw new Error(
+          'Invalid credentials.\n\nTry one of:\n' +
+            [...DUMMY_USER_MAP.keys()]
+              .map((e) => `  ${e} / password123`)
+              .join('\n')
+        );
+      }
+    },
+    [addToast]
+  );
 
-    const newUser: User = {
-      id: Date.now(),
-      name,
-      email,
-      role: 'viewer',
-      avatar: null,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  const register = useCallback(
+    async (name: string, email: string, _password: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
-    localStorage.setItem('auth_token', 'dummy-token-' + Date.now());
-    localStorage.setItem('auth_user', JSON.stringify(newUser));
-    setUser(newUser);
-    addToast('success', 'Account created successfully');
-  }, [addToast]);
+      const newUser: User = {
+        id: Date.now(),
+        name,
+        email,
+        phone: '',
+        role: 'customer',
+        avatar: null,
+        isActive: true,
+        regionId: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem('auth_token', 'dummy-token-register-' + Date.now());
+      localStorage.setItem('auth_user', JSON.stringify(newUser));
+      setUser(newUser);
+      addToast('success', 'Account created successfully');
+    },
+    [addToast]
+  );
 
   const logout = useCallback(async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -96,7 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient, addToast]);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

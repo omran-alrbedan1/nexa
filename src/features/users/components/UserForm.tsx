@@ -12,7 +12,7 @@ interface UserFormFields {
   name: string;
   email: string;
   password?: string;
-  role: 'admin' | 'editor' | 'viewer';
+  role: 'admin' | 'operations' | 'aggregation' | 'supplier' | 'driver' | 'customer';
   isActive?: boolean;
 }
 
@@ -43,7 +43,7 @@ export function UserForm(props: UserFormProps) {
     resolver: zodResolver(isEdit ? updateUserSchema : createUserSchema) as any,
     defaultValues: isEdit
       ? { name: user!.name, email: user!.email, role: user!.role, isActive: user!.isActive }
-      : { name: '', email: '', password: '', role: 'viewer' },
+      : { name: '', email: '', password: '', role: 'customer' },
   });
 
   const onSubmit = async (data: UserFormFields) => {
@@ -106,8 +106,11 @@ export function UserForm(props: UserFormProps) {
           {...register('role')}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
         >
-          <option value="viewer">Viewer</option>
-          <option value="editor">Editor</option>
+          <option value="customer">Customer</option>
+          <option value="supplier">Supplier</option>
+          <option value="driver">Driver</option>
+          <option value="aggregation">Warehouse</option>
+          <option value="operations">Operations</option>
           <option value="admin">Admin</option>
         </select>
       </div>

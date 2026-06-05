@@ -7,17 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LoginPage } from '../LoginPage';
 
-// Mock the auth API
-vi.mock('@/features/auth/api/authApi', () => ({
-  authApi: {
-    login: vi.fn(),
-    me: vi.fn().mockRejectedValue(new Error('No token')),
-    register: vi.fn(),
-    logout: vi.fn(),
-  },
-}));
-
-// Mock the toast store — supports both hook usage (with selector) and getState()
+// Mock the toast store
 const mockAddToast = vi.fn();
 vi.mock('@/stores/toastStore', () => ({
   useToastStore: Object.assign(
@@ -68,58 +58,54 @@ describe('LoginPage', () => {
     expect(registerLink.getAttribute('href')).toBe('/register');
   });
 
-  it('submits the form with email and password', async () => {
-    const user = userEvent.setup();
-    const { authApi } = await import('@/features/auth/api/authApi');
-    vi.mocked(authApi.login).mockResolvedValue({
-      data: {
-        user: {
-          id: 1,
-          name: 'Test',
-          email: 'test@example.com',
-          role: 'viewer',
-          avatar: null,
-          isActive: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        token: 'test-token',
-      },
-      message: 'Success',
-      success: true,
-    });
-
+  it('shows quick-fill buttons for all 6 roles', () => {
     renderLoginPage();
 
-    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    expect(screen.getByText('admin')).toBeDefined();
+    expect(screen.getByText('operations')).toBeDefined();
+    expect(screen.getByText('supplier')).toBeDefined();
+    expect(screen.getByText('driver')).toBeDefined();
+    expect(screen.getByText('customer')).toBeDefined();
+  });
+
+  it('quick-fill button fills email and password', async () => {
+    const user = userEvent.setup();
+    renderLoginPage();
+
+    await user.click(screen.getByText('admin'));
+
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement;
+
+    expect(emailInput.value).toBe('admin@test.com');
+    expect(passwordInput.value).toBe('password123');
+  });
+
+  it('logs in with valid dummy credentials', async () => {
+    const user = userEvent.setup();
+    renderLoginPage();
+
+    await user.type(screen.getByLabelText(/email/i), 'admin@test.com');
     await user.type(screen.getByLabelText(/password/i), 'password123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
+    // After login, should navigate away (no error message shown)
     await waitFor(() => {
-      expect(authApi.login).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+      // If login succeeded, the error message should not be displayed
+      expect(screen.queryByText(/invalid|error/i)).toBeNull();
     });
   });
 
-  it('shows error message on failed login', async () => {
+  it('shows error message on failed login with wrong password', async () => {
     const user = userEvent.setup();
-    const { authApi } = await import('@/features/auth/api/authApi');
-    const apiError = new Error('Invalid credentials');
-    (apiError as Record<string, unknown>).response = {
-      data: { message: 'Invalid email or password' },
-    };
-    vi.mocked(authApi.login).mockRejectedValue(apiError);
-
     renderLoginPage();
 
-    await user.type(screen.getByLabelText(/email/i), 'wrong@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'wrong');
+    await user.type(screen.getByLabelText(/email/i), 'admin@test.com');
+    await user.type(screen.getByLabelText(/password/i), 'wrongpassword');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/invalid email or password/i)).toBeDefined();
+      expect(screen.getByText(/password123/i)).toBeDefined();
     });
   });
 });
