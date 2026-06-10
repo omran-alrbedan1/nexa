@@ -1,16 +1,13 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, getDefaultRoute } from '@/contexts/AuthContext';
 import { useToastStore } from '@/stores/toastStore';
-import { ROUTES } from '@/routes/routes';
+
 
 const DUMMY_CREDENTIALS = [
   { email: 'admin@test.com', role: 'admin' },
   { email: 'operations@test.com', role: 'operations' },
   { email: 'warehouse@test.com', role: 'aggregation' },
-  { email: 'supplier@test.com', role: 'supplier' },
-  { email: 'driver@test.com', role: 'driver' },
-  { email: 'customer@test.com', role: 'customer' },
 ];
 
 export function LoginPage() {
@@ -122,12 +119,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Don't have an account?{' '}
-          <Link to={ROUTES.REGISTER} className="text-blue-600 hover:underline">
-            Sign up
-          </Link>
-        </p>
+
       </div>
     </div>
   );

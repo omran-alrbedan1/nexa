@@ -1,4 +1,4 @@
-import type { User } from '@/features/users/types/userTypes';
+import type { User } from '@/types/marketplace';
 
 export interface LoginRequest {
   email: string;
@@ -12,11 +12,4 @@ export interface LoginResponse {
   };
   message: string;
   success: boolean;
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-  passwordConfirmation: string;
 }

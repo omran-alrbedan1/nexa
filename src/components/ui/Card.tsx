@@ -4,28 +4,29 @@ import { cn } from '@/utils/cn';
 interface CardProps {
   children: ReactNode;
   className?: string;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hover?: boolean;
 }
 
 const paddingStyles = {
   none: '',
   sm: 'p-4',
-  md: 'p-6',
-  lg: 'p-8',
+  md: 'p-5',
+  lg: 'p-6',
+  xl: 'p-8',
 };
 
 export function Card({
   children,
   className,
-  padding = 'md',
+  padding = 'lg',
   hover = false,
 }: CardProps) {
   return (
     <div
       className={cn(
-        'bg-white rounded-lg border border-gray-200',
-        hover && 'transition-shadow hover:shadow-md',
+        'bg-white rounded-xl border border-border-default/60 shadow-card',
+        hover && 'transition-all duration-200 hover:shadow-md hover:-translate-y-0.5',
         paddingStyles[padding],
         className
       )}
@@ -50,7 +51,7 @@ export function CardHeader({ children, className, action }: CardHeaderProps) {
       )}
     >
       <div className="flex-1">{children}</div>
-      {action && <div className="flex-shrink-0 ml-4 rtl:ml-0 rtl:mr-4">{action}</div>}
+      {action && <div className="flex-shrink-0 ml-4">{action}</div>}
     </div>
   );
 }
@@ -64,7 +65,7 @@ export function CardFooter({ children, className }: CardFooterProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100',
+        'flex items-center justify-end gap-3 mt-6 pt-4 border-t border-border-default',
         className
       )}
     >

@@ -1,6 +1,7 @@
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Truck } from 'lucide-react';
 import type { DriverStatus } from '../api/dashboardApi';
 
 interface DriverActivityWidgetProps {
@@ -11,7 +12,7 @@ interface DriverActivityWidgetProps {
 function getStatusBadge(status: DriverStatus['status']) {
   switch (status) {
     case 'on_trip':
-      return <Badge variant="blue" size="sm" dot>On Trip</Badge>;
+      return <Badge variant="teal" size="sm" dot>On Trip</Badge>;
     case 'available':
       return <Badge variant="green" size="sm" dot>Available</Badge>;
     case 'offline':
@@ -21,39 +22,44 @@ function getStatusBadge(status: DriverStatus['status']) {
 
 export function DriverActivityWidget({ drivers, isLoading }: DriverActivityWidgetProps) {
   return (
-    <Card padding="md">
+    <Card padding="lg" hover>
       <CardHeader>
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900">Drivers</h3>
-          <p className="text-xs text-gray-500">Current activity</p>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-brand-primary-light flex items-center justify-center">
+            <Truck size={16} className="text-brand-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-text-primary font-display">Drivers</h3>
+            <p className="text-xs text-text-secondary font-body">Current activity</p>
+          </div>
         </div>
       </CardHeader>
 
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded" />
+            <div key={i} className="h-14 bg-gray-100 rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {drivers.map((driver) => (
             <div
               key={driver.id}
-              className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-bg-section-alt transition-colors"
             >
               <Avatar name={driver.name} size="sm" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900 truncate">
+                  <span className="text-sm font-bold text-text-primary font-body truncate">
                     {driver.name}
                   </span>
                   {getStatusBadge(driver.status)}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                <div className="flex items-center gap-2 text-xs text-text-tertiary font-body mt-0.5">
                   <span>{driver.regionName}</span>
                   <span>·</span>
-                  <span>{driver.completedToday} today</span>
+                  <span>{driver.completedToday} deliveries today</span>
                 </div>
               </div>
             </div>

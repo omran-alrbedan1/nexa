@@ -11,40 +11,44 @@ import { ROUTES } from '@/routes/routes';
 const LoginPage = lazy(() =>
   import('@/features/auth/pages/LoginPage').then((m) => ({ default: m.LoginPage }))
 );
-const RegisterPage = lazy(() =>
-  import('@/features/auth/pages/RegisterPage').then((m) => ({ default: m.RegisterPage }))
-);
+
 
 // ── Dashboard ──
 const DashboardPage = lazy(() =>
   import('@/features/dashboard/pages/DashboardPage').then((m) => ({ default: m.DashboardPage }))
 );
 
-// ── Users CRUD (admin/operations) ──
-const UsersListPage = lazy(() =>
-  import('@/features/users/pages/UsersListPage').then((m) => ({ default: m.UsersListPage }))
-);
-const UserCreatePage = lazy(() =>
-  import('@/features/users/pages/UserCreatePage').then((m) => ({ default: m.UserCreatePage }))
-);
-const UserEditPage = lazy(() =>
-  import('@/features/users/pages/UserEditPage').then((m) => ({ default: m.UserEditPage }))
-);
-const UserDetailPage = lazy(() =>
-  import('@/features/users/pages/UserDetailPage').then((m) => ({ default: m.UserDetailPage }))
+
+
+
+
+
+
+// ── Operations ──
+const OperationsPage = lazy(() =>
+  import('@/features/operations/pages/OperationsPage').then((m) => ({ default: m.OperationsPage }))
 );
 
-// ── Settings ──
-const SettingsPage = lazy(() =>
-  import('@/features/settings/pages/SettingsPage').then((m) => ({ default: m.SettingsPage }))
+// ── Aggregation / Warehouse ──
+const AggregationPage = lazy(() =>
+  import('@/features/aggregation/pages/AggregationPage').then((m) => ({ default: m.AggregationPage }))
 );
 
-// ── Catalog (Phase 4) ──
-const CatalogPage = lazy(() =>
-  import('@/features/products/pages/CatalogPage').then((m) => ({ default: m.CatalogPage }))
+// ── Admin pages ──
+const SuppliersPage = lazy(() =>
+  import('@/features/suppliers/pages/SuppliersPage').then((m) => ({ default: m.SuppliersPage }))
 );
-const ProductDetailPage = lazy(() =>
-  import('@/features/products/pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+const ProductsPage = lazy(() =>
+  import('@/features/products/pages/ProductsPage').then((m) => ({ default: m.ProductsPage }))
+);
+const RegionsPage = lazy(() =>
+  import('@/features/regions/pages/RegionsPage').then((m) => ({ default: m.RegionsPage }))
+);
+const CampaignsPage = lazy(() =>
+  import('@/features/campaigns/pages/CampaignsPage').then((m) => ({ default: m.CampaignsPage }))
+);
+const TripsPage = lazy(() =>
+  import('@/features/trips/pages/TripsPage').then((m) => ({ default: m.TripsPage }))
 );
 
 // ── Shared components ──
@@ -85,7 +89,7 @@ export function App() {
         <Routes>
           {/* ── Public routes ── */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-          <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+
 
           {/* ── Authenticated routes (any role) ── */}
           <Route element={<ProtectedRoute />}>
@@ -96,60 +100,30 @@ export function App() {
               {/* Dashboard — accessible by all roles */}
               <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
 
-              {/* Users management — admin & operations only */}
-              <Route
-                element={<ProtectedRoute allowedRoles={['admin', 'operations']} />}
-              >
-                <Route path={ROUTES.USERS} element={<UsersListPage />} />
-                <Route path={ROUTES.USER_CREATE} element={<UserCreatePage />} />
-                <Route path={ROUTES.USER_EDIT(':userId')} element={<UserEditPage />} />
-                <Route path={ROUTES.USER_DETAIL(':userId')} element={<UserDetailPage />} />
-              </Route>
 
-              {/* Settings */}
-              <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
 
-              {/* ── Placeholder routes for future phases ── */}
-
-              {/* Products */}
-              <Route path={ROUTES.PRODUCTS} element={<PlaceholderPage title="Products" />} />
+              {/* Admin pages */}
+              <Route path={ROUTES.SUPPLIERS} element={<SuppliersPage />} />
+              <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
               <Route path={ROUTES.PRODUCT_CREATE} element={<PlaceholderPage title="Create Product" />} />
               <Route path={ROUTES.PRODUCT_EDIT(':productId')} element={<PlaceholderPage title="Edit Product" />} />
               <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<PlaceholderPage title="Product Detail" />} />
+              <Route path={ROUTES.REGIONS} element={<RegionsPage />} />
+              <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
+              <Route path={ROUTES.TRIPS} element={<TripsPage />} />
+              <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<PlaceholderPage title="Trip Detail" />} />
 
-              {/* Orders */}
+              {/* Orders (still placeholder unless needed) */}
               <Route path={ROUTES.ORDERS} element={<PlaceholderPage title="Orders" />} />
               <Route path={ROUTES.ORDER_DETAIL(':orderId')} element={<PlaceholderPage title="Order Detail" />} />
 
-              {/* Trips */}
-              <Route path={ROUTES.TRIPS} element={<PlaceholderPage title="Trips" />} />
-              <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<PlaceholderPage title="Trip Detail" />} />
-
-              {/* Regions */}
-              <Route path={ROUTES.REGIONS} element={<PlaceholderPage title="Regions" />} />
-
-              {/* Campaigns */}
-              <Route path={ROUTES.CAMPAIGNS} element={<PlaceholderPage title="Campaigns" />} />
+              {/* Operations */}
+              <Route path={ROUTES.OPERATIONS} element={<OperationsPage />} />
 
               {/* Aggregation (warehouse) */}
-              <Route path={ROUTES.AGGREGATION} element={<PlaceholderPage title="Aggregation" />} />
+              <Route path={ROUTES.AGGREGATION} element={<AggregationPage />} />
 
-              {/* Customer-specific */}
-              <Route path={ROUTES.CUSTOMER_CATALOG} element={<CatalogPage />} />
-              <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<ProductDetailPage />} />
-              <Route path={ROUTES.CUSTOMER_BASKET} element={<PlaceholderPage title="Basket" />} />
-              <Route path={ROUTES.CUSTOMER_CHECKOUT} element={<PlaceholderPage title="Checkout" />} />
-              <Route path={ROUTES.CUSTOMER_ORDERS} element={<PlaceholderPage title="My Orders" />} />
-              <Route
-                path={ROUTES.CUSTOMER_TRACKING(':orderId')}
-                element={<PlaceholderPage title="Order Tracking" />}
-              />
 
-              {/* Supplier-specific */}
-              <Route path={ROUTES.SUPPLIER_PRODUCTS} element={<PlaceholderPage title="My Products" />} />
-
-              {/* Driver-specific */}
-              <Route path={ROUTES.DRIVER_TRIPS} element={<PlaceholderPage title="My Trips" />} />
             </Route>
           </Route>
 

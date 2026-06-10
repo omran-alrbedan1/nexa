@@ -2,20 +2,20 @@ import type { ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 
 const badgeVariants = {
-  blue: 'bg-blue-100 text-blue-800',
-  green: 'bg-green-100 text-green-800',
-  red: 'bg-red-100 text-red-800',
-  yellow: 'bg-yellow-100 text-yellow-800',
-  purple: 'bg-purple-100 text-purple-800',
-  gray: 'bg-gray-100 text-gray-800',
-  orange: 'bg-orange-100 text-orange-800',
-  indigo: 'bg-indigo-100 text-indigo-800',
+  teal: 'bg-brand-primary-light text-brand-primary-dark',
+  coral: 'bg-brand-accent-light text-brand-accent-dark',
+  green: 'bg-green-50 text-green-700',
+  red: 'bg-red-50 text-red-700',
+  yellow: 'bg-amber-50 text-amber-700',
+  purple: 'bg-purple-50 text-purple-700',
+  gray: 'bg-gray-100 text-text-secondary',
+  white: 'bg-white text-text-primary border border-border-default',
 } as const;
 
 const sizeStyles = {
-  sm: 'px-1.5 py-0.5 text-xs',
-  md: 'px-2.5 py-0.5 text-xs',
-  lg: 'px-3 py-1 text-sm',
+  sm: 'px-1.5 py-0.5 text-[10px]',
+  md: 'px-2.5 py-1 text-xs',
+  lg: 'px-3 py-1.5 text-sm',
 } as const;
 
 interface BadgeProps {
@@ -25,6 +25,17 @@ interface BadgeProps {
   className?: string;
   dot?: boolean;
 }
+
+const dotColors: Record<string, string> = {
+  teal: 'bg-brand-primary',
+  coral: 'bg-brand-accent',
+  green: 'bg-status-success',
+  red: 'bg-status-error',
+  yellow: 'bg-status-warning',
+  purple: 'bg-purple-500',
+  gray: 'bg-text-tertiary',
+  white: 'bg-text-tertiary',
+};
 
 export function Badge({
   variant = 'gray',
@@ -36,7 +47,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 font-medium rounded-full',
+        'inline-flex items-center gap-1.5 font-bold rounded-full font-body uppercase tracking-wider',
         badgeVariants[variant],
         sizeStyles[size],
         className
@@ -46,13 +57,7 @@ export function Badge({
         <span
           className={cn(
             'h-1.5 w-1.5 rounded-full',
-            variant === 'green' ? 'bg-green-500' :
-            variant === 'red' ? 'bg-red-500' :
-            variant === 'yellow' ? 'bg-yellow-500' :
-            variant === 'blue' ? 'bg-blue-500' :
-            variant === 'purple' ? 'bg-purple-500' :
-            variant === 'orange' ? 'bg-orange-500' :
-            'bg-gray-500'
+            dotColors[variant]
           )}
         />
       )}

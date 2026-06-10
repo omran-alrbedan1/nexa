@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
-import type { UserRole } from '@/features/users/types/userTypes';
+import type { UserRole } from '@/types/marketplace';
 
 interface ProtectedRouteProps {
   /** Roles allowed to access this route. If omitted, any authenticated user can access. */

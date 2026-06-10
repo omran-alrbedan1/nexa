@@ -1,7 +1,95 @@
 @import 'tailwindcss';
+@import '@fontsource/nunito/400.css';
+@import '@fontsource/nunito/600.css';
+@import '@fontsource/nunito/700.css';
+@import '@fontsource/nunito/800.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 
 @theme {
+  /* Brand Colors */
+  --color-brand-primary: #2A9D8F;
+  --color-brand-primary-dark: #1E7A6E;
+  --color-brand-primary-light: #E8F7F5;
+  --color-brand-accent: #E76F51;
+  --color-brand-accent-dark: #C8553A;
+  --color-brand-accent-light: #FEF0EC;
+
+  /* Backgrounds */
+  --color-bg-page: #F5F7F5;
+  --color-bg-card: #FFFFFF;
+  --color-bg-header: #2A9D8F;
+  --color-bg-input: #FAFAFA;
+  --color-bg-section-alt: #F0F9F7;
+
+  /* Text */
+  --color-text-primary: #1A1A2E;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+
+  /* Status */
+  --color-status-success: #22C55E;
+  --color-status-warning: #F59E0B;
+  --color-status-error: #EF4444;
+  --color-status-star: #F59E0B;
+
+  /* Borders */
+  --color-border-default: #E5E7EB;
+  --color-border-focus: #2A9D8F;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.07);
+
+  /* Font Families */
+  --font-display: 'Nunito', 'Poppins', sans-serif;
+  --font-body: 'Inter', 'DM Sans', sans-serif;
+
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-header-height: 64px;
+  --space-sidebar-width: 240px;
+  --space-container-max: 1280px;
+
+  /* Animations */
+  --animate-fade-up: fade-in-up 0.3s ease forwards;
+  --animate-shimmer: shimmer 1.4s infinite;
   --animate-slide-in: slide-in 0.3s ease-out;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
 
   @keyframes slide-in {
     from {
@@ -15,7 +103,45 @@
   }
 }
 
-body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family: system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    @apply bg-bg-page text-text-primary antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: 20px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, #F0F2F0 25%, #E0E4E0 50%, #F0F2F0 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
 }

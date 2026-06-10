@@ -1,27 +1,14 @@
 export const ROUTES = {
   // Auth
   LOGIN: '/login',
-  REGISTER: '/register',
 
-  // Dashboard (shared)
+  // Dashboard
   DASHBOARD: '/dashboard',
 
-  // Users management (admin/operations)
-  USERS: '/users',
-  USER_CREATE: '/users/create',
-  USER_DETAIL: (userId: number | string) => `/users/${userId}`,
-  USER_EDIT: (userId: number | string) => `/users/${userId}/edit`,
+  // Operations (full-page view)
+  OPERATIONS: '/operations',
 
-  // Settings
-  SETTINGS: '/settings',
-
-  // ── Placeholder routes for future phases ──
-
-  // Products
-  PRODUCTS: '/products',
-  PRODUCT_CREATE: '/products/create',
-  PRODUCT_EDIT: (productId: number | string) => `/products/${productId}/edit`,
-  PRODUCT_DETAIL: (productId: number | string) => `/products/${productId}`,
+  // ── Placeholder routes for future dashboard phases ──
 
   // Orders
   ORDERS: '/orders',
@@ -31,25 +18,21 @@ export const ROUTES = {
   TRIPS: '/trips',
   TRIP_DETAIL: (tripId: number | string) => `/trips/${tripId}`,
 
-  // Customer-specific
-  CUSTOMER_CATALOG: '/catalog',
-  CUSTOMER_BASKET: '/basket',
-  CUSTOMER_CHECKOUT: '/checkout',
-  CUSTOMER_ORDERS: '/my-orders',
-  CUSTOMER_TRACKING: (orderId: number | string) => `/my-orders/${orderId}/track`,
-
-  // Supplier-specific
-  SUPPLIER_PRODUCTS: '/my-products',
-
-  // Driver-specific
-  DRIVER_TRIPS: '/my-trips',
-
-  // Regions
+  // Regions & delivery areas
   REGIONS: '/regions',
 
   // Seasonal campaigns
   CAMPAIGNS: '/campaigns',
 
-  // Aggregation (warehouse)
+  // Warehouse / aggregation
   AGGREGATION: '/aggregation',
+
+  // Products management
+  PRODUCTS: '/products',
+  PRODUCT_CREATE: '/products/create',
+  PRODUCT_EDIT: (productId: number | string) => `/products/${productId}/edit`,
+  PRODUCT_DETAIL: (productId: number | string) => `/products/${productId}`,
+
+  // Suppliers
+  SUPPLIERS: '/suppliers',
 } as const;

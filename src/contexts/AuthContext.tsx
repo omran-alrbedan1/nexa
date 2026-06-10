@@ -8,14 +8,13 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
-import type { User, UserRole } from '@/features/users/types/userTypes';
+import type { User, UserRole } from '@/types/marketplace';
 
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -62,42 +61,7 @@ const DUMMY_USERS: User[] = [
     createdAt: '2025-01-01T00:00:00.000Z',
     updatedAt: '2025-01-01T00:00:00.000Z',
   },
-  {
-    id: 4,
-    name: 'Supplier Account',
-    email: 'supplier@test.com',
-    phone: '+966501234570',
-    role: 'supplier',
-    avatar: null,
-    isActive: true,
-    regionId: 1,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
-  {
-    id: 5,
-    name: 'Driver Name',
-    email: 'driver@test.com',
-    phone: '+966501234571',
-    role: 'driver',
-    avatar: null,
-    isActive: true,
-    regionId: 1,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
-  {
-    id: 6,
-    name: 'Customer Name',
-    email: 'customer@test.com',
-    phone: '+966501234572',
-    role: 'customer',
-    avatar: null,
-    isActive: true,
-    regionId: 1,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
+
 ];
 
 /** Map email → user for O(1) lookup */
@@ -105,15 +69,12 @@ const DUMMY_USER_MAP = new Map(DUMMY_USERS.map((u) => [u.email, u]));
 
 /** Default route per role after login */
 export function getDefaultRoute(role: UserRole | undefined): string {
-  const routes: Record<UserRole, string> = {
+  const routes: Partial<Record<UserRole, string>> = {
     admin: '/dashboard',
     operations: '/dashboard',
     aggregation: '/dashboard',
-    supplier: '/dashboard',
-    driver: '/dashboard',
-    customer: '/dashboard',
   };
-  return role ? routes[role] : '/dashboard';
+  return role ? (routes[role] ?? '/dashboard') : '/dashboard';
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -163,31 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [addToast]
   );
 
-  const register = useCallback(
-    async (name: string, email: string, _password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      const newUser: User = {
-        id: Date.now(),
-        name,
-        email,
-        phone: '',
-        role: 'customer',
-        avatar: null,
-        isActive: true,
-        regionId: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem('auth_token', 'dummy-token-register-' + Date.now());
-      localStorage.setItem('auth_user', JSON.stringify(newUser));
-      setUser(newUser);
-      addToast('success', 'Account created successfully');
-    },
-    [addToast]
-  );
-
   const logout = useCallback(async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     localStorage.removeItem('auth_token');
@@ -199,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}
+      value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
     >
       {children}
     </AuthContext.Provider>

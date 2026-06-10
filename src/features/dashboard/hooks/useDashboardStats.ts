@@ -1,16 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { dashboardApi, type DashboardWidgets } from '../api/dashboardApi';
+import { dashboardApi, type DashboardWidgetsExpanded } from '../api/dashboardApi';
 
 export const dashboardKeys = {
   all: ['dashboard'] as const,
-  widgets: () => [...dashboardKeys.all, 'widgets'] as const,
+  widgets: () => [...dashboardKeys.all, 'widgets-expanded'] as const,
   stats: () => [...dashboardKeys.all, 'stats'] as const,
 };
 
-export function useDashboardWidgets() {
-  return useQuery<DashboardWidgets>({
+export function useDashboardWidgetsExpanded() {
+  return useQuery<DashboardWidgetsExpanded>({
     queryKey: dashboardKeys.widgets(),
-    queryFn: () => dashboardApi.getWidgets(),
-    staleTime: 30_000, // 30 seconds — dashboard refreshes frequently
+    queryFn: () => dashboardApi.getWidgetsExpanded(),
+    staleTime: 30_000,
   });
 }
+
+export { useDashboardWidgetsExpanded as useDashboardWidgets };

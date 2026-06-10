@@ -1,0 +1,198 @@
+import { useState } from 'react';
+import { useCampaignsPage, useCampaignAction } from '../hooks/useCampaigns';
+import { Card, CardHeader } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { useToastStore } from '@/stores/toastStore';
+import { Megaphone, PlayCircle, CalendarClock, FileEdit, ShoppingCart, TrendingUp, Filter, Plus, CalendarRange } from 'lucide-react';
+import type { CampaignStatus } from '../api/campaignsApi';
+
+const STATUS_BADGE: Record<CampaignStatus, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
+  active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', cancelled: 'red',
+};
+
+const STAT_CONFIG = [
+  { key: 'total', label: 'Total Campaigns', icon: Megaphone, variant: 'teal' as const },
+  { key: 'active', label: 'Active', icon: PlayCircle, variant: 'success' as const },
+  { key: 'scheduled', label: 'Scheduled', icon: CalendarClock, variant: 'teal' as const },
+  { key: 'draft', label: 'Drafts', icon: FileEdit, variant: 'warning' as const },
+  { key: 'totalOrders', label: 'Total Orders', icon: ShoppingCart, variant: 'coral' as const },
+  { key: 'totalRevenue', label: 'Revenue', icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', format: true },
+];
+
+export function CampaignsPage() {
+  const { data, isLoading, isError, error, refetch } = useCampaignsPage();
+  const campaignAction = useCampaignAction();
+
+  const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
+
+  if (isError) return (
+    <div className="space-y-6 animate-fade-up">
+      <div>
+        <h1 className="text-2xl font-extrabold text-text-primary font-display">Campaigns</h1>
+        <p className="text-sm text-text-secondary font-body mt-1">Manage seasonal campaigns, pricing, and scheduling</p>
+      </div>
+      <ErrorState title="Failed to load campaigns" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+    </div>
+  );
+
+  const stats = data?.stats;
+  const campaigns = (data?.campaigns ?? []).filter((c) => !statusFilter || c.status === statusFilter);
+
+  const getActions = (status: CampaignStatus) => {
+    const actions: Array<{ label: string; action: 'activate' | 'end' | 'cancel'; variant: 'primary' | 'danger' | 'secondary' }> = [];
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Activate', action: 'activate', variant: 'primary' });
+    if (status === 'active') actions.push({ label: 'End Campaign', action: 'end', variant: 'secondary' });
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Cancel', action: 'cancel', variant: 'danger' });
+    return actions;
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-up">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center">
+              <Megaphone size={22} className="text-brand-accent" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Seasonal Campaigns</h1>
+              <p className="text-sm text-text-secondary font-body">Manage seasonal campaigns, pricing, and scheduling</p>
+            </div>
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+        {STAT_CONFIG.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.key} padding="md" hover>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{s.label}</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display mt-1">
+                    {isLoading ? <span className="inline-block w-10 h-6 bg-gray-200 rounded animate-pulse" /> : (
+                      <>{s.format ? (stats?.[s.key as keyof typeof stats] ?? 0).toLocaleString() : stats?.[s.key as keyof typeof stats] ?? '—'}{s.suffix || ''}</>
+                    )}
+                  </p>
+                </div>
+                <div className={cn(
+                  'p-2.5 rounded-lg flex-shrink-0',
+                  s.variant === 'teal' ? 'bg-brand-primary-light text-brand-primary' :
+                  s.variant === 'success' ? 'bg-green-50 text-green-600' :
+                  s.variant === 'coral' ? 'bg-brand-accent-light text-brand-accent' :
+                  'bg-amber-50 text-amber-600'
+                )}>
+                  <Icon size={18} />
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Campaigns */}
+      <Card padding="lg">
+        <CardHeader
+          action={
+            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => useToastStore.getState().addToast('info', 'Create campaign form coming soon')}>
+              New Campaign
+            </Button>
+          }
+        >
+          <div>
+            <h3 className="text-sm font-bold text-text-primary font-display">All Campaigns</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{campaigns.length} campaigns</p>
+          </div>
+        </CardHeader>
+
+        <div className="flex items-center gap-3 mb-5">
+          <div className="relative">
+            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as CampaignStatus | '')}
+              className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="draft">Draft</option>
+              <option value="ended">Ended</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-3 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}</div>
+        ) : campaigns.length === 0 ? (
+          <EmptyState title="No campaigns" description={statusFilter ? 'No campaigns match the filter' : 'Create your first seasonal campaign'} />
+        ) : (
+          <div className="space-y-3">
+            {campaigns.map((camp) => (
+              <div key={camp.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-brand-accent-light flex items-center justify-center flex-shrink-0">
+                        <Megaphone size={16} className="text-brand-accent" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-text-primary font-body">{camp.name}</span>
+                          <span className="text-xs text-text-tertiary">{camp.nameAr}</span>
+                          <Badge variant={STATUS_BADGE[camp.status]} size="sm">{camp.status}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="ml-11 mt-2">
+                      <p className="text-xs text-text-secondary font-body line-clamp-1">{camp.description}</p>
+                      <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
+                        <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span>
+                        <span>{camp.products.length} products</span>
+                        <span>{camp.totalOrders} orders</span>
+                        <span className="font-bold text-brand-primary">{camp.totalRevenue.toLocaleString()} SAR</span>
+                        <span>Budget: {camp.spentAmount.toLocaleString()} / {camp.budget.toLocaleString()} SAR</span>
+                      </div>
+                      {/* Products preview */}
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                        {camp.products.map((p) => (
+                          <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body">
+                            {p.productName} — <span className="font-bold text-brand-accent">{p.campaignPrice} SAR</span>
+                            <span className="text-text-tertiary line-through ml-1">{p.regularPrice} SAR</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        {camp.targetRegions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                    {getActions(camp.status).map((action) => (
+                      <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={() => campaignAction.mutate({ id: camp.id, action: action.action })}>
+                        {action.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function cn(...classes: (string | false | undefined | null)[]) {
+  return classes.filter(Boolean).join(' ');
+}

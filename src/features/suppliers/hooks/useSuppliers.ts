@@ -1,0 +1,44 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToastStore } from '@/stores/toastStore';
+import { suppliersApi, type SuppliersPageData } from '../api/suppliersApi';
+
+export const supplierKeys = {
+  all: ['suppliers'] as const,
+  pageData: () => [...supplierKeys.all, 'page-data'] as const,
+  list: () => [...supplierKeys.all, 'list'] as const,
+  detail: (id: number) => [...supplierKeys.all, 'detail', id] as const,
+};
+
+export function useSuppliersPage() {
+  return useQuery<SuppliersPageData>({
+    queryKey: supplierKeys.pageData(),
+    queryFn: () => suppliersApi.getPageData(),
+    staleTime: 30_000,
+  });
+}
+
+export function useApproveSupplier() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => suppliersApi.approveSupplier(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      addToast('success', 'Supplier approved successfully');
+    },
+    onError: () => addToast('error', 'Failed to approve supplier'),
+  });
+}
+
+export function useSuspendSupplier() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) => suppliersApi.suspendSupplier(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      addToast('success', 'Supplier suspended');
+    },
+    onError: () => addToast('error', 'Failed to suspend supplier'),
+  });
+}

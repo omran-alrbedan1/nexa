@@ -9,6 +9,9 @@
 
 export type UserRole = 'customer' | 'supplier' | 'driver' | 'operations' | 'aggregation' | 'admin';
 
+/** Alias — User is the canonical name used across the app */
+export type User = MarketplaceUser;
+
 export interface MarketplaceUser {
   id: number;
   name: string;

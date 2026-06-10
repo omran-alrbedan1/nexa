@@ -1,5 +1,5 @@
 import { Card, CardHeader } from '@/components/ui/Card';
-import { StatusBadge, getStatusColor } from '@/components/ui/StatusBadge';
+import { Badge } from '@/components/ui/Badge';
 import type { RecentOrder } from '../api/dashboardApi';
 
 function formatTimeAgo(dateStr: string): string {
@@ -19,6 +19,16 @@ function formatStatusLabel(status: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function getStatusBadgeVariant(status: string): 'teal' | 'green' | 'yellow' | 'purple' | 'gray' | 'red' {
+  const s = status.toLowerCase();
+  if (s.includes('delivered')) return 'green';
+  if (s.includes('out for')) return 'teal';
+  if (s.includes('confirmed') || s.includes('new')) return 'purple';
+  if (s.includes('pending') || s.includes('aggregat')) return 'yellow';
+  if (s.includes('failed') || s.includes('pricing')) return 'red';
+  return 'gray';
+}
+
 interface RecentOrdersWidgetProps {
   orders: RecentOrder[];
   isLoading?: boolean;
@@ -26,50 +36,55 @@ interface RecentOrdersWidgetProps {
 
 export function RecentOrdersWidget({ orders, isLoading }: RecentOrdersWidgetProps) {
   return (
-    <Card padding="md">
+    <Card padding="lg" hover>
       <CardHeader>
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">Recent Orders</h3>
-          <p className="text-xs text-gray-500">Latest 5 orders</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">Recent Orders</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">Latest 5 orders</p>
         </div>
+        <button className="text-xs font-bold text-brand-primary hover:text-brand-primary-dark transition-colors font-body">
+          View All →
+        </button>
       </CardHeader>
 
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded" />
+            <div key={i} className="h-14 bg-gray-100 rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {orders.map((order) => (
             <div
               key={order.id}
-              className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-bg-section-alt transition-colors cursor-pointer group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900 truncate">
+                  <span className="text-sm font-bold text-text-primary font-body truncate group-hover:text-brand-primary transition-colors">
                     {order.customerName}
                   </span>
-                  <span className="text-xs text-gray-400">{order.orderNumber}</span>
+                  <span className="text-xs text-text-tertiary font-mono">{order.orderNumber}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-gray-400 capitalize">{order.type}</span>
-                  <span className="text-xs text-gray-300">·</span>
-                  <span className="text-xs text-gray-400">{formatTimeAgo(order.createdAt)}</span>
+                  <span className="text-xs font-medium text-text-secondary capitalize font-body">{order.type}</span>
+                  <span className="text-xs text-text-tertiary">·</span>
+                  <span className="text-xs text-text-tertiary font-body">{formatTimeAgo(order.createdAt)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 ml-4">
                 {order.total > 0 && (
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-extrabold text-text-primary font-display">
                     SAR {order.total.toFixed(2)}
                   </span>
                 )}
-                <StatusBadge
-                  status={formatStatusLabel(order.status)}
-                  color={getStatusColor(order.status)}
-                />
+                <Badge
+                  variant={getStatusBadgeVariant(order.status)}
+                  size="sm"
+                >
+                  {formatStatusLabel(order.status)}
+                </Badge>
               </div>
             </div>
           ))}
