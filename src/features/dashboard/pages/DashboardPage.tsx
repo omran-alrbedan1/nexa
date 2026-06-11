@@ -81,7 +81,7 @@ export function DashboardPage() {
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display mt-2">
-              {getGreeting()}, {user?.name?.split(' ')[0] || 'there'}
+              {getGreeting()}, {user?.full_name?.split(' ')[0] || 'there'}
             </h1>
             <p className="text-sm text-text-secondary font-body mt-1 max-w-xl">
               {description}

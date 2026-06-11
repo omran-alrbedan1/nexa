@@ -6,9 +6,11 @@ import type { UserRole } from '@/types/marketplace';
 interface ProtectedRouteProps {
   /** Roles allowed to access this route. If omitted, any authenticated user can access. */
   allowedRoles?: UserRole[];
+  /** Permissions required to access this route. ANY match grants access. */
+  requiredPermissions?: string[];
 }
 
-export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
+export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedRouteProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
@@ -24,8 +26,35 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Role guard — if allowedRoles is specified, check it
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  // Permission guard — check if user has any of the required permissions
+  if (requiredPermissions && requiredPermissions.length > 0 && user) {
+    const hasAccess = requiredPermissions.some((p) => user.permissions.includes(p));
+    if (!hasAccess) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg max-w-md text-center">
+            <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+            <p className="text-sm">
+              Your account does not have the required permissions to access this area.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('auth_token');
+              localStorage.removeItem('auth_user');
+              window.location.href = ROUTES.LOGIN;
+            }}
+            className="mt-4 text-sm text-blue-600 hover:underline"
+          >
+            Sign in with a different account
+          </button>
+        </div>
+      );
+    }
+  }
+
+  // Legacy role guard — if allowedRoles is specified, check it
+  if (allowedRoles && allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg max-w-md text-center">

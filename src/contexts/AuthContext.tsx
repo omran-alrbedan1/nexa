@@ -8,7 +8,9 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
-import type { User, UserRole } from '@/types/marketplace';
+import { authApi } from '@/features/auth/api/authApi';
+import type { User, UserRole, UserType } from '@/types/marketplace';
+import { userTypeToDashboardRole } from '@/types/marketplace';
 
 interface AuthContextValue {
   user: User | null;
@@ -21,51 +23,39 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 // ──────────────────────────────────────────────
-// Dummy users — one for each platform role
-// All use password: "password123"
+// Helper: map backend user shape to frontend User
 // ──────────────────────────────────────────────
-const DUMMY_USERS: User[] = [
-  {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@test.com',
-    phone: '+966501234567',
-    role: 'admin',
-    avatar: null,
-    isActive: true,
-    regionId: null,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
-  {
-    id: 2,
-    name: 'Operations Staff',
-    email: 'operations@test.com',
-    phone: '+966501234568',
-    role: 'operations',
-    avatar: null,
-    isActive: true,
-    regionId: null,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
-  {
-    id: 3,
-    name: 'Warehouse Staff',
-    email: 'warehouse@test.com',
-    phone: '+966501234569',
-    role: 'aggregation',
-    avatar: null,
-    isActive: true,
-    regionId: null,
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-01T00:00:00.000Z',
-  },
+function mapBackendUser(backendUser: Record<string, unknown>): User {
+  const userType = (backendUser.user_type as UserType) || 'staff';
+  const permissions = (backendUser.permissions as string[]) || [];
+  const role: UserRole = userType === 'staff'
+    ? userTypeToDashboardRole(permissions)
+    : (userType as UserRole);
 
-];
-
-/** Map email → user for O(1) lookup */
-const DUMMY_USER_MAP = new Map(DUMMY_USERS.map((u) => [u.email, u]));
+  return {
+    id: backendUser.id as number,
+    first_name: backendUser.first_name as string,
+    last_name: backendUser.last_name as string | null,
+    full_name: backendUser.full_name as string,
+    phone: backendUser.phone as string | null,
+    email: backendUser.email as string | null,
+    avatar: backendUser.avatar as string | null,
+    user_type: userType,
+    status: (backendUser.status as User['status']) || 'active',
+    role,
+    roles: (backendUser.roles as string[]) || [],
+    permissions,
+    customer_profile: backendUser.customer_profile as Record<string, unknown> | null,
+    supplier_profile: backendUser.supplier_profile as Record<string, unknown> | null,
+    driver_profile: backendUser.driver_profile as Record<string, unknown> | null,
+    registration_source: backendUser.registration_source as string | null,
+    phone_verified_at: backendUser.phone_verified_at as string | null,
+    email_verified_at: backendUser.email_verified_at as string | null,
+    last_login_at: backendUser.last_login_at as string | null,
+    createdAt: backendUser.created_at as string || backendUser.createdAt as string,
+    updatedAt: backendUser.updated_at as string || backendUser.updatedAt as string,
+  } satisfies User;
+}
 
 /** Default route per role after login */
 export function getDefaultRoute(role: UserRole | undefined): string {
@@ -73,6 +63,7 @@ export function getDefaultRoute(role: UserRole | undefined): string {
     admin: '/dashboard',
     operations: '/dashboard',
     aggregation: '/dashboard',
+    staff: '/dashboard',
   };
   return role ? (routes[role] ?? '/dashboard') : '/dashboard';
 }
@@ -83,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
+  // ── On mount: restore session from localStorage ──
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     const savedUser = localStorage.getItem('auth_user');
@@ -98,34 +90,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  // ── Login: call the real backend API ──
   const login = useCallback(
     async (email: string, password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      const response = await authApi.login({ email, password });
 
-      const dummyUser = DUMMY_USER_MAP.get(email);
+      // response = { success, message, data: { token, token_type, expires_at, user } }
+      const { token, user: backendUser } = response.data;
 
-      if (dummyUser && password === 'password123') {
-        localStorage.setItem('auth_token', `dummy-token-${dummyUser.role}-${Date.now()}`);
-        localStorage.setItem('auth_user', JSON.stringify(dummyUser));
-        setUser(dummyUser);
-        addToast(
-          'success',
-          `Signed in as ${dummyUser.name} (${dummyUser.role})`
-        );
-      } else {
-        throw new Error(
-          'Invalid credentials.\n\nTry one of:\n' +
-            [...DUMMY_USER_MAP.keys()]
-              .map((e) => `  ${e} / password123`)
-              .join('\n')
-        );
-      }
+      const mappedUser = mapBackendUser(backendUser as unknown as Record<string, unknown>);
+
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('auth_user', JSON.stringify(mappedUser));
+      setUser(mappedUser);
+
+      addToast(
+        'success',
+        `Signed in as ${mappedUser.full_name}`
+      );
     },
     [addToast]
   );
 
+  // ── Logout: revoke token on backend + clear local state ──
   const logout = useCallback(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      await authApi.logout();
+    } catch {
+      // Even if the API call fails, clear local state
+    }
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     setUser(null);

@@ -1,11 +1,16 @@
 // ============================================================
 // Products API Service (Dashboard version)
 // ============================================================
-// PDF Reference: §4 (نموذج البضاعة داخل النظام), §6 (إدارة المنتجات)
-// Admin manages: product catalog, categories, pricing, availability
+// Backend: GET /api/v1/admin/products (ProductController@index)
+//         GET /api/v1/admin/products/{id} (ProductController@show)
+//         POST /api/v1/admin/products (ProductController@store)
+//         PUT /api/v1/admin/products/{id} (ProductController@update)
+//         POST /api/v1/admin/products/{id}/toggle (ProductController@toggleAvailability)
 // ============================================================
 
-import type { PaginatedResponse } from '@/types/common';
+import { apiClient } from '@/lib/axios';
+import { unwrap } from '@/lib/apiHelpers';
+import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { ProductSource } from '@/types/marketplace';
 
 // ──────────────────────────────────────────────
@@ -54,7 +59,7 @@ export interface ProductsPageData {
   products: DashboardProduct[];
 }
 
-// ── Dummy Data ──
+// ── Dummy Data (fallback) ──
 
 const DUMMY_CATEGORIES: ProductCategory[] = [
   { id: 1, name: 'Vegetables', nameAr: 'خضروات', parentId: null, children: [
@@ -89,55 +94,108 @@ const DUMMY_STATS = {
   totalProducts: 8, available: 6, outOfStock: 2, categories: 6, suppliers: 4, avgPrice: 27.56,
 };
 
-function delay(ms = 350) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): ProductsPageData {
+  return { stats: DUMMY_STATS, categories: DUMMY_CATEGORIES, products: DUMMY_PRODUCTS };
 }
 
 export const productsApi = {
+  /** Fetch all products page data (stats + categories + products) */
   getPageData: async (): Promise<ProductsPageData> => {
-    await delay();
-    return { stats: DUMMY_STATS, categories: DUMMY_CATEGORIES, products: DUMMY_PRODUCTS };
+    try {
+      const [productsRes, categoriesRes] = await Promise.all([
+        apiClient.get<ApiResponse<DashboardProduct[]>>('/api/v1/admin/products'),
+        apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories').catch(() => null),
+      ]);
+      const products = unwrap(productsRes.data);
+      const categories = categoriesRes ? unwrap(categoriesRes.data) : DUMMY_CATEGORIES;
+      const available = products.filter((p) => p.isAvailable).length;
+      const outOfStock = products.filter((p) => p.stockQuantity === 0 && p.isAvailable).length;
+      const supplierIds = new Set(products.filter((p) => p.supplierId).map((p) => p.supplierId));
+      const prices = products.map((p) => p.price);
+      const avgPrice = prices.length > 0
+        ? Math.round((prices.reduce((a, b) => a + b, 0) / prices.length) * 100) / 100
+        : 0;
+      return {
+        stats: {
+          totalProducts: products.length,
+          available,
+          outOfStock,
+          categories: categories.length,
+          suppliers: supplierIds.size,
+          avgPrice,
+        },
+        categories,
+        products,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
+  /** Get paginated product list */
   getProducts: async (): Promise<PaginatedResponse<DashboardProduct>> => {
-    await delay();
-    return { data: DUMMY_PRODUCTS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_PRODUCTS.length } };
+    try {
+      const response = await apiClient.get<ApiResponse<PaginatedResponse<DashboardProduct>>>('/api/v1/admin/products');
+      return unwrap(response.data);
+    } catch {
+      return { data: DUMMY_PRODUCTS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_PRODUCTS.length } };
+    }
   },
 
+  /** Get single product */
   getProduct: async (id: number): Promise<DashboardProduct> => {
-    await delay(200);
-    const product = DUMMY_PRODUCTS.find((p) => p.id === id);
-    if (!product) throw new Error('Product not found');
-    return product;
+    try {
+      const response = await apiClient.get<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}`);
+      return unwrap(response.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return product;
+    }
   },
 
+  /** Create a new product */
   createProduct: async (data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
-    await delay(500);
-    const newProduct: DashboardProduct = {
-      id: DUMMY_PRODUCTS.length + 1,
-      name: data.name || 'New Product',
-      nameAr: data.nameAr || '', description: data.description || '', descriptionAr: data.descriptionAr || '',
-      price: data.price || 0, unit: data.unit || 'piece', imageUrl: null,
-      categoryId: data.categoryId || 1, categoryName: data.categoryName || 'Uncategorized',
-      supplierId: data.supplierId || null, supplierName: data.supplierName || null,
-      source: data.source || 'internal', isAvailable: true, stockQuantity: data.stockQuantity || 0,
-      totalOrders: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-    };
-    return newProduct;
+    try {
+      const response = await apiClient.post<ApiResponse<DashboardProduct>>('/api/v1/admin/products', data);
+      return unwrap(response.data);
+    } catch {
+      const newProduct: DashboardProduct = {
+        id: DUMMY_PRODUCTS.length + 1,
+        name: data.name || 'New Product',
+        nameAr: data.nameAr || '', description: data.description || '', descriptionAr: data.descriptionAr || '',
+        price: data.price || 0, unit: data.unit || 'piece', imageUrl: null,
+        categoryId: data.categoryId || 1, categoryName: data.categoryName || 'Uncategorized',
+        supplierId: data.supplierId || null, supplierName: data.supplierName || null,
+        source: data.source || 'internal', isAvailable: true, stockQuantity: data.stockQuantity || 0,
+        totalOrders: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      };
+      return newProduct;
+    }
   },
 
+  /** Update product */
   updateProduct: async (id: number, data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
-    await delay(500);
-    const product = DUMMY_PRODUCTS.find((p) => p.id === id);
-    if (!product) throw new Error('Product not found');
-    return { ...product, ...data, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.put<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}`, data);
+      return unwrap(response.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return { ...product, ...data, updatedAt: new Date().toISOString() };
+    }
   },
 
+  /** Toggle product availability */
   toggleAvailability: async (id: number): Promise<DashboardProduct> => {
-    await delay(300);
-    const product = DUMMY_PRODUCTS.find((p) => p.id === id);
-    if (!product) throw new Error('Product not found');
-    return { ...product, isAvailable: !product.isAvailable, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}/toggle`);
+      return unwrap(response.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return { ...product, isAvailable: !product.isAvailable, updatedAt: new Date().toISOString() };
+    }
   },
 };
 

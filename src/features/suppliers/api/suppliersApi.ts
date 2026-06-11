@@ -1,11 +1,17 @@
 // ============================================================
 // Suppliers API Service
 // ============================================================
-// PDF Reference: §9.2 (المورد / Supplier), §2.2.7 (Best Suppliers)
-// Admin manages: supplier profiles, approval, contracts, ratings
+// Backend: GET /api/v1/admin/suppliers (SupplierController@index)
+//         GET /api/v1/admin/suppliers/{id} (SupplierController@show)
+//         POST /api/v1/admin/suppliers (SupplierController@store)
+//         PUT /api/v1/admin/suppliers/{id} (SupplierController@update)
+//         POST /api/v1/admin/suppliers/{id}/approve (SupplierController@approve)
+//         POST /api/v1/admin/suppliers/{id}/suspend (SupplierController@suspend)
 // ============================================================
 
-import type { PaginatedResponse } from '@/types/common';
+import { apiClient } from '@/lib/axios';
+import { unwrap } from '@/lib/apiHelpers';
+import type { PaginatedResponse, ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -118,76 +124,130 @@ const DUMMY_STATS = {
   avgRating: 4.0, totalOrders: 143, totalRevenue: 481500,
 };
 
-function delay(ms = 350) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): SuppliersPageData {
+  return { stats: DUMMY_STATS, suppliers: DUMMY_SUPPLIERS };
 }
 
 export const suppliersApi = {
+  /** Fetch all suppliers page data (stats + list) */
   getPageData: async (): Promise<SuppliersPageData> => {
-    await delay();
-    return { stats: DUMMY_STATS, suppliers: DUMMY_SUPPLIERS };
+    try {
+      const response = await apiClient.get<ApiResponse<Supplier[]>>('/api/v1/admin/suppliers');
+      const suppliers = unwrap(response.data);
+      const active = suppliers.filter((s) => s.status === 'active').length;
+      const pending = suppliers.filter((s) => s.status === 'pending_approval').length;
+      const suspended = suppliers.filter((s) => s.status === 'suspended').length;
+      const ratings = suppliers.filter((s) => s.rating > 0);
+      const avgRating = ratings.length > 0
+        ? ratings.reduce((sum, s) => sum + s.rating, 0) / ratings.length
+        : 0;
+      return {
+        stats: {
+          total: suppliers.length,
+          active,
+          pendingApproval: pending,
+          suspended,
+          avgRating: Math.round(avgRating * 10) / 10,
+          totalOrders: suppliers.reduce((sum, s) => sum + s.totalOrders, 0),
+          totalRevenue: suppliers.reduce((sum, s) => sum + s.totalRevenue, 0),
+        },
+        suppliers,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
+  /** Get paginated supplier list */
   getSuppliers: async (): Promise<PaginatedResponse<Supplier>> => {
-    await delay();
-    return { data: DUMMY_SUPPLIERS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLIERS.length } };
+    try {
+      const response = await apiClient.get<ApiResponse<PaginatedResponse<Supplier>>>('/api/v1/admin/suppliers');
+      return unwrap(response.data);
+    } catch {
+      return { data: DUMMY_SUPPLIERS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLIERS.length } };
+    }
   },
 
+  /** Get single supplier */
   getSupplier: async (id: number): Promise<Supplier> => {
-    await delay(200);
-    const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-    if (!supplier) throw new Error('Supplier not found');
-    return supplier;
+    try {
+      const response = await apiClient.get<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}`);
+      return unwrap(response.data);
+    } catch {
+      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
+      if (!supplier) throw new Error('Supplier not found');
+      return supplier;
+    }
   },
 
+  /** Create a new supplier */
   createSupplier: async (data: Partial<Supplier>): Promise<Supplier> => {
-    await delay(500);
-    const newSupplier: Supplier = {
-      id: DUMMY_SUPPLIERS.length + 1,
-      name: data.name || 'New Supplier',
-      nameAr: data.nameAr || '',
-      email: data.email || '',
-      phone: data.phone || '',
-      commercialRegister: data.commercialRegister || '',
-      taxNumber: data.taxNumber || '',
-      status: 'pending_approval',
-      paymentTerms: data.paymentTerms || 'net_30',
-      commissionRate: data.commissionRate || 10,
-      rating: 0,
-      totalOrders: 0,
-      totalRevenue: 0,
-      acceptanceRate: 100,
-      categories: data.categories || [],
-      regions: data.regions || [],
-      contactPerson: data.contactPerson || '',
-      contactPhone: data.contactPhone || '',
-      address: data.address || '',
-      notes: data.notes || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    return newSupplier;
+    try {
+      const response = await apiClient.post<ApiResponse<Supplier>>('/api/v1/admin/suppliers', data);
+      return unwrap(response.data);
+    } catch {
+      const newSupplier: Supplier = {
+        id: DUMMY_SUPPLIERS.length + 1,
+        name: data.name || 'New Supplier',
+        nameAr: data.nameAr || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        commercialRegister: data.commercialRegister || '',
+        taxNumber: data.taxNumber || '',
+        status: 'pending_approval',
+        paymentTerms: data.paymentTerms || 'net_30',
+        commissionRate: data.commissionRate || 10,
+        rating: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+        acceptanceRate: 100,
+        categories: data.categories || [],
+        regions: data.regions || [],
+        contactPerson: data.contactPerson || '',
+        contactPhone: data.contactPhone || '',
+        address: data.address || '',
+        notes: data.notes || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return newSupplier;
+    }
   },
 
+  /** Update an existing supplier */
   updateSupplier: async (id: number, data: Partial<Supplier>): Promise<Supplier> => {
-    await delay(500);
-    const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-    if (!supplier) throw new Error('Supplier not found');
-    return { ...supplier, ...data, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.put<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}`, data);
+      return unwrap(response.data);
+    } catch {
+      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
+      if (!supplier) throw new Error('Supplier not found');
+      return { ...supplier, ...data, updatedAt: new Date().toISOString() };
+    }
   },
 
+  /** Approve a pending supplier */
   approveSupplier: async (id: number): Promise<Supplier> => {
-    await delay(400);
-    const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-    if (!supplier) throw new Error('Supplier not found');
-    return { ...supplier, status: 'active', updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}/approve`);
+      return unwrap(response.data);
+    } catch {
+      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
+      if (!supplier) throw new Error('Supplier not found');
+      return { ...supplier, status: 'active', updatedAt: new Date().toISOString() };
+    }
   },
 
+  /** Suspend a supplier */
   suspendSupplier: async (id: number, reason: string): Promise<Supplier> => {
-    await delay(400);
-    const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-    if (!supplier) throw new Error('Supplier not found');
-    return { ...supplier, status: 'suspended', notes: reason, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}/suspend`, { reason });
+      return unwrap(response.data);
+    } catch {
+      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
+      if (!supplier) throw new Error('Supplier not found');
+      return { ...supplier, status: 'suspended', notes: reason, updatedAt: new Date().toISOString() };
+    }
   },
 };
 

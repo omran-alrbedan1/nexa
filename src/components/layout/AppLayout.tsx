@@ -44,6 +44,7 @@ export function AppLayout() {
   const navItems = ALL_NAV_ITEMS.filter((item) => {
     if (!item.roles) return true;
     if (!user) return false;
+    // Use the pre-computed role (mapped from user_type + permissions in AuthContext)
     return item.roles.includes(user.role as 'admin' | 'operations' | 'aggregation');
   });
 
@@ -182,7 +183,7 @@ export function AppLayout() {
                 <Settings size={20} />
               </button>
               <div className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-body text-xs font-bold ml-1 shadow-sm">
-                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'AD'}
+                {user?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'AD'}
               </div>
             </div>
           </div>

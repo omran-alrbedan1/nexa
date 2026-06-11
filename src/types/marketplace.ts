@@ -7,22 +7,59 @@
 // Users & Roles
 // ──────────────────────────────────────────────
 
-export type UserRole = 'customer' | 'supplier' | 'driver' | 'operations' | 'aggregation' | 'admin';
+export type UserRole = 'customer' | 'supplier' | 'driver' | 'operations' | 'aggregation' | 'admin' | 'staff';
+
+export type UserStatus = 'active' | 'inactive' | 'pending' | 'suspended' | 'blocked';
+export type UserType = 'customer' | 'supplier' | 'driver' | 'staff';
 
 /** Alias — User is the canonical name used across the app */
 export type User = MarketplaceUser;
 
 export interface MarketplaceUser {
+  /** Core identity — from backend UserResource */
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  role: UserRole;
+  first_name: string;
+  last_name: string | null;
+  full_name: string;
+  phone: string | null;
+  email: string | null;
   avatar: string | null;
-  isActive: boolean;
-  regionId: number | null;
+
+  /** Backend user_type enum */
+  user_type: UserType;
+  /** Backend user status */
+  status: UserStatus;
+
+  /** Dashboard-only: mapped from user_type + permissions for existing frontend logic */
+  role: UserRole;
+
+  /** Backend RBAC arrays */
+  roles: string[];
+  permissions: string[];
+
+  /** Profile relations (backend returns null for profiles that don't apply) */
+  customer_profile: Record<string, unknown> | null;
+  supplier_profile: Record<string, unknown> | null;
+  driver_profile: Record<string, unknown> | null;
+
+  /** Timestamps */
+  registration_source: string | null;
+  phone_verified_at: string | null;
+  email_verified_at: string | null;
+  last_login_at: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Map backend permissions to frontend dashboard role.
+ * This is how 'staff' user_type users get their 'admin'/'operations'/'aggregation' role.
+ */
+export function userTypeToDashboardRole(permissions: string[]): 'admin' | 'operations' | 'aggregation' {
+  if (permissions.includes('admin_panel.access')) return 'admin';
+  if (permissions.includes('warehouse.access')) return 'aggregation';
+  if (permissions.includes('orders.manage')) return 'operations';
+  return 'admin'; // fallback to admin
 }
 
 // ──────────────────────────────────────────────

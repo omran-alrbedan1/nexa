@@ -1,94 +1,47 @@
 /**
- * Role-based access control utilities.
- * Maps the 6 platform roles to their permissions and route access.
+ * Role and permission-based access control utilities.
+ * Adapted for the Laravel backend where dashboard staff use 'staff' user_type + permissions.
  */
 
-export type UserRole = 'customer' | 'supplier' | 'driver' | 'operations' | 'aggregation' | 'admin';
+import { userTypeToDashboardRole } from '@/types/marketplace';
+import type { UserRole, UserType, UserStatus } from '@/types/marketplace';
 
-/** Role hierarchy: higher index = more privileges */
-export const ROLE_HIERARCHY: UserRole[] = [
-  'customer',
-  'supplier',
-  'driver',
-  'aggregation',
-  'operations',
-  'admin',
-];
-
-export function hasRole(userRole: UserRole, requiredRole: UserRole): boolean {
-  return ROLE_HIERARCHY.indexOf(userRole) >= ROLE_HIERARCHY.indexOf(requiredRole);
+/** Check if a user has a specific permission */
+export function hasPermission(permissions: string[], required: string): boolean {
+  return permissions.includes(required);
 }
 
-export function canAccess(
-  userRole: UserRole,
-  allowedRoles: UserRole[]
-): boolean {
-  return allowedRoles.includes(userRole);
+/** Check if a user can access a given set of permissions (ANY match) */
+export function hasAnyPermission(permissions: string[], required: string[]): boolean {
+  return required.some((p) => permissions.includes(p));
 }
 
-/** Get the role label in a readable format */
+/** Check if a user can access a given set of permissions (ALL must match) */
+export function hasAllPermissions(permissions: string[], required: string[]): boolean {
+  return required.every((p) => permissions.includes(p));
+}
+
+/** Get the dashboard role label in readable format */
 export function getRoleLabel(role: UserRole): string {
-  const labels: Record<UserRole, string> = {
+  const labels: Record<string, string> = {
     customer: 'Customer',
     supplier: 'Supplier',
     driver: 'Driver',
     operations: 'Operations',
     aggregation: 'Warehouse',
     admin: 'Admin',
+    staff: 'Staff',
   };
-  return labels[role];
+  return labels[role] || role;
 }
 
-/** Get the role label in Arabic */
-export function getRoleLabelAr(role: UserRole): string {
-  const labels: Record<UserRole, string> = {
-    customer: 'عميل',
-    supplier: 'مورد',
-    driver: 'سائق',
-    operations: 'عمليات',
-    aggregation: 'مستودع',
-    admin: 'مدير',
-  };
-  return labels[role];
-}
-
-/** Get a color for the role badge */
-export function getRoleColor(role: UserRole): string {
-  const colors: Record<UserRole, string> = {
-    customer: 'blue',
-    supplier: 'purple',
-    driver: 'orange',
-    operations: 'indigo',
-    aggregation: 'green',
-    admin: 'red',
-  };
-  return colors[role];
-}
-
-/** Dashboard home route per role */
+/** Dashboard home route per frontend role */
 export function getDefaultRoute(role: UserRole): string {
-  const routes: Record<UserRole, string> = {
-    admin: '/admin/dashboard',
-    operations: '/admin/orders',
-    aggregation: '/admin/aggregation',
-    customer: '/customer/products',
-    supplier: '/supplier/dashboard',
-    driver: '/driver/trips',
+  const routes: Record<string, string> = {
+    admin: '/dashboard',
+    operations: '/dashboard',
+    aggregation: '/dashboard',
+    staff: '/dashboard',
   };
-  return routes[role];
-}
-
-/** Check if a role can manage other users */
-export function canManageUsers(role: UserRole): boolean {
-  return role === 'admin' || role === 'operations';
-}
-
-/** Check if a role can manage products */
-export function canManageProducts(role: UserRole): boolean {
-  return role === 'admin' || role === 'supplier';
-}
-
-/** Check if a role can view financial data */
-export function canViewFinance(role: UserRole): boolean {
-  return role === 'admin' || role === 'operations';
+  return routes[role] || '/dashboard';
 }

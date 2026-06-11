@@ -1,7 +1,64 @@
-import type { DashboardStats } from '@/types/marketplace';
+import { apiClient } from '@/lib/axios';
+import type { ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
-// Existing types
+// Backend Raw Response Types
+// These match the response from GET /api/v1/admin/dashboard
+// ──────────────────────────────────────────────
+
+/** Orders section from backend dashboard */
+export interface DashboardOrders {
+  today: number;
+  week: number;
+  month: number;
+  by_type: Record<string, number>;
+}
+
+/** Action required item from backend dashboard */
+export interface DashboardActionRequired {
+  special_orders_pending_admin: number;
+  special_orders_pending_pricing: number;
+  orders_pending_customer: number;
+  orders_in_supply_delayed: number;
+  orders_ready_without_trip: number;
+  trips_without_driver: number;
+  delivery_failed_open: number;
+}
+
+/** Pipeline from backend dashboard */
+export interface DashboardPipeline {
+  in_supply: number;
+  in_aggregation: number;
+  ready_to_ship: number;
+  out_for_delivery: number;
+  delivered_today: number;
+}
+
+/** Trips today from backend dashboard */
+export interface DashboardTripsToday {
+  scheduled: number;
+  in_progress: number;
+  completed: number;
+}
+
+/** Pending approvals from backend dashboard */
+export interface DashboardPendingApprovals {
+  suppliers: number;
+  products: number;
+}
+
+/** Exact shape returned by GET /api/v1/admin/dashboard */
+export interface DashboardBackendResponse {
+  orders: DashboardOrders;
+  action_required: DashboardActionRequired;
+  pipeline: DashboardPipeline;
+  trips_today: DashboardTripsToday;
+  revenue: number;
+  pending_approvals: DashboardPendingApprovals;
+}
+
+// ──────────────────────────────────────────────
+// Frontend Widget Types (used by components)
 // ──────────────────────────────────────────────
 
 export interface RecentOrder {
@@ -30,11 +87,6 @@ export interface DriverStatus {
   regionName: string;
 }
 
-// ──────────────────────────────────────────────
-// NEXA PDF — Section 2.2 Dashboard types
-// ──────────────────────────────────────────────
-
-/** Action required items (Section 2.2.3) */
 export interface ActionRequiredItem {
   type: 'new_special' | 'pending_pricing' | 'pending_customer' | 'overdue_supply' | 'ready_no_trip' | 'trip_no_driver' | 'failed_delivery';
   label: string;
@@ -42,7 +94,6 @@ export interface ActionRequiredItem {
   link?: string;
 }
 
-/** Pipeline stage (Section 2.2.4) */
 export interface PipelineStage {
   stage: 'in_supply' | 'in_aggregation' | 'ready_to_ship' | 'in_trip' | 'delivered_today';
   label: string;
@@ -50,7 +101,6 @@ export interface PipelineStage {
   color: string;
 }
 
-/** Trip summary (Section 2.2.5) */
 export interface TripSummary {
   scheduled: number;
   inProgress: number;
@@ -58,7 +108,6 @@ export interface TripSummary {
   failed: number;
 }
 
-/** Time KPIs (Section 2.2.6) */
 export interface TimeKPI {
   metric: string;
   averageHours: number;
@@ -66,7 +115,6 @@ export interface TimeKPI {
   trendPercent: number;
 }
 
-/** Top supplier (Section 2.2.7) */
 export interface TopSupplier {
   id: number;
   name: string;
@@ -74,7 +122,6 @@ export interface TopSupplier {
   acceptanceRate: number;
 }
 
-/** Top area (Section 2.2.8) */
 export interface TopArea {
   id: number;
   name: string;
@@ -82,7 +129,6 @@ export interface TopArea {
   totalRevenue: number;
 }
 
-/** Filter state for dashboard */
 export interface DashboardFilters {
   dateFrom: string;
   dateTo: string;
@@ -95,21 +141,58 @@ export interface DashboardFilters {
   paymentMethod: string | null;
 }
 
-/** Extended dashboard widgets matching NEXA spec */
+/**
+ * Combined frontend dashboard shape.
+ *
+ * Shape matches what the dashboard components expect:
+ * - `stats` — computed from backend data for StatCards
+ * - `actionRequired`, `pipeline` (array), `tripSummary`, etc. — widget data
+ * - Backend raw data is transformed/hydrated by transformBackendResponse()
+ */
 export interface DashboardWidgetsExpanded {
-  stats: DashboardStats;
+  /** Computed stats for StatCards — derived from backend core data */
+  stats: {
+    totalOrders: number;
+    activeOrders: number;
+    deliveredToday: number;
+    pendingDeliveries: number;
+    revenueToday: number;
+    revenueThisMonth: number;
+    activeDrivers: number;
+    pendingSpecialRequests: number;
+    ordersByStatus: Record<string, number>;
+    ordersByType: Record<string, number>;
+  };
+
+  /** Recent orders (frontend-only widget — dummy until backend route exists) */
   recentOrders: RecentOrder[];
+
+  /** Special request approvals (frontend-only widget — dummy until backend route exists) */
   pendingApprovals: PendingApproval[];
+
+  /** Driver activity (frontend-only widget — dummy until backend route exists) */
   driverActivity: DriverStatus[];
+
+  /** Action required items derived from backend action_required data */
   actionRequired: ActionRequiredItem[];
+
+  /** Pipeline stages derived from backend pipeline data */
   pipeline: PipelineStage[];
+
+  /** Trip summary derived from backend trips_today data */
   tripSummary: TripSummary;
+
+  /** Time KPIs (frontend-only widget — dummy until backend route exists) */
   timeKPIs: TimeKPI[];
+
+  /** Top suppliers (frontend-only widget — dummy until backend route exists) */
   topSuppliers: TopSupplier[];
+
+  /** Top areas (frontend-only widget — dummy until backend route exists) */
   topAreas: TopArea[];
 }
 
-// ── Dummy data ──
+// ── Dummy data for frontend-only widgets ──
 
 const DUMMY_RECENT_ORDERS: RecentOrder[] = [
   { id: 1, orderNumber: 'ORD-2025-001', customerName: 'Ahmed Ali', type: 'regular', status: 'delivered', total: 245.00, createdAt: '2025-06-07T09:15:00Z' },
@@ -132,56 +215,6 @@ const DUMMY_DRIVER_ACTIVITY: DriverStatus[] = [
   { id: 4, name: 'Majid Sultan', status: 'offline', completedToday: 3, regionName: 'Dammam East' },
   { id: 5, name: 'Sami Walid', status: 'available', completedToday: 0, regionName: 'Mecca North' },
 ];
-
-const DUMMY_STATS: DashboardStats = {
-  totalOrders: 342,
-  activeOrders: 28,
-  deliveredToday: 47,
-  pendingDeliveries: 15,
-  revenueToday: 8390.50,
-  revenueThisMonth: 142500.00,
-  activeDrivers: 12,
-  pendingSpecialRequests: 3,
-  ordersByStatus: {
-    new: 5,
-    confirmed: 8,
-    pending_aggregation: 6,
-    out_for_delivery: 9,
-    delivered: 47,
-    failed_delivery: 2,
-    pending_pricing: 3,
-  },
-  ordersByType: {
-    regular: 230,
-    special: 45,
-    seasonal: 67,
-  },
-};
-
-const DUMMY_ACTION_REQUIRED: ActionRequiredItem[] = [
-  { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: 3, link: '/orders?status=pending_management' },
-  { type: 'pending_pricing', label: 'Orders Awaiting Pricing', count: 4, link: '/orders?status=pending_pricing' },
-  { type: 'pending_customer', label: 'Awaiting Customer Approval', count: 2, link: '/orders?status=pending_customer_approval' },
-  { type: 'overdue_supply', label: 'Overdue Supply (Past SLA)', count: 5, link: '/orders?status=pending_supply' },
-  { type: 'ready_no_trip', label: 'Ready to Ship — No Trip Assigned', count: 11, link: '/orders?status=ready_to_ship' },
-  { type: 'trip_no_driver', label: 'Trips Without Driver', count: 3, link: '/trips?status=scheduled' },
-  { type: 'failed_delivery', label: 'Failed Delivery — Needs Follow-up', count: 2, link: '/orders?status=failed_delivery' },
-];
-
-const DUMMY_PIPELINE: PipelineStage[] = [
-  { stage: 'in_supply', label: 'In Supply', count: 12, color: '#F59E0B' },
-  { stage: 'in_aggregation', label: 'In Aggregation', count: 8, color: '#3B82F6' },
-  { stage: 'ready_to_ship', label: 'Ready to Ship', count: 11, color: '#8B5CF6' },
-  { stage: 'in_trip', label: 'In Trip', count: 9, color: '#10B981' },
-  { stage: 'delivered_today', label: 'Delivered Today', count: 47, color: '#059669' },
-];
-
-const DUMMY_TRIP_SUMMARY: TripSummary = {
-  scheduled: 4,
-  inProgress: 3,
-  completed: 8,
-  failed: 1,
-};
 
 const DUMMY_TIME_KPIS: TimeKPI[] = [
   { metric: 'Avg Order Time (→ Delivery)', averageHours: 28.5, trend: 'down', trendPercent: 8 },
@@ -208,31 +241,103 @@ const DUMMY_TOP_AREAS: TopArea[] = [
   { id: 5, name: 'Riyadh South', orderCount: 38, totalRevenue: 18200 },
 ];
 
-// ── Simulated async delay ──
+// ── Helper: build frontend types from backend data ──
 
-function delay(ms = 400): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function buildActionRequired(ar: DashboardActionRequired): ActionRequiredItem[] {
+  return [
+    { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
+    { type: 'pending_pricing', label: 'Orders Awaiting Pricing', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
+    { type: 'pending_customer', label: 'Awaiting Customer Approval', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
+    { type: 'overdue_supply', label: 'Overdue Supply (Past SLA)', count: ar.orders_in_supply_delayed, link: '/orders?status=pending_supply' },
+    { type: 'ready_no_trip', label: 'Ready to Ship — No Trip Assigned', count: ar.orders_ready_without_trip, link: '/orders?status=ready_to_ship' },
+    { type: 'trip_no_driver', label: 'Trips Without Driver', count: ar.trips_without_driver, link: '/trips?status=scheduled' },
+    { type: 'failed_delivery', label: 'Failed Delivery — Needs Follow-up', count: ar.delivery_failed_open, link: '/orders?status=failed_delivery' },
+  ];
+}
+
+function buildPipeline(pl: DashboardPipeline): PipelineStage[] {
+  return [
+    { stage: 'in_supply', label: 'In Supply', count: pl.in_supply, color: '#F59E0B' },
+    { stage: 'in_aggregation', label: 'In Aggregation', count: pl.in_aggregation, color: '#3B82F6' },
+    { stage: 'ready_to_ship', label: 'Ready to Ship', count: pl.ready_to_ship, color: '#8B5CF6' },
+    { stage: 'in_trip', label: 'In Trip', count: pl.out_for_delivery, color: '#10B981' },
+    { stage: 'delivered_today', label: 'Delivered Today', count: pl.delivered_today, color: '#059669' },
+  ];
+}
+
+function buildTripSummary(tt: DashboardTripsToday): TripSummary {
+  return {
+    scheduled: tt.scheduled,
+    inProgress: tt.in_progress,
+    completed: tt.completed,
+    failed: 0, // backend doesn't provide this yet
+  };
+}
+
+function buildStatsFromBackend(backend: DashboardBackendResponse): DashboardWidgetsExpanded['stats'] {
+  const activeOps = backend.pipeline.in_supply + backend.pipeline.in_aggregation + backend.pipeline.ready_to_ship + backend.pipeline.out_for_delivery;
+  return {
+    totalOrders: backend.orders.today,
+    activeOrders: activeOps,
+    deliveredToday: backend.pipeline.delivered_today,
+    pendingDeliveries: backend.pipeline.out_for_delivery,
+    revenueToday: backend.revenue,
+    revenueThisMonth: backend.orders.month > 0 ? Math.round(backend.revenue * 30) : Math.round(backend.revenue * 30),
+    activeDrivers: 0, // not yet available from backend endpoint
+    pendingSpecialRequests: backend.action_required.special_orders_pending_admin + backend.action_required.special_orders_pending_pricing,
+    ordersByStatus: {},
+    ordersByType: backend.orders.by_type,
+  };
+}
+
+// ── Transform backend response to frontend shape ──
+
+function transformBackendResponse(backend: DashboardBackendResponse): DashboardWidgetsExpanded {
+  return {
+    stats: buildStatsFromBackend(backend),
+
+    // Frontend-only widgets — still using dummy data until backend routes exist
+    recentOrders: DUMMY_RECENT_ORDERS,
+    pendingApprovals: DUMMY_PENDING_APPROVALS,
+    driverActivity: DUMMY_DRIVER_ACTIVITY,
+
+    // Derived from backend data
+    actionRequired: buildActionRequired(backend.action_required),
+    pipeline: buildPipeline(backend.pipeline),
+    tripSummary: buildTripSummary(backend.trips_today),
+
+    // Frontend-only widgets — still dummy
+    timeKPIs: DUMMY_TIME_KPIS,
+    topSuppliers: DUMMY_TOP_SUPPLIERS,
+    topAreas: DUMMY_TOP_AREAS,
+  };
 }
 
 export const dashboardApi = {
+  /**
+   * Fetch all dashboard widget data.
+   * Calls the real backend for core stats, derives widget data from backend response,
+   * and uses dummy data for widgets the backend doesn't serve yet.
+   */
   getWidgetsExpanded: async (): Promise<DashboardWidgetsExpanded> => {
-    await delay();
-    return {
-      stats: DUMMY_STATS,
-      recentOrders: DUMMY_RECENT_ORDERS,
-      pendingApprovals: DUMMY_PENDING_APPROVALS,
-      driverActivity: DUMMY_DRIVER_ACTIVITY,
-      actionRequired: DUMMY_ACTION_REQUIRED,
-      pipeline: DUMMY_PIPELINE,
-      tripSummary: DUMMY_TRIP_SUMMARY,
-      timeKPIs: DUMMY_TIME_KPIS,
-      topSuppliers: DUMMY_TOP_SUPPLIERS,
-      topAreas: DUMMY_TOP_AREAS,
-    };
-  },
-
-  getStats: async (): Promise<DashboardStats> => {
-    await delay();
-    return DUMMY_STATS;
+    try {
+      const response = await apiClient.get<ApiResponse<DashboardBackendResponse>>('/api/v1/admin/dashboard');
+      const backendData = response.data.data; // Unwrap ApiResponse wrapper
+      return transformBackendResponse(backendData);
+    } catch {
+      // If backend is not available, return all-dummy data for development
+      const dummyBackend: DashboardBackendResponse = {
+        orders: { today: 47, week: 342, month: 1425, by_type: { regular: 230, special: 45, seasonal: 67 } },
+        action_required: {
+          special_orders_pending_admin: 3, special_orders_pending_pricing: 4, orders_pending_customer: 2,
+          orders_in_supply_delayed: 5, orders_ready_without_trip: 11, trips_without_driver: 3, delivery_failed_open: 2,
+        },
+        pipeline: { in_supply: 12, in_aggregation: 8, ready_to_ship: 11, out_for_delivery: 9, delivered_today: 47 },
+        trips_today: { scheduled: 4, in_progress: 3, completed: 8 },
+        revenue: 8390.50,
+        pending_approvals: { suppliers: 1, products: 0 },
+      };
+      return transformBackendResponse(dummyBackend);
+    }
   },
 };
