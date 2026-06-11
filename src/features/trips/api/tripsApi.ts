@@ -1,10 +1,20 @@
 // ============================================================
 // Trips API Service
 // ============================================================
-// PDF Reference: §2.5 (إدارة الرحلات / Trip Management), §1.5 (حالات الرحلة)
-// Admin manages: trip creation, driver assignment, tracking, completion
+// Backend tables: trips, trip_orders, trip_status_logs, driver_trip_rejections
+// Admin routes: NOT YET BUILT in backend
+// Predicted routes (matching existing controller pattern):
+//   GET    /api/v1/admin/trips
+//   GET    /api/v1/admin/trips/{id}
+//   POST   /api/v1/admin/trips/{id}/assign-driver
+//   POST   /api/v1/admin/trips/{id}/start
+//   POST   /api/v1/admin/trips/{id}/complete
+//   GET    /api/v1/admin/trips/available-drivers
 // ============================================================
 
+import { apiClient } from '@/lib/axios';
+import { unwrap } from '@/lib/apiHelpers';
+import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { TripStatus } from '@/types/marketplace';
 
 // ──────────────────────────────────────────────
@@ -59,6 +69,87 @@ export interface TripsPageData {
   availableDrivers: { id: number; name: string; regionName: string; isAvailable: boolean }[];
 }
 
+// ── Backend Raw Types (matching DB schema — predicted API response) ──
+
+interface BackendTrip {
+  id: number;
+  trip_code: string;
+  warehouse_id: number;
+  driver_id: number | null;
+  status: string;
+  assignment_type: string;
+  planned_date: string;
+  departure_time: string | null;
+  cutoff_time: string | null;
+  expected_arrival: string | null;
+  min_orders: number;
+  max_capacity: number;
+  delivery_fee_override: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  warehouse?: { id: number; name: string } | null;
+  driver?: { id: number; full_name: string } | null;
+  trip_orders_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface BackendTripsResponse {
+  trips: BackendTrip[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+interface BackendAvailableDriver {
+  id: number;
+  full_name: string;
+  zone_name: string;
+  is_available: boolean;
+}
+
+// ── Mapping ──
+
+function mapBackendTripStatus(status: string): TripStatus {
+  const map: Record<string, TripStatus> = {
+    'scheduled': 'scheduled',
+    'assigned': 'assigned',
+    'accepted': 'accepted',
+    'in_progress': 'in_progress',
+    'completed': 'completed',
+    'cancelled': 'cancelled',
+    'failed': 'failed',
+  };
+  return map[status] || (status as TripStatus);
+}
+
+function mapBackendTrip(bt: BackendTrip): DashboardTrip {
+  return {
+    id: bt.id,
+    tripNumber: bt.trip_code,
+    driverId: bt.driver_id || null,
+    driverName: bt.driver?.full_name || null,
+    regionName: bt.warehouse?.name || '',
+    clusterName: '',
+    status: mapBackendTripStatus(bt.status),
+    scheduledDate: bt.planned_date,
+    timeSlot: bt.departure_time ? `${bt.departure_time}-${bt.expected_arrival || ''}` : '',
+    orderCount: bt.trip_orders_count || 0,
+    totalValue: 0,
+    completedOrders: 0,
+    failedOrders: 0,
+    startedAt: bt.started_at,
+    completedAt: bt.completed_at || bt.cancelled_at,
+    notes: bt.cancellation_reason,
+    createdAt: bt.created_at,
+    updatedAt: bt.updated_at,
+  };
+}
+
 // ── Dummy Data ──
 
 const now = new Date();
@@ -88,35 +179,96 @@ const DUMMY_STATS = {
   totalOrders: 42, totalValue: 6670, avgCompletionRate: 85,
 };
 
-function delay(ms = 350) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): TripsPageData {
+  return { stats: DUMMY_STATS, trips: DUMMY_TRIPS, availableDrivers: DUMMY_DRIVERS };
 }
 
 export const tripsApi = {
+  /** Fetch all trips page data */
   getPageData: async (): Promise<TripsPageData> => {
-    await delay();
-    return { stats: DUMMY_STATS, trips: DUMMY_TRIPS, availableDrivers: DUMMY_DRIVERS };
+    try {
+      const response = await apiClient.get<ApiResponse<BackendTripsResponse>>('/api/v1/admin/trips');
+      const backendData = response.data.data;
+      const trips = backendData.trips.map(mapBackendTrip);
+      return {
+        stats: {
+          total: trips.length,
+          scheduled: trips.filter((t) => t.status === 'scheduled').length,
+          assigned: trips.filter((t) => t.status === 'assigned').length,
+          inProgress: trips.filter((t) => t.status === 'in_progress').length,
+          completed: trips.filter((t) => t.status === 'completed').length,
+          cancelled: trips.filter((t) => t.status === 'cancelled').length,
+          failed: trips.filter((t) => t.status === 'failed').length,
+          totalOrders: trips.reduce((s, t) => s + t.orderCount, 0),
+          totalValue: trips.reduce((s, t) => s + t.totalValue, 0),
+          avgCompletionRate: 0,
+        },
+        trips,
+        availableDrivers: [], // backend doesn't serve this yet
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
-  assignDriver: async (tripId: number, driverId: number, driverName: string): Promise<DashboardTrip> => {
-    await delay(400);
-    const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
-    if (!trip) throw new Error('Trip not found');
-    return { ...trip, driverId, driverName, status: 'assigned', updatedAt: new Date().toISOString() };
+  /** Get single trip details */
+  getTrip: async (id: number): Promise<DashboardTrip> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${id}`);
+      return mapBackendTrip(response.data.data);
+    } catch {
+      const trip = DUMMY_TRIPS.find((t) => t.id === id);
+      if (!trip) throw new Error('Trip not found');
+      return trip;
+    }
   },
 
+  /** Assign a driver to a trip */
+  assignDriver: async (tripId: number, driverId: number, _driverName: string): Promise<DashboardTrip> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/assign-driver`, { driver_id: driverId });
+      return mapBackendTrip(response.data.data);
+    } catch {
+      const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
+      if (!trip) throw new Error('Trip not found');
+      const driver = DUMMY_DRIVERS.find((d) => d.id === driverId);
+      return { ...trip, driverId, driverName: driver?.name || _driverName, status: 'assigned', updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Start a trip */
   startTrip: async (tripId: number): Promise<DashboardTrip> => {
-    await delay(400);
-    const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
-    if (!trip) throw new Error('Trip not found');
-    return { ...trip, status: 'in_progress', startedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/start`);
+      return mapBackendTrip(response.data.data);
+    } catch {
+      const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
+      if (!trip) throw new Error('Trip not found');
+      return { ...trip, status: 'in_progress', startedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    }
   },
 
+  /** Complete a trip */
   completeTrip: async (tripId: number): Promise<DashboardTrip> => {
-    await delay(400);
-    const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
-    if (!trip) throw new Error('Trip not found');
-    return { ...trip, status: 'completed', completedAt: new Date().toISOString(), completedOrders: trip.orderCount, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/complete`);
+      return mapBackendTrip(response.data.data);
+    } catch {
+      const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
+      if (!trip) throw new Error('Trip not found');
+      return { ...trip, status: 'completed', completedAt: new Date().toISOString(), completedOrders: trip.orderCount, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Get available drivers */
+  getAvailableDrivers: async (): Promise<{ id: number; name: string; regionName: string; isAvailable: boolean }[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendAvailableDriver[]>>('/api/v1/admin/trips/available-drivers');
+      const drivers = unwrap(response.data);
+      return drivers.map((d) => ({ id: d.id, name: d.full_name, regionName: d.zone_name, isAvailable: d.is_available }));
+    } catch {
+      return DUMMY_DRIVERS;
+    }
   },
 };
 

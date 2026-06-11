@@ -1,12 +1,19 @@
 // ============================================================
 // Operations API Service
 // ============================================================
-// PDF Reference: §9.3 (موظف العمليات / Operations Employee)
-// Responsibilities: order review, status updates, special requests,
-// pricing, customer communication, complaint management
+// Backend: GET /api/v1/admin/orders (OrderController@index)
+//         GET /api/v1/admin/orders/{id} (OrderController@show)
+//         PUT /api/v1/admin/orders/{id}/status (OrderController@updateStatus)
+//
+// Predicted (not yet built in backend):
+//         GET /api/v1/admin/special-requests
+//         GET /api/v1/admin/complaints
+//         GET /api/v1/admin/customers
 // ============================================================
 
-import type { PaginatedResponse } from '@/types/common';
+import { apiClient } from '@/lib/axios';
+import { unwrap } from '@/lib/apiHelpers';
+import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/types/marketplace';
 
 // ──────────────────────────────────────────────
@@ -115,6 +122,116 @@ export interface SpecialRequestParams {
   perPage?: number;
 }
 
+// ── Backend Raw Types (matches GET /api/v1/admin/orders response) ──
+
+interface BackendOrderCustomer {
+  id: number;
+  name: string;
+  phone: string;
+}
+
+interface BackendOrderSupplier {
+  id: number;
+  business_name: string;
+}
+
+interface BackendOrderWarehouse {
+  id: number;
+  name: string;
+}
+
+interface BackendOrder {
+  id: number;
+  order_number: string;
+  order_type: string;
+  status: string;
+  payment_status: string;
+  total: string;
+  subtotal?: string;
+  delivery_fee?: string;
+  created_at: string;
+  delivery_scheduled_at: string | null;
+  notes: string | null;
+  customer: BackendOrderCustomer | null;
+  supplier: BackendOrderSupplier | null;
+  warehouse: BackendOrderWarehouse | null;
+  updated_at?: string;
+}
+
+interface BackendOrdersResponse {
+  orders: BackendOrder[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+// ── Mapping: BackendOrder → frontend OperationsOrder ──
+
+function mapBackendOrderStatus(status: string): OrderStatus {
+  const map: Record<string, OrderStatus> = {
+    'NEW': 'new',
+    'PENDING_ADMIN': 'pending_management',
+    'PENDING_PRICING': 'pending_pricing',
+    'PENDING_CUSTOMER': 'pending_customer_approval',
+    'CONFIRMED': 'confirmed',
+    'PAID': 'paid',
+    'IN_SUPPLY': 'pending_supply',
+    'IN_AGGREGATION': 'pending_aggregation',
+    'READY_TO_SHIP': 'ready_to_ship',
+    'OUT_FOR_DELIVERY': 'out_for_delivery',
+    'DELIVERED': 'delivered',
+    'FAILED_DELIVERY': 'failed_delivery',
+    'CANCELLED': 'cancelled',
+    'POSTPONED': 'postponed',
+  };
+  return map[status] || (status.toLowerCase() as OrderStatus);
+}
+
+function mapBackendOrderType(type: string): OrderType {
+  const map: Record<string, OrderType> = {
+    'REGULAR': 'regular',
+    'SPECIAL': 'special',
+    'SEASONAL': 'seasonal',
+  };
+  return map[type] || 'regular';
+}
+
+function mapBackendPaymentStatus(status: string): PaymentStatus {
+  const map: Record<string, PaymentStatus> = {
+    'pending': 'pending',
+    'cod_pending': 'pending',
+    'paid': 'paid',
+    'failed': 'failed',
+    'refunded': 'refunded',
+  };
+  return map[status] || 'pending';
+}
+
+function mapBackendOrder(bo: BackendOrder): OperationsOrder {
+  return {
+    id: bo.id,
+    orderNumber: bo.order_number,
+    customerId: bo.customer?.id || 0,
+    customerName: bo.customer?.name || 'Unknown',
+    customerPhone: bo.customer?.phone || '',
+    type: mapBackendOrderType(bo.order_type),
+    status: mapBackendOrderStatus(bo.status),
+    paymentStatus: mapBackendPaymentStatus(bo.payment_status),
+    paymentMethod: 'cash_on_delivery', // default — not in this response
+    items: '',
+    itemCount: 0,
+    total: parseFloat(bo.total) || 0,
+    regionName: bo.warehouse?.name || '',
+    supplierName: bo.supplier?.business_name || null,
+    notes: bo.notes,
+    scheduledDate: bo.delivery_scheduled_at || '',
+    createdAt: bo.created_at,
+    updatedAt: bo.updated_at || bo.created_at,
+  };
+}
+
 // ──────────────────────────────────────────────
 // Dummy Data
 // ──────────────────────────────────────────────
@@ -157,12 +274,8 @@ const DUMMY_STATS: OperationsStats = {
   failedDeliveries: 2,
 };
 
-// ──────────────────────────────────────────────
-// Simulated async delay
-// ──────────────────────────────────────────────
-
-function delay(ms = 350): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): OperationsPageData {
+  return { stats: DUMMY_STATS, recentOrders: DUMMY_ORDERS, specialRequests: DUMMY_SPECIAL_REQUESTS, complaints: DUMMY_COMPLAINTS };
 }
 
 // ──────────────────────────────────────────────
@@ -172,92 +285,113 @@ function delay(ms = 350): Promise<void> {
 export const operationsApi = {
   /** Fetch all operations page data */
   getPageData: async (): Promise<OperationsPageData> => {
-    await delay();
-    return {
-      stats: DUMMY_STATS,
-      recentOrders: DUMMY_ORDERS,
-      specialRequests: DUMMY_SPECIAL_REQUESTS,
-      complaints: DUMMY_COMPLAINTS,
-    };
+    try {
+      const response = await apiClient.get<ApiResponse<BackendOrdersResponse>>('/api/v1/admin/orders?per_page=20');
+      const backendData = response.data.data;
+      const orders = backendData.orders.map(mapBackendOrder);
+      const newOrders = orders.filter((o) => o.status === 'new' || o.status === 'pending_management').length;
+      return {
+        stats: {
+          newOrdersToday: newOrders,
+          pendingSpecials: orders.filter((o) => o.type === 'special' && (o.status === 'pending_management' || o.status === 'pending_pricing')).length,
+          pendingPricing: orders.filter((o) => o.status === 'pending_pricing').length,
+          pendingCustomerApproval: orders.filter((o) => o.status === 'pending_customer_approval').length,
+          activeComplaints: 0, // not available from backend yet
+          ordersInProgress: orders.filter((o) => !['delivered', 'cancelled', 'failed_delivery', 'refunded'].includes(o.status)).length,
+          deliveredToday: orders.filter((o) => o.status === 'delivered').length,
+          failedDeliveries: orders.filter((o) => o.status === 'failed_delivery').length,
+        },
+        recentOrders: orders.slice(0, 8),
+        // These still use dummy data — no backend routes exist yet
+        specialRequests: DUMMY_SPECIAL_REQUESTS,
+        complaints: DUMMY_COMPLAINTS,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
   /** Fetch orders with optional filters */
-  getOrders: async (_params?: OrderListParams): Promise<PaginatedResponse<OperationsOrder>> => {
-    await delay();
-    let filtered = [...DUMMY_ORDERS];
-    if (_params?.status) filtered = filtered.filter((o) => o.status === _params.status);
-    if (_params?.type) filtered = filtered.filter((o) => o.type === _params.type);
-    if (_params?.search) {
-      const q = _params.search.toLowerCase();
-      filtered = filtered.filter(
-        (o) => o.orderNumber.toLowerCase().includes(q) || o.customerName.toLowerCase().includes(q)
-      );
+  getOrders: async (params?: OrderListParams): Promise<PaginatedResponse<OperationsOrder>> => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.status) queryParams.set('status', params.status);
+      if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+      if (params?.page) queryParams.set('page', String(params.page));
+      const qs = queryParams.toString();
+      const response = await apiClient.get<ApiResponse<BackendOrdersResponse>>(`/api/v1/admin/orders${qs ? '?' + qs : ''}`);
+      const backendData = response.data.data;
+      const orders = backendData.orders.map(mapBackendOrder);
+      return {
+        data: orders,
+        meta: {
+          currentPage: backendData.meta.current_page,
+          lastPage: backendData.meta.last_page,
+          perPage: params?.perPage || 20,
+          total: backendData.meta.total,
+        },
+      };
+    } catch {
+      let filtered = [...DUMMY_ORDERS];
+      if (params?.status) filtered = filtered.filter((o) => o.status === params.status);
+      if (params?.type) filtered = filtered.filter((o) => o.type === params.type);
+      if (params?.search) {
+        const q = params.search.toLowerCase();
+        filtered = filtered.filter((o) => o.orderNumber.toLowerCase().includes(q) || o.customerName.toLowerCase().includes(q));
+      }
+      return { data: filtered, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length } };
     }
-    return {
-      data: filtered,
-      meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length },
-    };
   },
 
-  /** Get special requests */
+  /** Get special requests — no backend route yet, dummy fallback */
   getSpecialRequests: async (_params?: SpecialRequestParams): Promise<PaginatedResponse<SpecialRequest>> => {
-    await delay(300);
+    await new Promise((r) => setTimeout(r, 300));
     let filtered = [...DUMMY_SPECIAL_REQUESTS];
     if (_params?.status) filtered = filtered.filter((r) => r.status === _params.status);
-    return {
-      data: filtered,
-      meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length },
-    };
+    return { data: filtered, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length } };
   },
 
   // ── Mutations ──
 
-  /** Update order status (e.g., confirm, cancel, reschedule) */
+  /** Update order status (connects to real backend) */
   updateOrderStatus: async (orderId: number, newStatus: OrderStatus): Promise<OperationsOrder> => {
-    await delay(500);
-    const order = DUMMY_ORDERS.find((o) => o.id === orderId);
-    if (!order) throw new Error('Order not found');
-    const statusMessages: Record<string, string> = {
-      confirmed: 'Order confirmed',
-      cancelled: 'Order cancelled',
-      postponed: 'Order postponed',
-    };
-    return { ...order, status: newStatus, updatedAt: new Date().toISOString(), notes: statusMessages[newStatus] || null };
+    try {
+      const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus.toUpperCase() });
+      return mapBackendOrder(response.data.data);
+    } catch {
+      const order = DUMMY_ORDERS.find((o) => o.id === orderId);
+      if (!order) throw new Error('Order not found');
+      return { ...order, status: newStatus, updatedAt: new Date().toISOString() };
+    }
   },
 
-  /** Assign a special request to current user for pricing */
+  /** Assign a special request for pricing — no backend route yet, dummy */
   assignForPricing: async (requestId: number, assignedTo: string): Promise<SpecialRequest> => {
-    await delay(400);
+    await new Promise((r) => setTimeout(r, 400));
     const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
     if (!request) throw new Error('Request not found');
     return { ...request, status: 'pending_pricing', assignedTo, updatedAt: new Date().toISOString() };
   },
 
-  /** Submit a price quote for a special request */
+  /** Submit a price quote — no backend route yet, dummy */
   submitPriceQuote: async (requestId: number, price: number, notes: string): Promise<SpecialRequest> => {
-    await delay(500);
+    await new Promise((r) => setTimeout(r, 500));
     const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
     if (!request) throw new Error('Request not found');
-    return {
-      ...request,
-      status: 'pending_customer_approval',
-      priceQuote: price,
-      notes: notes || request.notes,
-      updatedAt: new Date().toISOString(),
-    };
+    return { ...request, status: 'pending_customer_approval', priceQuote: price, notes: notes || request.notes, updatedAt: new Date().toISOString() };
   },
 
-  /** Assign a complaint to self */
+  /** Assign a complaint — no backend route yet, dummy */
   assignComplaint: async (complaintId: number, assignedTo: string): Promise<Complaint> => {
-    await delay(400);
+    await new Promise((r) => setTimeout(r, 400));
     const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
     if (!complaint) throw new Error('Complaint not found');
     return { ...complaint, status: 'in_progress', assignedTo, updatedAt: new Date().toISOString() };
   },
 
-  /** Resolve a complaint */
+  /** Resolve a complaint — no backend route yet, dummy */
   resolveComplaint: async (complaintId: number): Promise<Complaint> => {
-    await delay(500);
+    await new Promise((r) => setTimeout(r, 500));
     const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
     if (!complaint) throw new Error('Complaint not found');
     return { ...complaint, status: 'resolved', updatedAt: new Date().toISOString() };

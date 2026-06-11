@@ -58,6 +58,83 @@ export interface SuppliersPageData {
   suppliers: Supplier[];
 }
 
+// ── Backend Raw Type (matches GET /api/v1/admin/suppliers response) ──
+
+interface BackendSupplierUser {
+  id: number;
+  full_name: string;
+  phone: string;
+  email: string;
+  status: string;
+}
+
+interface BackendSupplierZone {
+  id: number;
+  name: string;
+}
+
+interface BackendSupplier {
+  id: number;
+  business_name: string;
+  address: string;
+  created_at: string;
+  approval_status: 'approved' | 'pending' | 'rejected';
+  acceptance_rate: number;
+  rating_avg: number | null;
+  products_count: number;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  user: BackendSupplierUser;
+  zone: BackendSupplierZone | null;
+}
+
+interface BackendSuppliersResponse {
+  suppliers: BackendSupplier[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+// ── Mapping: BackendSupplier → frontend Supplier ──
+
+function mapApprovalStatus(status: string): SupplierStatus {
+  switch (status) {
+    case 'approved': return 'active';
+    case 'pending': return 'pending_approval';
+    case 'rejected': return 'suspended';
+    default: return 'inactive';
+  }
+}
+
+function mapBackendSupplier(bs: BackendSupplier): Supplier {
+  return {
+    id: bs.id,
+    name: bs.business_name,
+    nameAr: '', // not available from backend
+    email: bs.user?.email || '',
+    phone: bs.user?.phone || '',
+    commercialRegister: '', // not available from backend
+    taxNumber: '', // not available from backend
+    status: mapApprovalStatus(bs.approval_status),
+    paymentTerms: 'net_30', // default — not available from backend
+    commissionRate: 10, // default — not available from backend
+    rating: Number(bs.rating_avg ?? 0),
+    totalOrders: Number(bs.products_count),
+    totalRevenue: 0, // not available from backend
+    acceptanceRate: Number(bs.acceptance_rate),
+    categories: [], // not available from backend
+    regions: bs.zone ? [bs.zone.name] : [],
+    contactPerson: bs.user?.full_name || '',
+    contactPhone: bs.user?.phone || '',
+    address: bs.address || '',
+    notes: bs.rejection_reason || '',
+    createdAt: bs.created_at,
+    updatedAt: bs.approved_at || bs.created_at,
+  };
+}
+
 // ── Dummy Data ──
 
 const now = new Date();
@@ -132,8 +209,9 @@ export const suppliersApi = {
   /** Fetch all suppliers page data (stats + list) */
   getPageData: async (): Promise<SuppliersPageData> => {
     try {
-      const response = await apiClient.get<ApiResponse<Supplier[]>>('/api/v1/admin/suppliers');
-      const suppliers = unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
+      const backendData = response.data.data; // { suppliers: [...], meta: {...} }
+      const suppliers = backendData.suppliers.map(mapBackendSupplier);
       const active = suppliers.filter((s) => s.status === 'active').length;
       const pending = suppliers.filter((s) => s.status === 'pending_approval').length;
       const suspended = suppliers.filter((s) => s.status === 'suspended').length;
@@ -161,8 +239,18 @@ export const suppliersApi = {
   /** Get paginated supplier list */
   getSuppliers: async (): Promise<PaginatedResponse<Supplier>> => {
     try {
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<Supplier>>>('/api/v1/admin/suppliers');
-      return unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
+      const backendData = response.data.data;
+      const suppliers = backendData.suppliers.map(mapBackendSupplier);
+      return {
+        data: suppliers,
+        meta: {
+          currentPage: backendData.meta.current_page,
+          lastPage: backendData.meta.last_page,
+          perPage: 20,
+          total: backendData.meta.total,
+        },
+      };
     } catch {
       return { data: DUMMY_SUPPLIERS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLIERS.length } };
     }
@@ -171,8 +259,8 @@ export const suppliersApi = {
   /** Get single supplier */
   getSupplier: async (id: number): Promise<Supplier> => {
     try {
-      const response = await apiClient.get<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}`);
-      return unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`);
+      return mapBackendSupplier(response.data.data);
     } catch {
       const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
       if (!supplier) throw new Error('Supplier not found');
@@ -183,8 +271,8 @@ export const suppliersApi = {
   /** Create a new supplier */
   createSupplier: async (data: Partial<Supplier>): Promise<Supplier> => {
     try {
-      const response = await apiClient.post<ApiResponse<Supplier>>('/api/v1/admin/suppliers', data);
-      return unwrap(response.data);
+      const response = await apiClient.post<ApiResponse<BackendSupplier>>('/api/v1/admin/suppliers', data);
+      return mapBackendSupplier(response.data.data);
     } catch {
       const newSupplier: Supplier = {
         id: DUMMY_SUPPLIERS.length + 1,
@@ -217,8 +305,8 @@ export const suppliersApi = {
   /** Update an existing supplier */
   updateSupplier: async (id: number, data: Partial<Supplier>): Promise<Supplier> => {
     try {
-      const response = await apiClient.put<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}`, data);
-      return unwrap(response.data);
+      const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
+      return mapBackendSupplier(response.data.data);
     } catch {
       const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
       if (!supplier) throw new Error('Supplier not found');
@@ -229,8 +317,8 @@ export const suppliersApi = {
   /** Approve a pending supplier */
   approveSupplier: async (id: number): Promise<Supplier> => {
     try {
-      const response = await apiClient.post<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}/approve`);
-      return unwrap(response.data);
+      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/approve`);
+      return mapBackendSupplier(response.data.data);
     } catch {
       const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
       if (!supplier) throw new Error('Supplier not found');
@@ -241,8 +329,8 @@ export const suppliersApi = {
   /** Suspend a supplier */
   suspendSupplier: async (id: number, reason: string): Promise<Supplier> => {
     try {
-      const response = await apiClient.post<ApiResponse<Supplier>>(`/api/v1/admin/suppliers/${id}/suspend`, { reason });
-      return unwrap(response.data);
+      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/suspend`, { reason });
+      return mapBackendSupplier(response.data.data);
     } catch {
       const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
       if (!supplier) throw new Error('Supplier not found');

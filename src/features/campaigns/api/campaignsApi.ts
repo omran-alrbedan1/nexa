@@ -1,9 +1,22 @@
 // ============================================================
 // Campaigns API Service
 // ============================================================
-// PDF Reference: §2.8 (الحملات الموسمية / Seasonal Campaigns)
-// Admin manages: campaign creation, product selection, scheduling
+// Backend table: seasonal_campaigns
+//   Columns: id, name_ar, name_en, description, zone_id,
+//            starts_at, ends_at, closed_at, status (draft/scheduled/open/closed/fulfilled/archived),
+//            created_at, updated_at
+// Relationships: zone (DeliveryZone), products (Product via campaign_id), orders (Order via campaign_id)
+// Admin routes: NOT YET BUILT — only customer-facing CampaignController exists
+// Predicted routes:
+//   GET    /api/v1/admin/seasonal-campaigns
+//   GET    /api/v1/admin/seasonal-campaigns/{id}
+//   POST   /api/v1/admin/seasonal-campaigns/{id}/activate
+//   POST   /api/v1/admin/seasonal-campaigns/{id}/close
+//   POST   /api/v1/admin/seasonal-campaigns/{id}/archive
 // ============================================================
+
+import { apiClient } from '@/lib/axios';
+import type { ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -53,6 +66,71 @@ export interface CampaignsPageData {
     totalBudget: number;
   };
   campaigns: Campaign[];
+}
+
+// ── Backend Raw Types (matching seasonal_campaigns DB table) ──
+
+interface BackendCampaign {
+  id: number;
+  name_ar: string;
+  name_en: string | null;
+  description: string | null;
+  zone_id: number;
+  starts_at: string;
+  ends_at: string;
+  closed_at: string | null;
+  status: 'draft' | 'scheduled' | 'open' | 'closed' | 'fulfilled' | 'archived';
+  created_at: string;
+  updated_at: string;
+  // Related data (when loaded via resource):
+  zone?: { id: number; name_en: string | null; name_ar: string } | null;
+  products_count?: number;
+  orders_count?: number;
+}
+
+interface BackendCampaignsResponse {
+  campaigns: BackendCampaign[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+// ── Mapping ──
+
+function mapBackendCampaignStatus(status: string): CampaignStatus {
+  const map: Record<string, CampaignStatus> = {
+    'draft': 'draft',
+    'scheduled': 'scheduled',
+    'open': 'active',
+    'closed': 'ended',
+    'fulfilled': 'ended',
+    'archived': 'ended',
+  };
+  return map[status] || 'draft';
+}
+
+function mapBackendCampaign(c: BackendCampaign): Campaign {
+  return {
+    id: c.id,
+    name: c.name_en || c.name_ar,
+    nameAr: c.name_ar,
+    description: c.description || '',
+    descriptionAr: '',
+    status: mapBackendCampaignStatus(c.status),
+    startDate: c.starts_at,
+    endDate: c.ends_at,
+    products: [],
+    totalOrders: c.orders_count || 0,
+    totalRevenue: 0, // not available from backend yet
+    budget: 0, // not available from backend yet
+    spentAmount: 0, // not available from backend yet
+    bannerUrl: null,
+    targetRegions: c.zone ? [c.zone.name_en || c.zone.name_ar] : [],
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
+  };
 }
 
 // ── Dummy Data ──
@@ -124,29 +202,59 @@ const DUMMY_STATS = {
   totalRevenue: 23660, totalOrders: 190, totalBudget: 58000,
 };
 
-function delay(ms = 350) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): CampaignsPageData {
+  return { stats: DUMMY_STATS, campaigns: DUMMY_CAMPAIGNS };
 }
 
 export const campaignsApi = {
+  /** Fetch all campaigns page data */
   getPageData: async (): Promise<CampaignsPageData> => {
-    await delay();
-    return { stats: DUMMY_STATS, campaigns: DUMMY_CAMPAIGNS };
+    try {
+      const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/seasonal-campaigns');
+      const backendData = response.data.data;
+      const campaigns = backendData.campaigns.map(mapBackendCampaign);
+      return {
+        stats: {
+          total: campaigns.length,
+          active: campaigns.filter((c) => c.status === 'active').length,
+          scheduled: campaigns.filter((c) => c.status === 'scheduled').length,
+          draft: campaigns.filter((c) => c.status === 'draft').length,
+          ended: campaigns.filter((c) => c.status === 'ended').length,
+          totalRevenue: campaigns.reduce((s, c) => s + c.totalRevenue, 0),
+          totalOrders: campaigns.reduce((s, c) => s + c.totalOrders, 0),
+          totalBudget: campaigns.reduce((s, c) => s + c.budget, 0),
+        },
+        campaigns,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
+  /** Get single campaign */
   getCampaign: async (id: number): Promise<Campaign> => {
-    await delay(200);
-    const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);
-    if (!campaign) throw new Error('Campaign not found');
-    return campaign;
+    try {
+      const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/seasonal-campaigns/${id}`);
+      return mapBackendCampaign(response.data.data);
+    } catch {
+      const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);
+      if (!campaign) throw new Error('Campaign not found');
+      return campaign;
+    }
   },
 
+  /** Activate, close, or archive a campaign */
   campaignAction: async (id: number, action: 'activate' | 'end' | 'cancel'): Promise<Campaign> => {
-    await delay(400);
-    const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);
-    if (!campaign) throw new Error('Campaign not found');
-    const statusMap = { activate: 'active', end: 'ended', cancel: 'cancelled' } as const;
-    return { ...campaign, status: statusMap[action], updatedAt: new Date().toISOString() };
+    try {
+      const endpoint = action === 'activate' ? 'activate' : action === 'end' ? 'close' : 'archive';
+      const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/seasonal-campaigns/${id}/${endpoint}`);
+      return mapBackendCampaign(response.data.data);
+    } catch {
+      const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);
+      if (!campaign) throw new Error('Campaign not found');
+      const statusMap = { activate: 'active', end: 'ended', cancel: 'ended' } as const;
+      return { ...campaign, status: statusMap[action], updatedAt: new Date().toISOString() };
+    }
   },
 };
 

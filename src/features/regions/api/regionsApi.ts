@@ -1,9 +1,17 @@
 // ============================================================
 // Regions API Service
 // ============================================================
-// PDF Reference: §10 (المناطق وأوقات التوصيل), §2.2.8 (Best Areas)
-// Admin manages: delivery regions, time slots, pricing, clustering
+// Backend tables: delivery_zones, provinces, clusters, delivery_slots, zone_working_days
+// Admin routes: NOT YET BUILT in backend
+// Predicted routes:
+//   GET    /api/v1/admin/zones
+//   GET    /api/v1/admin/zones/{id}
+//   POST   /api/v1/admin/zones/{id}/toggle
+//   PUT    /api/v1/admin/zones/{id}/delivery-fee
 // ============================================================
+
+import { apiClient } from '@/lib/axios';
+import type { ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -53,6 +61,50 @@ export interface RegionsPageData {
     avgDeliveryFee: number;
   };
   regions: Region[];
+}
+
+// ── Backend Raw Types (matching delivery_zones table — predicted API) ──
+
+interface BackendDeliveryZone {
+  id: number;
+  code: string;
+  name_ar: string;
+  name_en: string | null;
+  province_id: number;
+  is_active: boolean;
+  default_warehouse_id: number | null;
+  province?: { id: number; name: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface BackendZonesResponse {
+  zones: BackendDeliveryZone[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+// ── Mapping ──
+
+function mapBackendZone(z: BackendDeliveryZone): Region {
+  return {
+    id: z.id,
+    name: z.name_en || z.name_ar,
+    nameAr: z.name_ar,
+    deliveryFee: 0,
+    minimumOrder: 0,
+    freeDeliveryThreshold: null,
+    isActive: z.is_active,
+    clusters: [],
+    timeSlots: [],
+    totalOrders: 0,
+    totalRevenue: 0,
+    createdAt: z.created_at,
+    updatedAt: z.updated_at,
+  };
 }
 
 // ── Dummy Data ──
@@ -133,35 +185,67 @@ const DUMMY_STATS = {
   totalOrders: 308, totalRevenue: 151500, avgDeliveryFee: 15,
 };
 
-function delay(ms = 350) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): RegionsPageData {
+  return { stats: DUMMY_STATS, regions: DUMMY_REGIONS };
 }
 
 export const regionsApi = {
+  /** Fetch all regions page data */
   getPageData: async (): Promise<RegionsPageData> => {
-    await delay();
-    return { stats: DUMMY_STATS, regions: DUMMY_REGIONS };
+    try {
+      const response = await apiClient.get<ApiResponse<BackendZonesResponse>>('/api/v1/admin/zones');
+      const backendData = response.data.data;
+      const regions = backendData.zones.map(mapBackendZone);
+      return {
+        stats: {
+          totalRegions: regions.length,
+          activeRegions: regions.filter((r) => r.isActive).length,
+          totalClusters: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          avgDeliveryFee: 0,
+        },
+        regions,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
+  /** Get single region */
   getRegion: async (id: number): Promise<Region> => {
-    await delay(200);
-    const region = DUMMY_REGIONS.find((r) => r.id === id);
-    if (!region) throw new Error('Region not found');
-    return region;
+    try {
+      const response = await apiClient.get<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}`);
+      return mapBackendZone(response.data.data);
+    } catch {
+      const region = DUMMY_REGIONS.find((r) => r.id === id);
+      if (!region) throw new Error('Region not found');
+      return region;
+    }
   },
 
+  /** Toggle region active status */
   toggleActive: async (id: number): Promise<Region> => {
-    await delay(300);
-    const region = DUMMY_REGIONS.find((r) => r.id === id);
-    if (!region) throw new Error('Region not found');
-    return { ...region, isActive: !region.isActive, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/toggle`);
+      return mapBackendZone(response.data.data);
+    } catch {
+      const region = DUMMY_REGIONS.find((r) => r.id === id);
+      if (!region) throw new Error('Region not found');
+      return { ...region, isActive: !region.isActive, updatedAt: new Date().toISOString() };
+    }
   },
 
+  /** Update delivery fee */
   updateDeliveryFee: async (id: number, deliveryFee: number): Promise<Region> => {
-    await delay(300);
-    const region = DUMMY_REGIONS.find((r) => r.id === id);
-    if (!region) throw new Error('Region not found');
-    return { ...region, deliveryFee, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/delivery-fee`, { delivery_fee: deliveryFee });
+      return mapBackendZone(response.data.data);
+    } catch {
+      const region = DUMMY_REGIONS.find((r) => r.id === id);
+      if (!region) throw new Error('Region not found');
+      return { ...region, deliveryFee, updatedAt: new Date().toISOString() };
+    }
   },
 };
 

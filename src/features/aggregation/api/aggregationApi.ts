@@ -1,17 +1,26 @@
 // ============================================================
 // Aggregation (Warehouse) API Service
 // ============================================================
-// All types mirror what a real backend would return.
-// To switch to a real API:
-//   1. Replace the dummy data in delay()
-//   2. Uncomment the apiClient calls
-//   3. Update the import from '@/lib/axios'
+// Backend tables: warehouses, warehouse_zone, supply_records, order_warehouse_details
+// Admin routes: NOT YET BUILT in backend
+// Predicted routes (matching existing controller pattern):
+//   GET    /api/v1/admin/aggregation/supply-receiving
+//   POST   /api/v1/admin/aggregation/supply-receiving/{id}/confirm
+//   GET    /api/v1/admin/aggregation/queue
+//   POST   /api/v1/admin/aggregation/queue/{id}/start-processing
+//   POST   /api/v1/admin/aggregation/queue/{id}/pack
+//   POST   /api/v1/admin/aggregation/queue/{id}/quality-check
+//   GET    /api/v1/admin/aggregation/ready-to-ship
+//   POST   /api/v1/admin/aggregation/ready-to-ship/{id}/assign-trip
+//   GET    /api/v1/admin/aggregation/throughput
 // ============================================================
 
-import type { PaginatedResponse } from '@/types/common';
+import { apiClient } from '@/lib/axios';
+import { unwrap } from '@/lib/apiHelpers';
+import type { PaginatedResponse, ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
-// Domain Types — match real API contract
+// Domain Types
 // ──────────────────────────────────────────────
 
 export type SupplyStatus = 'pending' | 'in_transit' | 'received' | 'partial' | 'cancelled';
@@ -32,7 +41,7 @@ export interface WarehouseSupplyItem {
   items: string;
   itemCount: number;
   status: SupplyStatus;
-  eta: string;            // ISO 8601
+  eta: string;
   receivedAt: string | null;
   notes: string;
   createdAt: string;
@@ -57,7 +66,7 @@ export interface ReadyToShipItem {
   customerName: string;
   items: string;
   itemCount: number;
-  totalWeight: number;    // kg
+  totalWeight: number;
   status: ShipmentStatus;
   regionName: string;
   tripId: number | null;
@@ -72,7 +81,7 @@ export interface WarehouseThroughput {
   itemsShipped: number;
   activeWorkers: number;
   pendingReceiving: number;
-  avgProcessingTime: number; // minutes
+  avgProcessingTime: number;
 }
 
 export interface AggregationPageData {
@@ -81,8 +90,6 @@ export interface AggregationPageData {
   readyToShip: ReadyToShipItem[];
   throughput: WarehouseThroughput;
 }
-
-// ── Query params ──
 
 export interface SupplyReceivingParams {
   status?: SupplyStatus;
@@ -100,9 +107,69 @@ export interface AggregationQueueParams {
   perPage?: number;
 }
 
-// ──────────────────────────────────────────────
-// Dummy Data
-// ──────────────────────────────────────────────
+// ── Backend Raw Types (matching DB schema — predicted API response) ──
+
+interface BackendSupplyRecord {
+  id: number;
+  order_id: number;
+  supplier_id: number;
+  warehouse_id: number;
+  status: string;
+  expected_at: string | null;
+  arrived_at: string | null;
+  confirmed_at: string | null;
+  notes: string | null;
+  supplier?: { id: number; business_name: string; user?: { phone: string } } | null;
+  warehouse?: { id: number; name: string } | null;
+  created_at: string;
+}
+
+interface BackendAggregationQueueItem {
+  id: number;
+  order_number: string;
+  customer?: { name: string } | null;
+  warehouse?: { name: string } | null;
+  status: string;
+  assigned_user?: { full_name: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface BackendReadyToShipItem {
+  id: number;
+  order_number: string;
+  customer?: { name: string } | null;
+  warehouse?: { name: string } | null;
+  status: string;
+  trip_id: number | null;
+  trip?: { trip_code: string } | null;
+  packed_at: string | null;
+  created_at: string;
+}
+
+// ── Mapping ──
+
+function mapBackendSupplyStatus(status: string): SupplyStatus {
+  const map: Record<string, SupplyStatus> = { 'pending': 'pending', 'in_transit': 'in_transit', 'received': 'received', 'partial': 'partial', 'cancelled': 'cancelled' };
+  return map[status] || 'pending';
+}
+
+function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
+  return {
+    id: r.id,
+    supplier: { id: r.supplier_id, name: r.supplier?.business_name || `Supplier #${r.supplier_id}`, phone: r.supplier?.user?.phone || '' },
+    purchaseOrderNumber: `PO-${r.id}`,
+    items: '',
+    itemCount: 0,
+    status: mapBackendSupplyStatus(r.status),
+    eta: r.expected_at || r.created_at,
+    receivedAt: r.confirmed_at || r.arrived_at,
+    notes: r.notes || '',
+    createdAt: r.created_at,
+  };
+}
+
+// ── Dummy Data ──
 
 const DUMMY_SUPPLIERS: Supplier[] = [
   { id: 1, name: 'Fresh Farm Co.', phone: '+966501234001' },
@@ -141,111 +208,97 @@ const DUMMY_READY_TO_SHIP: ReadyToShipItem[] = [
   { id: 5, orderNumber: 'ORD-2025-015', customerName: 'Sami Walid', items: 'Assorted nuts & dried fruits pack', itemCount: 1, totalWeight: 1.5, status: 'pending_trip', regionName: 'Mecca North', tripId: null, tripName: null, packedAt: `${today}T09:15:00Z`, createdAt: '2025-06-06T12:00:00Z' },
 ];
 
-const DUMMY_THROUGHPUT: WarehouseThroughput = {
-  itemsReceived: 156,
-  itemsProcessed: 98,
-  itemsShipped: 72,
-  activeWorkers: 8,
-  pendingReceiving: 6,
-  avgProcessingTime: 45,
-};
+const DUMMY_THROUGHPUT: WarehouseThroughput = { itemsReceived: 156, itemsProcessed: 98, itemsShipped: 72, activeWorkers: 8, pendingReceiving: 6, avgProcessingTime: 45 };
 
-// ──────────────────────────────────────────────
-// Simulated async delay
-// ──────────────────────────────────────────────
-
-function delay(ms = 350): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getDummyPageData(): AggregationPageData {
+  return { supplyReceiving: DUMMY_SUPPLY_RECEIVING, aggregationQueue: DUMMY_AGGREGATION_QUEUE, readyToShip: DUMMY_READY_TO_SHIP, throughput: DUMMY_THROUGHPUT };
 }
 
-// ──────────────────────────────────────────────
-// API Methods — ready for backend integration
-// ──────────────────────────────────────────────
-// To connect to a real backend, uncomment the apiClient
-// lines and delete the dummy data fallbacks.
-// import { apiClient } from '@/lib/axios';
-
 export const aggregationApi = {
-
   /** Fetch all warehouse/aggregation page data */
   getPageData: async (): Promise<AggregationPageData> => {
-    await delay();
-    return {
-      supplyReceiving: DUMMY_SUPPLY_RECEIVING,
-      aggregationQueue: DUMMY_AGGREGATION_QUEUE,
-      readyToShip: DUMMY_READY_TO_SHIP,
-      throughput: DUMMY_THROUGHPUT,
-    };
+    try {
+      const response = await apiClient.get<ApiResponse<{ supply_records: BackendSupplyRecord[] }>>('/api/v1/admin/aggregation/supply-receiving');
+      const backendData = unwrap(response.data);
+      return {
+        supplyReceiving: (backendData.supply_records || []).map(mapBackendSupplyRecord),
+        // These still use dummy — no backend routes yet for queue/ready/throughput
+        aggregationQueue: DUMMY_AGGREGATION_QUEUE,
+        readyToShip: DUMMY_READY_TO_SHIP,
+        throughput: DUMMY_THROUGHPUT,
+      };
+    } catch {
+      return getDummyPageData();
+    }
   },
 
   /** Fetch supply receiving list with optional filters */
   getSupplyReceiving: async (_params?: SupplyReceivingParams): Promise<PaginatedResponse<WarehouseSupplyItem>> => {
-    await delay();
-    return {
-      data: DUMMY_SUPPLY_RECEIVING,
-      meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLY_RECEIVING.length },
-    };
+    try {
+      const response = await apiClient.get<ApiResponse<{ supply_records: BackendSupplyRecord[] }>>('/api/v1/admin/aggregation/supply-receiving');
+      const backendData = unwrap(response.data);
+      const items = (backendData.supply_records || []).map(mapBackendSupplyRecord);
+      return { data: items, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: items.length } };
+    } catch {
+      return { data: DUMMY_SUPPLY_RECEIVING, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLY_RECEIVING.length } };
+    }
   },
 
-  /** Fetch aggregation queue with optional filters */
+  /** Fetch aggregation queue — no backend route yet, dummy */
   getAggregationQueue: async (_params?: AggregationQueueParams): Promise<PaginatedResponse<AggregationOrder>> => {
-    await delay();
-    return {
-      data: DUMMY_AGGREGATION_QUEUE,
-      meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_AGGREGATION_QUEUE.length },
-    };
+    await new Promise((r) => setTimeout(r, 300));
+    return { data: DUMMY_AGGREGATION_QUEUE, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_AGGREGATION_QUEUE.length } };
   },
 
   /** Confirm receipt of supplier items */
   confirmReceipt: async (supplyId: number): Promise<WarehouseSupplyItem> => {
-    await delay(600);
-    const item = DUMMY_SUPPLY_RECEIVING.find((s) => s.id === supplyId);
-    if (!item) throw new Error('Supply item not found');
-    return {
-      ...item,
-      status: 'received',
-      receivedAt: new Date().toISOString(),
-    };
+    try {
+      const response = await apiClient.post<ApiResponse<BackendSupplyRecord>>(`/api/v1/admin/aggregation/supply-receiving/${supplyId}/confirm`);
+      return mapBackendSupplyRecord(response.data.data);
+    } catch {
+      const item = DUMMY_SUPPLY_RECEIVING.find((s) => s.id === supplyId);
+      if (!item) throw new Error('Supply item not found');
+      return { ...item, status: 'received', receivedAt: new Date().toISOString() };
+    }
   },
 
-  /** Start processing an order in the aggregation queue */
+  /** Start processing — no backend route yet, dummy */
   startProcessing: async (orderId: number, assignee: string): Promise<AggregationOrder> => {
-    await delay(500);
+    await new Promise((r) => setTimeout(r, 500));
     const order = DUMMY_AGGREGATION_QUEUE.find((o) => o.id === orderId);
     if (!order) throw new Error('Order not found');
     return { ...order, status: 'processing', assignedTo: assignee, updatedAt: new Date().toISOString() };
   },
 
-  /** Mark order as packed and ready for quality check */
+  /** Mark packed — no backend route yet, dummy */
   markPacked: async (orderId: number): Promise<AggregationOrder> => {
-    await delay(500);
+    await new Promise((r) => setTimeout(r, 500));
     const order = DUMMY_AGGREGATION_QUEUE.find((o) => o.id === orderId);
     if (!order) throw new Error('Order not found');
     return { ...order, status: 'packed', updatedAt: new Date().toISOString() };
   },
 
-  /** Pass quality check — move to ready-to-ship */
+  /** Pass quality check — no backend route yet, dummy */
   passQualityCheck: async (orderId: number): Promise<AggregationOrder> => {
-    await delay(500);
+    await new Promise((r) => setTimeout(r, 500));
     const order = DUMMY_AGGREGATION_QUEUE.find((o) => o.id === orderId);
     if (!order) throw new Error('Order not found');
     return { ...order, status: 'completed', updatedAt: new Date().toISOString() };
   },
 
-  /** Assign ready-to-ship items to a trip */
+  /** Assign to trip — no backend route yet, dummy */
   assignToTrip: async (itemId: number, tripId: number, tripName: string): Promise<ReadyToShipItem> => {
-    await delay(600);
+    await new Promise((r) => setTimeout(r, 600));
     const item = DUMMY_READY_TO_SHIP.find((r) => r.id === itemId);
     if (!item) throw new Error('Item not found');
     return { ...item, status: 'assigned_to_trip', tripId, tripName };
   },
 
-  /** Get warehouse throughput stats */
+  /** Get warehouse throughput stats — no backend route yet, dummy */
   getThroughput: async (): Promise<WarehouseThroughput> => {
-    await delay(200);
+    await new Promise((r) => setTimeout(r, 200));
     return DUMMY_THROUGHPUT;
   },
 };
 
-/** Type helper for API response types */
 export type AggregationApi = typeof aggregationApi;

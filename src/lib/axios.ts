@@ -20,8 +20,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
+      const requestUrl = error.config?.url || '';
+
       // 401 — clear session and redirect to login (no toast, handled by ProtectedRoute)
-      if (error.response?.status === 401) {
+      // Skip the redirect for login endpoint — a 401 there means wrong credentials, not expired session
+      if (error.response?.status === 401 && !requestUrl.includes('/login')) {
         localStorage.removeItem('auth_token');
         window.location.href = '/login';
         return Promise.reject(error);

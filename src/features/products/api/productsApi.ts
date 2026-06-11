@@ -59,6 +59,68 @@ export interface ProductsPageData {
   products: DashboardProduct[];
 }
 
+// ── Backend Raw Types (matches GET /api/v1/admin/products response) ──
+
+interface BackendProductSupplier {
+  id: number;
+  business_name: string;
+}
+
+interface BackendProductCategory {
+  id: number;
+  name: string;
+}
+
+interface BackendProduct {
+  id: number;
+  sku: string;
+  name_ar: string;
+  price: string;
+  unit: string;
+  stock_quantity: number;
+  approval_status: string;
+  rejection_reason: string | null;
+  is_active: boolean;
+  primary_image: string | null;
+  updated_at: string;
+  supplier: BackendProductSupplier | null;
+  category: BackendProductCategory | null;
+}
+
+interface BackendProductsResponse {
+  products: BackendProduct[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
+}
+
+// ── Mapping: BackendProduct → frontend DashboardProduct ──
+
+function mapBackendProduct(bp: BackendProduct): DashboardProduct {
+  return {
+    id: bp.id,
+    name: bp.name_ar, // backend has only Arabic name, use it for both
+    nameAr: bp.name_ar,
+    description: '', // not available from backend
+    descriptionAr: '', // not available from backend
+    price: parseFloat(bp.price) || 0,
+    unit: bp.unit || 'piece',
+    imageUrl: bp.primary_image || null,
+    categoryId: bp.category?.id || 0,
+    categoryName: bp.category?.name || 'Uncategorized',
+    supplierId: bp.supplier?.id || null,
+    supplierName: bp.supplier?.business_name || null,
+    source: 'supplier', // default — not available from backend
+    isAvailable: bp.is_active,
+    stockQuantity: Number(bp.stock_quantity),
+    totalOrders: 0, // not available from backend
+    createdAt: bp.updated_at, // backend has no created_at on products
+    updatedAt: bp.updated_at,
+  };
+}
+
 // ── Dummy Data (fallback) ──
 
 const DUMMY_CATEGORIES: ProductCategory[] = [
@@ -103,10 +165,11 @@ export const productsApi = {
   getPageData: async (): Promise<ProductsPageData> => {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        apiClient.get<ApiResponse<DashboardProduct[]>>('/api/v1/admin/products'),
+        apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products'),
         apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories').catch(() => null),
       ]);
-      const products = unwrap(productsRes.data);
+      const backendData = productsRes.data.data; // { products: [...], meta: {...} }
+      const products = backendData.products.map(mapBackendProduct);
       const categories = categoriesRes ? unwrap(categoriesRes.data) : DUMMY_CATEGORIES;
       const available = products.filter((p) => p.isAvailable).length;
       const outOfStock = products.filter((p) => p.stockQuantity === 0 && p.isAvailable).length;
@@ -135,8 +198,18 @@ export const productsApi = {
   /** Get paginated product list */
   getProducts: async (): Promise<PaginatedResponse<DashboardProduct>> => {
     try {
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<DashboardProduct>>>('/api/v1/admin/products');
-      return unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products');
+      const backendData = response.data.data;
+      const products = backendData.products.map(mapBackendProduct);
+      return {
+        data: products,
+        meta: {
+          currentPage: backendData.meta.current_page,
+          lastPage: backendData.meta.last_page,
+          perPage: 20,
+          total: backendData.meta.total,
+        },
+      };
     } catch {
       return { data: DUMMY_PRODUCTS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_PRODUCTS.length } };
     }
@@ -145,8 +218,8 @@ export const productsApi = {
   /** Get single product */
   getProduct: async (id: number): Promise<DashboardProduct> => {
     try {
-      const response = await apiClient.get<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}`);
-      return unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`);
+      return mapBackendProduct(response.data.data);
     } catch {
       const product = DUMMY_PRODUCTS.find((p) => p.id === id);
       if (!product) throw new Error('Product not found');
@@ -157,8 +230,8 @@ export const productsApi = {
   /** Create a new product */
   createProduct: async (data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
     try {
-      const response = await apiClient.post<ApiResponse<DashboardProduct>>('/api/v1/admin/products', data);
-      return unwrap(response.data);
+      const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', data);
+      return mapBackendProduct(response.data.data);
     } catch {
       const newProduct: DashboardProduct = {
         id: DUMMY_PRODUCTS.length + 1,
@@ -177,8 +250,8 @@ export const productsApi = {
   /** Update product */
   updateProduct: async (id: number, data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
     try {
-      const response = await apiClient.put<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}`, data);
-      return unwrap(response.data);
+      const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, data);
+      return mapBackendProduct(response.data.data);
     } catch {
       const product = DUMMY_PRODUCTS.find((p) => p.id === id);
       if (!product) throw new Error('Product not found');
@@ -189,8 +262,8 @@ export const productsApi = {
   /** Toggle product availability */
   toggleAvailability: async (id: number): Promise<DashboardProduct> => {
     try {
-      const response = await apiClient.post<ApiResponse<DashboardProduct>>(`/api/v1/admin/products/${id}/toggle`);
-      return unwrap(response.data);
+      const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/toggle`);
+      return mapBackendProduct(response.data.data);
     } catch {
       const product = DUMMY_PRODUCTS.find((p) => p.id === id);
       if (!product) throw new Error('Product not found');
