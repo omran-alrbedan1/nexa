@@ -1,14 +1,15 @@
 // ============================================================
 // Operations API Service
 // ============================================================
-// Backend: GET /api/v1/admin/orders (OrderController@index)
-//         GET /api/v1/admin/orders/{id} (OrderController@show)
-//         PUT /api/v1/admin/orders/{id}/status (OrderController@updateStatus)
-//
-// Predicted (not yet built in backend):
-//         GET /api/v1/admin/special-requests
-//         GET /api/v1/admin/complaints
-//         GET /api/v1/admin/customers
+// Backend - ✅ BUILT:
+//   GET    /api/v1/admin/orders (OrderController@index)
+//   GET    /api/v1/admin/orders/{id} (OrderController@show)
+//   PUT    /api/v1/admin/orders/{id}/status (OrderController@updateStatus)
+//   GET    /api/v1/admin/special-orders (SpecialOrderController@index)
+//   GET    /api/v1/admin/support-tickets (SupportTicketController@index)
+//   POST   /api/v1/admin/support-tickets/{id}/assign (SupportTicketController@assign)
+//   PUT    /api/v1/admin/support-tickets/{id}/status (SupportTicketController@updateStatus)
+//   GET    /api/v1/admin/customers (CustomerController@index)
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -209,6 +210,18 @@ function mapBackendPaymentStatus(status: string): PaymentStatus {
   return map[status] || 'pending';
 }
 
+function mapBackendSpecialOrderStatus(status: string): SpecialRequest['status'] {
+  const map: Record<string, SpecialRequest['status']> = {
+    'pending_admin': 'pending_management',
+    'pending_pricing': 'pending_pricing',
+    'pending_customer': 'pending_customer_approval',
+    'approved': 'approved',
+    'rejected': 'rejected',
+    'cancelled': 'cancelled',
+  };
+  return map[status] || 'pending_management';
+}
+
 function mapBackendOrder(bo: BackendOrder): OperationsOrder {
   return {
     id: bo.id,
@@ -343,12 +356,41 @@ export const operationsApi = {
     }
   },
 
-  /** Get special requests — no backend route yet, dummy fallback */
+  /** Get special requests from backend */
   getSpecialRequests: async (_params?: SpecialRequestParams): Promise<PaginatedResponse<SpecialRequest>> => {
-    await new Promise((r) => setTimeout(r, 300));
-    let filtered = [...DUMMY_SPECIAL_REQUESTS];
-    if (_params?.status) filtered = filtered.filter((r) => r.status === _params.status);
-    return { data: filtered, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length } };
+    try {
+      const params = new URLSearchParams();
+      if (_params?.status) params.set('status', _params.status);
+      if (_params?.page) params.set('page', String(_params.page));
+      if (_params?.perPage) params.set('per_page', String(_params.perPage));
+      const qs = params.toString();
+      const response = await apiClient.get<ApiResponse<{ special_orders: any[] }>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
+      const backendData = response.data.data;
+      // Map backend special orders to frontend format
+      const items: SpecialRequest[] = (backendData.special_orders || []).map((so: any) => ({
+        id: so.id,
+        orderNumber: so.reference_number || `SPO-${so.id}`,
+        customerId: so.customer_id || 0,
+        customerName: so.customer?.full_name || 'Unknown',
+        customerPhone: so.customer?.phone || '',
+        requestDetails: so.customer_notes || '',
+        estimatedBudget: so.estimated_budget !== undefined ? Number(so.estimated_budget) : null,
+        status: mapBackendSpecialOrderStatus(so.status),
+        assignedTo: so.assigned_to_user?.full_name || (so.assigned_supplier?.business_name ?? null),
+        priceQuote: null,
+        notes: so.internal_notes || '',
+        createdAt: so.created_at,
+        updatedAt: so.updated_at || so.created_at,
+      }));
+      return {
+        data: items,
+        meta: { currentPage: 1, lastPage: 1, perPage: 20, total: items.length },
+      };
+    } catch {
+      let filtered = [...DUMMY_SPECIAL_REQUESTS];
+      if (_params?.status) filtered = filtered.filter((r) => r.status === _params.status);
+      return { data: filtered, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length } };
+    }
   },
 
   // ── Mutations ──
@@ -365,12 +407,33 @@ export const operationsApi = {
     }
   },
 
-  /** Assign a special request for pricing — no backend route yet, dummy */
-  assignForPricing: async (requestId: number, assignedTo: string): Promise<SpecialRequest> => {
-    await new Promise((r) => setTimeout(r, 400));
-    const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
-    if (!request) throw new Error('Request not found');
-    return { ...request, status: 'pending_pricing', assignedTo, updatedAt: new Date().toISOString() };
+  /** Assign a special request for pricing — backend uses POST /special-orders/{id}/assign-staff */
+  assignForPricing: async (requestId: number, assignedTo: string, staffUserId?: number): Promise<SpecialRequest> => {
+    try {
+      const response = await apiClient.post<ApiResponse<any>>(`/api/v1/admin/special-orders/${requestId}/assign-staff`, {
+        staff_user_id: staffUserId || 1,
+      });
+      const data = unwrap(response.data);
+      return {
+        id: data.id,
+        orderNumber: data.reference_number || `SPO-${data.id}`,
+        customerId: data.customer_id || 0,
+        customerName: data.customer?.full_name || 'Unknown',
+        customerPhone: data.customer?.phone || '',
+        requestDetails: data.customer_notes || '',
+        estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
+        status: mapBackendSpecialOrderStatus(data.status),
+        assignedTo,
+        priceQuote: null,
+        notes: data.internal_notes || '',
+        createdAt: data.created_at,
+        updatedAt: data.updated_at || data.created_at,
+      };
+    } catch {
+      const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
+      if (!request) throw new Error('Request not found');
+      return { ...request, status: 'pending_pricing', assignedTo, updatedAt: new Date().toISOString() };
+    }
   },
 
   /** Submit a price quote — no backend route yet, dummy */
@@ -381,20 +444,56 @@ export const operationsApi = {
     return { ...request, status: 'pending_customer_approval', priceQuote: price, notes: notes || request.notes, updatedAt: new Date().toISOString() };
   },
 
-  /** Assign a complaint — no backend route yet, dummy */
+  /** Assign a complaint — backend uses POST /support-tickets/{id}/assign */
   assignComplaint: async (complaintId: number, assignedTo: string): Promise<Complaint> => {
-    await new Promise((r) => setTimeout(r, 400));
-    const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
-    if (!complaint) throw new Error('Complaint not found');
-    return { ...complaint, status: 'in_progress', assignedTo, updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.post<ApiResponse<any>>(`/api/v1/admin/support-tickets/${complaintId}/assign`, { staff_id: 1 });
+      const ticket = response.data.data;
+      return {
+        id: ticket.id,
+        ticketNumber: ticket.ticket_number || `TKT-${ticket.id}`,
+        customerId: ticket.customer_id || 0,
+        customerName: ticket.customer?.full_name || 'Unknown',
+        subject: ticket.subject || '',
+        description: ticket.description || '',
+        status: 'in_progress',
+        priority: ticket.priority || 'medium',
+        assignedTo,
+        relatedOrderNumber: null,
+        createdAt: ticket.created_at,
+        updatedAt: ticket.updated_at || ticket.created_at,
+      };
+    } catch {
+      const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
+      if (!complaint) throw new Error('Complaint not found');
+      return { ...complaint, status: 'in_progress', assignedTo, updatedAt: new Date().toISOString() };
+    }
   },
 
-  /** Resolve a complaint — no backend route yet, dummy */
+  /** Resolve a complaint — backend uses PUT /support-tickets/{id}/status with status=resolved */
   resolveComplaint: async (complaintId: number): Promise<Complaint> => {
-    await new Promise((r) => setTimeout(r, 500));
-    const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
-    if (!complaint) throw new Error('Complaint not found');
-    return { ...complaint, status: 'resolved', updatedAt: new Date().toISOString() };
+    try {
+      const response = await apiClient.put<ApiResponse<any>>(`/api/v1/admin/support-tickets/${complaintId}/status`, { status: 'resolved' });
+      const ticket = response.data.data;
+      return {
+        id: ticket.id,
+        ticketNumber: ticket.ticket_number || `TKT-${ticket.id}`,
+        customerId: ticket.customer_id || 0,
+        customerName: ticket.customer?.full_name || 'Unknown',
+        subject: ticket.subject || '',
+        description: ticket.description || '',
+        status: 'resolved',
+        priority: ticket.priority || 'medium',
+        assignedTo: null,
+        relatedOrderNumber: null,
+        createdAt: ticket.created_at,
+        updatedAt: ticket.updated_at || ticket.created_at,
+      };
+    } catch {
+      const complaint = DUMMY_COMPLAINTS.find((c) => c.id === complaintId);
+      if (!complaint) throw new Error('Complaint not found');
+      return { ...complaint, status: 'resolved', updatedAt: new Date().toISOString() };
+    }
   },
 };
 

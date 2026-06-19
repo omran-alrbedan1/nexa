@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import { Megaphone, PlayCircle, CalendarClock, FileEdit, ShoppingCart, TrendingUp, Filter, Plus, CalendarRange } from 'lucide-react';
 import type { CampaignStatus } from '../api/campaignsApi';
 
@@ -23,6 +25,7 @@ const STAT_CONFIG = [
 ];
 
 export function CampaignsPage() {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
 
@@ -102,7 +105,7 @@ export function CampaignsPage() {
       <Card padding="lg">
         <CardHeader
           action={
-            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => useToastStore.getState().addToast('info', 'Create campaign form coming soon')}>
+            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.CAMPAIGN_CREATE)}>
               New Campaign
             </Button>
           }
@@ -138,7 +141,7 @@ export function CampaignsPage() {
         ) : (
           <div className="space-y-3">
             {campaigns.map((camp) => (
-              <div key={camp.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
+              <div key={camp.id} onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(camp.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
@@ -178,7 +181,7 @@ export function CampaignsPage() {
                   </div>
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                     {getActions(camp.status).map((action) => (
-                      <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={() => campaignAction.mutate({ id: camp.id, action: action.action })}>
+                      <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={(e) => { e.stopPropagation(); campaignAction.mutate({ id: camp.id, action: action.action }); }}>
                         {action.label}
                       </Button>
                     ))}

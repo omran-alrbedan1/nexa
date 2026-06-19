@@ -46,7 +46,7 @@ export function ProductsPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const allCategories = categories.flatMap((c) => [c, ...(c.children || [])]);
+  const allCategories = Array.isArray(categories) ? categories.flatMap((c) => [c, ...(c.children || [])]) : [];
   const hasLowStock = products.filter((p) => p.isAvailable && p.stockQuantity < 20).length;
 
   return (
@@ -103,7 +103,7 @@ export function ProductsPage() {
       <Card padding="lg">
         <CardHeader
           action={
-            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => useToastStore.getState().addToast('info', 'Create product form coming soon')}>
+            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.PRODUCT_CREATE)}>
               Add Product
             </Button>
           }

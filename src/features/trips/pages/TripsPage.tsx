@@ -7,6 +7,8 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
 import type { DashboardTrip } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
@@ -36,6 +38,7 @@ const STAT_CONFIG = [
 ];
 
 export function TripsPage() {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useTripsPage();
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
@@ -77,7 +80,7 @@ export function TripsPage() {
   };
 
   const openCreateTrip = () => {
-    useToastStore.getState().addToast('info', 'Create trip form coming soon');
+    navigate(ROUTES.TRIP_CREATE);
   };
 
   return (
@@ -169,7 +172,7 @@ export function TripsPage() {
         ) : (
           <div className="space-y-2">
             {trips.map((trip) => (
-              <div key={trip.id} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all group">
+              <div key={trip.id} onClick={() => navigate(ROUTES.TRIP_DETAIL(trip.id))} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all group cursor-pointer">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-brand-primary-light flex items-center justify-center flex-shrink-0">
@@ -190,7 +193,7 @@ export function TripsPage() {
                 </div>
                 <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                   {getActions(trip).map((action, i) => (
-                    <Button key={i} variant={action.variant} size="sm" leftIcon={action.icon} onClick={action.onClick}>
+                    <Button key={i} variant={action.variant} size="sm" leftIcon={action.icon} onClick={(e) => { e.stopPropagation(); action.onClick(); }}>
                       {action.label}
                     </Button>
                   ))}

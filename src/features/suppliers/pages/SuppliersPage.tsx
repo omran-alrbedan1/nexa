@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -23,6 +25,7 @@ const STAT_CONFIG = [
 ];
 
 export function SuppliersPage() {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useSuppliersPage();
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
@@ -100,7 +103,7 @@ export function SuppliersPage() {
       <Card padding="lg">
         <CardHeader
           action={
-            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => useToastStore.getState().addToast('info', 'Create supplier form coming soon')}>
+            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.SUPPLIER_CREATE)}>
               Add Supplier
             </Button>
           }
@@ -144,7 +147,7 @@ export function SuppliersPage() {
         ) : (
           <div className="space-y-3">
             {suppliers.map((supplier) => (
-              <div key={supplier.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
+              <div key={supplier.id} onClick={() => navigate(ROUTES.SUPPLIER_DETAIL(supplier.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
@@ -181,12 +184,12 @@ export function SuppliersPage() {
                   </div>
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                     {supplier.status === 'pending_approval' && (
-                      <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={() => approveSupplier.mutate(supplier.id)}>Approve</Button>
+                      <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>Approve</Button>
                     )}
                     {supplier.status === 'active' && (
-                      <Button variant="danger" size="sm" onClick={() => setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' })}>Suspend</Button>
+                      <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>Suspend</Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={() => useToastStore.getState().addToast('info', `${supplier.name} detail page coming soon`)}>View</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>View</Button>
                   </div>
                 </div>
               </div>

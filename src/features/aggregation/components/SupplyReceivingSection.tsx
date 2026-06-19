@@ -10,16 +10,18 @@ import type { WarehouseSupplyItem, SupplyStatus } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<SupplyStatus, 'green' | 'yellow' | 'blue' | 'orange' | 'red'> = {
   pending: 'yellow',
+  awaiting_supplier: 'orange',
   in_transit: 'blue',
-  received: 'green',
+  confirmed: 'green',
   partial: 'orange',
   cancelled: 'red',
 };
 
 const STATUS_LABELS: Record<SupplyStatus, string> = {
   pending: 'Pending',
+  awaiting_supplier: 'Awaiting Supplier',
   in_transit: 'In Transit',
-  received: 'Received',
+  confirmed: 'Confirmed',
   partial: 'Partially Received',
   cancelled: 'Cancelled',
 };
@@ -42,7 +44,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
     return matchesSearch && matchesStatus;
   });
 
-  const pendingCount = items.filter((i) => i.status === 'pending' || i.status === 'in_transit').length;
+  const pendingCount = items.filter((i) => i.status === 'pending' || i.status === 'awaiting_supplier' || i.status === 'in_transit').length;
 
   return (
     <Card padding="md">
@@ -80,8 +82,9 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
         >
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
+          <option value="awaiting_supplier">Awaiting Supplier</option>
           <option value="in_transit">In Transit</option>
-          <option value="received">Received</option>
+          <option value="confirmed">Confirmed</option>
           <option value="partial">Partial</option>
         </select>
       </div>
@@ -133,7 +136,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
                   status={STATUS_LABELS[item.status]}
                   color={STATUS_COLORS[item.status]}
                 />
-                {(item.status === 'pending' || item.status === 'in_transit') && (
+                {(item.status === 'pending' || item.status === 'awaiting_supplier' || item.status === 'in_transit') && (
                   <Button
                     variant="primary"
                     size="sm"
@@ -153,7 +156,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
       {!isLoading && items.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {items.filter((i) => i.status === 'received').length} received today
+            {items.filter((i) => i.status === 'confirmed').length} confirmed today
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"

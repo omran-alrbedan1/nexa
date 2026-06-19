@@ -2,10 +2,12 @@
 // Products API Service (Dashboard version)
 // ============================================================
 // Backend: GET /api/v1/admin/products (ProductController@index)
+//         GET /api/v1/admin/products/pending-approvals (ProductController@pendingApprovals)
 //         GET /api/v1/admin/products/{id} (ProductController@show)
 //         POST /api/v1/admin/products (ProductController@store)
 //         PUT /api/v1/admin/products/{id} (ProductController@update)
-//         POST /api/v1/admin/products/{id}/toggle (ProductController@toggleAvailability)
+//         POST /api/v1/admin/products/{id}/approve (ProductController@approve)
+//         POST /api/v1/admin/products/{id}/reject (ProductController@reject)
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -259,6 +261,16 @@ export const productsApi = {
     }
   },
 
+  /** Fetch pending-approval products (uses dedicated endpoint) */
+  getPendingApprovals: async (): Promise<DashboardProduct[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendProduct[]>>('/api/v1/admin/products/pending-approvals');
+      return response.data.data.map(mapBackendProduct);
+    } catch {
+      return DUMMY_PRODUCTS.filter((p) => !p.isAvailable);
+    }
+  },
+
   /** Toggle product availability */
   toggleAvailability: async (id: number): Promise<DashboardProduct> => {
     try {
@@ -268,6 +280,26 @@ export const productsApi = {
       const product = DUMMY_PRODUCTS.find((p) => p.id === id);
       if (!product) throw new Error('Product not found');
       return { ...product, isAvailable: !product.isAvailable, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Adjust stock level (add or remove units) — backend expects {quantity, type, note?} */
+  adjustStock: async (id: number, adjustment: number, reason: string, type: 'add' | 'deduct' = 'add'): Promise<DashboardProduct> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/stock-adjust`, {
+        quantity: Math.abs(adjustment),
+        type,
+        note: reason,
+      });
+      return mapBackendProduct(response.data.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return {
+        ...product,
+        stockQuantity: product.stockQuantity + (type === 'add' ? Math.abs(adjustment) : -Math.abs(adjustment)),
+        updatedAt: new Date().toISOString(),
+      };
     }
   },
 };

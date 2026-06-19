@@ -2,17 +2,13 @@
 // Campaigns API Service
 // ============================================================
 // Backend table: seasonal_campaigns
-//   Columns: id, name_ar, name_en, description, zone_id,
-//            starts_at, ends_at, closed_at, status (draft/scheduled/open/closed/fulfilled/archived),
-//            created_at, updated_at
-// Relationships: zone (DeliveryZone), products (Product via campaign_id), orders (Order via campaign_id)
-// Admin routes: NOT YET BUILT — only customer-facing CampaignController exists
-// Predicted routes:
-//   GET    /api/v1/admin/seasonal-campaigns
-//   GET    /api/v1/admin/seasonal-campaigns/{id}
-//   POST   /api/v1/admin/seasonal-campaigns/{id}/activate
-//   POST   /api/v1/admin/seasonal-campaigns/{id}/close
-//   POST   /api/v1/admin/seasonal-campaigns/{id}/archive
+// Admin routes: ✅ BUILT (CampaignController)
+//   GET    /api/v1/admin/campaigns
+//   POST   /api/v1/admin/campaigns
+//   GET    /api/v1/admin/campaigns/{id}
+//   PUT    /api/v1/admin/campaigns/{id}
+//   POST   /api/v1/admin/campaigns/{id}/close
+// Note: activate/archive endpoints are ✅ BUILT (commit d991d0b — AdminCampaignService)
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -210,7 +206,7 @@ export const campaignsApi = {
   /** Fetch all campaigns page data */
   getPageData: async (): Promise<CampaignsPageData> => {
     try {
-      const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/seasonal-campaigns');
+      const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/campaigns');
       const backendData = response.data.data;
       const campaigns = backendData.campaigns.map(mapBackendCampaign);
       return {
@@ -234,7 +230,7 @@ export const campaignsApi = {
   /** Get single campaign */
   getCampaign: async (id: number): Promise<Campaign> => {
     try {
-      const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/seasonal-campaigns/${id}`);
+      const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`);
       return mapBackendCampaign(response.data.data);
     } catch {
       const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);
@@ -247,7 +243,7 @@ export const campaignsApi = {
   campaignAction: async (id: number, action: 'activate' | 'end' | 'cancel'): Promise<Campaign> => {
     try {
       const endpoint = action === 'activate' ? 'activate' : action === 'end' ? 'close' : 'archive';
-      const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/seasonal-campaigns/${id}/${endpoint}`);
+      const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}/${endpoint}`);
       return mapBackendCampaign(response.data.data);
     } catch {
       const campaign = DUMMY_CAMPAIGNS.find((c) => c.id === id);

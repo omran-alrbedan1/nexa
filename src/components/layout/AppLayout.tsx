@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   LayoutDashboard, ClipboardList, Truck, Warehouse, Users,
-  Map, Megaphone, Package, Menu, Bell, Settings, X,
-  HelpCircle, LogOut, ChevronRight, Search, User,
+  Map, Megaphone, Package, Menu, Bell, X,
+  LogOut, ChevronRight, Search, Sun, Moon,
 } from 'lucide-react';
 
 interface NavItem {
@@ -31,10 +33,12 @@ const ALL_NAV_ITEMS: NavItem[] = [
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -127,11 +131,7 @@ export function AppLayout() {
         </nav>
 
         {/* Footer Actions */}
-        <div className="mt-auto border-t border-border-default p-3 space-y-0.5">
-          <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-text-secondary hover:bg-bg-section-alt hover:text-text-primary transition-colors font-body font-medium">
-            <HelpCircle size={20} className="text-text-tertiary" />
-            Help Center
-          </button>
+        <div className="mt-auto border-t border-border-default p-3">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-status-error hover:bg-brand-accent-light transition-colors font-body font-medium"
@@ -141,6 +141,9 @@ export function AppLayout() {
           </button>
         </div>
       </aside>
+
+      {/* ── Notifications Panel ── */}
+      <NotificationsPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
 
       {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -175,16 +178,28 @@ export function AppLayout() {
 
             {/* Right Section */}
             <div className="flex items-center gap-2">
-              <button className="relative p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors">
+              <button
+                onClick={() => setNotificationsOpen(true)}
+                className="relative p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors"
+                title="Notifications"
+              >
                 <Bell size={20} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full border border-white" />
               </button>
-              <button className="p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors">
-                <Settings size={20} />
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <div className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-body text-xs font-bold ml-1 shadow-sm">
+              <button
+                onClick={() => navigate(ROUTES.PROFILE)}
+                className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center font-body text-xs font-bold ml-1 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                title="Profile"
+              >
                 {user?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'AD'}
-              </div>
+              </button>
             </div>
           </div>
 

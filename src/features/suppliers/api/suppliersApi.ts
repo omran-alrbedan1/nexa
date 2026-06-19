@@ -2,11 +2,12 @@
 // Suppliers API Service
 // ============================================================
 // Backend: GET /api/v1/admin/suppliers (SupplierController@index)
+//         GET /api/v1/admin/suppliers/pending-approvals (SupplierController@pendingApprovals)
 //         GET /api/v1/admin/suppliers/{id} (SupplierController@show)
 //         POST /api/v1/admin/suppliers (SupplierController@store)
 //         PUT /api/v1/admin/suppliers/{id} (SupplierController@update)
 //         POST /api/v1/admin/suppliers/{id}/approve (SupplierController@approve)
-//         POST /api/v1/admin/suppliers/{id}/suspend (SupplierController@suspend)
+//         POST /api/v1/admin/suppliers/{id}/reject (SupplierController@reject)
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -326,10 +327,20 @@ export const suppliersApi = {
     }
   },
 
+  /** Fetch pending-approval suppliers (uses dedicated endpoint) */
+  getPendingApprovals: async (): Promise<Supplier[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendSupplier[]>>('/api/v1/admin/suppliers/pending-approvals');
+      return response.data.data.map(mapBackendSupplier);
+    } catch {
+      return DUMMY_SUPPLIERS.filter((s) => s.status === 'pending_approval');
+    }
+  },
+
   /** Suspend a supplier */
   suspendSupplier: async (id: number, reason: string): Promise<Supplier> => {
     try {
-      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/suspend`, { reason });
+      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/reject`, { reason });
       return mapBackendSupplier(response.data.data);
     } catch {
       const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);

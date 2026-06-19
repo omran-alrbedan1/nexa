@@ -1,5 +1,8 @@
 import { apiClient } from '@/lib/axios';
 import type { ApiResponse } from '@/types/common';
+import { ordersApi } from '@/features/orders/api/ordersApi';
+import { suppliersApi } from '@/features/suppliers/api/suppliersApi';
+import { driversApi } from '@/features/drivers/api/driversApi';
 
 // ──────────────────────────────────────────────
 // Backend Raw Response Types
@@ -290,16 +293,74 @@ function buildStatsFromBackend(backend: DashboardBackendResponse): DashboardWidg
   };
 }
 
+// ── Helper: fetch widget data from their respective APIs ──
+
+async function fetchRecentOrders(): Promise<RecentOrder[]> {
+  try {
+    const result = await ordersApi.getOrders({ perPage: 5 });
+    return result.orders.map((o) => ({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      customerName: o.customerName,
+      type: o.type,
+      status: o.status,
+      total: o.total,
+      createdAt: o.createdAt,
+    }));
+  } catch {
+    return DUMMY_RECENT_ORDERS;
+  }
+}
+
+async function fetchPendingApprovals(): Promise<PendingApproval[]> {
+  try {
+    const pendingSuppliers = await suppliersApi.getPendingApprovals();
+    if (pendingSuppliers.length === 0) return [];
+    return pendingSuppliers.map((s) => ({
+      id: s.id,
+      orderNumber: `SPL-${s.id}`,
+      customerName: s.name,
+      requestDetails: s.notes || `New supplier pending approval`,
+      createdAt: s.createdAt,
+    }));
+  } catch {
+    return DUMMY_PENDING_APPROVALS;
+  }
+}
+
+async function fetchDriverActivity(): Promise<DriverStatus[]> {
+  try {
+    const result = await driversApi.getPageData();
+    return result.drivers.map((d) => {
+      let status: DriverStatus['status'] = 'offline';
+      if (d.isAvailable) {
+        status = 'available';
+      } else if (d.totalTrips > 0) {
+        status = 'on_trip';
+      }
+      return {
+        id: d.id,
+        name: d.name,
+        status,
+        completedToday: d.totalOrders,
+        regionName: d.zoneName,
+      };
+    });
+  } catch {
+    return DUMMY_DRIVER_ACTIVITY;
+  }
+}
+
 // ── Transform backend response to frontend shape ──
 
 function transformBackendResponse(backend: DashboardBackendResponse): DashboardWidgetsExpanded {
   return {
     stats: buildStatsFromBackend(backend),
 
-    // Frontend-only widgets — still using dummy data until backend routes exist
-    recentOrders: DUMMY_RECENT_ORDERS,
-    pendingApprovals: DUMMY_PENDING_APPROVALS,
-    driverActivity: DUMMY_DRIVER_ACTIVITY,
+    // Frontend-only widgets — populated by fetchWidgetData() call below
+    recentOrders: [],
+    pendingApprovals: [],
+    driverActivity: [],
 
     // Derived from backend data
     actionRequired: buildActionRequired(backend.action_required),
@@ -317,16 +378,24 @@ export const dashboardApi = {
   /**
    * Fetch all dashboard widget data.
    * Calls the real backend for core stats, derives widget data from backend response,
-   * and uses dummy data for widgets the backend doesn't serve yet.
+   * and fetches widget-specific data from their respective APIs.
    */
   getWidgetsExpanded: async (): Promise<DashboardWidgetsExpanded> => {
-    try {
-      const response = await apiClient.get<ApiResponse<DashboardBackendResponse>>('/api/v1/admin/dashboard');
-      const backendData = response.data.data; // Unwrap ApiResponse wrapper
-      return transformBackendResponse(backendData);
-    } catch {
+    // Fire all data fetches in parallel
+    const [dashboardResult, recentOrdersData, pendingApprovalsData, driverActivityData] = await Promise.all([
+      apiClient.get<ApiResponse<DashboardBackendResponse>>('/api/v1/admin/dashboard').then((r) => r.data.data).catch(() => null as DashboardBackendResponse | null),
+      fetchRecentOrders(),
+      fetchPendingApprovals(),
+      fetchDriverActivity(),
+    ]);
+
+    // If the real dashboard backend was available, use it; otherwise fall back to all-dummy
+    let backendData: DashboardBackendResponse;
+    if (dashboardResult) {
+      backendData = dashboardResult;
+    } else {
       // If backend is not available, return all-dummy data for development
-      const dummyBackend: DashboardBackendResponse = {
+      backendData = {
         orders: { today: 47, week: 342, month: 1425, by_type: { regular: 230, special: 45, seasonal: 67 } },
         action_required: {
           special_orders_pending_admin: 3, special_orders_pending_pricing: 4, orders_pending_customer: 2,
@@ -337,7 +406,12 @@ export const dashboardApi = {
         revenue: 8390.50,
         pending_approvals: { suppliers: 1, products: 0 },
       };
-      return transformBackendResponse(dummyBackend);
     }
+
+    const result = transformBackendResponse(backendData);
+    result.recentOrders = recentOrdersData;
+    result.pendingApprovals = pendingApprovalsData;
+    result.driverActivity = driverActivityData;
+    return result;
   },
 };

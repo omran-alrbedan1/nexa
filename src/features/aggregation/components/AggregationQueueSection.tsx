@@ -9,11 +9,10 @@ import { useToastStore } from '@/stores/toastStore';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
 import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
 
-const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'purple' | 'green'> = {
+const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'purple'> = {
   queued: 'yellow',
   processing: 'blue',
-  packed: 'green',
-  quality_check: 'purple',
+  packed: 'purple',
   completed: 'green',
 };
 
@@ -21,7 +20,6 @@ const STATUS_LABELS: Record<AggregationStatus, string> = {
   queued: 'Queued',
   processing: 'Processing',
   packed: 'Packed',
-  quality_check: 'Quality Check',
   completed: 'Completed',
 };
 
@@ -75,7 +73,7 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
             </Button>
           </div>
         );
-      case 'quality_check':
+      case 'packed':
         return (
           <Button
             variant="primary"
@@ -85,10 +83,6 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
           >
             Pass QC ✓
           </Button>
-        );
-      case 'packed':
-        return (
-          <span className="text-xs text-green-600 font-medium">Awaiting QC</span>
         );
       case 'completed':
         return (
@@ -136,7 +130,6 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
           <option value="">All Statuses</option>
           <option value="queued">Queued</option>
           <option value="processing">Processing</option>
-          <option value="quality_check">Quality Check</option>
           <option value="packed">Packed</option>
         </select>
       </div>

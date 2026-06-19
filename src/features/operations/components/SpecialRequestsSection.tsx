@@ -8,6 +8,8 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToastStore } from '@/stores/toastStore';
 import { useAssignForPricing, useSubmitPriceQuote } from '../hooks/useOperations';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import type { SpecialRequest } from '../api/operationsApi';
 
 const STATUS_COLORS: Record<string, 'yellow' | 'blue' | 'green' | 'red' | 'purple'> = {
@@ -36,6 +38,7 @@ interface SpecialRequestsSectionProps {
 }
 
 export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsSectionProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const assignForPricing = useAssignForPricing();
   const submitQuote = useSubmitPriceQuote();
@@ -165,7 +168,8 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
             {filtered.map((req) => (
               <div
                 key={req.id}
-                className="py-3 px-4 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors"
+                className="py-3 px-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => navigate(ROUTES.SPECIAL_REQUEST_DETAIL(req.id))}
               >
                 {/* Top row */}
                 <div className="flex items-start justify-between">
@@ -219,7 +223,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       variant="primary"
                       size="sm"
                       isLoading={assignForPricing.isPending}
-                      onClick={() => handleAssign(req.id)}
+                      onClick={(e) => { e.stopPropagation(); handleAssign(req.id); }}
                     >
                       Assign to Me
                     </Button>
@@ -228,7 +232,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={() => openPricingModal(req)}
+                      onClick={(e) => { e.stopPropagation(); openPricingModal(req); }}
                     >
                       Set Price Quote
                     </Button>
@@ -239,12 +243,13 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.stopPropagation();
                           useToastStore.getState().addToast(
                             'info',
                             'Customer approval tracking coming soon'
-                          )
-                        }
+                          );
+                        }}
                       >
                         Follow Up
                       </Button>
@@ -254,7 +259,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => openPricingModal(req)}
+                      onClick={(e) => { e.stopPropagation(); openPricingModal(req); }}
                     >
                       Update Quote
                     </Button>

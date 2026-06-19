@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToastStore } from '@/stores/toastStore';
 import { useAssignComplaint, useResolveComplaint } from '../hooks/useOperations';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import type { Complaint } from '../api/operationsApi';
 
 const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'blue' | 'purple'> = {
@@ -23,6 +25,7 @@ interface ComplaintsSectionProps {
 }
 
 export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const assignComplaint = useAssignComplaint();
   const resolveComplaint = useResolveComplaint();
@@ -86,11 +89,11 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map((complaint) => (
-            <div
-              key={complaint.id}
-              className="py-3 px-4 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors"
-            >
+          {filtered.map((complaint) => (              <div
+                key={complaint.id}
+                className="py-3 px-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => navigate(ROUTES.COMPLAINT_DETAIL(complaint.id))}
+              >
               {/* Top row */}
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
@@ -144,7 +147,7 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                     variant="primary"
                     size="sm"
                     isLoading={assignComplaint.isPending}
-                    onClick={() => handleAssign(complaint.id)}
+                    onClick={(e) => { e.stopPropagation(); handleAssign(complaint.id); }}
                   >
                     Assign to Me
                   </Button>
@@ -154,7 +157,7 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                     variant="primary"
                     size="sm"
                     isLoading={resolveComplaint.isPending}
-                    onClick={() => resolveComplaint.mutate(complaint.id)}
+                    onClick={(e) => { e.stopPropagation(); resolveComplaint.mutate(complaint.id); }}
                   >
                     Mark Resolved
                   </Button>

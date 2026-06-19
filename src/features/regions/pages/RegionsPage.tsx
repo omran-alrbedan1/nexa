@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, TrendingUp, Map, Globe, DollarSign } from 'lucide-react';
 
 const STAT_CONFIG = [
@@ -17,6 +19,7 @@ const STAT_CONFIG = [
 ];
 
 export function RegionsPage() {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useRegionsPage();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
@@ -104,7 +107,7 @@ export function RegionsPage() {
         ) : (
           <div className="space-y-3">
             {regions.map((region) => (
-              <div key={region.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
+              <div key={region.id} onClick={() => navigate(ROUTES.REGION_DETAIL(region.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
@@ -142,8 +145,8 @@ export function RegionsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                    <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={() => openFeeModal(region)}>Fee</Button>
-                    <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={() => toggleActive.mutate(region.id)}>
+                    <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={(e) => { e.stopPropagation(); openFeeModal(region); }}>Fee</Button>
+                    <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={(e) => { e.stopPropagation(); toggleActive.mutate(region.id); }}>
                       {region.isActive ? 'Deactivate' : 'Activate'}
                     </Button>
                   </div>

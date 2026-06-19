@@ -2,14 +2,14 @@
 // Trips API Service
 // ============================================================
 // Backend tables: trips, trip_orders, trip_status_logs, driver_trip_rejections
-// Admin routes: NOT YET BUILT in backend
-// Predicted routes (matching existing controller pattern):
+// Admin routes: ✅ BUILT (TripController)
 //   GET    /api/v1/admin/trips
 //   GET    /api/v1/admin/trips/{id}
+//   POST   /api/v1/admin/trips
+//   PUT    /api/v1/admin/trips/{id}
 //   POST   /api/v1/admin/trips/{id}/assign-driver
-//   POST   /api/v1/admin/trips/{id}/start
-//   POST   /api/v1/admin/trips/{id}/complete
-//   GET    /api/v1/admin/trips/available-drivers
+//   POST   /api/v1/admin/trips/{id}/orders
+//   PUT    /api/v1/admin/trips/{id}/status
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -73,7 +73,7 @@ export interface TripsPageData {
 
 interface BackendTrip {
   id: number;
-  trip_code: string;
+  trip_number: string;
   warehouse_id: number;
   driver_id: number | null;
   status: string;
@@ -89,8 +89,10 @@ interface BackendTrip {
   completed_at: string | null;
   cancelled_at: string | null;
   cancellation_reason: string | null;
-  warehouse?: { id: number; name: string } | null;
-  driver?: { id: number; full_name: string } | null;
+  warehouse?: { id: number; name: string; code?: string } | null;
+  driver?: { id: number; full_name: string; phone?: string } | null;
+  zones?: { id: number; name: string }[];
+  trip_orders?: { id: number; order_id: number; delivery_status: string }[];
   trip_orders_count?: number;
   created_at: string;
   updated_at: string;
@@ -130,7 +132,7 @@ function mapBackendTripStatus(status: string): TripStatus {
 function mapBackendTrip(bt: BackendTrip): DashboardTrip {
   return {
     id: bt.id,
-    tripNumber: bt.trip_code,
+    tripNumber: bt.trip_number,
     driverId: bt.driver_id || null,
     driverName: bt.driver?.full_name || null,
     regionName: bt.warehouse?.name || '',
@@ -236,10 +238,10 @@ export const tripsApi = {
     }
   },
 
-  /** Start a trip */
+  /** Start a trip — backend uses PUT /trips/{id}/status with status=in_progress */
   startTrip: async (tripId: number): Promise<DashboardTrip> => {
     try {
-      const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/start`);
+      const response = await apiClient.put<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/status`, { status: 'in_progress' });
       return mapBackendTrip(response.data.data);
     } catch {
       const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
@@ -248,15 +250,27 @@ export const tripsApi = {
     }
   },
 
-  /** Complete a trip */
+  /** Complete a trip — backend uses PUT /trips/{id}/status with status=completed */
   completeTrip: async (tripId: number): Promise<DashboardTrip> => {
     try {
-      const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/complete`);
+      const response = await apiClient.put<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/status`, { status: 'completed' });
       return mapBackendTrip(response.data.data);
     } catch {
       const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
       if (!trip) throw new Error('Trip not found');
       return { ...trip, status: 'completed', completedAt: new Date().toISOString(), completedOrders: trip.orderCount, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Cancel a trip — backend uses PUT /trips/{id}/status with status=cancelled + reason note */
+  cancelTrip: async (tripId: number, reason: string): Promise<DashboardTrip> => {
+    try {
+      const response = await apiClient.put<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/status`, { status: 'cancelled', note: reason });
+      return mapBackendTrip(response.data.data);
+    } catch {
+      const trip = DUMMY_TRIPS.find((t) => t.id === tripId);
+      if (!trip) throw new Error('Trip not found');
+      return { ...trip, status: 'cancelled', notes: reason, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     }
   },
 
@@ -268,6 +282,28 @@ export const tripsApi = {
       return drivers.map((d) => ({ id: d.id, name: d.full_name, regionName: d.zone_name, isAvailable: d.is_available }));
     } catch {
       return DUMMY_DRIVERS;
+    }
+  },
+
+  /** Create a new trip */
+  createTrip: async (data: {
+    warehouse_id: number;
+    planned_date: string;
+    departure_time: string;
+    cutoff_time?: string;
+    expected_arrival?: string;
+    max_capacity?: number;
+    min_orders?: number;
+    assignment_type?: string;
+    delivery_fee_override?: number;
+    driver_id?: number;
+    order_ids?: number[];
+  }): Promise<DashboardTrip> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendTrip>>('/api/v1/admin/trips', data);
+      return mapBackendTrip(response.data.data);
+    } catch {
+      throw new Error('Backend trip creation endpoint not available yet');
     }
   },
 };

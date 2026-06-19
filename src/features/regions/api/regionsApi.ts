@@ -236,15 +236,25 @@ export const regionsApi = {
     }
   },
 
-  /** Update delivery fee */
+  /** Update delivery fee — backend uses PUT /zones/{id}/delivery-fees (plural) */
   updateDeliveryFee: async (id: number, deliveryFee: number): Promise<Region> => {
     try {
-      const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/delivery-fee`, { delivery_fee: deliveryFee });
+      const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/delivery-fees`, { fees: [{ warehouse_id: 0, fee: deliveryFee }] });
       return mapBackendZone(response.data.data);
     } catch {
       const region = DUMMY_REGIONS.find((r) => r.id === id);
       if (!region) throw new Error('Region not found');
       return { ...region, deliveryFee, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Update zone working days — backend uses PUT /zones/{id}/working-days */
+  updateWorkingDays: async (id: number, days: { day_of_week: number; is_working: boolean }[]): Promise<void> => {
+    try {
+      await apiClient.put(`/api/v1/admin/zones/${id}/working-days`, { days });
+    } catch {
+      // Dummy fallback — just resolve
+      return;
     }
   },
 };
