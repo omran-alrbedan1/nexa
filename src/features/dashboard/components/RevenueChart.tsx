@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { TrendingUp, ArrowUpRight } from 'lucide-react';
 
@@ -14,13 +15,15 @@ const DUMMY_REVENUE_DATA = [
 const MAX_AMOUNT = Math.max(...DUMMY_REVENUE_DATA.map((d) => d.amount));
 
 export function RevenueChart() {
+  const { t } = useTranslation();
+
   return (
     <Card padding="lg" hover>
       <CardHeader
         action={
           <div className="flex items-center gap-1.5 text-xs font-bold text-status-success font-body">
             <ArrowUpRight size={14} />
-            <span>+12.3%</span>
+            <span>{t('dashboard.revenueChart.trend')}</span>
           </div>
         }
       >
@@ -30,8 +33,8 @@ export function RevenueChart() {
               <TrendingUp size={16} className="text-brand-primary" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-text-primary font-display">Revenue Trend</h3>
-              <p className="text-xs text-text-secondary font-body">Last 7 days</p>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.revenueChart.title')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('dashboard.revenueChart.subtitle')}</p>
             </div>
           </div>
         </div>

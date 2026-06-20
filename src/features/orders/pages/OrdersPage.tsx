@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useOrdersList, useUpdateOrderStatus } from '../hooks/useOrders';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -55,14 +56,7 @@ const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
   regular: 'teal', special: 'coral', seasonal: 'purple',
 };
 
-const STAT_CONFIG = [
-  { key: 'total', label: 'Total Orders', icon: ListOrdered, variant: 'teal' as const },
-  { key: 'new', label: 'New', icon: Package, variant: 'purple' as const },
-  { key: 'confirmed', label: 'Confirmed', icon: CheckCircle2, variant: 'teal' as const },
-  { key: 'inProgress', label: 'In Progress', icon: TrendingUp, variant: 'coral' as const },
-  { key: 'delivered', label: 'Delivered', icon: ShoppingBag, variant: 'success' as const },
-  { key: 'failed', label: 'Failed', icon: AlertTriangle, variant: 'coral' as const },
-];
+
 
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
@@ -70,6 +64,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 export function OrdersPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');
@@ -138,7 +133,7 @@ export function OrdersPage() {
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
-        <ErrorState title="Failed to load orders" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+        <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -156,8 +151,8 @@ export function OrdersPage() {
               <ShoppingBag size={22} className="text-brand-accent" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Orders</h1>
-              <p className="text-sm text-text-secondary font-body">Manage all orders, view details, and track fulfillment</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('orders.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('orders.description')}</p>
             </div>
           </div>
         </div>
@@ -166,7 +161,14 @@ export function OrdersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
-        {STAT_CONFIG.map((s) => {
+        {[
+          { key: 'total', label: t('orders.stats.totalOrders'), icon: ListOrdered, variant: 'teal' as const },
+          { key: 'new', label: t('orders.stats.new'), icon: Package, variant: 'purple' as const },
+          { key: 'confirmed', label: t('orders.stats.confirmed'), icon: CheckCircle2, variant: 'teal' as const },
+          { key: 'inProgress', label: t('orders.stats.inProgress'), icon: TrendingUp, variant: 'coral' as const },
+          { key: 'delivered', label: t('orders.stats.delivered'), icon: ShoppingBag, variant: 'success' as const },
+          { key: 'failed', label: t('orders.stats.failed'), icon: AlertTriangle, variant: 'coral' as const },
+        ].map((s) => {
           const Icon = s.icon;
           return (
             <Card key={s.key} padding="md" hover>
@@ -199,13 +201,13 @@ export function OrdersPage() {
         <CardHeader
           action={
             <Button variant="secondary" size="sm" leftIcon={<Download size={14} />} onClick={exportCSV} disabled={orders.length === 0}>
-              Export
+              {t('orders.list.export')}
             </Button>
           }
         >
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">All Orders</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{pagination?.total ?? orders.length} total orders</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.list.allOrders')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('orders.list.totalOrders', { count: pagination?.total ?? orders.length })}</p>
           </div>
         </CardHeader>
 
@@ -216,7 +218,7 @@ export function OrdersPage() {
             <input
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search orders or customers..."
+              placeholder={t('orders.list.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
             />
           </div>
@@ -227,16 +229,16 @@ export function OrdersPage() {
               onChange={(e) => handleStatusChange(e.target.value as OrderStatus | '')}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
-              <option value="">All Statuses</option>
-              <option value="new">New</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending_supply">In Supply</option>
-              <option value="pending_aggregation">In Aggregation</option>
-              <option value="ready_to_ship">Ready to Ship</option>
-              <option value="out_for_delivery">Out for Delivery</option>
-              <option value="delivered">Delivered</option>
-              <option value="failed_delivery">Failed</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="">{t('orders.list.allStatuses')}</option>
+              <option value="new">{t('orders.stats.new')}</option>
+              <option value="confirmed">{t('orders.stats.confirmed')}</option>
+              <option value="pending_supply">{t('orders.stats.inProgress')}</option>
+              <option value="pending_aggregation">{t('orders.stats.inProgress')}</option>
+              <option value="ready_to_ship">{t('orders.stats.inProgress')}</option>
+              <option value="out_for_delivery">{t('orders.stats.inProgress')}</option>
+              <option value="delivered">{t('orders.stats.delivered')}</option>
+              <option value="failed_delivery">{t('orders.stats.failed')}</option>
+              <option value="cancelled">{t('orders.stats.failed')}</option>
             </select>
           </div>
           <div className="relative">
@@ -246,7 +248,7 @@ export function OrdersPage() {
               onChange={(e) => handleTypeChange(e.target.value as OrderType | '')}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
-              <option value="">All Types</option>
+              <option value="">{t('orders.list.allTypes')}</option>
               <option value="regular">Regular</option>
               <option value="special">Special</option>
               <option value="seasonal">Seasonal</option>
@@ -259,7 +261,7 @@ export function OrdersPage() {
               value={dateFrom}
               onChange={(e) => handleDateFromChange(e.target.value)}
               className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-36"
-              title="From date"
+              title={t('orders.list.fromDate')}
             />
             <span className="text-text-tertiary text-xs">—</span>
             <input
@@ -267,7 +269,7 @@ export function OrdersPage() {
               value={dateTo}
               onChange={(e) => handleDateToChange(e.target.value)}
               className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-36"
-              title="To date"
+              title={t('orders.list.toDate')}
             />
           </div>
         </div>
@@ -275,7 +277,7 @@ export function OrdersPage() {
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl" />)}</div>
         ) : orders.length === 0 ? (
-          <EmptyState title="No orders found" description={search ? 'Try a different search term' : 'No orders match the selected filters'} />
+          <EmptyState title={t('orders.list.noOrdersFound')} description={search ? t('orders.list.tryDifferentSearch') : t('orders.list.noOrdersMatch')} />
         ) : (
           <>
             <div className="space-y-2">

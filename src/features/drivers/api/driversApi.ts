@@ -127,6 +127,40 @@ export const driversApi = {
     }
   },
 
+  /** Fetch pending-approval drivers */
+  getPendingApprovals: async (): Promise<Driver[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendDriver[]>>('/api/v1/admin/drivers/pending-approvals');
+      return response.data.data.map(mapBackendDriver);
+    } catch {
+      return DUMMY_DRIVERS.filter((d) => !d.isAvailable);
+    }
+  },
+
+  /** Approve a pending driver */
+  approveDriver: async (id: number): Promise<Driver> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/approve`);
+      return mapBackendDriver(response.data.data);
+    } catch {
+      const driver = DUMMY_DRIVERS.find((d) => d.id === id);
+      if (!driver) throw new Error('Driver not found');
+      return { ...driver, isAvailable: true, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Reject a pending driver */
+  rejectDriver: async (id: number, reason?: string): Promise<Driver> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/reject`, { reason: reason || '' });
+      return mapBackendDriver(response.data.data);
+    } catch {
+      const driver = DUMMY_DRIVERS.find((d) => d.id === id);
+      if (!driver) throw new Error('Driver not found');
+      return { ...driver, isAvailable: false, updatedAt: new Date().toISOString() };
+    }
+  },
+
   /** Toggle driver availability — backend uses PUT /drivers/{id}/availability */
   toggleAvailability: async (id: number): Promise<Driver> => {
     try {

@@ -1,14 +1,37 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/utils/cn';
 import { Filter, CalendarDays, ChevronDown, RotateCcw } from 'lucide-react';
+import { regionsApi } from '@/features/regions/api/regionsApi';
+import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
+import { suppliersApi } from '@/features/suppliers/api/suppliersApi';
 
-interface DashboardFilterBarProps {}
-
-const DATE_PRESETS = ['Today', 'This Week', 'This Month', 'Custom'];
-
-export function DashboardFilterBar(_props: DashboardFilterBarProps) {
-  const [activePreset, setActivePreset] = useState('Today');
+export function DashboardFilterBar() {
+  const { t } = useTranslation();
+  const [activePreset, setActivePreset] = useState(t('dashboard.filters.today'));
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const DATE_PRESETS = [t('dashboard.filters.today'), t('dashboard.filters.thisWeek'), t('dashboard.filters.thisMonth'), t('dashboard.filters.custom')];
+  const ORDER_TYPES = [t('operations.orderManagement.regular'), t('operations.orderManagement.special'), t('operations.orderManagement.seasonal')];
+  const STATUSES = [t('orders.stats.new'), t('orders.stats.confirmed'), 'Pending Supply', 'Pending Aggregation', t('dashboard.stats.readyToShip'), 'Out for Delivery', t('orders.stats.delivered'), t('orders.stats.failed'), t('operations.orderManagement.cancel')];
+
+  // Fetch real backend data for filter dropdowns
+  const { data: regions } = useQuery({
+    queryKey: ['dashboard-filters', 'regions'],
+    queryFn: () => regionsApi.getPageData().then((d) => d.regions),
+    staleTime: 60_000,
+  });
+  const { data: warehouses } = useQuery({
+    queryKey: ['dashboard-filters', 'warehouses'],
+    queryFn: () => aggregationApi.getWarehouses(),
+    staleTime: 60_000,
+  });
+  const { data: suppliers } = useQuery({
+    queryKey: ['dashboard-filters', 'suppliers'],
+    queryFn: () => suppliersApi.getPageData().then((d) => d.suppliers),
+    staleTime: 60_000,
+  });
 
   return (
     <div className="bg-white rounded-xl border border-border-default/60 shadow-card">
@@ -56,7 +79,7 @@ export function DashboardFilterBar(_props: DashboardFilterBarProps) {
             className="flex items-center gap-1 text-xs font-bold text-text-secondary hover:text-text-primary transition-colors font-body px-2.5 py-1.5 hover:bg-bg-section-alt rounded-lg"
           >
             <Filter size={14} />
-            <span>Filters</span>
+            <span>{t('dashboard.filters.filters')}</span>
             <ChevronDown size={12} className={cn('transition-transform', isExpanded && 'rotate-180')} />
           </button>
         </div>
@@ -64,11 +87,11 @@ export function DashboardFilterBar(_props: DashboardFilterBarProps) {
 
       {isExpanded && (
         <div className="border-t border-border-default/60 p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <FilterSelect label="Region" placeholder="All regions" />
-          <FilterSelect label="Warehouse" placeholder="All warehouses" />
-          <FilterSelect label="Supplier" placeholder="All suppliers" />
-          <FilterSelect label="Order Type" placeholder="All types" options={['Regular', 'Special', 'Seasonal']} />
-          <FilterSelect label="Status" placeholder="All statuses" />
+          <FilterSelect label={t('dashboard.filters.region')} placeholder={t('dashboard.filters.allRegions')} options={regions?.map((r) => r.name) || []} />
+          <FilterSelect label={t('dashboard.filters.warehouse')} placeholder={t('dashboard.filters.allWarehouses')} options={warehouses?.map((w) => w.name) || []} />
+          <FilterSelect label={t('dashboard.filters.supplier')} placeholder={t('dashboard.filters.allSuppliers')} options={suppliers?.map((s) => s.name) || []} />
+          <FilterSelect label={t('dashboard.filters.orderType')} placeholder={t('dashboard.filters.allTypes')} options={ORDER_TYPES} />
+          <FilterSelect label={t('dashboard.filters.status')} placeholder={t('dashboard.filters.allStatuses')} options={STATUSES} />
         </div>
       )}
     </div>

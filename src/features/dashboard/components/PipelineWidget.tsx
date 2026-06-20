@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { ArrowDown, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { PipelineStage } from '../api/dashboardApi';
 
 interface PipelineWidgetProps {
@@ -8,14 +9,15 @@ interface PipelineWidgetProps {
 }
 
 export function PipelineWidget({ stages, isLoading }: PipelineWidgetProps) {
+  const { t } = useTranslation();
   const maxCount = Math.max(...stages.map((s) => s.count), 1);
 
   return (
     <Card padding="md">
       <CardHeader>
         <div>
-          <h3 className="text-sm font-bold text-text-primary font-display">Operations Pipeline</h3>
-          <p className="text-xs text-text-secondary font-body mt-0.5">Current order flow</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.pipeline.title')}</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">{t('dashboard.pipeline.subtitle')}</p>
         </div>
       </CardHeader>
 

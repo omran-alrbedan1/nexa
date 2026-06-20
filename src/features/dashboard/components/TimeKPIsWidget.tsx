@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
 import { Timer, TrendingDown, TrendingUp } from 'lucide-react';
@@ -9,6 +10,8 @@ interface TimeKPIsWidgetProps {
 }
 
 export function TimeKPIsWidget({ kpis, isLoading }: TimeKPIsWidgetProps) {
+  const { t } = useTranslation();
+
   return (
     <Card padding="lg" hover>
       <CardHeader>
@@ -17,8 +20,8 @@ export function TimeKPIsWidget({ kpis, isLoading }: TimeKPIsWidgetProps) {
             <Timer size={16} className="text-purple-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Time KPIs</h3>
-            <p className="text-xs text-text-secondary font-body">Average processing times</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.timeKPIs.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.timeKPIs.subtitle')}</p>
           </div>
         </div>
       </CardHeader>

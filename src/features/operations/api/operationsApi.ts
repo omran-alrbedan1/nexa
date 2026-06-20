@@ -436,12 +436,149 @@ export const operationsApi = {
     }
   },
 
-  /** Submit a price quote — no backend route yet, dummy */
+  /** Approve a special order (mark as ready for fulfillment) */
+  approveSpecialOrder: async (requestId: number): Promise<SpecialRequest> => {
+    try {
+      const response = await apiClient.post<ApiResponse<any>>(`/api/v1/admin/special-orders/${requestId}/approve`);
+      const data = unwrap(response.data);
+      return {
+        id: data.id || requestId,
+        orderNumber: data.reference_number || `SPO-${data.id || requestId}`,
+        customerId: data.customer?.id || data.customer_id || 0,
+        customerName: data.customer?.full_name || data.customer?.name || 'Unknown',
+        customerPhone: data.customer?.phone || '',
+        requestDetails: data.customer_notes || '',
+        estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
+        status: 'approved',
+        assignedTo: data.assigned_to_user?.full_name || data.assigned_to || null,
+        priceQuote: null,
+        notes: data.internal_notes || '',
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || data.created_at || new Date().toISOString(),
+      };
+    } catch {
+      const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
+      if (!request) throw new Error('Request not found');
+      return { ...request, status: 'approved', updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Reject a special order with reason */
+  rejectSpecialOrder: async (requestId: number, reason?: string): Promise<SpecialRequest> => {
+    try {
+      const response = await apiClient.post<ApiResponse<any>>(`/api/v1/admin/special-orders/${requestId}/reject`, { reason: reason || '' });
+      const data = unwrap(response.data);
+      return {
+        id: data.id || requestId,
+        orderNumber: data.reference_number || `SPO-${data.id || requestId}`,
+        customerId: data.customer?.id || data.customer_id || 0,
+        customerName: data.customer?.full_name || data.customer?.name || 'Unknown',
+        customerPhone: data.customer?.phone || '',
+        requestDetails: data.customer_notes || '',
+        estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
+        status: 'rejected',
+        assignedTo: data.assigned_to_user?.full_name || data.assigned_to || null,
+        priceQuote: null,
+        notes: data.internal_notes || '',
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || data.created_at || new Date().toISOString(),
+      };
+    } catch {
+      const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
+      if (!request) throw new Error('Request not found');
+      return { ...request, status: 'rejected', updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Convert a special order to a regular order */
+  convertToOrder: async (requestId: number): Promise<SpecialRequest> => {
+    try {
+      const response = await apiClient.post<ApiResponse<any>>(`/api/v1/admin/special-orders/${requestId}/convert-to-order`);
+      const data = unwrap(response.data);
+      return {
+        id: data.id || requestId,
+        orderNumber: data.reference_number || `SPO-${data.id || requestId}`,
+        customerId: data.customer?.id || data.customer_id || 0,
+        customerName: data.customer?.full_name || data.customer?.name || 'Unknown',
+        customerPhone: data.customer?.phone || '',
+        requestDetails: data.customer_notes || '',
+        estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
+        status: 'approved',
+        assignedTo: data.assigned_to_user?.full_name || data.assigned_to || null,
+        priceQuote: null,
+        notes: data.internal_notes || '',
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || data.created_at || new Date().toISOString(),
+      };
+    } catch {
+      const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
+      if (!request) throw new Error('Request not found');
+      return { ...request, status: 'approved', updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Submit a price quote — backend uses PUT /special-orders/{id}/notes to store pricing */
   submitPriceQuote: async (requestId: number, price: number, notes: string): Promise<SpecialRequest> => {
-    await new Promise((r) => setTimeout(r, 500));
-    const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
-    if (!request) throw new Error('Request not found');
-    return { ...request, status: 'pending_customer_approval', priceQuote: price, notes: notes || request.notes, updatedAt: new Date().toISOString() };
+    try {
+      const pricingNotes = `Price Quote: SAR ${price}. ${notes ? notes : ''}`;
+      const response = await apiClient.put<ApiResponse<any>>(`/api/v1/admin/special-orders/${requestId}/notes`, {
+        notes: pricingNotes,
+      });
+      const data = unwrap(response.data);
+      // Backend may return just updated fields or full object — handle both
+      return {
+        id: data.id || requestId,
+        orderNumber: data.reference_number || `SPO-${data.id || requestId}`,
+        customerId: data.customer?.id || data.customer_id || 0,
+        customerName: data.customer?.full_name || data.customer?.name || 'Unknown',
+        customerPhone: data.customer?.phone || '',
+        requestDetails: data.customer_notes || '',
+        estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
+        status: 'pending_customer_approval',
+        assignedTo: data.assigned_to_user?.full_name || data.assigned_to || null,
+        priceQuote: price,
+        notes: pricingNotes,
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || data.created_at || new Date().toISOString(),
+      };
+    } catch {
+      const request = DUMMY_SPECIAL_REQUESTS.find((r) => r.id === requestId);
+      if (!request) throw new Error('Request not found');
+      return { ...request, status: 'pending_customer_approval', priceQuote: price, notes: notes || request.notes, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Fetch support tickets (complaints) from backend */
+  getSupportTickets: async (params?: { complaintId?: number; status?: string }): Promise<PaginatedResponse<Complaint>> => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.status) queryParams.set('status', params.status);
+      const qs = queryParams.toString();
+      const response = await apiClient.get<ApiResponse<{ tickets: any[] }>>(`/api/v1/admin/support-tickets${qs ? '?' + qs : ''}`);
+      const tickets = response.data.data.tickets || [];
+      const items: Complaint[] = tickets.map((t: any) => ({
+        id: t.id,
+        ticketNumber: t.ticket_number || `TKT-${t.id}`,
+        customerId: t.customer_id || 0,
+        customerName: t.customer?.full_name || 'Unknown',
+        subject: t.subject || '',
+        description: t.description || '',
+        status: t.status || 'open',
+        priority: t.priority || 'medium',
+        assignedTo: t.assigned_to?.full_name || null,
+        relatedOrderNumber: t.order_number || null,
+        createdAt: t.created_at,
+        updatedAt: t.updated_at || t.created_at,
+      }));
+      return {
+        data: items,
+        meta: { currentPage: 1, lastPage: 1, perPage: 20, total: items.length },
+      };
+    } catch {
+      let filtered = [...DUMMY_COMPLAINTS];
+      if (params?.status) filtered = filtered.filter((c) => c.status === params.status);
+      return { data: filtered, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length } };
+    }
   },
 
   /** Assign a complaint — backend uses POST /support-tickets/{id}/assign */

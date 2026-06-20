@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DashboardWidgetsExpanded } from '../api/dashboardApi';
 import { DashboardFilterBar } from './DashboardFilterBar';
 import { StatsCard } from './StatsCard';
@@ -12,6 +13,8 @@ interface WarehouseDashboardProps {
 }
 
 export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* Global Filters */}
@@ -20,33 +23,33 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
       {/* ═══ Stats grid — warehouse focused ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
-          title="In Supply"
+          title={t('dashboard.stats.inSupply')}
           value={data?.pipeline.find((p) => p.stage === 'in_supply')?.count ?? '-'}
-          subtitle="Awaiting supplier delivery"
+          subtitle={t('dashboard.subtitle.awaitingSupplier')}
           variant="coral"
           isLoading={isLoading}
           icon={<Package size={20} />}
         />
         <StatsCard
-          title="In Aggregation"
+          title={t('dashboard.stats.inAggregation')}
           value={data?.pipeline.find((p) => p.stage === 'in_aggregation')?.count ?? '-'}
-          subtitle="Being processed in warehouse"
+          subtitle={t('dashboard.subtitle.processingWarehouse')}
           variant="teal"
           isLoading={isLoading}
           icon={<Boxes size={20} />}
         />
         <StatsCard
-          title="Ready to Ship"
+          title={t('dashboard.stats.readyToShip')}
           value={data?.pipeline.find((p) => p.stage === 'ready_to_ship')?.count ?? '-'}
-          subtitle="Packed & awaiting trip"
+          subtitle={t('dashboard.subtitle.awaitingTrip')}
           variant="purple"
           isLoading={isLoading}
           icon={<Ship size={20} />}
         />
         <StatsCard
-          title="Delivered Today"
+          title={t('dashboard.stats.deliveredToday')}
           value={data?.pipeline.find((p) => p.stage === 'delivered_today')?.count ?? '-'}
-          subtitle="Successfully delivered"
+          subtitle={t('dashboard.subtitle.successfullyDelivered')}
           variant="success"
           isLoading={isLoading}
           icon={<CheckCircle2 size={20} />}
@@ -62,7 +65,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           <CardHeader
             action={
               <span className="bg-brand-primary-light text-brand-primary-dark text-xs font-bold px-2.5 py-1 rounded-full font-body">
-                Live
+                {t('dashboard.live')}
               </span>
             }
           >
@@ -71,8 +74,8 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
                 <Warehouse size={16} className="text-amber-600" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-text-primary font-display">Warehouse Queue</h3>
-                <p className="text-xs text-text-secondary font-body">Incoming supplier deliveries</p>
+                <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.warehouseQueue.title')}</h3>
+                <p className="text-xs text-text-secondary font-body">{t('dashboard.warehouseQueue.subtitle')}</p>
               </div>
             </div>
           </CardHeader>
@@ -86,10 +89,10 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           ) : (
             <div className="space-y-2.5">
               {[
-                { supplier: 'Fresh Farm Co.', items: 'Organic vegetables, Fruits', status: 'Received', eta: '10:30 AM', statusColor: 'green' as const },
-                { supplier: 'Dairy Best Ltd.', items: 'Milk, Cheese, Yogurt', status: 'Processing', eta: '11:15 AM', statusColor: 'teal' as const },
-                { supplier: 'Premium Meats', items: 'Chicken, Beef cuts', status: 'Pending', eta: '01:00 PM', statusColor: 'gray' as const },
-                { supplier: 'Golden Grains', items: 'Flour, Rice, Lentils', status: 'Pending', eta: '02:30 PM', statusColor: 'gray' as const },
+                { supplier: 'Fresh Farm Co.', items: 'Organic vegetables, Fruits', status: t('dashboard.warehouseQueue.received'), eta: '10:30 AM', statusColor: 'green' as const },
+                { supplier: 'Dairy Best Ltd.', items: 'Milk, Cheese, Yogurt', status: t('dashboard.warehouseQueue.processing'), eta: '11:15 AM', statusColor: 'teal' as const },
+                { supplier: 'Premium Meats', items: 'Chicken, Beef cuts', status: t('dashboard.warehouseQueue.pending'), eta: '01:00 PM', statusColor: 'gray' as const },
+                { supplier: 'Golden Grains', items: 'Flour, Rice, Lentils', status: t('dashboard.warehouseQueue.pending'), eta: '02:30 PM', statusColor: 'gray' as const },
               ].map((item, idx) => (
                 <div
                   key={idx}
@@ -98,13 +101,13 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       'w-9 h-9 rounded-lg flex items-center justify-center',
-                      item.status === 'Received' ? 'bg-green-50' :
-                      item.status === 'Processing' ? 'bg-brand-primary-light' :
+                      item.status === t('dashboard.warehouseQueue.received') ? 'bg-green-50' :
+                      item.status === t('dashboard.warehouseQueue.processing') ? 'bg-brand-primary-light' :
                       'bg-gray-100'
                     )}>
                       <Warehouse size={16} className={cn(
-                        item.status === 'Received' ? 'text-status-success' :
-                        item.status === 'Processing' ? 'text-brand-primary' :
+                        item.status === t('dashboard.warehouseQueue.received') ? 'text-status-success' :
+                        item.status === t('dashboard.warehouseQueue.processing') ? 'text-brand-primary' :
                         'text-text-tertiary'
                       )} />
                     </div>
@@ -128,7 +131,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
             </div>
           )}
           <button className="mt-3 w-full text-center text-xs font-bold text-brand-primary hover:text-brand-primary-dark transition-colors font-body py-2 hover:bg-brand-primary-light rounded-lg">
-            View Full Queue →
+            {t('dashboard.warehouseQueue.viewFullQueue')} →
           </button>
         </Card>
       </div>
@@ -136,9 +139,9 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
       {/* ═══ Today's Throughput ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {[
-          { label: 'Items Received', value: '156', icon: Package, bg: 'from-brand-accent/10 to-brand-accent-light', iconColor: 'text-brand-accent', textColor: 'text-brand-accent-dark' },
-          { label: 'Items Processed', value: '98', icon: Boxes, bg: 'from-brand-primary/10 to-brand-primary-light', iconColor: 'text-brand-primary', textColor: 'text-brand-primary-dark' },
-          { label: 'Items Shipped', value: '72', icon: Ship, bg: 'from-purple-500/10 to-purple-50', iconColor: 'text-purple-600', textColor: 'text-purple-700' },
+          { label: t('dashboard.warehouseQueue.itemsReceived'), value: '156', icon: Package, bg: 'from-brand-accent/10 to-brand-accent-light', iconColor: 'text-brand-accent', textColor: 'text-brand-accent-dark' },
+          { label: t('dashboard.warehouseQueue.itemsProcessed'), value: '98', icon: Boxes, bg: 'from-brand-primary/10 to-brand-primary-light', iconColor: 'text-brand-primary', textColor: 'text-brand-primary-dark' },
+          { label: t('dashboard.warehouseQueue.itemsShipped'), value: '72', icon: Ship, bg: 'from-purple-500/10 to-purple-50', iconColor: 'text-purple-600', textColor: 'text-purple-700' },
         ].map((stat) => (
           <div
             key={stat.label}

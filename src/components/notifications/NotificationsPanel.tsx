@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/axios';
 import { unwrap } from '@/lib/apiHelpers';
@@ -134,6 +135,7 @@ interface NotificationsPanelProps {
 }
 
 export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
+  const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -186,17 +188,17 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
         ref={panelRef}
         tabIndex={-1}
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white border-l border-border-default shadow-lg',
+          'fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white border-s border-border-default shadow-lg',
           'transition-transform duration-300 ease-in-out',
           'flex flex-col',
-          open ? 'translate-x-0' : 'translate-x-full'
+          open ? 'panel-open' : 'panel-closed'
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-default">
           <div className="flex items-center gap-2">
             <Bell size={18} className="text-text-primary" />
-            <h2 className="text-base font-bold text-text-primary font-display">Notifications</h2>
+            <h2 className="text-base font-bold text-text-primary font-display">{t('notifications.title')}</h2>
             {unreadCount > 0 && (
               <span className="px-1.5 py-0.5 text-xs font-bold bg-brand-primary text-white rounded-full">
                 {unreadCount}
@@ -208,7 +210,7 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
               <button
                 onClick={() => markAllReadMutation.mutate()}
                 className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-100 hover:text-text-primary transition-colors text-xs flex items-center gap-1"
-                title="Mark all as read"
+                title={t('notifications.markAllRead')}
               >
                 <CheckCheck size={16} />
               </button>
@@ -241,9 +243,9 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
               <div className="w-14 h-14 rounded-2xl bg-brand-primary-light flex items-center justify-center mb-4">
                 <Bell size={28} className="text-brand-primary" />
               </div>
-              <h3 className="text-sm font-bold text-text-primary font-display mb-1">No notifications</h3>
+              <h3 className="text-sm font-bold text-text-primary font-display mb-1">{t('notifications.noNotifications')}</h3>
               <p className="text-xs text-text-secondary font-body">
-                You're all caught up! New notifications will appear here.
+                {t('notifications.allCaughtUp')}
               </p>
             </div>
           ) : (
@@ -283,8 +285,8 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
         <div className="px-5 py-3 border-t border-border-default text-center">
           <p className="text-xs text-text-tertiary font-body">
             {notifications.length > 0
-              ? `${notifications.length} notification${notifications.length !== 1 ? 's' : ''}`
-              : 'No new notifications'}
+              ? t('notifications.footerCount', { count: notifications.length })
+              : t('notifications.noNew')}
           </p>
         </div>
       </div>

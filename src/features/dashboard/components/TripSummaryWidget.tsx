@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { CheckCircle2, Clock, Truck, XCircle } from 'lucide-react';
 import type { TripSummary } from '../api/dashboardApi';
@@ -8,19 +9,20 @@ interface TripSummaryWidgetProps {
 }
 
 export function TripSummaryWidget({ summary, isLoading }: TripSummaryWidgetProps) {
+  const { t } = useTranslation();
   const items = [
-    { label: 'Scheduled', count: summary.scheduled, color: 'text-brand-primary', bg: 'bg-brand-primary-light', icon: <Clock size={16} /> },
-    { label: 'In Progress', count: summary.inProgress, color: 'text-amber-600', bg: 'bg-amber-50', icon: <Truck size={16} /> },
-    { label: 'Completed', count: summary.completed, color: 'text-status-success', bg: 'bg-green-50', icon: <CheckCircle2 size={16} /> },
-    { label: 'Failed', count: summary.failed, color: 'text-status-error', bg: 'bg-red-50', icon: <XCircle size={16} /> },
+    { label: t('dashboard.todayTrips.scheduled'), count: summary.scheduled, color: 'text-brand-primary', bg: 'bg-brand-primary-light', icon: <Clock size={16} /> },
+    { label: t('dashboard.todayTrips.inProgress'), count: summary.inProgress, color: 'text-amber-600', bg: 'bg-amber-50', icon: <Truck size={16} /> },
+    { label: t('dashboard.todayTrips.completed'), count: summary.completed, color: 'text-status-success', bg: 'bg-green-50', icon: <CheckCircle2 size={16} /> },
+    { label: t('dashboard.todayTrips.failed'), count: summary.failed, color: 'text-status-error', bg: 'bg-red-50', icon: <XCircle size={16} /> },
   ];
 
   return (
     <Card padding="md">
       <CardHeader>
         <div>
-          <h3 className="text-sm font-bold text-text-primary font-display">Today's Trips</h3>
-          <p className="text-xs text-text-secondary font-body mt-0.5">Delivery trip status</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.todayTrips.title')}</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">{t('dashboard.todayTrips.subtitle')}</p>
         </div>
       </CardHeader>
 

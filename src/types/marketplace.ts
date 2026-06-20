@@ -54,12 +54,26 @@ export interface MarketplaceUser {
 /**
  * Map backend permissions to frontend dashboard role.
  * This is how 'staff' user_type users get their 'admin'/'operations'/'aggregation' role.
+ *
+ * The backend assigns 'admin_panel.access' to ALL staff users, so permissions alone
+ * can't distinguish roles. We check the backend role names first for accuracy.
  */
-export function userTypeToDashboardRole(permissions: string[]): 'admin' | 'operations' | 'aggregation' {
-  if (permissions.includes('admin_panel.access')) return 'admin';
+export function userTypeToDashboardRole(
+  permissions: string[],
+  roles?: string[]
+): 'admin' | 'operations' | 'aggregation' {
+  // Use backend role names first (more specific than permissions)
+  if (roles) {
+    if (roles.includes('aggregation')) return 'aggregation';
+    if (roles.includes('operations')) return 'operations';
+    if (roles.includes('super_admin') || roles.includes('admin')) return 'admin';
+  }
+
+  // Fall back to permission-based check
   if (permissions.includes('warehouse.access')) return 'aggregation';
   if (permissions.includes('orders.manage')) return 'operations';
-  return 'admin'; // fallback to admin
+  if (permissions.includes('admin_panel.access')) return 'admin';
+  return 'admin'; // final fallback
 }
 
 // ──────────────────────────────────────────────

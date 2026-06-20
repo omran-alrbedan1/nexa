@@ -239,6 +239,22 @@
   }
 }
 
+/* ── Sidebar slide animation (same direction in LTR and RTL) ── */
+.sidebar-closed {
+  transform: translateX(-100%);
+}
+.sidebar-open {
+  transform: translateX(0);
+}
+/* ── Panel slide animation (same direction in LTR and RTL) ── */
+.panel-closed {
+  transform: translateX(100%);
+}
+.panel-open {
+  transform: translateX(0);
+}
+
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;

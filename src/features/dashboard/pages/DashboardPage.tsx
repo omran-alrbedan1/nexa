@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardWidgetsExpanded } from '../hooks/useDashboardStats';
 import { AdminDashboard } from '../components/AdminDashboard';
@@ -43,6 +44,7 @@ function getGreeting(): string {
 
 export function DashboardPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useDashboardWidgetsExpanded();
 
   const role = user?.role ?? 'admin';
@@ -53,7 +55,7 @@ export function DashboardPage() {
   if (error) {
     return (
       <ErrorState
-        title="Failed to load dashboard"
+        title={t('common.error')}
         message={error.message}
         onRetry={() => refetch()}
       />
@@ -64,7 +66,6 @@ export function DashboardPage() {
     <div className="space-y-6 animate-fade-up">
       {/* ── Hero Header ── */}
       <div className={cn('relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br', gradient)}>
-        {/* Floating decorative elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
 
@@ -77,7 +78,7 @@ export function DashboardPage() {
               </div>
               <div className="flex items-center gap-1.5 bg-white/30 backdrop-blur-sm rounded-full px-3 py-1">
                 <TrendingUp size={12} className="text-brand-primary-dark" />
-                <span className="text-xs font-bold text-brand-primary-dark font-body">Live</span>
+                <span className="text-xs font-bold text-brand-primary-dark font-body">{t('dashboard.live')}</span>
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display mt-2">
@@ -89,13 +90,13 @@ export function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <div className="bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3 shadow-xs">
-              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">Today's Revenue</p>
+              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">{t('dashboard.todayRevenue')}</p>
               <p className="text-lg font-extrabold text-brand-primary font-display">
                 SAR {(data?.stats.revenueToday ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3 hidden sm:block shadow-xs">
-              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">This Month</p>
+              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">{t('dashboard.thisMonth')}</p>
               <p className="text-lg font-extrabold text-brand-accent font-display">
                 SAR {(data?.stats.revenueThisMonth ?? 0).toLocaleString()}
               </p>
@@ -103,7 +104,6 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Brand accent line at bottom */}
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary rounded-full opacity-30" />
       </div>
 
@@ -112,7 +112,6 @@ export function DashboardPage() {
       {role === 'operations' && <OperationsDashboard data={data} isLoading={isLoading} />}
       {role === 'aggregation' && <WarehouseDashboard data={data} isLoading={isLoading} />}
 
-      {/* Fallback for unknown roles */}
       {!['admin', 'operations', 'aggregation'].includes(role) && (
         <AdminDashboard data={data} isLoading={isLoading} />
       )}

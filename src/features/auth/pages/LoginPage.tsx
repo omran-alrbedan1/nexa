@@ -102,6 +102,7 @@ async function fetchLoginStats(): Promise<StatCardData[]> {
 const QUICK_FILL = [
   { email: 'admin@nexa.local', label: 'Admin', color: '#2dd4a8' },
   { email: 'ops@nexa.local', label: 'Ops', color: '#3b82f6' },
+  { email: 'warehouse@nexa.local', label: 'Warehouse', color: '#a855f7' },
 ];
 
 // ── Helpers ──
@@ -517,7 +518,6 @@ const styles: Record<string, React.CSSProperties> = {
   // ── Orbit Card ──
   orbitCardInner: {
     position: 'absolute',
-    width: 200,
     transform: 'translate(-50%, -50%)',
     background: 'rgba(15,25,45,0.88)',
     backdropFilter: 'blur(12px)',

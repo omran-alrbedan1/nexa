@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -26,6 +27,7 @@ interface ComplaintsSectionProps {
 
 export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const assignComplaint = useAssignComplaint();
   const resolveComplaint = useResolveComplaint();
@@ -47,12 +49,12 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Complaints & Tickets</h3>
+            <h3 className="text-sm font-semibold text-gray-900">{t('operations.complaints.title')}</h3>
             <p className="text-xs text-gray-500">
-              {complaints.length} total
+              {t('operations.complaints.totalTickets', { count: complaints.length })}
               {urgentCount > 0 && (
                 <span className="text-red-500 font-medium ml-1">
-                  · {urgentCount} urgent
+                  · {t('operations.complaints.urgentCount', { count: urgentCount })}
                 </span>
               )}
             </p>
@@ -67,11 +69,11 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">All Statuses</option>
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="resolved">Resolved</option>
-          <option value="closed">Closed</option>
+          <option value="">{t('operations.complaints.allStatuses')}</option>
+          <option value="open">{t('operations.complaints.open')}</option>
+          <option value="in_progress">{t('operations.complaints.inProgress')}</option>
+          <option value="resolved">{t('operations.complaints.resolved')}</option>
+          <option value="closed">{t('operations.complaints.closed')}</option>
         </select>
       </div>
 
@@ -84,8 +86,8 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No complaints"
-          description="All tickets have been resolved"
+          title={t('operations.complaints.noComplaints')}
+          description={t('operations.complaints.allResolved')}
         />
       ) : (
         <div className="space-y-2">
@@ -149,7 +151,7 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                     isLoading={assignComplaint.isPending}
                     onClick={(e) => { e.stopPropagation(); handleAssign(complaint.id); }}
                   >
-                    Assign to Me
+                    {t('operations.complaints.assignToMe')}
                   </Button>
                 )}
                 {complaint.status === 'in_progress' && complaint.assignedTo === user?.name && (
@@ -159,16 +161,16 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                     isLoading={resolveComplaint.isPending}
                     onClick={(e) => { e.stopPropagation(); resolveComplaint.mutate(complaint.id); }}
                   >
-                    Mark Resolved
+                    {t('operations.complaints.markResolved')}
                   </Button>
                 )}
                 {complaint.assignedTo && complaint.assignedTo !== user?.name && complaint.status !== 'resolved' && complaint.status !== 'closed' && (
                   <span className="text-xs text-gray-400">
-                    Assigned to: {complaint.assignedTo}
+                    {t('operations.complaints.assignedTo', { name: complaint.assignedTo })}
                   </span>
                 )}
                 {complaint.status === 'resolved' && (
-                  <Badge variant="green" size="sm">Resolved</Badge>
+                  <Badge variant="green" size="sm">{t('operations.complaints.resolved')}</Badge>
                 )}
               </div>
             </div>
@@ -180,15 +182,15 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
       {!isLoading && complaints.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {complaints.filter((c) => c.status === 'open').length} open ·{' '}
-            {complaints.filter((c) => c.status === 'in_progress').length} in progress ·{' '}
-            {complaints.filter((c) => c.status === 'resolved').length} resolved
+            {complaints.filter((c) => c.status === 'open').length} {t('operations.complaints.open').toLowerCase()} ·{' '}
+            {complaints.filter((c) => c.status === 'in_progress').length} {t('operations.complaints.inProgress').toLowerCase()} ·{' '}
+            {complaints.filter((c) => c.status === 'resolved').length} {t('operations.complaints.resolved').toLowerCase()}
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => useToastStore.getState().addToast('info', 'Full tickets page with pagination coming soon')}
+            onClick={() => navigate(ROUTES.OPERATIONS)}
           >
-            View All Tickets →
+            {t('operations.complaints.viewAllTickets')} →
           </button>
         </div>
       )}

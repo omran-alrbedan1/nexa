@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -32,6 +34,8 @@ interface SupplyReceivingSectionProps {
 }
 
 export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSectionProps) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<SupplyStatus | ''>('');
   const confirmReceipt = useConfirmReceipt();
@@ -51,17 +55,17 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Supply Receiving</h3>
+            <h3 className="text-sm font-semibold text-gray-900">{t('warehouse.supplyReceiving.title')}</h3>
             <p className="text-xs text-gray-500">
-              {pendingCount} pending delivery · {items.length} total
+              {t('warehouse.supplyReceiving.pendingDelivery', { count: pendingCount })} · {t('warehouse.supplyReceiving.total', { count: items.length })}
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => useToastStore.getState().addToast('info', 'New purchase order form coming soon')}
+            onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}
           >
-            + New Purchase Order
+            {t('warehouse.supplyReceiving.newPurchaseOrder')}
           </Button>
         </div>
       </CardHeader>
@@ -72,7 +76,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
           <SearchInput
             value={search}
             onChange={setSearch}
-            placeholder="Search supplier or PO..."
+            placeholder={t('warehouse.supplyReceiving.searchPlaceholder')}
           />
         </div>
         <select
@@ -80,12 +84,12 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
           onChange={(e) => setStatusFilter(e.target.value as SupplyStatus | '')}
           className="px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="awaiting_supplier">Awaiting Supplier</option>
-          <option value="in_transit">In Transit</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="partial">Partial</option>
+          <option value="">{t('warehouse.supplyReceiving.allStatuses')}</option>
+          <option value="pending">{t('warehouse.supplyReceiving.pending')}</option>
+          <option value="awaiting_supplier">{t('warehouse.supplyReceiving.awaitingSupplier')}</option>
+          <option value="in_transit">{t('warehouse.supplyReceiving.inTransit')}</option>
+          <option value="confirmed">{t('warehouse.supplyReceiving.confirmed')}</option>
+          <option value="partial">{t('warehouse.supplyReceiving.partial')}</option>
         </select>
       </div>
 
@@ -98,8 +102,8 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No supply items"
-          description={search ? 'Try a different search term' : 'No incoming deliveries scheduled'}
+          title={t('warehouse.supplyReceiving.noItems')}
+          description={search ? t('warehouse.supplyReceiving.tryDifferentSearch') : t('warehouse.supplyReceiving.noDeliveries')}
         />
       ) : (
         <div className="space-y-2">
@@ -115,11 +119,11 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 truncate max-w-md">{item.items}</p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                  <span>{item.itemCount} items</span>
+                  <span>{t('warehouse.supplyReceiving.itemsCount', { count: item.itemCount })}</span>
                   {item.eta && (
                     <>
                       <span>·</span>
-                      <span>ETA: {new Date(item.eta).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span>{t('warehouse.supplyReceiving.eta', { time: new Date(item.eta).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })}</span>
                     </>
                   )}
                   {item.notes && (
@@ -143,7 +147,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
                     isLoading={confirmReceipt.isPending}
                     onClick={() => confirmReceipt.mutate(item.id)}
                   >
-                    Confirm Receipt
+                    {t('warehouse.supplyReceiving.confirmReceipt')}
                   </Button>
                 )}
               </div>
@@ -156,13 +160,13 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
       {!isLoading && items.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {items.filter((i) => i.status === 'confirmed').length} confirmed today
+            {t('warehouse.supplyReceiving.confirmedToday', { count: items.filter((i) => i.status === 'confirmed').length })}
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => useToastStore.getState().addToast('info', 'Purchase Orders page coming soon')}
+            onClick={() => navigate('/aggregation')}
           >
-            View All Purchase Orders →
+            {t('warehouse.supplyReceiving.viewAllPO')} →
           </button>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DashboardWidgetsExpanded } from '../api/dashboardApi';
 import { DashboardFilterBar } from './DashboardFilterBar';
 import { StatsCard } from './StatsCard';
@@ -20,6 +21,8 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* Global Filters */}
@@ -28,34 +31,34 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
       {/* ═══ Bento Stats Grid — 4 cards ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
-          title="Total Orders Today"
+          title={t('dashboard.stats.totalOrdersToday')}
           value={data?.stats.deliveredToday ?? '-'}
-          subtitle={`${data?.stats.activeOrders ?? 0} active · ${data?.stats.totalOrders ?? 0} total`}
+          subtitle={t('dashboard.subtitle.activeOrders', { active: data?.stats.activeOrders ?? 0, total: data?.stats.totalOrders ?? 0 })}
           variant="teal"
           isLoading={isLoading}
           icon={<Package size={20} />}
         />
         <StatsCard
-          title="Revenue Today"
+          title={t('dashboard.stats.revenueToday')}
           value={data ? `SAR ${data.stats.revenueToday.toLocaleString()}` : '-'}
-          subtitle={`SAR ${(data?.stats.revenueThisMonth ?? 0).toLocaleString()} this month`}
+          subtitle={t('dashboard.subtitle.revenueMonth', { amount: (data?.stats.revenueThisMonth ?? 0).toLocaleString() })}
           variant="primary"
           isLoading={isLoading}
           trend={{ value: 12, isPositive: true }}
           icon={<TrendingUp size={20} />}
         />
         <StatsCard
-          title="Active Drivers"
+          title={t('dashboard.stats.activeDrivers')}
           value={data?.stats.activeDrivers ?? '-'}
-          subtitle={`${data?.stats.pendingDeliveries ?? 0} pending · ${data?.tripSummary.inProgress ?? 0} on trip`}
+          subtitle={t('dashboard.subtitle.pendingDeliveries', { pending: data?.stats.pendingDeliveries ?? 0, trip: data?.tripSummary.inProgress ?? 0 })}
           variant="purple"
           isLoading={isLoading}
           icon={<Truck size={20} />}
         />
         <StatsCard
-          title="Pending Requests"
+          title={t('dashboard.stats.pendingRequests')}
           value={data?.stats.pendingSpecialRequests ?? '-'}
-          subtitle="Special orders needing pricing"
+          subtitle={t('dashboard.subtitle.specialOrdersPricing')}
           variant="coral"
           isLoading={isLoading}
           icon={<AlertTriangle size={20} />}
@@ -72,7 +75,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
       {/* ═══ Charts Row ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueChart />
-        <OrdersByStatusChart />
+        <OrdersByStatusChart pipeline={data?.pipeline?.reduce((acc, p) => ({ ...acc, [p.stage]: p.count }), {} as Record<string, number>)} ordersByType={data?.stats.ordersByType} />
       </div>
 
       {/* ═══ Orders & Approvals ═══ */}

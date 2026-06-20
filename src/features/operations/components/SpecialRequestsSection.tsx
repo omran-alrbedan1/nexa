@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -39,6 +40,7 @@ interface SpecialRequestsSectionProps {
 
 export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsSectionProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const assignForPricing = useAssignForPricing();
   const submitQuote = useSubmitPriceQuote();
@@ -77,7 +79,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
     if (!pricingModal.request) return;
     const price = parseFloat(pricingModal.price);
     if (isNaN(price) || price <= 0) {
-      useToastStore.getState().addToast('error', 'Please enter a valid price');
+      useToastStore.getState().addToast('error', t('operations.specialRequests.enterValidPrice'));
       return;
     }
     submitQuote.mutate(
@@ -104,9 +106,9 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
         <CardHeader>
           <div className="flex items-center justify-between w-full">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Special Requests</h3>
+              <h3 className="text-sm font-semibold text-gray-900">{t('operations.specialRequests.title')}</h3>
               <p className="text-xs text-gray-500">
-                {requests.filter((r) => r.status === 'pending_management' || r.status === 'pending_pricing').length} pending actions
+                {t('operations.specialRequests.pendingActions', { count: requests.filter((r) => r.status === 'pending_management' || r.status === 'pending_pricing').length })}
               </p>
             </div>
           </div>
@@ -125,7 +127,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {t === 'all' ? 'All' : t === 'mine' ? 'Mine' : 'Unassigned'}
+                {t === 'all' ? t('operations.specialRequests.all') : t === 'mine' ? t('operations.specialRequests.mine') : t('operations.specialRequests.unassigned')}
               </button>
             ))}
           </div>
@@ -135,13 +137,13 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">All Statuses</option>
-            <option value="pending_management">Pending Review</option>
-            <option value="pending_pricing">Needs Pricing</option>
-            <option value="pending_customer_approval">Awaiting Customer</option>
-            <option value="priced">Priced</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
+            <option value="">{t('operations.specialRequests.allStatuses')}</option>
+            <option value="pending_management">{t('operations.specialRequests.pendingReview')}</option>
+            <option value="pending_pricing">{t('operations.specialRequests.needsPricing')}</option>
+            <option value="pending_customer_approval">{t('operations.specialRequests.awaitingCustomer')}</option>
+            <option value="priced">{t('operations.specialRequests.priced')}</option>
+            <option value="approved">{t('operations.specialRequests.approved')}</option>
+            <option value="rejected">{t('operations.specialRequests.rejected')}</option>
           </select>
         </div>
 
@@ -154,13 +156,13 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState
-            title="No special requests"
+            title={t('operations.specialRequests.noRequests')}
             description={
               typeFilter === 'mine'
-                ? 'You have no assigned special requests'
+                ? t('operations.specialRequests.noAssigned')
                 : typeFilter === 'unassigned'
-                  ? 'All requests are assigned'
-                  : 'No special requests match the filter'
+                  ? t('operations.specialRequests.allAssigned')
+                  : t('operations.specialRequests.noFilterMatch')
             }
           />
         ) : (
@@ -190,10 +192,10 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                   <div className="flex-shrink-0 ml-4">
                     {req.assignedTo ? (
                       <span className="text-xs text-gray-400">
-                        Assigned to: <span className="font-medium text-gray-600">{req.assignedTo}</span>
+                        {t('operations.specialRequests.assignedTo', { name: req.assignedTo })}
                       </span>
                     ) : (
-                      <Badge variant="yellow" size="sm">Unassigned</Badge>
+                      <Badge variant="yellow" size="sm">{t('operations.specialRequests.unassigned')}</Badge>
                     )}
                   </div>
                 </div>
@@ -204,14 +206,14 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                 {/* Budget + price info */}
                 <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                   {req.estimatedBudget && (
-                    <span>Budget: <span className="font-medium">{req.estimatedBudget} SAR</span></span>
+                    <span>{t('operations.specialRequests.budget', { amount: req.estimatedBudget })}</span>
                   )}
                   {req.priceQuote && (
-                    <span>Quote: <span className="font-medium text-blue-600">{req.priceQuote} SAR</span></span>
+                    <span>{t('operations.specialRequests.quote', { amount: req.priceQuote })}</span>
                   )}
                   {req.notes && (
                     <span className="truncate max-w-[200px]" title={req.notes}>
-                      Note: {req.notes}
+                      {t('operations.specialRequests.note', { note: req.notes })}
                     </span>
                   )}
                 </div>
@@ -225,7 +227,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       isLoading={assignForPricing.isPending}
                       onClick={(e) => { e.stopPropagation(); handleAssign(req.id); }}
                     >
-                      Assign to Me
+                      {t('operations.specialRequests.assignToMe')}
                     </Button>
                   )}
                   {req.status === 'pending_pricing' && req.assignedTo === user?.name && (
@@ -234,24 +236,21 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       size="sm"
                       onClick={(e) => { e.stopPropagation(); openPricingModal(req); }}
                     >
-                      Set Price Quote
+                      {t('operations.specialRequests.setPriceQuote')}
                     </Button>
                   )}
                   {req.status === 'pending_customer_approval' && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="yellow" size="sm">Awaiting Customer</Badge>
+                      <Badge variant="yellow" size="sm">{t('operations.specialRequests.awaitingCustomer')}</Badge>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          useToastStore.getState().addToast(
-                            'info',
-                            'Customer approval tracking coming soon'
-                          );
+                          navigate(ROUTES.SPECIAL_REQUEST_DETAIL(req.id));
                         }}
                       >
-                        Follow Up
+                        {t('operations.specialRequests.followUp')}
                       </Button>
                     </div>
                   )}
@@ -261,7 +260,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       size="sm"
                       onClick={(e) => { e.stopPropagation(); openPricingModal(req); }}
                     >
-                      Update Quote
+                      {t('operations.specialRequests.updateQuote')}
                     </Button>
                   )}
                 </div>
@@ -274,14 +273,14 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
         {!isLoading && requests.length > 0 && (
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
             <span>
-              {requests.filter((r) => r.status === 'pending_pricing').length} pending pricing ·{' '}
-              {requests.filter((r) => r.status === 'pending_customer_approval').length} awaiting customer
+              {requests.filter((r) => r.status === 'pending_pricing').length} {t('operations.specialRequests.needsPricing').toLowerCase()} ·{' '}
+              {requests.filter((r) => r.status === 'pending_customer_approval').length} {t('operations.specialRequests.awaitingCustomer').toLowerCase()}
             </span>
             <button
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-              onClick={() => useToastStore.getState().addToast('info', 'Full special requests page coming soon')}
-            >
-              View All Requests →
+            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            onClick={() => navigate(ROUTES.OPERATIONS)}
+          >
+            {t('operations.specialRequests.viewAllRequests')} →
             </button>
           </div>
         )}
@@ -291,26 +290,26 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
       <Modal
         open={pricingModal.open}
         onClose={() => setPricingModal({ ...pricingModal, open: false })}
-        title="Set Price Quote"
+        title={t('operations.specialRequests.pricingModalTitle')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('operations.specialRequests.customer')}</label>
             <p className="text-sm text-gray-900">{pricingModal.request?.customerName}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('operations.specialRequests.request')}</label>
             <p className="text-sm text-gray-600">{pricingModal.request?.requestDetails}</p>
           </div>
           {pricingModal.request?.estimatedBudget && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Budget</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('operations.specialRequests.estimatedBudget')}</label>
               <p className="text-sm text-gray-900">{pricingModal.request.estimatedBudget} SAR</p>
             </div>
           )}
           <div>
             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-              Price Quote (SAR)
+              {t('operations.specialRequests.priceQuote')}
             </label>
             <input
               id="price"
@@ -320,12 +319,12 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
               value={pricingModal.price}
               onChange={(e) => setPricingModal({ ...pricingModal, price: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00"
+              placeholder={t('operations.specialRequests.pricePlaceholder')}
             />
           </div>
           <div>
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-              Notes (optional)
+              {t('operations.specialRequests.notes')}
             </label>
             <textarea
               id="notes"
@@ -333,7 +332,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
               value={pricingModal.notes}
               onChange={(e) => setPricingModal({ ...pricingModal, notes: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Add any notes about pricing, availability, etc."
+              placeholder={t('operations.specialRequests.notesPlaceholder')}
             />
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
@@ -342,7 +341,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
               size="sm"
               onClick={() => setPricingModal({ ...pricingModal, open: false })}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -350,7 +349,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
               isLoading={submitQuote.isPending}
               onClick={handleSubmitQuote}
             >
-              Submit Quote
+              {t('operations.specialRequests.submitQuote')}
             </Button>
           </div>
         </div>

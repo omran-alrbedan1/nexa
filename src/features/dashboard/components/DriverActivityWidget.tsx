@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -21,6 +22,8 @@ function getStatusBadge(status: DriverStatus['status']) {
 }
 
 export function DriverActivityWidget({ drivers, isLoading }: DriverActivityWidgetProps) {
+  const { t } = useTranslation();
+
   return (
     <Card padding="lg" hover>
       <CardHeader>
@@ -29,8 +32,8 @@ export function DriverActivityWidget({ drivers, isLoading }: DriverActivityWidge
             <Truck size={16} className="text-brand-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Drivers</h3>
-            <p className="text-xs text-text-secondary font-body">Current activity</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.drivers.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.drivers.subtitle')}</p>
           </div>
         </div>
       </CardHeader>
@@ -59,7 +62,7 @@ export function DriverActivityWidget({ drivers, isLoading }: DriverActivityWidge
                 <div className="flex items-center gap-2 text-xs text-text-tertiary font-body mt-0.5">
                   <span>{driver.regionName}</span>
                   <span>·</span>
-                  <span>{driver.completedToday} deliveries today</span>
+                  <span>{t('dashboard.drivers.deliveriesToday', { count: driver.completedToday })}</span>
                 </div>
               </div>
             </div>

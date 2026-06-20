@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAggregationPage } from '../hooks/useAggregation';
 import { SupplyReceivingSection } from '../components/SupplyReceivingSection';
 import { AggregationQueueSection } from '../components/AggregationQueueSection';
@@ -6,21 +7,16 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Card } from '@/components/ui/Card';
 import { Package, Boxes, Ship, Users, Clock, Warehouse } from 'lucide-react';
 
-const STAT_CONFIG = [
-  { label: 'Items Received', icon: Package, variant: 'teal' as const },
-  { label: 'Items Processed', icon: Boxes, variant: 'teal' as const },
-  { label: 'Items Shipped', icon: Ship, variant: 'teal' as const },
-  { label: 'Active Workers', icon: Users, variant: 'warning' as const },
-  { label: 'Avg Process Time', icon: Clock, variant: 'purple' as const },
-];
+
 
 export function AggregationPage() {
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useAggregationPage();
 
   if (error) {
     return (
       <ErrorState
-        title="Failed to load warehouse data"
+        title={t('common.error')}
         message={error.message}
         onRetry={() => refetch()}
       />
@@ -37,8 +33,8 @@ export function AggregationPage() {
             <Warehouse size={28} className="text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Warehouse Dashboard</h1>
-            <p className="text-sm text-text-secondary font-body mt-1">Supply receiving, aggregation queue, and shipping management</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('warehouse.title')}</h1>
+            <p className="text-sm text-text-secondary font-body mt-1">{t('warehouse.description')}</p>
           </div>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-500 via-brand-primary to-purple-500 rounded-full opacity-30" />
@@ -47,14 +43,16 @@ export function AggregationPage() {
       {/* Throughput Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {[
-          { label: 'Items Received', value: data?.throughput.itemsReceived ?? 0 },
-          { label: 'Items Processed', value: data?.throughput.itemsProcessed ?? 0 },
-          { label: 'Items Shipped', value: data?.throughput.itemsShipped ?? 0 },
-          { label: 'Active Workers', value: data?.throughput.activeWorkers ?? 0 },
-          { label: 'Avg Process Time', value: data ? `${data.throughput.avgProcessingTime}m` : '-' },
+          { label: t('warehouse.stats.itemsReceived'), key: 'itemsReceived', value: data?.throughput.itemsReceived ?? 0 },
+          { label: t('warehouse.stats.itemsProcessed'), key: 'itemsProcessed', value: data?.throughput.itemsProcessed ?? 0 },
+          { label: t('warehouse.stats.itemsShipped'), key: 'itemsShipped', value: data?.throughput.itemsShipped ?? 0 },
+          { label: t('warehouse.stats.activeWorkers'), key: 'activeWorkers', value: data?.throughput.activeWorkers ?? 0 },
+          { label: t('warehouse.stats.avgProcessTime'), key: 'avgProcessTime', value: data ? `${data.throughput.avgProcessingTime}m` : '-' },
         ].map((stat, idx) => {
-          const Icon = STAT_CONFIG[idx].icon;
-          const variant = STAT_CONFIG[idx].variant;
+          const icons = [Package, Boxes, Ship, Users, Clock];
+          const variants = ['teal' as const, 'teal' as const, 'teal' as const, 'warning' as const, 'purple' as const];
+          const Icon = icons[idx];
+          const variant = variants[idx];
           return (
             <Card key={stat.label} padding="md" hover>
               <div className="flex items-start justify-between">

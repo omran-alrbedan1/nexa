@@ -41,10 +41,18 @@ export function ComplaintDetailPage() {
   const id = parseInt(complaintId || '0', 10);
   const queryClient = useQueryClient();
 
-  const { data: complaint, isLoading, isError } = useQuery<Complaint>({
+  const { data: complaint, isLoading, isError, error, refetch } = useQuery<Complaint>({
     queryKey: ['complaints-detail', id],
     queryFn: async () => {
-      await new Promise((r) => setTimeout(r, 200));
+      try {
+        // Try real backend first
+        const response = await operationsApi.getSupportTickets({ complaintId: id });
+        const found = response.data.find((c) => c.id === id);
+        if (found) return found;
+      } catch {
+        // Fall through to dummy
+      }
+      // Fallback: find in dummy data
       const found = DUMMY_COMPLAINTS.find((c) => c.id === id);
       if (!found) throw new Error('Complaint not found');
       return found;

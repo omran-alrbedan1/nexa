@@ -57,9 +57,9 @@ export function SearchInput({
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder={placeholder}
         className={cn(
-          'w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg',
-          'focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none',
-          'placeholder:text-gray-400',
+          'w-full pl-10 pr-4 py-2 text-sm bg-bg-input border border-border-default rounded-lg',
+          'focus:ring-2 focus:ring-brand-primary-light focus:border-brand-primary outline-none',
+          'placeholder:text-text-tertiary text-text-primary',
           'rtl:pl-4 rtl:pr-10',
           className
         )}

@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { useToastStore } from '@/stores/toastStore';
+import { ROUTES } from '@/routes/routes';
 import { ClockAlert, ExternalLink, CheckCircle2 } from 'lucide-react';
 import type { PendingApproval } from '../api/dashboardApi';
 
@@ -10,18 +12,18 @@ interface PendingApprovalsWidgetProps {
 }
 
 export function PendingApprovalsWidget({ approvals, isLoading }: PendingApprovalsWidgetProps) {
-  const addToast = useToastStore((s) => s.addToast);
-
-  const handleSetPrice = (approval: PendingApproval) => {
-    addToast('info', `Pricing form for ${approval.orderNumber} — coming soon`);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const handleSetPrice = () => {
+    navigate(ROUTES.OPERATIONS);
   };
 
   return (
     <Card padding="lg" hover>
       <CardHeader>
         <div>
-          <h3 className="text-sm font-bold text-text-primary font-display">Pending Approvals</h3>
-          <p className="text-xs text-text-secondary font-body mt-0.5">Special requests needing pricing</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.pendingApprovals.title')}</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">{t('dashboard.pendingApprovals.subtitle')}</p>
         </div>
         {approvals.length > 0 && (
           <Badge variant="yellow" size="sm">{approvals.length}</Badge>
@@ -39,8 +41,8 @@ export function PendingApprovalsWidget({ approvals, isLoading }: PendingApproval
           <div className="mx-auto w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mb-2">
             <CheckCircle2 size={20} className="text-status-success" />
           </div>
-          <p className="text-sm font-medium text-text-tertiary font-body">No pending approvals</p>
-          <p className="text-xs text-text-tertiary/70 mt-1 font-body">All special requests are resolved</p>
+          <p className="text-sm font-medium text-text-tertiary font-body">{t('dashboard.pendingApprovals.noPending')}</p>
+          <p className="text-xs text-text-tertiary/70 mt-1 font-body">{t('dashboard.pendingApprovals.allResolved')}</p>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -56,7 +58,7 @@ export function PendingApprovalsWidget({ approvals, isLoading }: PendingApproval
                     {approval.customerName}
                   </span>
                 </div>
-                <Badge variant="yellow" size="sm">Pending Pricing</Badge>
+                <Badge variant="yellow" size="sm">{t('dashboard.pendingApprovals.pendingPricing')}</Badge>
               </div>
               <p className="text-xs text-text-secondary font-body line-clamp-2 ml-7">{approval.requestDetails}</p>
               <div className="flex items-center justify-between mt-2.5 ml-7">
@@ -65,7 +67,7 @@ export function PendingApprovalsWidget({ approvals, isLoading }: PendingApproval
                   className="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-brand-accent-dark transition-colors font-body"
                   onClick={() => handleSetPrice(approval)}
                 >
-                  Set Price <ExternalLink size={12} />
+                  {t('dashboard.pendingApprovals.setPrice')} <ExternalLink size={12} />
                 </button>
               </div>
             </div>

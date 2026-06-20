@@ -13,6 +13,9 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Send current language to backend for localization
+  const lang = localStorage.getItem('nexa-lang') || 'en';
+  config.headers['Accept-Language'] = lang;
   return config;
 });
 

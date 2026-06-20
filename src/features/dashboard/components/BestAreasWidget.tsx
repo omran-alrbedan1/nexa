@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { MapPin } from 'lucide-react';
 import type { TopArea } from '../api/dashboardApi';
@@ -8,6 +9,7 @@ interface BestAreasWidgetProps {
 }
 
 export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
+  const { t } = useTranslation();
   const maxRevenue = Math.max(...areas.map((a) => a.totalRevenue), 1);
 
   return (
@@ -18,8 +20,8 @@ export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
             <MapPin size={16} className="text-brand-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Top Areas</h3>
-            <p className="text-xs text-text-secondary font-body">By orders & revenue</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.topAreas.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.topAreas.subtitle')}</p>
           </div>
         </div>
       </CardHeader>
@@ -42,7 +44,7 @@ export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
                     <span className="text-sm font-bold text-text-primary font-body">{area.name}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="text-text-secondary font-body">{area.orderCount} orders</span>
+                    <span className="text-text-secondary font-body">{t('dashboard.topAreas.orders', { count: area.orderCount })}</span>
                     <span className="font-extrabold text-status-success font-display">
                       SAR {area.totalRevenue.toLocaleString()}
                     </span>

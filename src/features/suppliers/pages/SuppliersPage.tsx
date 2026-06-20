@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
@@ -16,16 +17,11 @@ const STATUS_BADGE: Record<SupplierStatus, 'green' | 'yellow' | 'red' | 'purple'
   active: 'green', inactive: 'yellow', suspended: 'red', pending_approval: 'purple',
 };
 
-const STAT_CONFIG = [
-  { key: 'total', label: 'Total Suppliers', icon: Building2, variant: 'teal' as const },
-  { key: 'active', label: 'Active', icon: CheckCircle2, variant: 'success' as const },
-  { key: 'pendingApproval', label: 'Pending Approval', icon: Users, variant: 'warning' as const },
-  { key: 'suspended', label: 'Suspended', icon: AlertTriangle, variant: 'coral' as const },
-  { key: 'avgRating', label: 'Avg Rating', icon: Star, variant: 'warning' as const, suffix: '/5' },
-];
+
 
 export function SuppliersPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useSuppliersPage();
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
@@ -36,10 +32,10 @@ export function SuppliersPage() {
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-extrabold text-text-primary font-display">Suppliers</h1>
-        <p className="text-sm text-text-secondary font-body mt-1">Manage supplier profiles, approvals, and contracts</p>
+        <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('suppliers.title')}</h1>
+        <p className="text-sm text-text-secondary font-body mt-1">{t('suppliers.description')}</p>
       </div>
-      <ErrorState title="Failed to load suppliers" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+      <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
     </div>
   );
 
@@ -61,8 +57,8 @@ export function SuppliersPage() {
               <Building2 size={22} className="text-brand-primary" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Suppliers</h1>
-              <p className="text-sm text-text-secondary font-body">Manage supplier profiles, approvals, and contracts</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('suppliers.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('suppliers.description')}</p>
             </div>
           </div>
         </div>
@@ -71,7 +67,13 @@ export function SuppliersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-        {STAT_CONFIG.map((s) => {
+        {[
+          { key: 'total', label: t('suppliers.stats.totalSuppliers'), icon: Building2, variant: 'teal' as const },
+          { key: 'active', label: t('suppliers.stats.active'), icon: CheckCircle2, variant: 'success' as const },
+          { key: 'pendingApproval', label: t('suppliers.stats.pendingApproval'), icon: Users, variant: 'warning' as const },
+          { key: 'suspended', label: t('suppliers.stats.suspended'), icon: AlertTriangle, variant: 'coral' as const },
+          { key: 'avgRating', label: t('suppliers.stats.avgRating'), icon: Star, variant: 'warning' as const, suffix: '/5' },
+        ].map((s) => {
           const Icon = s.icon;
           return (
             <Card key={s.key} padding="md" hover>
@@ -104,13 +106,13 @@ export function SuppliersPage() {
         <CardHeader
           action={
             <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.SUPPLIER_CREATE)}>
-              Add Supplier
+              {t('suppliers.list.addSupplier')}
             </Button>
           }
         >
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">All Suppliers</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{suppliers.length} registered suppliers</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.list.allSuppliers')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('suppliers.list.registered', { count: suppliers.length })}</p>
           </div>
         </CardHeader>
 
@@ -120,7 +122,7 @@ export function SuppliersPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search suppliers..."
+              placeholder={t('suppliers.list.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
             />
           </div>
@@ -131,11 +133,11 @@ export function SuppliersPage() {
               onChange={(e) => setStatusFilter(e.target.value as SupplierStatus | '')}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="pending_approval">Pending</option>
-              <option value="suspended">Suspended</option>
-              <option value="inactive">Inactive</option>
+              <option value="">{t('suppliers.list.allStatuses')}</option>
+              <option value="active">{t('suppliers.list.active')}</option>
+              <option value="pending_approval">{t('suppliers.list.pending')}</option>
+              <option value="suspended">{t('suppliers.list.suspended')}</option>
+              <option value="inactive">{t('suppliers.list.inactive')}</option>
             </select>
           </div>
         </div>
@@ -143,7 +145,7 @@ export function SuppliersPage() {
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1,2,3,4].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}</div>
         ) : suppliers.length === 0 ? (
-          <EmptyState title="No suppliers found" description={search ? 'Try a different search term' : 'No suppliers match the filter'} />
+          <EmptyState title={t('suppliers.list.noSuppliers')} description={search ? t('suppliers.list.tryDifferentSearch') : t('suppliers.list.noFilterMatch')} />
         ) : (
           <div className="space-y-3">
             {suppliers.map((supplier) => (
@@ -158,7 +160,7 @@ export function SuppliersPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-text-primary font-body">{supplier.name}</span>
                           <span className="text-xs text-text-tertiary">{supplier.nameAr}</span>
-                          <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{supplier.status.replace('_', ' ')}</Badge>
+                          <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || supplier.status.replace('_', ' ')}</Badge>
                         </div>
                       </div>
                     </div>
@@ -169,10 +171,10 @@ export function SuppliersPage() {
                       </div>
                       <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
                         <span className="flex items-center gap-1"><Star size={12} className="text-status-star" />{supplier.rating.toFixed(1)}</span>
-                        <span>{supplier.totalOrders} orders</span>
+                        <span>{t('suppliers.list.orders', { count: supplier.totalOrders })}</span>
                         <span className="font-bold text-text-primary">{supplier.totalRevenue.toLocaleString()} SAR</span>
-                        <span>Accept: {supplier.acceptanceRate}%</span>
-                        <span>{supplier.commissionRate}% commission</span>
+                        <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
+                        <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
                         <span>{supplier.paymentTerms.replace(/_/g, ' ')}</span>
                       </div>
                       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
@@ -184,12 +186,12 @@ export function SuppliersPage() {
                   </div>
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                     {supplier.status === 'pending_approval' && (
-                      <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>Approve</Button>
+                      <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>{t('suppliers.list.approve')}</Button>
                     )}
                     {supplier.status === 'active' && (
-                      <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>Suspend</Button>
+                      <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>{t('suppliers.list.suspend')}</Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>View</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>{t('suppliers.list.view')}</Button>
                   </div>
                 </div>
               </div>
@@ -199,13 +201,13 @@ export function SuppliersPage() {
       </Card>
 
       {/* Suspend Modal */}
-      <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={`Suspend ${suspendModal.supplierName}`}>
+      <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={t('suppliers.list.suspendTitle', { name: suspendModal.supplierName })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Enter the reason for suspending this supplier. They will not be able to receive orders while suspended.</p>
-          <textarea rows={3} value={suspendModal.reason} onChange={(e) => setSuspendModal({ ...suspendModal, reason: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light resize-none bg-bg-input" placeholder="Reason for suspension..." />
+          <p className="text-sm text-text-secondary font-body">{t('suppliers.list.suspendDescription')}</p>
+          <textarea rows={3} value={suspendModal.reason} onChange={(e) => setSuspendModal({ ...suspendModal, reason: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light resize-none bg-bg-input" placeholder={t('suppliers.list.suspendReason')} />
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>Cancel</Button>
-            <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendSupplier.isPending} onClick={() => { suspendSupplier.mutate({ id: suspendModal.supplierId, reason: suspendModal.reason }); setSuspendModal({ ...suspendModal, open: false }); }}>Confirm Suspend</Button>
+            <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>{t('common.cancel')}</Button>
+            <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendSupplier.isPending} onClick={() => { suspendSupplier.mutate({ id: suspendModal.supplierId, reason: suspendModal.reason }); setSuspendModal({ ...suspendModal, open: false }); }}>{t('suppliers.list.confirmSuspend')}</Button>
           </div>
         </div>
       </Modal>

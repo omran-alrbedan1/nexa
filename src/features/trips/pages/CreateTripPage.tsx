@@ -7,27 +7,10 @@ import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ordersApi } from '@/features/orders/api/ordersApi';
+import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
+import { regionsApi } from '@/features/regions/api/regionsApi';
 import { tripsApi } from '../api/tripsApi';
 import { ArrowLeft, Truck, Save, User, Loader2 } from 'lucide-react';
-
-const DUMMY_WAREHOUSES = [
-  { id: 1, name: 'Riyadh Main Warehouse' },
-  { id: 2, name: 'Jeddah Warehouse' },
-  { id: 3, name: 'Dammam Warehouse' },
-];
-
-const DUMMY_ZONES = [
-  { id: 1, name: 'Riyadh North' },
-  { id: 2, name: 'Riyadh South' },
-  { id: 3, name: 'Jeddah Central' },
-];
-
-const DUMMY_CLUSTERS = [
-  { id: 1, zoneId: 1, name: 'Al-Olaya' },
-  { id: 2, zoneId: 1, name: 'Al-Malaz' },
-  { id: 3, zoneId: 1, name: 'King Fahd District' },
-  { id: 4, zoneId: 2, name: 'Al-Batha' },
-];
 
 export function CreateTripPage() {
   const navigate = useNavigate();
@@ -55,8 +38,24 @@ export function CreateTripPage() {
     staleTime: 15_000,
   });
 
+  // Fetch real warehouses from backend
+  const { data: warehousesData } = useQuery({
+    queryKey: ['create-trip', 'warehouses'],
+    queryFn: () => aggregationApi.getWarehouses(),
+    staleTime: 60_000,
+  });
+
+  // Fetch real zones from backend
+  const { data: zonesData } = useQuery({
+    queryKey: ['create-trip', 'zones'],
+    queryFn: () => regionsApi.getPageData().then((d) => d.regions),
+    staleTime: 60_000,
+  });
+
   const availableOrders = ordersData?.orders ?? [];
   const availableDrivers = driversData ?? [];
+  const warehouses = warehousesData ?? [];
+  const zones = zonesData ?? [];
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -143,25 +142,41 @@ export function CreateTripPage() {
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">Warehouse</label>
               <select value={form.warehouseId} onChange={(e) => handleChange('warehouseId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="1">Riyadh Main Warehouse</option>
-                <option value="2">Jeddah Warehouse</option>
-                <option value="3">Dammam Warehouse</option>
+                {warehouses.length === 0 ? (
+                  <option value="1">Riyadh Main Warehouse</option>
+                ) : warehouses.map((w) => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Zone</label>
               <select value={form.deliveryZone} onChange={(e) => handleChange('deliveryZone', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="1">Riyadh North</option>
-                <option value="2">Riyadh South</option>
-                <option value="3">Jeddah Central</option>
+                {zones.length === 0 ? (
+                  <>
+                    <option value="1">Riyadh North</option>
+                    <option value="2">Riyadh South</option>
+                    <option value="3">Jeddah Central</option>
+                  </>
+                ) : zones.map((z) => (
+                  <option key={z.id} value={z.id}>{z.name}</option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">Cluster</label>
               <select value={form.cluster} onChange={(e) => handleChange('cluster', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="1">Al-Olaya</option>
-                <option value="2">Al-Malaz</option>
-                <option value="3">King Fahd District</option>
+                {(() => {
+                  const zoneId = Number(form.deliveryZone);
+                  const zone = zones.find((z) => z.id === zoneId);
+                  const clusters = zone?.clusters?.filter((c) => c.isActive) ?? [];
+                  if (clusters.length === 0) {
+                    return <option value="1">General</option>;
+                  }
+                  return clusters.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ));
+                })()}
               </select>
             </div>
             <div>

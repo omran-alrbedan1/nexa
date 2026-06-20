@@ -112,8 +112,8 @@ function mapApprovalStatus(status: string): SupplierStatus {
 function mapBackendSupplier(bs: BackendSupplier): Supplier {
   return {
     id: bs.id,
-    name: bs.business_name,
-    nameAr: '', // not available from backend
+    name: bs.business_name, // business_name is stored in Arabic for Saudi users
+    nameAr: bs.business_name, // use as Arabic name (business names are in Arabic)
     email: bs.user?.email || '',
     phone: bs.user?.phone || '',
     commercialRegister: '', // not available from backend

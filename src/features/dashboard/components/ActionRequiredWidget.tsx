@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -31,6 +32,7 @@ interface ActionRequiredWidgetProps {
 }
 
 export function ActionRequiredWidget({ items, isLoading }: ActionRequiredWidgetProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
 
@@ -46,8 +48,8 @@ export function ActionRequiredWidget({ items, isLoading }: ActionRequiredWidgetP
     <Card padding="md">
       <CardHeader>
         <div>
-          <h3 className="text-sm font-bold text-text-primary font-display">Action Required</h3>
-          <p className="text-xs text-text-secondary font-body mt-0.5">Items needing attention</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.actionRequired.title')}</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">{t('dashboard.actionRequired.subtitle')}</p>
         </div>
         {items.length > 0 && (
           <span className="bg-brand-accent-light text-brand-accent-dark text-xs font-bold px-2 py-1 rounded-full font-body">
@@ -69,7 +71,7 @@ export function ActionRequiredWidget({ items, isLoading }: ActionRequiredWidgetP
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-sm text-text-tertiary font-body">All clear — no items need attention</p>
+          <p className="text-sm text-text-tertiary font-body">{t('dashboard.actionRequired.allClear')}</p>
         </div>
       ) : (
         <div className="space-y-1.5">

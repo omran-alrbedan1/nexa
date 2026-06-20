@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { PieChart } from 'lucide-react';
 
@@ -7,7 +8,7 @@ interface StatusCount {
   color: string;
 }
 
-const STATUS_DATA: StatusCount[] = [
+const DEFAULT_STATUS_DATA: StatusCount[] = [
   { label: 'Delivered', count: 47, color: '#22C55E' },
   { label: 'Out for Delivery', count: 9, color: '#2A9D8F' },
   { label: 'Confirmed', count: 8, color: '#8B5CF6' },
@@ -17,14 +18,41 @@ const STATUS_DATA: StatusCount[] = [
   { label: 'Failed Delivery', count: 2, color: '#EF4444' },
 ];
 
-const total = STATUS_DATA.reduce((sum, s) => sum + s.count, 0);
+// ── Build status data from real dashboard stats ──
 
-function ConicDonut({ data }: { data: StatusCount[] }) {
+function buildStatusData(ordersByType?: Record<string, number>, pipeline?: Record<string, number>): StatusCount[] {
+  if (ordersByType && Object.keys(ordersByType).length > 0) {
+    const fromTypes: StatusCount[] = Object.entries(ordersByType).map(([type, count], i) => ({
+      label: type.charAt(0).toUpperCase() + type.slice(1),
+      count,
+      color: ['#22C55E', '#2A9D8F', '#8B5CF6', '#F59E0B', '#9CA3AF', '#E76F51', '#EF4444'][i % 7],
+    }));
+    if (pipeline) {
+      const pipelineLabels: Record<string, { label: string; color: string }> = {
+        in_supply: { label: 'In Supply', color: '#F59E0B' },
+        in_aggregation: { label: 'In Aggregation', color: '#3B82F6' },
+        ready_to_ship: { label: 'Ready to Ship', color: '#8B5CF6' },
+        out_for_delivery: { label: 'Out for Delivery', color: '#2A9D8F' },
+        delivered_today: { label: 'Delivered', color: '#22C55E' },
+      };
+      return Object.entries(pipeline).map(([stage, count]) => ({
+        label: pipelineLabels[stage]?.label || stage,
+        count,
+        color: pipelineLabels[stage]?.color || '#9CA3AF',
+      }));
+    }
+    return fromTypes;
+  }
+  return DEFAULT_STATUS_DATA;
+}
+
+function ConicDonut({ data, total: totalCount }: { data: StatusCount[]; total: number }) {
+  const { t } = useTranslation();
   let cumulativePercent = 0;
   const segments = data
     .filter((s) => s.count > 0)
     .map((s) => {
-      const percent = (s.count / total) * 100;
+      const percent = (s.count / totalCount) * 100;
       const start = cumulativePercent;
       cumulativePercent += percent;
       return `${s.color} ${start}% ${cumulativePercent}%`;
@@ -40,8 +68,8 @@ function ConicDonut({ data }: { data: StatusCount[] }) {
       >
         <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center shadow-inner">
           <div className="text-center">
-            <p className="text-2xl font-extrabold text-text-primary font-display">{total}</p>
-            <p className="text-xs font-medium text-text-tertiary font-body">Today</p>
+            <p className="text-2xl font-extrabold text-text-primary font-display">{totalCount}</p>
+            <p className="text-xs font-medium text-text-tertiary font-body">{t('dashboard.ordersByStatus.today')}</p>
           </div>
         </div>
       </div>
@@ -49,7 +77,16 @@ function ConicDonut({ data }: { data: StatusCount[] }) {
   );
 }
 
-export function OrdersByStatusChart() {
+interface OrdersByStatusChartProps {
+  pipeline?: Record<string, number>;
+  ordersByType?: Record<string, number>;
+}
+
+export function OrdersByStatusChart({ pipeline, ordersByType }: OrdersByStatusChartProps) {
+  const { t } = useTranslation();
+  const STATUS_DATA = buildStatusData(ordersByType, pipeline);
+  const total = STATUS_DATA.reduce((sum, s) => sum + s.count, 0);
+
   return (
     <Card padding="lg" hover>
       <CardHeader>
@@ -58,13 +95,13 @@ export function OrdersByStatusChart() {
             <PieChart size={16} className="text-brand-accent" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Orders by Status</h3>
-            <p className="text-xs text-text-secondary font-body">Today's breakdown</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.ordersByStatus.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.ordersByStatus.subtitle')}</p>
           </div>
         </div>
       </CardHeader>
       <div className="flex items-start gap-6">
-        <ConicDonut data={STATUS_DATA} />
+        <ConicDonut data={STATUS_DATA} total={total} />
         <div className="space-y-2 flex-1">
           {STATUS_DATA.filter((s) => s.count > 0).map((s) => {
             const percent = ((s.count / total) * 100).toFixed(0);

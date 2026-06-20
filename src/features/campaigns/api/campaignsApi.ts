@@ -227,6 +227,32 @@ export const campaignsApi = {
     }
   },
 
+  /** Create a new campaign — backend POST /api/v1/admin/campaigns */
+  createCampaign: async (data: {
+    name: string;
+    nameAr?: string;
+    description?: string;
+    zoneId: number;
+    startsAt: string;
+    endsAt: string;
+    status?: string;
+  }): Promise<Campaign> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendCampaign>>('/api/v1/admin/campaigns', {
+        name_en: data.name,
+        name_ar: data.nameAr || data.name,
+        description: data.description,
+        zone_id: data.zoneId,
+        starts_at: data.startsAt,
+        ends_at: data.endsAt,
+        status: data.status || 'draft',
+      });
+      return mapBackendCampaign(response.data.data);
+    } catch {
+      throw new Error('Failed to create campaign');
+    }
+  },
+
   /** Get single campaign */
   getCampaign: async (id: number): Promise<Campaign> => {
     try {

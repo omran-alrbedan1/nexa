@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/types/common';
 import { ordersApi } from '@/features/orders/api/ordersApi';
 import { suppliersApi } from '@/features/suppliers/api/suppliersApi';
 import { driversApi } from '@/features/drivers/api/driversApi';
+import { regionsApi } from '@/features/regions/api/regionsApi';
 
 // ──────────────────────────────────────────────
 // Backend Raw Response Types
@@ -328,6 +329,44 @@ async function fetchPendingApprovals(): Promise<PendingApproval[]> {
   }
 }
 
+async function fetchTopSuppliers(): Promise<TopSupplier[]> {
+  try {
+    const result = await suppliersApi.getPageData();
+    // Sort by totalOrders desc, take top 5, map to TopSupplier
+    return result.suppliers
+      .filter((s) => s.totalOrders > 0)
+      .sort((a, b) => b.totalOrders - a.totalOrders)
+      .slice(0, 5)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        orderCount: s.totalOrders,
+        acceptanceRate: s.acceptanceRate,
+      }));
+  } catch {
+    return DUMMY_TOP_SUPPLIERS;
+  }
+}
+
+async function fetchTopAreas(): Promise<TopArea[]> {
+  try {
+    const result = await regionsApi.getPageData();
+    // Sort by totalOrders desc, take top 5, map to TopArea
+    return result.regions
+      .filter((r) => r.totalOrders > 0)
+      .sort((a, b) => b.totalOrders - a.totalOrders)
+      .slice(0, 5)
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        orderCount: r.totalOrders,
+        totalRevenue: r.totalRevenue,
+      }));
+  } catch {
+    return DUMMY_TOP_AREAS;
+  }
+}
+
 async function fetchDriverActivity(): Promise<DriverStatus[]> {
   try {
     const result = await driversApi.getPageData();
@@ -367,10 +406,10 @@ function transformBackendResponse(backend: DashboardBackendResponse): DashboardW
     pipeline: buildPipeline(backend.pipeline),
     tripSummary: buildTripSummary(backend.trips_today),
 
-    // Frontend-only widgets — still dummy
+    // Frontend-only widgets — populated by fetchWidgetData() call below
     timeKPIs: DUMMY_TIME_KPIS,
-    topSuppliers: DUMMY_TOP_SUPPLIERS,
-    topAreas: DUMMY_TOP_AREAS,
+    topSuppliers: [],
+    topAreas: [],
   };
 }
 
@@ -382,11 +421,13 @@ export const dashboardApi = {
    */
   getWidgetsExpanded: async (): Promise<DashboardWidgetsExpanded> => {
     // Fire all data fetches in parallel
-    const [dashboardResult, recentOrdersData, pendingApprovalsData, driverActivityData] = await Promise.all([
+    const [dashboardResult, recentOrdersData, pendingApprovalsData, driverActivityData, topSuppliersData, topAreasData] = await Promise.all([
       apiClient.get<ApiResponse<DashboardBackendResponse>>('/api/v1/admin/dashboard').then((r) => r.data.data).catch(() => null as DashboardBackendResponse | null),
       fetchRecentOrders(),
       fetchPendingApprovals(),
       fetchDriverActivity(),
+      fetchTopSuppliers(),
+      fetchTopAreas(),
     ]);
 
     // If the real dashboard backend was available, use it; otherwise fall back to all-dummy
@@ -412,6 +453,8 @@ export const dashboardApi = {
     result.recentOrders = recentOrdersData;
     result.pendingApprovals = pendingApprovalsData;
     result.driverActivity = driverActivityData;
+    result.topSuppliers = topSuppliersData;
+    result.topAreas = topAreasData;
     return result;
   },
 };

@@ -80,6 +80,54 @@ export function useSubmitPriceQuote() {
   });
 }
 
+export function useApproveSpecialOrder() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (requestId: number) => operationsApi.approveSpecialOrder(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
+      addToast('success', 'Special order approved');
+    },
+    onError: () => {
+      addToast('error', 'Failed to approve special order');
+    },
+  });
+}
+
+export function useRejectSpecialOrder() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (requestId: number) => operationsApi.rejectSpecialOrder(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
+      addToast('success', 'Special order rejected');
+    },
+    onError: () => {
+      addToast('error', 'Failed to reject special order');
+    },
+  });
+}
+
+export function useConvertToOrder() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: (requestId: number) => operationsApi.convertToOrder(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
+      addToast('success', 'Special order converted to regular order');
+    },
+    onError: () => {
+      addToast('error', 'Failed to convert special order');
+    },
+  });
+}
+
 // ── Complaint Mutations ──
 
 export function useAssignComplaint() {

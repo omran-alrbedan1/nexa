@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { operationsApi, type SpecialRequest } from '../api/operationsApi';
-import { useAssignForPricing, useSubmitPriceQuote } from '../hooks/useOperations';
+import { useAssignForPricing, useSubmitPriceQuote, useApproveSpecialOrder, useRejectSpecialOrder, useConvertToOrder } from '../hooks/useOperations';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, FileClock, DollarSign, User, Calendar,
-  CheckCircle2, Phone,
+  CheckCircle2, Phone, XCircle,
 } from 'lucide-react';
 import { operationsKeys } from '../hooks/useOperations';
 
@@ -60,6 +60,9 @@ export function SpecialRequestDetailPage() {
 
   const assignForPricing = useAssignForPricing();
   const submitPriceQuote = useSubmitPriceQuote();
+  const approveSpecialOrder = useApproveSpecialOrder();
+  const rejectSpecialOrder = useRejectSpecialOrder();
+  const convertToOrder = useConvertToOrder();
   const [assignModal, setAssignModal] = useState(false);
   const [quoteModal, setQuoteModal] = useState<{ open: boolean; price: string; notes: string }>({ open: false, price: '', notes: '' });
 
@@ -123,6 +126,21 @@ export function SpecialRequestDetailPage() {
               {(request.status === 'pending_management' || request.status === 'pending_pricing') && (
                 <Button variant="primary" size="sm" leftIcon={<DollarSign size={14} />} onClick={() => setQuoteModal({ open: true, price: String(request.estimatedBudget || ''), notes: '' })}>
                   Set Price Quote
+                </Button>
+              )}
+              {request.status === 'pending_customer_approval' && (
+                <>
+                  <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approveSpecialOrder.isPending} onClick={() => approveSpecialOrder.mutate(request.id)}>
+                    Approve
+                  </Button>
+                  <Button variant="secondary" size="sm" leftIcon={<XCircle size={14} />} isLoading={rejectSpecialOrder.isPending} onClick={() => rejectSpecialOrder.mutate(request.id)}>
+                    Reject
+                  </Button>
+                </>
+              )}
+              {request.status === 'approved' && (
+                <Button variant="primary" size="sm" leftIcon={<ArrowLeft size={14} />} isLoading={convertToOrder.isPending} onClick={() => convertToOrder.mutate(request.id)}>
+                  Convert to Order
                 </Button>
               )}
             </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import type { RecentOrder } from '../api/dashboardApi';
@@ -35,15 +36,17 @@ interface RecentOrdersWidgetProps {
 }
 
 export function RecentOrdersWidget({ orders, isLoading }: RecentOrdersWidgetProps) {
+  const { t } = useTranslation();
+
   return (
     <Card padding="lg" hover>
       <CardHeader>
         <div>
-          <h3 className="text-sm font-bold text-text-primary font-display">Recent Orders</h3>
-          <p className="text-xs text-text-secondary font-body mt-0.5">Latest 5 orders</p>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.recentOrders.title')}</h3>
+          <p className="text-xs text-text-secondary font-body mt-0.5">{t('dashboard.recentOrders.subtitle')}</p>
         </div>
         <button className="text-xs font-bold text-brand-primary hover:text-brand-primary-dark transition-colors font-body">
-          View All →
+          {t('dashboard.recentOrders.viewAll')} →
         </button>
       </CardHeader>
 

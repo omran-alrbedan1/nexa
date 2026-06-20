@@ -28,8 +28,9 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 function mapBackendUser(backendUser: Record<string, unknown>): User {
   const userType = (backendUser.user_type as UserType) || 'staff';
   const permissions = (backendUser.permissions as string[]) || [];
+  const roles = (backendUser.roles as string[]) || [];
   const role: UserRole = userType === 'staff'
-    ? userTypeToDashboardRole(permissions)
+    ? userTypeToDashboardRole(permissions, roles)
     : (userType as UserRole);
 
   return {
@@ -43,7 +44,7 @@ function mapBackendUser(backendUser: Record<string, unknown>): User {
     user_type: userType,
     status: (backendUser.status as User['status']) || 'active',
     role,
-    roles: (backendUser.roles as string[]) || [],
+    roles,
     permissions,
     customer_profile: backendUser.customer_profile as Record<string, unknown> | null,
     supplier_profile: backendUser.supplier_profile as Record<string, unknown> | null,

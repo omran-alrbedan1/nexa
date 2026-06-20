@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useOperationsPage } from '../hooks/useOperations';
 import { OrderManagementSection } from '../components/OrderManagementSection';
 import { SpecialRequestsSection } from '../components/SpecialRequestsSection';
@@ -23,14 +24,15 @@ const VARIANT_MAP: Record<string, 'teal' | 'coral' | 'warning' | 'purple' | 'suc
 };
 
 export function OperationsPage() {
+  const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useOperationsPage();
 
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
         <div>
-          <h1 className="text-2xl font-extrabold text-text-primary font-display">Operations</h1>
-          <p className="text-sm text-text-secondary font-body mt-1">Order management, special requests, and customer support</p>
+          <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('operations.title')}</h1>
+          <p className="text-sm text-text-secondary font-body mt-1">{t('operations.description')}</p>
         </div>
         <ErrorState
           title="Failed to load operations data"
@@ -49,8 +51,8 @@ export function OperationsPage() {
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="relative z-10">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Operations</h1>
-          <p className="text-sm text-text-secondary font-body mt-1">Order management, special requests, and customer support</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('operations.title')}</h1>
+          <p className="text-sm text-text-secondary font-body mt-1">{t('operations.description')}</p>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
       </div>
@@ -58,11 +60,11 @@ export function OperationsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {[
-          { key: 'newOrders', label: 'New Orders Today', value: stats?.newOrdersToday ?? '—', sub: 'Awaiting processing' },
-          { key: 'pendingSpecials', label: 'Pending Specials', value: stats?.pendingSpecials ?? '—', sub: `${stats?.pendingPricing ?? 0} need pricing` },
-          { key: 'pendingPricing', label: 'Awaiting Pricing', value: stats?.pendingPricing ?? '—', sub: `${stats?.pendingCustomerApproval ?? 0} awaiting customer` },
-          { key: 'complaints', label: 'Active Complaints', value: stats?.activeComplaints ?? '—', sub: `${stats?.failedDeliveries ?? 0} failed deliveries` },
-          { key: 'delivered', label: 'Delivered Today', value: stats?.deliveredToday ?? '—', sub: `${stats?.ordersInProgress ?? 0} in progress` },
+          { key: 'newOrders', label: t('operations.stats.newOrdersToday'), value: stats?.newOrdersToday ?? '—', sub: 'Awaiting processing' },
+          { key: 'pendingSpecials', label: t('operations.stats.pendingSpecials'), value: stats?.pendingSpecials ?? '—', sub: `${stats?.pendingPricing ?? 0} ${t('operations.stats.awaitingPricing').toLowerCase()}` },
+          { key: 'pendingPricing', label: t('operations.stats.awaitingPricing'), value: stats?.pendingPricing ?? '—', sub: `${stats?.pendingCustomerApproval ?? 0} ${t('operations.specialRequests.awaitingCustomer').toLowerCase()}` },
+          { key: 'complaints', label: t('operations.stats.activeComplaints'), value: stats?.activeComplaints ?? '—', sub: `${stats?.failedDeliveries ?? 0} failed deliveries` },
+          { key: 'delivered', label: t('operations.stats.deliveredToday'), value: stats?.deliveredToday ?? '—', sub: `${stats?.ordersInProgress ?? 0} in progress` },
         ].map((stat) => (
           <Card key={stat.key} padding="md" hover>
             <div className="flex items-start justify-between">

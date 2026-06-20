@@ -27,3 +27,29 @@ export function useToggleDriverAvailability() {
     onError: () => addToast('error', 'Failed to update driver status'),
   });
 }
+
+export function useApproveDriver() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => driversApi.approveDriver(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: driverKeys.all });
+      addToast('success', 'Driver approved');
+    },
+    onError: () => addToast('error', 'Failed to approve driver'),
+  });
+}
+
+export function useRejectDriver() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => driversApi.rejectDriver(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: driverKeys.all });
+      addToast('success', 'Driver rejected');
+    },
+    onError: () => addToast('error', 'Failed to reject driver'),
+  });
+}

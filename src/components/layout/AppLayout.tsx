@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
+import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -20,20 +22,21 @@ interface NavItem {
 }
 
 const ALL_NAV_ITEMS: NavItem[] = [
-  { to: ROUTES.DASHBOARD, label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-  { to: ROUTES.OPERATIONS, label: 'Operations', icon: <ClipboardList size={20} />, roles: ['operations'] },
-  { to: ROUTES.ORDERS, label: 'Orders', icon: <ClipboardList size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.TRIPS, label: 'Trips', icon: <Truck size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.AGGREGATION, label: 'Warehouse', icon: <Warehouse size={20} />, roles: ['admin', 'aggregation'] },
-  { to: ROUTES.SUPPLIERS, label: 'Suppliers', icon: <Users size={20} />, roles: ['admin'] },
-  { to: ROUTES.REGIONS, label: 'Regions', icon: <Map size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.CAMPAIGNS, label: 'Campaigns', icon: <Megaphone size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.PRODUCTS, label: 'Products', icon: <Package size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.DASHBOARD, label: 'nav.dashboard', icon: <LayoutDashboard size={20} /> },
+  { to: ROUTES.OPERATIONS, label: 'nav.operations', icon: <ClipboardList size={20} />, roles: ['operations'] },
+  { to: ROUTES.ORDERS, label: 'nav.orders', icon: <ClipboardList size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.TRIPS, label: 'nav.trips', icon: <Truck size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.AGGREGATION, label: 'nav.warehouse', icon: <Warehouse size={20} />, roles: ['admin', 'aggregation'] },
+  { to: ROUTES.SUPPLIERS, label: 'nav.suppliers', icon: <Users size={20} />, roles: ['admin'] },
+  { to: ROUTES.REGIONS, label: 'nav.regions', icon: <Map size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.CAMPAIGNS, label: 'nav.campaigns', icon: <Megaphone size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.PRODUCTS, label: 'nav.products', icon: <Package size={20} />, roles: ['admin', 'operations'] },
 ];
 
 export function AppLayout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -76,9 +79,9 @@ export function AppLayout() {
           'bg-white border-r border-border-default shadow-card',
           'transition-transform duration-300 ease-in-out',
           'w-sidebar-width flex-shrink-0',
-          isMobile && !sidebarOpen && '-translate-x-full',
-          isMobile && sidebarOpen && 'translate-x-0',
-          !isMobile && 'translate-x-0'
+          isMobile && !sidebarOpen && 'sidebar-closed',
+          isMobile && sidebarOpen && 'sidebar-open',
+          !isMobile && 'sidebar-open'
         )}
       >
         {/* Logo / Brand */}
@@ -86,12 +89,11 @@ export function AppLayout() {
           <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center text-white font-display font-bold text-lg shadow-sm">
             N
           </div>
-          <div>
-            <h1 className="font-display text-base font-bold text-brand-primary-dark">
+          <div>              <h1 className="font-display text-base font-bold text-brand-primary-dark">
               NEXA Ops
             </h1>
             <p className="text-[11px] font-medium text-text-secondary font-body">
-              Management Suite
+              {t('app.subtitle')}
             </p>
           </div>
           {isMobile && (
@@ -122,7 +124,7 @@ export function AppLayout() {
               )}>
                 {item.icon}
               </span>
-              <span>{item.label}</span>
+              <span>{t(item.label)}</span>
               {isActive(item.to) && (
                 <ChevronRight size={16} className="ml-auto text-brand-primary" />
               )}
@@ -137,7 +139,7 @@ export function AppLayout() {
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-status-error hover:bg-brand-accent-light transition-colors font-body font-medium"
           >
             <LogOut size={20} />
-            Sign Out
+            {t('app.signOut')}
           </button>
         </div>
       </aside>
@@ -161,7 +163,7 @@ export function AppLayout() {
               </button>
               <div className="hidden md:block">
                 <h2 className="font-display text-lg font-extrabold text-brand-primary">
-                  NEXA Operations
+                  {t('app.headerTitle')}
                 </h2>
               </div>
             </div>
@@ -171,13 +173,14 @@ export function AppLayout() {
               <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
               <input
                 type="text"
-                placeholder="Search orders, trips, or regions..."
+                placeholder={t('app.searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-2 bg-bg-input border border-border-default rounded-full text-sm font-body text-text-primary outline-none transition-all focus:border-brand-primary focus:ring-2 focus:ring-brand-primary-light"
               />
             </div>
 
             {/* Right Section */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <LanguageSwitch />
               <button
                 onClick={() => setNotificationsOpen(true)}
                 className="relative p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors"

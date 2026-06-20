@@ -29,3 +29,31 @@ export function useToggleProductAvailability() {
     onError: () => addToast('error', 'Failed to update product'),
   });
 }
+
+export function useApproveProduct() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => productsApi.approveProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: ['products', 'pending-approvals'] });
+      addToast('success', 'Product approved');
+    },
+    onError: () => addToast('error', 'Failed to approve product'),
+  });
+}
+
+export function useRejectProduct() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => productsApi.rejectProduct(id, 'Rejected by admin'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: ['products', 'pending-approvals'] });
+      addToast('success', 'Product rejected');
+    },
+    onError: () => addToast('error', 'Failed to reject product'),
+  });
+}

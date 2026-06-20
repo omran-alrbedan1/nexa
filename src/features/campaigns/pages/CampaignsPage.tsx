@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCampaignsPage, useCampaignAction } from '../hooks/useCampaigns';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -15,17 +16,11 @@ const STATUS_BADGE: Record<CampaignStatus, 'green' | 'teal' | 'yellow' | 'purple
   active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', cancelled: 'red',
 };
 
-const STAT_CONFIG = [
-  { key: 'total', label: 'Total Campaigns', icon: Megaphone, variant: 'teal' as const },
-  { key: 'active', label: 'Active', icon: PlayCircle, variant: 'success' as const },
-  { key: 'scheduled', label: 'Scheduled', icon: CalendarClock, variant: 'teal' as const },
-  { key: 'draft', label: 'Drafts', icon: FileEdit, variant: 'warning' as const },
-  { key: 'totalOrders', label: 'Total Orders', icon: ShoppingCart, variant: 'coral' as const },
-  { key: 'totalRevenue', label: 'Revenue', icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', format: true },
-];
+
 
 export function CampaignsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
 
@@ -34,10 +29,10 @@ export function CampaignsPage() {
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-extrabold text-text-primary font-display">Campaigns</h1>
-        <p className="text-sm text-text-secondary font-body mt-1">Manage seasonal campaigns, pricing, and scheduling</p>
+        <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('campaigns.title')}</h1>
+        <p className="text-sm text-text-secondary font-body mt-1">{t('campaigns.description')}</p>
       </div>
-      <ErrorState title="Failed to load campaigns" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+      <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
     </div>
   );
 
@@ -46,9 +41,9 @@ export function CampaignsPage() {
 
   const getActions = (status: CampaignStatus) => {
     const actions: Array<{ label: string; action: 'activate' | 'end' | 'cancel'; variant: 'primary' | 'danger' | 'secondary' }> = [];
-    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Activate', action: 'activate', variant: 'primary' });
-    if (status === 'active') actions.push({ label: 'End Campaign', action: 'end', variant: 'secondary' });
-    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Cancel', action: 'cancel', variant: 'danger' });
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: t('campaigns.list.activate'), action: 'activate', variant: 'primary' });
+    if (status === 'active') actions.push({ label: t('campaigns.list.endCampaign'), action: 'end', variant: 'secondary' });
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: t('campaigns.list.cancel'), action: 'cancel', variant: 'danger' });
     return actions;
   };
 
@@ -63,8 +58,8 @@ export function CampaignsPage() {
               <Megaphone size={22} className="text-brand-accent" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Seasonal Campaigns</h1>
-              <p className="text-sm text-text-secondary font-body">Manage seasonal campaigns, pricing, and scheduling</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('campaigns.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('campaigns.description')}</p>
             </div>
           </div>
         </div>
@@ -73,7 +68,14 @@ export function CampaignsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
-        {STAT_CONFIG.map((s) => {
+        {[
+          { key: 'total', label: t('campaigns.stats.totalCampaigns'), icon: Megaphone, variant: 'teal' as const },
+          { key: 'active', label: t('campaigns.stats.active'), icon: PlayCircle, variant: 'success' as const },
+          { key: 'scheduled', label: t('campaigns.stats.scheduled'), icon: CalendarClock, variant: 'teal' as const },
+          { key: 'draft', label: t('campaigns.stats.drafts'), icon: FileEdit, variant: 'warning' as const },
+          { key: 'totalOrders', label: t('campaigns.stats.totalOrders'), icon: ShoppingCart, variant: 'coral' as const },
+          { key: 'totalRevenue', label: t('campaigns.stats.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', format: true },
+        ].map((s) => {
           const Icon = s.icon;
           return (
             <Card key={s.key} padding="md" hover>
@@ -106,13 +108,13 @@ export function CampaignsPage() {
         <CardHeader
           action={
             <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.CAMPAIGN_CREATE)}>
-              New Campaign
+              {t('campaigns.list.newCampaign')}
             </Button>
           }
         >
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">All Campaigns</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{campaigns.length} campaigns</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.list.allCampaigns')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('campaigns.list.count', { count: campaigns.length })}</p>
           </div>
         </CardHeader>
 
@@ -124,12 +126,12 @@ export function CampaignsPage() {
               onChange={(e) => setStatusFilter(e.target.value as CampaignStatus | '')}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="draft">Draft</option>
-              <option value="ended">Ended</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="">{t('campaigns.list.allStatuses')}</option>
+              <option value="active">{t('campaigns.list.active')}</option>
+              <option value="scheduled">{t('campaigns.list.scheduled')}</option>
+              <option value="draft">{t('campaigns.list.draft')}</option>
+              <option value="ended">{t('campaigns.list.ended')}</option>
+              <option value="cancelled">{t('campaigns.list.cancelled')}</option>
             </select>
           </div>
         </div>
@@ -137,7 +139,7 @@ export function CampaignsPage() {
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}</div>
         ) : campaigns.length === 0 ? (
-          <EmptyState title="No campaigns" description={statusFilter ? 'No campaigns match the filter' : 'Create your first seasonal campaign'} />
+          <EmptyState title={t('campaigns.list.noCampaigns')} description={statusFilter ? t('campaigns.list.noFilterMatch') : t('campaigns.list.createFirst')} />
         ) : (
           <div className="space-y-3">
             {campaigns.map((camp) => (
@@ -159,11 +161,10 @@ export function CampaignsPage() {
                     <div className="ml-11 mt-2">
                       <p className="text-xs text-text-secondary font-body line-clamp-1">{camp.description}</p>
                       <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
-                        <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span>
-                        <span>{camp.products.length} products</span>
-                        <span>{camp.totalOrders} orders</span>
+                        <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span><span>{t('campaigns.list.products', { count: camp.products.length })}</span>
+                        <span>{t('campaigns.list.orders', { count: camp.totalOrders })}</span>
                         <span className="font-bold text-brand-primary">{camp.totalRevenue.toLocaleString()} SAR</span>
-                        <span>Budget: {camp.spentAmount.toLocaleString()} / {camp.budget.toLocaleString()} SAR</span>
+                        <span>{t('campaigns.list.budget', { spent: camp.spentAmount.toLocaleString(), total: camp.budget.toLocaleString() })}</span>
                       </div>
                       {/* Products preview */}
                       <div className="flex items-center gap-1.5 mt-2 flex-wrap">

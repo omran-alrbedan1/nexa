@@ -283,6 +283,30 @@ export const productsApi = {
     }
   },
 
+  /** Approve a pending product */
+  approveProduct: async (id: number): Promise<DashboardProduct> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/approve`);
+      return mapBackendProduct(response.data.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return { ...product, isAvailable: true, updatedAt: new Date().toISOString() };
+    }
+  },
+
+  /** Reject a pending product with a reason */
+  rejectProduct: async (id: number, reason: string): Promise<DashboardProduct> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/reject`, { reason });
+      return mapBackendProduct(response.data.data);
+    } catch {
+      const product = DUMMY_PRODUCTS.find((p) => p.id === id);
+      if (!product) throw new Error('Product not found');
+      return { ...product, isAvailable: false, updatedAt: new Date().toISOString() };
+    }
+  },
+
   /** Adjust stock level (add or remove units) — backend expects {quantity, type, note?} */
   adjustStock: async (id: number, adjustment: number, reason: string, type: 'add' | 'deduct' = 'add'): Promise<DashboardProduct> => {
     try {

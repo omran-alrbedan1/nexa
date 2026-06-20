@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTripsPage, useAssignDriver, useStartTrip, useCompleteTrip } from '../hooks/useTrips';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -18,6 +19,8 @@ const STATUS_LABELS: Record<string, string> = {
   completed: 'Completed', cancelled: 'Cancelled', failed: 'Failed',
 };
 
+
+
 function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple' | 'red' {
   switch (status) {
     case 'completed': return 'green';
@@ -28,17 +31,11 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
   }
 }
 
-const STAT_CONFIG = [
-  { key: 'total', label: 'Total Trips', icon: Truck, variant: 'teal' as const },
-  { key: 'scheduled', label: 'Scheduled', icon: Calendar, variant: 'purple' as const },
-  { key: 'inProgress', label: 'In Progress', icon: Zap, variant: 'coral' as const },
-  { key: 'assigned', label: 'Assigned', icon: Users, variant: 'warning' as const },
-  { key: 'completed', label: 'Completed', icon: CheckCircle2, variant: 'success' as const },
-  { key: 'totalOrders', label: 'Orders', icon: ShoppingCart, variant: 'teal' as const },
-];
+
 
 export function TripsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useTripsPage();
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
@@ -52,10 +49,10 @@ export function TripsPage() {
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-extrabold text-text-primary font-display">Trips</h1>
-        <p className="text-sm text-text-secondary font-body mt-1">Manage delivery trips, driver assignments, and tracking</p>
+        <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('trips.title')}</h1>
+        <p className="text-sm text-text-secondary font-body mt-1">{t('trips.description')}</p>
       </div>
-      <ErrorState title="Failed to load trips" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+      <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
     </div>
   );
 
@@ -66,15 +63,15 @@ export function TripsPage() {
   const getActions = (trip: DashboardTrip) => {
     const actions: Array<{ label: string; onClick: () => void; variant: 'primary' | 'danger' | 'secondary'; icon?: React.ReactNode }> = [];
     if (trip.status === 'scheduled') {
-      if (trip.driverId) actions.push({ label: 'Start Trip', onClick: () => startTrip.mutate(trip.id), variant: 'primary', icon: <Navigation size={12} /> });
-      else actions.push({ label: 'Assign Driver', onClick: () => setAssignModal({ open: true, trip, driverId: 0, driverName: '' }), variant: 'primary', icon: <UserPlus size={12} /> });
+      if (trip.driverId) actions.push({ label: t('trips.list.startTrip'), onClick: () => startTrip.mutate(trip.id), variant: 'primary', icon: <Navigation size={12} /> });
+      else actions.push({ label: t('trips.list.assignDriver'), onClick: () => setAssignModal({ open: true, trip, driverId: 0, driverName: '' }), variant: 'primary', icon: <UserPlus size={12} /> });
     }
     if (trip.status === 'assigned') {
-      actions.push({ label: 'Start Trip', onClick: () => startTrip.mutate(trip.id), variant: 'primary', icon: <Navigation size={12} /> });
-      actions.push({ label: 'Reassign', onClick: () => setAssignModal({ open: true, trip, driverId: trip.driverId || 0, driverName: trip.driverName || '' }), variant: 'secondary', icon: <UserPlus size={12} /> });
+      actions.push({ label: t('trips.list.startTrip'), onClick: () => startTrip.mutate(trip.id), variant: 'primary', icon: <Navigation size={12} /> });
+      actions.push({ label: t('trips.list.reassign'), onClick: () => setAssignModal({ open: true, trip, driverId: trip.driverId || 0, driverName: trip.driverName || '' }), variant: 'secondary', icon: <UserPlus size={12} /> });
     }
     if (trip.status === 'in_progress') {
-      actions.push({ label: 'Complete', onClick: () => completeTrip.mutate(trip.id), variant: 'primary', icon: <CheckCircle2 size={12} /> });
+      actions.push({ label: t('trips.list.complete'), onClick: () => completeTrip.mutate(trip.id), variant: 'primary', icon: <CheckCircle2 size={12} /> });
     }
     return actions;
   };
@@ -94,8 +91,8 @@ export function TripsPage() {
               <Truck size={22} className="text-brand-primary" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Trips</h1>
-              <p className="text-sm text-text-secondary font-body">Manage delivery trips, driver assignments, and tracking</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('trips.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('trips.description')}</p>
             </div>
           </div>
         </div>
@@ -104,7 +101,14 @@ export function TripsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
-        {STAT_CONFIG.map((s) => {
+        {[
+          { key: 'total', label: t('trips.stats.totalTrips'), icon: Truck, variant: 'teal' as const },
+          { key: 'scheduled', label: t('trips.stats.scheduled'), icon: Calendar, variant: 'purple' as const },
+          { key: 'inProgress', label: t('trips.stats.inProgress'), icon: Zap, variant: 'coral' as const },
+          { key: 'assigned', label: t('trips.stats.assigned'), icon: Users, variant: 'warning' as const },
+          { key: 'completed', label: t('trips.stats.completed'), icon: CheckCircle2, variant: 'success' as const },
+          { key: 'totalOrders', label: t('trips.stats.orders'), icon: ShoppingCart, variant: 'teal' as const },
+        ].map((s) => {
           const Icon = s.icon;
           return (
             <Card key={s.key} padding="md" hover>
@@ -136,14 +140,14 @@ export function TripsPage() {
         <CardHeader
           action={
             <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={() => useToastStore.getState().addToast('info', 'Trip schedule view coming soon')}>Schedule View</Button>
-              <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreateTrip}>New Trip</Button>
+              <Button variant="secondary" size="sm" onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}>{t('trips.list.scheduleView')}</Button>
+              <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreateTrip}>{t('trips.list.newTrip')}</Button>
             </div>
           }
         >
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Delivery Trips</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{stats?.totalValue?.toLocaleString()} SAR total value · {stats?.avgCompletionRate}% avg completion</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.title')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.list.totalValue', { amount: (stats?.totalValue ?? 0).toLocaleString() })} · {t('trips.list.avgCompletion', { rate: stats?.avgCompletionRate ?? 0 })}</p>
           </div>
         </CardHeader>
 
@@ -155,12 +159,12 @@ export function TripsPage() {
               onChange={(e) => setStatusFilter(e.target.value as TripStatus | '')}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
-              <option value="">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="assigned">Assigned</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="">{t('trips.list.allStatuses')}</option>
+              <option value="scheduled">{t('trips.stats.scheduled')}</option>
+              <option value="assigned">{t('trips.stats.assigned')}</option>
+              <option value="in_progress">{t('trips.stats.inProgress')}</option>
+              <option value="completed">{t('trips.stats.completed')}</option>
+              <option value="cancelled">{t('campaigns.list.cancelled')}</option>
             </select>
           </div>
         </div>
@@ -168,7 +172,7 @@ export function TripsPage() {
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1,2,3,4].map((i) => <div key={i} className="h-22 bg-gray-100 rounded-xl" />)}</div>
         ) : trips.length === 0 ? (
-          <EmptyState title="No trips" description={statusFilter ? 'No trips match the filter' : 'Create your first delivery trip'} />
+          <EmptyState title={t('trips.list.noTrips')} description={statusFilter ? t('trips.list.noFilterMatch') : t('trips.list.createFirst')} />
         ) : (
           <div className="space-y-2">
             {trips.map((trip) => (
@@ -185,9 +189,9 @@ export function TripsPage() {
                     {trip.regionName} · {trip.clusterName} · {trip.scheduledDate} · {trip.timeSlot}
                   </p>
                   <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body ml-10">
-                    <span>Driver: {trip.driverName ? <span className="font-bold text-text-primary">{trip.driverName}</span> : <span className="text-status-error font-bold">Unassigned</span>}</span>
-                    <span>{trip.orderCount} orders · <span className="font-bold text-text-primary">{trip.totalValue.toLocaleString()} SAR</span></span>
-                    {trip.status === 'in_progress' && <span>{trip.completedOrders}/{trip.orderCount} delivered</span>}
+                    <span>{t('trips.list.driver', { name: trip.driverName ? <span className="font-bold text-text-primary">{trip.driverName}</span> : <span className="text-status-error font-bold">{t('trips.list.unassigned')}</span> })}</span>
+                    <span>{trip.orderCount} {t('trips.stats.orders').toLowerCase()} · <span className="font-bold text-text-primary">{trip.totalValue.toLocaleString()} SAR</span></span>
+                    {trip.status === 'in_progress' && <span>{t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</span>}
                     {trip.notes && <span className="text-amber-600 truncate max-w-[200px]">{trip.notes}</span>}
                   </div>
                 </div>
@@ -205,9 +209,9 @@ export function TripsPage() {
       </Card>
 
       {/* Assign Driver Modal */}
-      <Modal open={assignModal.open} onClose={() => setAssignModal({ ...assignModal, open: false })} title={`Assign Driver — ${assignModal.trip?.tripNumber}`}>
+      <Modal open={assignModal.open} onClose={() => setAssignModal({ ...assignModal, open: false })} title={t('trips.list.assignModalTitle', { trip: assignModal.trip?.tripNumber || '' })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Select a driver for {assignModal.trip?.regionName} ({assignModal.trip?.timeSlot})</p>
+          <p className="text-sm text-text-secondary font-body">{t('trips.list.selectDriver', { region: assignModal.trip?.regionName || '', slot: assignModal.trip?.timeSlot || '' })}</p>
           <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
             {availableDrivers.filter((d) => !assignModal.trip || !d.regionName || d.regionName === assignModal.trip.regionName).map((driver) => (
               <button
@@ -233,12 +237,12 @@ export function TripsPage() {
             ))}
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" disabled={!assignModal.driverId} isLoading={assignDriver.isPending} onClick={() => {
               if (!assignModal.trip || !assignModal.driverId) return;
               assignDriver.mutate({ tripId: assignModal.trip.id, driverId: assignModal.driverId, driverName: assignModal.driverName });
               setAssignModal({ ...assignModal, open: false });
-            }}>Assign Driver</Button>
+            }}>{t('trips.list.assignButton')}</Button>
           </div>
         </div>
       </Modal>

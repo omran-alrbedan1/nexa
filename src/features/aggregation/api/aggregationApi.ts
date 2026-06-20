@@ -12,6 +12,12 @@
 //   GET    /api/v1/admin/aggregation/ready-to-ship
 //   POST   /api/v1/admin/aggregation/orders/{orderId}/assign-trip
 //   GET    /api/v1/admin/aggregation/throughput
+//
+// ⚠ Backend response key map:
+//   supply-receiving → { supply_records: [...], meta: {...} }
+//   queue            → { items: [...], meta: {...} }
+//   ready-to-ship    → { orders: [...], meta: {...} }
+//   throughput       → direct stats object (no wrapper)
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -165,7 +171,8 @@ interface BackendQueueOrderCustomer {
 }
 
 interface BackendQueueOrderZone {
-  name: string;
+  /** Backend returns `name_ar` (Arabic name), not `name` */
+  name_ar: string;
 }
 
 interface BackendQueueOrder {
@@ -197,29 +204,22 @@ interface BackendAggregationQueueItem {
   assigned_to: BackendQueueAssignedTo | null;
 }
 
-// ── Backend Raw Types (ready-to-ship orders) ──
-
-interface BackendReadyToShipCustomer {
-  full_name: string;
-  phone: string;
-}
-
-interface BackendReadyToShipTripOrder {
-  id: number;
-  trip: { id: number; trip_number: string } | null;
-}
+// ── Backend Raw Types (ready-to-ship uses OrderResource) ──
+// OrderResource fields: id, order_number, order_type, status, payment_status,
+//   total, created_at, delivery_scheduled_at, customer, supplier, warehouse
+// It does NOT have: ready_to_ship_at, items, items_count, trip_orders
 
 interface BackendReadyToShipOrder {
   id: number;
   order_number: string;
+  order_type?: string;
   status: string;
+  payment_status?: string;
   total: number;
-  ready_to_ship_at: string | null;
-  customer: BackendReadyToShipCustomer | null;
-  warehouse: BackendSupplyRecordWarehouse | null;
-  items_count?: number;
-  items?: { product_name: string }[];
-  trip_orders: BackendReadyToShipTripOrder[];
+  created_at: string;
+  delivery_scheduled_at?: string | null;
+  customer: { id: number; name: string; phone: string } | null;
+  warehouse: { id: number; name: string } | null;
 }
 
 // ── Backend Raw Types (throughput) ──
@@ -233,15 +233,21 @@ interface BackendThroughput {
   avg_processing_time_hours: number;
 }
 
-// ── Backend Pagination Wrapper ──
+// ── Backend wrapper types matching actual controller responses ──
 
-interface BackendPaginatedData<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    total: number;
-  };
+interface BackendSupplyReceivingResponse {
+  supply_records: BackendSupplyRecord[];
+  meta: { current_page: number; last_page: number; total: number };
+}
+
+interface BackendAggregationQueueResponse {
+  items: BackendAggregationQueueItem[];
+  meta: { current_page: number; last_page: number; total: number };
+}
+
+interface BackendReadyToShipResponse {
+  orders: BackendReadyToShipOrder[];
+  meta: { current_page: number; last_page: number; total: number };
 }
 
 // ── Mapping ──
@@ -269,6 +275,7 @@ function mapBackendAggregationStatus(status: string): AggregationStatus {
 }
 
 function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
+  const orderNum = r.order?.order_number || '';
   return {
     id: r.id,
     supplier: {
@@ -276,7 +283,7 @@ function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
       name: r.supplier?.business_name || `Supplier #${r.id}`,
       phone: r.supplier?.phone || '',
     },
-    purchaseOrderNumber: r.order?.order_number ? `PO-${r.order.order_number}` : `PO-${r.id}`,
+    purchaseOrderNumber: orderNum ? `PO-${orderNum}` : `PO-${r.id}`,
     items: '',
     itemCount: r.order?.items_count || 0,
     status: mapBackendSupplyStatus(r.status || 'pending'),
@@ -289,7 +296,8 @@ function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
 
 function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
   const order = q.order;
-  const regionName = order?.zone?.name || '';
+  // Backend returns name_ar for zone, not name
+  const regionName = order?.zone?.name_ar || '';
   return {
     id: q.id,
     orderNumber: order?.order_number || `ORD-${q.id}`,
@@ -305,20 +313,19 @@ function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
 }
 
 function mapBackendReadyToShip(o: BackendReadyToShipOrder): ReadyToShipItem {
-  const tripOrder = o.trip_orders?.[0];
-  const itemsStr = o.items?.map((i) => i.product_name).join(', ') || '';
   return {
     id: o.id,
     orderNumber: o.order_number || `ORD-${o.id}`,
-    customerName: o.customer?.full_name || 'Unknown',
-    items: itemsStr,
-    itemCount: o.items_count || 0,
+    customerName: o.customer?.name || 'Unknown',
+    // OrderResource doesn't include items/trip_orders, so defaults for now
+    items: '',
+    itemCount: 0,
     totalWeight: 0,
-    status: tripOrder?.trip ? 'assigned_to_trip' : 'pending_trip',
+    status: 'pending_trip',
     regionName: '',
-    tripId: tripOrder?.trip?.id || null,
-    tripName: tripOrder?.trip?.trip_number || null,
-    packedAt: o.ready_to_ship_at || o.created_at,
+    tripId: null,
+    tripName: null,
+    packedAt: o.created_at,
     createdAt: o.created_at,
   };
 }
@@ -369,32 +376,40 @@ function getDummyPageData(): AggregationPageData {
   return { supplyReceiving: DUMMY_SUPPLY_RECEIVING, aggregationQueue: DUMMY_AGGREGATION_QUEUE, readyToShip: DUMMY_READY_TO_SHIP, throughput: DUMMY_THROUGHPUT };
 }
 
+/** Helper: extract paginated items from a backend response with a dynamic key */
+function extractPaginated<T>(response: ApiResponse<any> | null, key: string, map: (raw: any) => T, fallback: T[]): { items: T[]; meta: { current_page: number; last_page: number; total: number } } {
+  if (!response) return { items: fallback, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: fallback.length } };
+  try {
+    const data = unwrap(response);
+    const rawItems: any[] = data[key] || [];
+    return { items: rawItems.map(map), meta: data.meta || { current_page: 1, last_page: 1, total: rawItems.length } };
+  } catch {
+    return { items: fallback, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: fallback.length } };
+  }
+}
+
 export const aggregationApi = {
   /** Fetch all warehouse/aggregation page data */
   getPageData: async (): Promise<AggregationPageData> => {
     try {
       // Fire all data fetches in parallel
       const [supplyRes, queueRes, readyRes, throughputRes] = await Promise.all([
-        apiClient.get<ApiResponse<BackendPaginatedData<BackendSupplyRecord>>>('/api/v1/admin/aggregation/supply-receiving').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendPaginatedData<BackendAggregationQueueItem>>>('/api/v1/admin/aggregation/queue').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendPaginatedData<BackendReadyToShipOrder>>>('/api/v1/admin/aggregation/ready-to-ship').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendThroughput>>('/api/v1/admin/aggregation/throughput').then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<any>>('/api/v1/admin/aggregation/supply-receiving').then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<any>>('/api/v1/admin/aggregation/queue').then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<any>>('/api/v1/admin/aggregation/ready-to-ship').then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<any>>('/api/v1/admin/aggregation/throughput').then((r) => r.data).catch(() => null),
       ]);
 
-      const supplyReceiving = supplyRes
-        ? unwrap(supplyRes).data.map(mapBackendSupplyRecord)
-        : DUMMY_SUPPLY_RECEIVING;
-      const aggregationQueue = queueRes
-        ? unwrap(queueRes).data.map(mapBackendQueueItem)
-        : DUMMY_AGGREGATION_QUEUE;
-      const readyToShip = readyRes
-        ? unwrap(readyRes).data.map(mapBackendReadyToShip)
-        : DUMMY_READY_TO_SHIP;
+      // Backend keys: supply-receiving→supply_records, queue→items, ready-to-ship→orders
+      const supplyResult = extractPaginated(supplyRes, 'supply_records', mapBackendSupplyRecord, DUMMY_SUPPLY_RECEIVING);
+      const queueResult = extractPaginated(queueRes, 'items', mapBackendQueueItem, DUMMY_AGGREGATION_QUEUE);
+      const readyResult = extractPaginated(readyRes, 'orders', mapBackendReadyToShip, DUMMY_READY_TO_SHIP);
+
       const throughput = throughputRes
         ? mapBackendThroughput(unwrap(throughputRes))
         : DUMMY_THROUGHPUT;
 
-      return { supplyReceiving, aggregationQueue, readyToShip, throughput };
+      return { supplyReceiving: supplyResult.items, aggregationQueue: queueResult.items, readyToShip: readyResult.items, throughput };
     } catch {
       return getDummyPageData();
     }
@@ -413,11 +428,11 @@ export const aggregationApi = {
       if (params?.page) queryParams.set('page', String(params.page));
       if (params?.perPage) queryParams.set('per_page', String(params.perPage));
       const qs = queryParams.toString();
-      const response = await apiClient.get<ApiResponse<BackendPaginatedData<BackendSupplyRecord>>>(
+      const response = await apiClient.get<ApiResponse<BackendSupplyReceivingResponse>>(
         `/api/v1/admin/aggregation/supply-receiving${qs ? '?' + qs : ''}`
       );
       const backendData = unwrap(response.data);
-      const items = backendData.data.map(mapBackendSupplyRecord);
+      const items = backendData.supply_records.map(mapBackendSupplyRecord);
       return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
     } catch {
       return { data: DUMMY_SUPPLY_RECEIVING, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLY_RECEIVING.length } };
@@ -434,11 +449,11 @@ export const aggregationApi = {
       if (params?.page) queryParams.set('page', String(params.page));
       if (params?.perPage) queryParams.set('per_page', String(params.perPage));
       const qs = queryParams.toString();
-      const response = await apiClient.get<ApiResponse<BackendPaginatedData<BackendAggregationQueueItem>>>(
+      const response = await apiClient.get<ApiResponse<BackendAggregationQueueResponse>>(
         `/api/v1/admin/aggregation/queue${qs ? '?' + qs : ''}`
       );
       const backendData = unwrap(response.data);
-      const items = backendData.data.map(mapBackendQueueItem);
+      const items = backendData.items.map(mapBackendQueueItem);
       return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
     } catch {
       return { data: DUMMY_AGGREGATION_QUEUE, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_AGGREGATION_QUEUE.length } };
@@ -459,17 +474,18 @@ export const aggregationApi = {
   },
 
   /** Start processing an item in the aggregation queue */
-  startProcessing: async (orderId: number, assignee: string): Promise<AggregationOrder> => {
+  startProcessing: async (orderId: number, _assignee: string): Promise<AggregationOrder> => {
     try {
+      // Backend StartProcessingRequest expects `assigned_to` (nullable integer, user ID)
       const response = await apiClient.post<ApiResponse<BackendAggregationQueueItem>>(
         `/api/v1/admin/aggregation/queue/${orderId}/start-processing`,
-        { assigned_to_user_id: undefined } // backend assigns to staff if omitted
+        { assigned_to: undefined }
       );
       return mapBackendQueueItem(unwrap(response.data));
     } catch {
       const order = DUMMY_AGGREGATION_QUEUE.find((o) => o.id === orderId);
       if (!order) throw new Error('Order not found');
-      return { ...order, status: 'processing', assignedTo: assignee, updatedAt: new Date().toISOString() };
+      return { ...order, status: 'processing', assignedTo: _assignee, updatedAt: new Date().toISOString() };
     }
   },
 
@@ -509,11 +525,11 @@ export const aggregationApi = {
       if (params?.page) queryParams.set('page', String(params.page));
       if (params?.perPage) queryParams.set('per_page', String(params.perPage));
       const qs = queryParams.toString();
-      const response = await apiClient.get<ApiResponse<BackendPaginatedData<BackendReadyToShipOrder>>>(
+      const response = await apiClient.get<ApiResponse<BackendReadyToShipResponse>>(
         `/api/v1/admin/aggregation/ready-to-ship${qs ? '?' + qs : ''}`
       );
       const backendData = unwrap(response.data);
-      const items = backendData.data.map(mapBackendReadyToShip);
+      const items = backendData.orders.map(mapBackendReadyToShip);
       return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
     } catch {
       return { data: DUMMY_READY_TO_SHIP, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_READY_TO_SHIP.length } };
@@ -528,7 +544,7 @@ export const aggregationApi = {
       return {
         id: data.id || itemId,
         orderNumber: data.order_number || `ORD-${itemId}`,
-        customerName: data.customer?.full_name || 'Unknown',
+        customerName: data.customer?.name || 'Unknown',
         items: '',
         itemCount: 0,
         totalWeight: 0,
@@ -536,7 +552,7 @@ export const aggregationApi = {
         regionName: '',
         tripId,
         tripName,
-        packedAt: data.ready_to_ship_at || new Date().toISOString(),
+        packedAt: new Date().toISOString(),
         createdAt: data.created_at || new Date().toISOString(),
       };
     } catch {
@@ -557,14 +573,15 @@ export const aggregationApi = {
     }
   },
 
-  /** Get all warehouses */
+  /** Get all warehouses — backend returns {warehouses: [...], meta: {...}} */
   getWarehouses: async (): Promise<{ id: number; name: string; nameAr?: string; address: string; capacity: number; isActive: boolean }[]> => {
     try {
-      const response = await apiClient.get<ApiResponse<any[]>>('/api/v1/admin/warehouses');
+      const response = await apiClient.get<ApiResponse<{ warehouses: any[]; meta?: any }>>('/api/v1/admin/warehouses');
       const data = unwrap(response.data);
-      return data.map((w: any) => ({
+      return data.warehouses.map((w: any) => ({
         id: w.id,
         name: w.name,
+        nameAr: w.name_ar || '',
         address: w.address || '',
         capacity: Number(w.capacity || 0),
         isActive: w.is_active !== false,

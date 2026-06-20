@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
+import { campaignsApi } from '../api/campaignsApi';
 import { ArrowLeft, Megaphone, Save, Plus, X } from 'lucide-react';
 
 interface CampaignFormProduct {
@@ -18,6 +20,7 @@ interface CampaignFormProduct {
 export function CreateCampaignPage() {
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({
     name: '', nameAr: '', description: '', targetRegion: '1',
     startDate: '', endDate: '', status: 'draft',
@@ -44,13 +47,32 @@ export function CreateCampaignPage() {
     setProducts((prev) => prev.map((p) => p.id === id ? { ...p, [field]: value } : p));
   };
 
+  const createCampaign = useMutation({
+    mutationFn: () => campaignsApi.createCampaign({
+      name: form.name,
+      nameAr: form.nameAr || undefined,
+      description: form.description || undefined,
+      zoneId: parseInt(form.targetRegion, 10),
+      startsAt: form.startDate,
+      endsAt: form.endDate,
+      status: form.status,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+      addToast('success', 'Campaign created successfully');
+      navigate(ROUTES.CAMPAIGNS);
+    },
+    onError: () => {
+      addToast('error', 'Failed to create campaign');
+    },
+  });
+
   const handleSubmit = () => {
     if (!form.name || !form.startDate || !form.endDate) {
       addToast('error', 'Campaign name, start date, and end date are required');
       return;
     }
-    addToast('success', 'Campaign created (dummy — no backend)');
-    navigate(ROUTES.CAMPAIGNS);
+    createCampaign.mutate();
   };
 
   return (
@@ -160,7 +182,7 @@ export function CreateCampaignPage() {
       </Card>
 
       <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit}>Save Campaign</Button>
+        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} isLoading={createCampaign.isPending} onClick={handleSubmit}>Save Campaign</Button>
         <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.CAMPAIGNS)}>Cancel</Button>
       </div>
     </div>

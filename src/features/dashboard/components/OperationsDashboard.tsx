@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DashboardWidgetsExpanded } from '../api/dashboardApi';
 import { DashboardFilterBar } from './DashboardFilterBar';
 import { StatsCard } from './StatsCard';
@@ -16,6 +17,8 @@ interface OperationsDashboardProps {
 }
 
 export function OperationsDashboard({ data, isLoading }: OperationsDashboardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* Global Filters */}
@@ -24,33 +27,33 @@ export function OperationsDashboard({ data, isLoading }: OperationsDashboardProp
       {/* ═══ Stats grid — operations focused ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
-          title="Orders Today"
+          title={t('dashboard.stats.ordersToday')}
           value={data?.stats.deliveredToday ?? '-'}
-          subtitle={`${data?.stats.activeOrders ?? 0} active orders`}
+          subtitle={t('dashboard.subtitle.activeOrdersProcessing')}
           variant="teal"
           isLoading={isLoading}
           icon={<Package size={20} />}
         />
         <StatsCard
-          title="Active Orders"
+          title={t('dashboard.stats.activeOrders')}
           value={data?.stats.activeOrders ?? '-'}
-          subtitle="Currently being processed"
+          subtitle={t('dashboard.subtitle.activeOrders')}
           variant="purple"
           isLoading={isLoading}
           icon={<Activity size={20} />}
         />
         <StatsCard
-          title="Special Requests"
+          title={t('dashboard.stats.specialRequests')}
           value={data?.stats.pendingSpecialRequests ?? '-'}
-          subtitle="Awaiting review or pricing"
+          subtitle={t('dashboard.subtitle.awaitingReview')}
           variant="coral"
           isLoading={isLoading}
           icon={<AlertTriangle size={20} />}
         />
         <StatsCard
-          title="Pending Deliveries"
+          title={t('dashboard.stats.pendingDeliveries')}
           value={data?.stats.pendingDeliveries ?? '-'}
-          subtitle="Out for delivery today"
+          subtitle={t('dashboard.subtitle.outForDelivery')}
           variant="success"
           isLoading={isLoading}
           icon={<Truck size={20} />}
@@ -65,7 +68,7 @@ export function OperationsDashboard({ data, isLoading }: OperationsDashboardProp
 
       {/* ═══ Orders Status + Trips + Areas ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <OrdersByStatusChart />
+        <OrdersByStatusChart pipeline={data?.pipeline?.reduce((acc, p) => ({ ...acc, [p.stage]: p.count }), {} as Record<string, number>)} ordersByType={data?.stats.ordersByType} />
         <TripSummaryWidget summary={data?.tripSummary ?? { scheduled: 0, inProgress: 0, completed: 0, failed: 0 }} isLoading={isLoading} />
         <BestAreasWidget areas={data?.topAreas ?? []} isLoading={isLoading} />
       </div>

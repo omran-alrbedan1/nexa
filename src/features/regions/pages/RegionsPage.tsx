@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRegionsPage, useToggleRegionActive, useUpdateDeliveryFee } from '../hooks/useRegions';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -10,16 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, TrendingUp, Map, Globe, DollarSign } from 'lucide-react';
 
-const STAT_CONFIG = [
-  { key: 'totalRegions', label: 'Total Regions', icon: Globe, variant: 'teal' as const },
-  { key: 'activeRegions', label: 'Active', icon: CheckCircle2, variant: 'success' as const },
-  { key: 'totalClusters', label: 'Clusters', icon: Layers, variant: 'purple' as const },
-  { key: 'totalOrders', label: 'Total Orders', icon: ShoppingCart, variant: 'coral' as const },
-  { key: 'avgDeliveryFee', label: 'Avg Fee', icon: DollarSign, variant: 'warning' as const, suffix: ' SAR' },
-];
+
 
 export function RegionsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useRegionsPage();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
@@ -29,10 +25,10 @@ export function RegionsPage() {
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-extrabold text-text-primary font-display">Regions</h1>
-        <p className="text-sm text-text-secondary font-body mt-1">Manage delivery regions, clusters, time slots, and pricing</p>
+        <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('regions.title')}</h1>
+        <p className="text-sm text-text-secondary font-body mt-1">{t('regions.description')}</p>
       </div>
-      <ErrorState title="Failed to load regions" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+      <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
     </div>
   );
 
@@ -54,8 +50,8 @@ export function RegionsPage() {
               <Map size={22} className="text-purple-600" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Regions</h1>
-              <p className="text-sm text-text-secondary font-body">Manage delivery regions, clusters, time slots, and pricing</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('regions.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('regions.description')}</p>
             </div>
           </div>
         </div>
@@ -64,7 +60,13 @@ export function RegionsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-        {STAT_CONFIG.map((s) => {
+        {[
+          { key: 'totalRegions', label: t('regions.stats.totalRegions'), icon: Globe, variant: 'teal' as const },
+          { key: 'activeRegions', label: t('regions.stats.active'), icon: CheckCircle2, variant: 'success' as const },
+          { key: 'totalClusters', label: t('regions.stats.clusters'), icon: Layers, variant: 'purple' as const },
+          { key: 'totalOrders', label: t('regions.stats.totalOrders'), icon: ShoppingCart, variant: 'coral' as const },
+          { key: 'avgDeliveryFee', label: t('regions.stats.avgFee'), icon: DollarSign, variant: 'warning' as const, suffix: ' SAR' },
+        ].map((s) => {
           const Icon = s.icon;
           return (
             <Card key={s.key} padding="md" hover>
@@ -95,15 +97,15 @@ export function RegionsPage() {
       <Card padding="lg">
         <CardHeader>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Delivery Regions</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{stats?.totalRevenue?.toLocaleString()} SAR total revenue</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.list.deliveryRegions')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('regions.list.totalRevenue', { amount: (stats?.totalRevenue ?? 0).toLocaleString() })}</p>
           </div>
         </CardHeader>
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}</div>
         ) : regions.length === 0 ? (
-          <EmptyState title="No regions configured" description="Add your first delivery region to start operations" />
+          <EmptyState title={t('regions.list.noRegions')} description={t('regions.list.addFirstRegion')} />
         ) : (
           <div className="space-y-3">
             {regions.map((region) => (
@@ -118,36 +120,36 @@ export function RegionsPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-text-primary font-body">{region.name}</span>
                           <span className="text-xs text-text-tertiary">{region.nameAr}</span>
-                          {region.isActive ? <Badge variant="green" size="sm">Active</Badge> : <Badge variant="red" size="sm">Inactive</Badge>}
+                          {region.isActive ? <Badge variant="green" size="sm">{t('regions.list.active')}</Badge> : <Badge variant="red" size="sm">{t('regions.list.inactive')}</Badge>}
                         </div>
                       </div>
                     </div>
                     <div className="ml-11 mt-2">
                       <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span>Fee: <span className="font-bold text-text-primary">{region.deliveryFee} SAR</span></span>
-                        <span>Min: <span className="font-bold text-text-primary">{region.minimumOrder} SAR</span></span>
-                        {region.freeDeliveryThreshold && <span>Free over: <span className="font-bold text-text-primary">{region.freeDeliveryThreshold} SAR</span></span>}
-                        <span>Orders: <span className="font-bold text-text-primary">{region.totalOrders}</span></span>
-                        <span>Revenue: <span className="font-bold text-brand-primary">{region.totalRevenue.toLocaleString()} SAR</span></span>
+                        <span>{t('regions.list.fee', { amount: region.deliveryFee })}</span>
+                        <span>{t('regions.list.min', { amount: region.minimumOrder })}</span>
+                        {region.freeDeliveryThreshold && <span>{t('regions.list.freeOver', { amount: region.freeDeliveryThreshold })}</span>}
+                        <span>{t('regions.list.orders', { count: region.totalOrders })}</span>
+                        <span>{t('regions.list.revenue', { amount: region.totalRevenue.toLocaleString() })}</span>
                       </div>
                       {/* Clusters */}
                       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                         {region.clusters.map((cl) => (
-                          <Badge key={cl.id} variant={cl.isActive ? 'teal' : 'yellow'} size="sm">{cl.name} {!cl.isActive && '(inactive)'}</Badge>
+                          <Badge key={cl.id} variant={cl.isActive ? 'teal' : 'yellow'} size="sm">{cl.name} {!cl.isActive && t('regions.list.inactiveBadge')}</Badge>
                         ))}
                       </div>
                       {/* Time slots summary */}
                       <p className="text-xs text-text-tertiary font-body mt-1.5">
-                        {region.timeSlots.filter((ts) => ts.isActive).length} active time slots · 
+                        {t('regions.list.activeSlots', { count: region.timeSlots.filter((ts) => ts.isActive).length })} · 
                         Sun–Thu: {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.startTime}–{region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.endTime} / 
                         {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.maxOrders ?? 0} max per slot
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                    <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={(e) => { e.stopPropagation(); openFeeModal(region); }}>Fee</Button>
+                    <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={(e) => { e.stopPropagation(); openFeeModal(region); }}>{t('regions.list.feeButton')}</Button>
                     <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={(e) => { e.stopPropagation(); toggleActive.mutate(region.id); }}>
-                      {region.isActive ? 'Deactivate' : 'Activate'}
+                      {region.isActive ? t('regions.list.deactivate') : t('regions.list.activate')}
                     </Button>
                   </div>
                 </div>
@@ -158,15 +160,15 @@ export function RegionsPage() {
       </Card>
 
       {/* Fee Modal */}
-      <Modal open={feeModal.open} onClose={() => setFeeModal({ ...feeModal, open: false })} title={`Update Delivery Fee — ${feeModal.regionName}`}>
+      <Modal open={feeModal.open} onClose={() => setFeeModal({ ...feeModal, open: false })} title={t('regions.list.feeModalTitle', { name: feeModal.regionName })}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-text-secondary font-body mb-1">Delivery Fee (SAR)</label>
+            <label className="block text-sm font-bold text-text-secondary font-body mb-1">{t('regions.list.deliveryFee')}</label>
             <input type="number" step="0.5" min="0" value={feeModal.fee} onChange={(e) => setFeeModal({ ...feeModal, fee: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input" />
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setFeeModal({ ...feeModal, open: false })}>Cancel</Button>
-            <Button variant="primary" size="sm" isLoading={updateFee.isPending} onClick={() => { updateFee.mutate({ id: feeModal.regionId, deliveryFee: parseFloat(feeModal.fee) }); setFeeModal({ ...feeModal, open: false }); }}>Update</Button>
+            <Button variant="secondary" size="sm" onClick={() => setFeeModal({ ...feeModal, open: false })}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={updateFee.isPending} onClick={() => { updateFee.mutate({ id: feeModal.regionId, deliveryFee: parseFloat(feeModal.fee) }); setFeeModal({ ...feeModal, open: false }); }}>{t('regions.list.update')}</Button>
           </div>
         </div>
       </Modal>

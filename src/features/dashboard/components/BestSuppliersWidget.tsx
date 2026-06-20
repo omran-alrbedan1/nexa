@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Building2 } from 'lucide-react';
@@ -9,6 +10,7 @@ interface BestSuppliersWidgetProps {
 }
 
 export function BestSuppliersWidget({ suppliers, isLoading }: BestSuppliersWidgetProps) {
+  const { t } = useTranslation();
   const maxOrders = Math.max(...suppliers.map((s) => s.orderCount), 1);
 
   return (
@@ -19,8 +21,8 @@ export function BestSuppliersWidget({ suppliers, isLoading }: BestSuppliersWidge
             <Building2 size={16} className="text-brand-accent" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Top Suppliers</h3>
-            <p className="text-xs text-text-secondary font-body">By order volume & acceptance rate</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.topSuppliers.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.topSuppliers.subtitle')}</p>
           </div>
         </div>
       </CardHeader>
@@ -43,7 +45,7 @@ export function BestSuppliersWidget({ suppliers, isLoading }: BestSuppliersWidge
                     <span className="text-sm font-bold text-text-primary font-body">{supplier.name}</span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs text-text-secondary font-body">{supplier.orderCount} orders</span>
+                    <span className="text-xs text-text-secondary font-body">{t('dashboard.topSuppliers.orders', { count: supplier.orderCount })}</span>
                     <Badge
                       variant={supplier.acceptanceRate >= 90 ? 'green' : supplier.acceptanceRate >= 80 ? 'yellow' : 'red'}
                       size="sm"

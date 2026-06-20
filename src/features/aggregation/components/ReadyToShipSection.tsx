@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -6,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { useAssignToTrip } from '../hooks/useAggregation';
+import { tripsApi } from '@/features/trips/api/tripsApi';
 import type { ReadyToShipItem, ShipmentStatus } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'green'> = {
@@ -22,13 +25,7 @@ const STATUS_LABELS: Record<ShipmentStatus, string> = {
   shipped: 'Shipped',
 };
 
-const DUMMY_AVAILABLE_TRIPS = [
-  { id: 201, name: 'Riyadh North Morning', region: 'Riyadh North' },
-  { id: 202, name: 'Riyadh South Afternoon', region: 'Riyadh South' },
-  { id: 203, name: 'Jeddah Central Express', region: 'Jeddah Central' },
-  { id: 204, name: 'Dammam East Route', region: 'Dammam East' },
-  { id: 205, name: 'Mecca North Run', region: 'Mecca North' },
-];
+
 
 interface ReadyToShipSectionProps {
   items: ReadyToShipItem[];
@@ -36,10 +33,20 @@ interface ReadyToShipSectionProps {
 }
 
 export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [assignModal, setAssignModal] = useState<{ open: boolean; item: ReadyToShipItem | null }>({ open: false, item: null });
   const [selectedTrip, setSelectedTrip] = useState<number | ''>('');
   const assignToTrip = useAssignToTrip();
+
+  // Fetch real trips from backend for the assign-to-trip dropdown
+  const { data: availableTrips = [], isLoading: tripsLoading } = useQuery({
+    queryKey: ['ready-to-ship', 'available-trips'],
+    queryFn: () => tripsApi.getPageData().then((d) => 
+      d.trips.filter((t) => t.status === 'scheduled' || t.status === 'assigned')
+    ),
+    staleTime: 30_000,
+  });
 
   const pendingCount = items.filter((i) => i.status === 'pending_trip').length;
   const totalWeight = items.reduce((sum, i) => sum + i.totalWeight, 0);
@@ -56,10 +63,10 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
 
   const handleAssign = () => {
     if (!assignModal.item || !selectedTrip) return;
-    const trip = DUMMY_AVAILABLE_TRIPS.find((t) => t.id === selectedTrip);
+    const trip = availableTrips.find((t) => t.id === selectedTrip);
     if (!trip) return;
     assignToTrip.mutate(
-      { itemId: assignModal.item.id, tripId: trip.id, tripName: trip.name },
+      { itemId: assignModal.item.id, tripId: trip.id, tripName: trip.tripNumber || trip.regionName },
       { onSuccess: () => setAssignModal({ open: false, item: null }) }
     );
     setSelectedTrip('');
@@ -76,9 +83,9 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
         <CardHeader>
           <div className="flex items-center justify-between w-full">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Ready to Ship</h3>
+              <h3 className="text-sm font-semibold text-gray-900">{t('warehouse.readyToShip.title')}</h3>
               <p className="text-xs text-gray-500">
-                {pendingCount} awaiting trip · {totalWeight.toFixed(1)} kg total
+                {t('warehouse.readyToShip.awaitingTrip', { count: pendingCount })} · {t('warehouse.readyToShip.totalWeight', { weight: totalWeight.toFixed(1) })}
               </p>
             </div>
           </div>
@@ -90,7 +97,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
             <SearchInput
               value={search}
               onChange={setSearch}
-              placeholder="Search orders..."
+              placeholder={t('warehouse.readyToShip.searchPlaceholder')}
             />
           </div>
         )}
@@ -103,8 +110,8 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
           </div>
         ) : filtered.length === 0 ? (
           <EmptyState
-            title={search ? 'No matching orders' : 'Nothing ready to ship'}
-            description={search ? 'Try a different search' : 'All packed orders have been assigned to trips'}
+            title={search ? t('warehouse.readyToShip.noMatchingOrders') : t('warehouse.readyToShip.nothingToShip')}
+            description={search ? t('warehouse.readyToShip.tryDifferentSearch') : t('warehouse.readyToShip.allAssigned')}
             icon={
               <svg className="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -134,7 +141,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
-                  <span>{item.itemCount} items · {item.totalWeight} kg</span>
+                  <span>{t('warehouse.readyToShip.itemsCount', { count: item.itemCount })} · {t('warehouse.readyToShip.weight', { weight: item.totalWeight })}</span>
                   <span>{item.regionName}</span>
                 </div>
 
@@ -145,7 +152,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
                     className="w-full"
                     onClick={() => openAssignModal(item)}
                   >
-                    Assign to Trip
+                    {t('warehouse.readyToShip.assignToTrip')}
                   </Button>
                 )}
                 {item.status === 'assigned_to_trip' && item.tripName && (
@@ -168,7 +175,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
       <Modal
         open={assignModal.open}
         onClose={() => setAssignModal({ open: false, item: null })}
-        title="Assign to Trip"
+        title={t('warehouse.readyToShip.assignModalTitle')}
         size="sm"
       >
         {assignModal.item && (
@@ -181,24 +188,34 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Trip</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('warehouse.readyToShip.selectTrip')}</label>
               <select
                 value={selectedTrip}
                 onChange={(e) => setSelectedTrip(Number(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="" disabled>Choose a trip...</option>
-                {DUMMY_AVAILABLE_TRIPS.filter((t) => t.region === assignModal.item?.regionName).map((trip) => (
-                  <option key={trip.id} value={trip.id}>
-                    {trip.name}
-                  </option>
-                ))}
-                <option value="" disabled>───</option>
-                {DUMMY_AVAILABLE_TRIPS.filter((t) => t.region !== assignModal.item?.regionName).map((trip) => (
-                  <option key={trip.id} value={trip.id}>
-                    {trip.name} (different region)
-                  </option>
-                ))}
+                <option value="" disabled>{t('warehouse.readyToShip.chooseTrip')}</option>
+                {tripsLoading ? (
+                  <option value="" disabled>{t('warehouse.readyToShip.loadingTrips')}</option>
+                ) : availableTrips.length === 0 ? (
+                  <option value="" disabled>{t('warehouse.readyToShip.noTrips')}</option>
+                ) : (
+                  availableTrips.filter((t) => !assignModal.item?.regionName || t.regionName === assignModal.item?.regionName).map((trip) => (
+                    <option key={trip.id} value={trip.id}>
+                      {trip.tripNumber || `Trip #${trip.id}`} — {trip.regionName} ({trip.orderCount} orders)
+                    </option>
+                  ))
+                )}
+                {availableTrips.filter((t) => assignModal.item?.regionName && t.regionName !== assignModal.item?.regionName).length > 0 && (
+                  <>
+                    <option value="" disabled>───</option>
+                    {availableTrips.filter((t) => assignModal.item?.regionName && t.regionName !== assignModal.item?.regionName).map((trip) => (
+                      <option key={trip.id} value={trip.id}>
+                        {trip.tripNumber || `Trip #${trip.id}`} — {trip.regionName} ({t('warehouse.readyToShip.differentRegion')})
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
             </div>
 
@@ -207,7 +224,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
                 variant="secondary"
                 onClick={() => setAssignModal({ open: false, item: null })}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -215,7 +232,7 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
                 isLoading={assignToTrip.isPending}
                 onClick={handleAssign}
               >
-                Assign
+                {t('warehouse.readyToShip.assignToTrip')}
               </Button>
             </div>
           </div>

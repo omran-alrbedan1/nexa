@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -51,6 +52,8 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: 'Refunded',
 };
 
+
+
 const TYPE_BADGE_COLORS: Record<OrderType, 'blue' | 'yellow' | 'purple'> = {
   regular: 'blue',
   special: 'yellow',
@@ -64,6 +67,7 @@ interface OrderManagementSectionProps {
 
 export function OrderManagementSection({ orders, isLoading }: OrderManagementSectionProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');
@@ -79,24 +83,48 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
     return matchesSearch && matchesStatus && matchesType;
   });
 
+  /** Export filtered orders as CSV */
+  const exportAsCSV = () => {
+    const headers = ['Order #', 'Customer', 'Type', 'Status', 'Items', 'Total (SAR)', 'Region', 'Created'].join(',');
+    const rows = filtered.map((o) => [
+      o.orderNumber,
+      `"${o.customerName}"`,
+      o.type,
+      o.status,
+      o.itemCount,
+      o.total.toFixed(2),
+      `"${o.regionName}"`,
+      new Date(o.createdAt).toLocaleDateString(),
+    ].join(','));
+    const csv = [headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    useToastStore.getState().addToast('success', t('operations.orderManagement.exported', { count: filtered.length }));
+  };
+
   /** Status transitions the operations role can perform */
   const getQuickActions = (order: OperationsOrder) => {
     const actions: Array<{ label: string; status: OrderStatus; variant: 'primary' | 'danger' | 'outline' }> = [];
 
     switch (order.status) {
       case 'new':
-        actions.push({ label: 'Confirm', status: 'confirmed', variant: 'primary' });
-        actions.push({ label: 'Cancel', status: 'cancelled', variant: 'danger' });
+        actions.push({ label: t('operations.orderManagement.confirm'), status: 'confirmed', variant: 'primary' });
+        actions.push({ label: t('operations.orderManagement.cancel'), status: 'cancelled', variant: 'danger' });
         break;
       case 'confirmed':
-        actions.push({ label: 'Mark Paid', status: 'paid', variant: 'primary' });
+        actions.push({ label: t('operations.orderManagement.markPaid'), status: 'paid', variant: 'primary' });
         break;
       case 'failed_delivery':
-        actions.push({ label: 'Retry Delivery', status: 'out_for_delivery', variant: 'primary' });
-        actions.push({ label: 'Cancel', status: 'cancelled', variant: 'danger' });
+        actions.push({ label: t('operations.orderManagement.retryDelivery'), status: 'out_for_delivery', variant: 'primary' });
+        actions.push({ label: t('operations.orderManagement.cancel'), status: 'cancelled', variant: 'danger' });
         break;
       case 'pending_aggregation':
-        actions.push({ label: 'Mark Ready', status: 'ready_to_ship', variant: 'primary' });
+        actions.push({ label: t('operations.orderManagement.markReady'), status: 'ready_to_ship', variant: 'primary' });
         break;
       default:
         break;
@@ -110,25 +138,25 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Order Management</h3>
+            <h3 className="text-sm font-semibold text-gray-900">{t('operations.orderManagement.title')}</h3>
             <p className="text-xs text-gray-500">
-              {orders.length} orders · {orders.filter((o) => o.status === 'new').length} new
+              {t('operations.orderManagement.itemCount', { count: orders.length })} · {t('operations.orderManagement.newCount', { count: orders.filter((o) => o.status === 'new').length })}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => useToastStore.getState().addToast('info', 'Export feature coming soon')}
+              onClick={exportAsCSV}
             >
-              Export
+              {t('operations.orderManagement.exportCsv')}
             </Button>
             <Button
               variant="primary"
               size="sm"
-              onClick={() => useToastStore.getState().addToast('info', 'New order form coming soon')}
+              onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}
             >
-              + New Order
+              {t('operations.orderManagement.newOrder')}
             </Button>
           </div>
         </div>
@@ -140,7 +168,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
           <SearchInput
             value={search}
             onChange={setSearch}
-            placeholder="Search order or customer..."
+            placeholder={t('operations.orderManagement.searchPlaceholder')}
           />
         </div>
         <select
@@ -148,7 +176,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
           onChange={(e) => setStatusFilter(e.target.value as OrderStatus | '')}
           className="px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t('operations.orderManagement.allStatuses')}</option>
           <option value="new">New</option>
           <option value="confirmed">Confirmed</option>
           <option value="pending_supply">Pending Supply</option>
@@ -164,10 +192,10 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
           onChange={(e) => setTypeFilter(e.target.value as OrderType | '')}
           className="px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">All Types</option>
-          <option value="regular">Regular</option>
-          <option value="special">Special</option>
-          <option value="seasonal">Seasonal</option>
+          <option value="">{t('operations.orderManagement.allTypes')}</option>
+          <option value="regular">{t('operations.orderManagement.regular')}</option>
+          <option value="special">{t('operations.orderManagement.special')}</option>
+          <option value="seasonal">{t('operations.orderManagement.seasonal')}</option>
         </select>
       </div>
 
@@ -180,8 +208,8 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No orders found"
-          description={search ? 'Try a different search term' : 'No orders match the selected filters'}
+          title={t('operations.orderManagement.noOrdersFound')}
+          description={search ? t('operations.orderManagement.tryDifferentSearch') : t('operations.orderManagement.noOrdersMatch')}
         />
       ) : (
         <div className="space-y-2">
@@ -253,14 +281,14 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
       {!isLoading && orders.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {orders.filter((o) => o.status === 'new').length} new ·{' '}
-            {orders.filter((o) => o.status === 'failed_delivery').length} failed deliveries
+            {orders.filter((o) => o.status === 'new').length} {t('orders.stats.new').toLowerCase()} ·{' '}
+            {orders.filter((o) => o.status === 'failed_delivery').length} {t('operations.stats.failedDeliveries')}
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => useToastStore.getState().addToast('info', 'Full orders page with pagination coming soon')}
+            onClick={() => navigate('/orders')}
           >
-            View All Orders →
+            {t('operations.orderManagement.viewAllOrders')} →
           </button>
         </div>
       )}

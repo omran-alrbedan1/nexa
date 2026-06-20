@@ -92,7 +92,7 @@ interface BackendZonesResponse {
 function mapBackendZone(z: BackendDeliveryZone): Region {
   return {
     id: z.id,
-    name: z.name_en || z.name_ar,
+    name: z.name_ar || z.name_en || '', // Arabic first for Saudi app
     nameAr: z.name_ar,
     deliveryFee: 0,
     minimumOrder: 0,
