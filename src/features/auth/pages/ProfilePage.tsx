@@ -92,6 +92,14 @@ export function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* Powered by FutureX */}
+      <div className="text-center py-6">
+        <p className="text-xs text-text-tertiary font-body">
+          Powered by{' '}
+          <span className="font-bold text-brand-primary">FutureX</span>
+        </p>
+      </div>
     </div>
   );
 }

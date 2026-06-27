@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { campaignsApi, type Campaign } from '../api/campaignsApi';
 import { campaignKeys, useCampaignAction } from '../hooks/useCampaigns';
 import { Card } from '@/components/ui/Card';
@@ -16,13 +17,6 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', cancelled: 'red',
 };
 
-const STAT_CONFIG = [
-  { key: 'totalOrders', label: 'Total Orders', icon: ShoppingCart, variant: 'teal' as const, suffix: '' },
-  { key: 'totalRevenue', label: 'Revenue', icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', prefix: '' },
-  { key: 'budget', label: 'Budget', icon: Wallet, variant: 'coral' as const, suffix: ' SAR' },
-  { key: 'spentAmount', label: 'Spent', icon: Wallet, variant: 'warning' as const, suffix: ' SAR' },
-];
-
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -31,6 +25,7 @@ export function CampaignDetailPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
   const id = parseInt(campaignId || '0', 10);
+  const { t } = useTranslation();
   const campaignAction = useCampaignAction();
 
   const { data: campaign, isLoading, isError, error, refetch } = useQuery<Campaign>({
@@ -41,14 +36,21 @@ export function CampaignDetailPage() {
     retry: 1,
   });
 
+  const STAT_CONFIG = [
+    { key: 'totalOrders', label: t('campaigns.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const, suffix: '' },
+    { key: 'totalRevenue', label: t('campaigns.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', prefix: '' },
+    { key: 'budget', label: t('campaigns.detail.budget'), icon: Wallet, variant: 'coral' as const, suffix: ' SAR' },
+    { key: 'spentAmount', label: t('campaigns.detail.spent'), icon: Wallet, variant: 'warning' as const, suffix: ' SAR' },
+  ];
+
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.CAMPAIGNS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Campaigns
+          <ArrowLeft size={16} /> {t('campaigns.detail.back')}
         </button>
         <ErrorState
-          title="Failed to load campaign"
+          title={t('campaigns.detail.errorTitle')}
           message={error instanceof Error ? error.message : 'An unexpected error occurred'}
           onRetry={() => refetch()}
         />
@@ -70,9 +72,9 @@ export function CampaignDetailPage() {
 
   const getActions = (status: string) => {
     const actions: Array<{ label: string; action: 'activate' | 'end' | 'cancel'; variant: 'primary' | 'danger' | 'secondary' }> = [];
-    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Activate', action: 'activate', variant: 'primary' });
-    if (status === 'active') actions.push({ label: 'End Campaign', action: 'end', variant: 'secondary' });
-    if (status === 'draft' || status === 'scheduled') actions.push({ label: 'Cancel', action: 'cancel', variant: 'danger' });
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: t('campaigns.detail.activate'), action: 'activate', variant: 'primary' });
+    if (status === 'active') actions.push({ label: t('campaigns.detail.endCampaign'), action: 'end', variant: 'secondary' });
+    if (status === 'draft' || status === 'scheduled') actions.push({ label: t('campaigns.detail.cancel'), action: 'cancel', variant: 'danger' });
     return actions;
   };
 
@@ -89,7 +91,7 @@ export function CampaignDetailPage() {
     <div className="space-y-6 animate-fade-up">
       {/* Back */}
       <button onClick={() => navigate(ROUTES.CAMPAIGNS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Campaigns
+        <ArrowLeft size={16} /> {t('campaigns.detail.back')}
       </button>
 
       {/* Hero */}
@@ -162,29 +164,29 @@ export function CampaignDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Tag size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Campaign Details</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.campaignDetails')}</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><CalendarRange size={12} /> Start Date</span>
+              <span className="text-text-secondary flex items-center gap-2"><CalendarRange size={12} /> {t('campaigns.detail.startDate')}</span>
               <span className="font-bold text-text-primary">{new Date(campaign.startDate).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><CalendarRange size={12} /> End Date</span>
+              <span className="text-text-secondary flex items-center gap-2"><CalendarRange size={12} /> {t('campaigns.detail.endDate')}</span>
               <span className="font-bold text-text-primary">{new Date(campaign.endDate).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Clock size={12} /> Duration</span>
+              <span className="text-text-secondary flex items-center gap-2"><Clock size={12} /> {t('campaigns.detail.duration')}</span>
               <span className="font-bold text-text-primary">
-                {Math.ceil((new Date(campaign.endDate).getTime() - new Date(campaign.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                {t('campaigns.detail.days', { count: Math.ceil((new Date(campaign.endDate).getTime() - new Date(campaign.startDate).getTime()) / (1000 * 60 * 60 * 24)) })}
               </span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><ShoppingCart size={12} /> Orders</span>
+              <span className="text-text-secondary flex items-center gap-2"><ShoppingCart size={12} /> {t('campaigns.detail.orders')}</span>
               <span className="font-bold text-text-primary">{campaign.totalOrders}</span>
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Wallet size={12} /> Budget Utilization</span>
+              <span className="text-text-secondary flex items-center gap-2"><Wallet size={12} /> {t('campaigns.detail.budgetUtilization')}</span>
               <span className="font-bold text-text-primary">
                 {campaign.budget > 0 ? `${Math.round((campaign.spentAmount / campaign.budget) * 100)}%` : '—'}
               </span>
@@ -196,19 +198,19 @@ export function CampaignDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <MapPin size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Target Regions</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.targetRegions')}</h3>
           </div>
           {campaign.targetRegions.length > 0 ? (
             <div className="flex items-center gap-1.5 flex-wrap">
               {campaign.targetRegions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
             </div>
           ) : (
-            <p className="text-sm text-text-secondary font-body">No target regions set</p>
+            <p className="text-sm text-text-secondary font-body">{t('campaigns.detail.noTargetRegions')}</p>
           )}
 
           <div className="mt-6">
-            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-3">Description</h4>
-            <p className="text-sm text-text-primary font-body">{campaign.description || 'No description'}</p>
+            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-3">{t('campaigns.detail.description')}</h4>
+            <p className="text-sm text-text-primary font-body">{campaign.description || t('campaigns.detail.noDescription')}</p>
             {campaign.descriptionAr && (
               <p className="text-sm text-text-secondary font-body mt-2 text-right" dir="rtl">{campaign.descriptionAr}</p>
             )}
@@ -220,11 +222,11 @@ export function CampaignDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Package size={16} className="text-brand-accent" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Campaign Products</h3>
-          <span className="text-xs text-text-tertiary">({campaign.products.length} items)</span>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.campaignProducts')}</h3>
+          <span className="text-xs text-text-tertiary">{t('campaigns.detail.itemsCount', { count: campaign.products.length })}</span>
         </div>
         {campaign.products.length === 0 ? (
-          <p className="text-sm text-text-secondary font-body">No products assigned to this campaign yet.</p>
+          <p className="text-sm text-text-secondary font-body">{t('campaigns.detail.noProducts')}</p>
         ) : (
           <div className="space-y-2">
             {campaign.products.map((p) => (
@@ -242,7 +244,7 @@ export function CampaignDetailPage() {
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className="text-lg font-extrabold text-brand-accent font-display">{p.campaignPrice} <span className="text-xs font-body text-text-tertiary">SAR</span></p>
                   <p className="text-xs text-green-600 font-bold">
-                    -{Math.round((1 - p.campaignPrice / p.regularPrice) * 100)}% off
+                    {t('campaigns.detail.percentOff', { percent: Math.round((1 - p.campaignPrice / p.regularPrice) * 100) })}
                   </p>
                 </div>
               </div>
@@ -255,15 +257,15 @@ export function CampaignDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Clock size={16} className="text-brand-accent" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Campaign Timeline</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.campaignTimeline')}</h3>
         </div>
         <div className="relative pl-8">
           <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-default" />
           {[
-            { label: 'Created', time: campaign.createdAt },
-            { label: campaign.status === 'scheduled' ? 'Scheduled' : campaign.status === 'active' ? 'Activated' : 'Updated', time: campaign.updatedAt },
+            { label: t('campaigns.detail.created'), time: campaign.createdAt },
+            { label: campaign.status === 'scheduled' ? t('campaigns.detail.scheduledLabel') : campaign.status === 'active' ? t('campaigns.detail.activated') : t('campaigns.detail.updated'), time: campaign.updatedAt },
           ].map((step, idx, arr) => (
-            <div key={idx} className="relative pb-6 last:pb-0">
+            <div key={idx} className="relative pb-10 last:pb-0">
               <div className={cn(
                 'absolute -left-[23px] w-[22px] h-[22px] rounded-full border-2 border-white flex items-center justify-center',
                 idx === arr.length - 1 ? 'bg-brand-accent' : 'bg-white'

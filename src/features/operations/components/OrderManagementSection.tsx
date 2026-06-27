@@ -154,7 +154,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
             <Button
               variant="primary"
               size="sm"
-              onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}
+              onClick={() => navigate('/orders')}
             >
               {t('operations.orderManagement.newOrder')}
             </Button>

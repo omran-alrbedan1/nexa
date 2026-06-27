@@ -27,7 +27,7 @@ export function useUpdateOrderStatus() {
 
   return useMutation({
     mutationFn: ({ orderId, newStatus }: { orderId: number; newStatus: string }) =>
-      operationsApi.updateOrderStatus(orderId, newStatus as any),
+      operationsApi.updateOrderStatus(orderId, newStatus as Parameters<typeof operationsApi.updateOrderStatus>[1]),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
       const label =

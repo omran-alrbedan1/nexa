@@ -63,7 +63,7 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
           <Button
             variant="outline"
             size="sm"
-            onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}
+            onClick={() => navigate('/aggregation')}
           >
             {t('warehouse.supplyReceiving.newPurchaseOrder')}
           </Button>

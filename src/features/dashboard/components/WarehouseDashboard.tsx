@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { DashboardWidgetsExpanded } from '../api/dashboardApi';
-import { DashboardFilterBar } from './DashboardFilterBar';
+import { DashboardFilterBar, type DashboardFilterState } from './DashboardFilterBar';
 import { StatsCard } from './StatsCard';
+import { ROUTES } from '@/routes/routes';
 import { PipelineWidget } from './PipelineWidget';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -10,15 +12,27 @@ import { Package, Boxes, Ship, CheckCircle2, Warehouse, ArrowRight, Clock } from
 interface WarehouseDashboardProps {
   data: DashboardWidgetsExpanded | undefined;
   isLoading: boolean;
+  filters: DashboardFilterState;
+  onFilterChange: (filters: Partial<DashboardFilterState>) => void;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+  onResetFilters: () => void;
 }
 
-export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps) {
+export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: WarehouseDashboardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
       {/* Global Filters */}
-      <DashboardFilterBar />
+      <DashboardFilterBar
+        filters={filters}
+        onFilterChange={onFilterChange}
+        onReset={onResetFilters}
+        expanded={isExpanded}
+        onToggleExpanded={onToggleExpanded}
+      />
 
       {/* ═══ Stats grid — warehouse focused ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -29,6 +43,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           variant="coral"
           isLoading={isLoading}
           icon={<Package size={20} />}
+          onClick={() => navigate(`${ROUTES.ORDERS}?status=pending_supply`)}
         />
         <StatsCard
           title={t('dashboard.stats.inAggregation')}
@@ -37,6 +52,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           variant="teal"
           isLoading={isLoading}
           icon={<Boxes size={20} />}
+          onClick={() => navigate(`${ROUTES.ORDERS}?status=pending_aggregation`)}
         />
         <StatsCard
           title={t('dashboard.stats.readyToShip')}
@@ -45,6 +61,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           variant="purple"
           isLoading={isLoading}
           icon={<Ship size={20} />}
+          onClick={() => navigate(`${ROUTES.ORDERS}?status=ready_to_ship`)}
         />
         <StatsCard
           title={t('dashboard.stats.deliveredToday')}
@@ -53,6 +70,7 @@ export function WarehouseDashboard({ data, isLoading }: WarehouseDashboardProps)
           variant="success"
           isLoading={isLoading}
           icon={<CheckCircle2 size={20} />}
+          onClick={() => navigate(`${ROUTES.ORDERS}?status=delivered`)}
         />
       </div>
 

@@ -14,7 +14,7 @@ interface BackendNotification {
   type: string;
   title: string;
   body: string;
-  data: any;
+  data: Record<string, unknown> | null;
   channel: string;
   read_at: string | null;
   user: { id: number; full_name: string; phone: string } | null;

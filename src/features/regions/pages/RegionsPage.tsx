@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRegionsPage, useToggleRegionActive, useUpdateDeliveryFee } from '../hooks/useRegions';
+import { useRegionsPage, useToggleRegionActive, useUpdateDeliveryFee, useCreateZone } from '../hooks/useRegions';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -9,7 +9,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
-import { MapPin, CheckCircle2, Layers, ShoppingCart, TrendingUp, Map, Globe, DollarSign } from 'lucide-react';
+import { MapPin, CheckCircle2, Layers, ShoppingCart, TrendingUp, Map, Globe, DollarSign, Plus } from 'lucide-react';
+import { ZoneForm } from '../components/ZoneForm';
 
 
 
@@ -19,8 +20,10 @@ export function RegionsPage() {
   const { data, isLoading, isError, error, refetch } = useRegionsPage();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
+  const createZone = useCreateZone();
 
   const [feeModal, setFeeModal] = useState<{ open: boolean; regionId: number; regionName: string; fee: string }>({ open: false, regionId: 0, regionName: '', fee: '' });
+  const [zoneModal, setZoneModal] = useState(false);
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -56,6 +59,13 @@ export function RegionsPage() {
           </div>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-500 via-brand-primary to-purple-500 rounded-full opacity-30" />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex items-center gap-2">
+        <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setZoneModal(true)}>
+          {t('regions.list.addRegion')}
+        </Button>
       </div>
 
       {/* Stats */}
@@ -158,6 +168,14 @@ export function RegionsPage() {
           </div>
         )}
       </Card>
+
+      {/* Create Zone Modal */}
+      <ZoneForm
+        open={zoneModal}
+        onClose={() => setZoneModal(false)}
+        onSave={(data) => createZone.mutate(data, { onSuccess: () => setZoneModal(false) })}
+        isSaving={createZone.isPending}
+      />
 
       {/* Fee Modal */}
       <Modal open={feeModal.open} onClose={() => setFeeModal({ ...feeModal, open: false })} title={t('regions.list.feeModalTitle', { name: feeModal.regionName })}>

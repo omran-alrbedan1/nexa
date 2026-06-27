@@ -308,87 +308,7 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
   };
 }
 
-// ── Dummy Data ──
 
-const now = new Date();
-const today = now.toISOString().split('T')[0];
-const makeDate = (hours: number, mins: number) => new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, mins).toISOString();
-
-const DUMMY_ORDER_SUMMARIES: OrderSummary[] = [
-  { id: 1, orderNumber: 'ORD-2025-101', customerId: 101, customerName: 'Ahmed Ali', customerPhone: '+966501234101', type: 'regular', status: 'new', paymentStatus: 'pending', itemCount: 3, total: 89.50, regionName: 'Riyadh North', supplierName: 'Dairy Best Ltd.', scheduledDate: `${today}T10:00:00Z`, createdAt: makeDate(8, 15) },
-  { id: 2, orderNumber: 'ORD-2025-102', customerId: 102, customerName: 'Sara Khalid', customerPhone: '+966501234102', type: 'special', status: 'pending_pricing', paymentStatus: 'pending', itemCount: 2, total: 0, regionName: 'Riyadh South', supplierName: null, scheduledDate: null, createdAt: makeDate(7, 30) },
-  { id: 3, orderNumber: 'ORD-2025-103', customerId: 103, customerName: 'Mohamed Noor', customerPhone: '+966501234103', type: 'regular', status: 'confirmed', paymentStatus: 'paid', itemCount: 2, total: 145.00, regionName: 'Jeddah Central', supplierName: 'Premium Meats', scheduledDate: `${today}T14:00:00Z`, createdAt: makeDate(6, 45) },
-  { id: 4, orderNumber: 'ORD-2025-104', customerId: 104, customerName: 'Nora Hassan', customerPhone: '+966501234104', type: 'seasonal', status: 'pending_supply', paymentStatus: 'paid', itemCount: 1, total: 320.00, regionName: 'Riyadh North', supplierName: 'Fresh Farm Co.', scheduledDate: `${today}T09:00:00Z`, createdAt: makeDate(6, 0) },
-  { id: 5, orderNumber: 'ORD-2025-105', customerId: 105, customerName: 'Faisal Omar', customerPhone: '+966501234105', type: 'regular', status: 'delivered', paymentStatus: 'paid', itemCount: 2, total: 78.00, regionName: 'Dammam East', supplierName: 'Golden Grains', scheduledDate: `${today}T08:00:00Z`, createdAt: makeDate(5, 30) },
-  { id: 6, orderNumber: 'ORD-2025-106', customerId: 106, customerName: 'Layla Ibrahim', customerPhone: '+966501234106', type: 'special', status: 'pending_management', paymentStatus: 'pending', itemCount: 1, total: 0, regionName: 'Jeddah Central', supplierName: null, scheduledDate: null, createdAt: makeDate(9, 0) },
-  { id: 7, orderNumber: 'ORD-2025-107', customerId: 107, customerName: 'Khalid Salem', customerPhone: '+966501234107', type: 'regular', status: 'new', paymentStatus: 'pending', itemCount: 1, total: 450.00, regionName: 'Mecca North', supplierName: 'Premium Meats', scheduledDate: `${today}T16:00:00Z`, createdAt: makeDate(9, 30) },
-  { id: 8, orderNumber: 'ORD-2025-108', customerId: 108, customerName: 'Majid Sultan', customerPhone: '+966501234108', type: 'regular', status: 'failed_delivery', paymentStatus: 'pending', itemCount: 2, total: 95.00, regionName: 'Riyadh South', supplierName: 'Fresh Farm Co.', scheduledDate: `${today}T11:00:00Z`, createdAt: makeDate(4, 0) },
-];
-
-const DUMMY_ORDER_DETAILS: Record<number, OrderDetail> = {
-  1: {
-    id: 1, orderNumber: 'ORD-2025-101', orderType: 'regular', status: 'new', paymentStatus: 'pending', paymentMethod: 'cash_on_delivery',
-    subtotal: 72.00, deliveryFee: 17.50, taxAmount: 0, total: 89.50,
-    customerId: 101, customerName: 'Ahmed Ali', customerPhone: '+966501234101', customerEmail: 'ahmed@example.com',
-    supplierId: 1, supplierName: 'Dairy Best Ltd.', warehouseName: 'Riyadh Main Warehouse',
-    deliveryAddress: 'Home', deliveryZone: 'Riyadh North',
-    customerNotes: 'Please deliver in the morning', internalNotes: null,
-    scheduledDate: `${today}T10:00:00Z`,
-    items: [
-      { id: 1, productName: 'Fresh Milk 2L', quantity: 2, unitPrice: 12.00, totalPrice: 24.00 },
-      { id: 2, productName: 'Brown Eggs 12pk', quantity: 1, unitPrice: 18.00, totalPrice: 18.00 },
-      { id: 3, productName: 'Labneh 500g', quantity: 3, unitPrice: 10.00, totalPrice: 30.00 },
-    ],
-    timeline: [
-      { fromStatus: null, toStatus: 'NEW', timestamp: makeDate(8, 15), actor: 'Ahmed Ali' },
-    ],
-    payments: [{ amount: 89.50, status: 'pending', method: 'Cash on Delivery' }],
-    createdAt: makeDate(8, 15), updatedAt: makeDate(8, 15),
-  },
-  2: {
-    id: 2, orderNumber: 'ORD-2025-102', orderType: 'special', status: 'pending_pricing', paymentStatus: 'pending', paymentMethod: 'cash_on_delivery',
-    subtotal: 0, deliveryFee: 0, taxAmount: 0, total: 0,
-    customerId: 102, customerName: 'Sara Khalid', customerPhone: '+966501234102', customerEmail: 'sara@example.com',
-    supplierId: null, supplierName: null, warehouseName: null,
-    deliveryAddress: 'Work', deliveryZone: 'Riyadh South',
-    customerNotes: 'Gift wrapping requested', internalNotes: 'Waiting for supplier quote',
-    scheduledDate: null,
-    items: [
-      { id: 1, productName: 'Organic Honey 5kg', quantity: 1, unitPrice: 0, totalPrice: 0 },
-      { id: 2, productName: 'Premium Dates Box', quantity: 1, unitPrice: 0, totalPrice: 0 },
-    ],
-    timeline: [
-      { fromStatus: null, toStatus: 'PENDING_ADMIN', timestamp: makeDate(7, 30), actor: 'Sara Khalid' },
-      { fromStatus: 'PENDING_ADMIN', toStatus: 'PENDING_PRICING', timestamp: makeDate(8, 0), actor: 'Staff' },
-    ],
-    payments: [],
-    createdAt: makeDate(7, 30), updatedAt: makeDate(8, 0),
-  },
-  3: {
-    id: 3, orderNumber: 'ORD-2025-103', orderType: 'regular', status: 'confirmed', paymentStatus: 'paid', paymentMethod: 'card_online',
-    subtotal: 120.00, deliveryFee: 25.00, taxAmount: 0, total: 145.00,
-    customerId: 103, customerName: 'Mohamed Noor', customerPhone: '+966501234103', customerEmail: 'mohamed@example.com',
-    supplierId: 2, supplierName: 'Premium Meats', warehouseName: 'Jeddah Central Warehouse',
-    deliveryAddress: 'Home', deliveryZone: 'Jeddah Central',
-    customerNotes: 'Cut into small pieces', internalNotes: null,
-    scheduledDate: `${today}T14:00:00Z`,
-    items: [
-      { id: 1, productName: 'Chicken Breast 2kg', quantity: 1, unitPrice: 65.00, totalPrice: 65.00 },
-      { id: 2, productName: 'Beef Cubes 1kg', quantity: 1, unitPrice: 55.00, totalPrice: 55.00 },
-    ],
-    timeline: [
-      { fromStatus: null, toStatus: 'NEW', timestamp: makeDate(6, 45), actor: 'Mohamed Noor' },
-      { fromStatus: 'NEW', toStatus: 'CONFIRMED', timestamp: makeDate(7, 0), actor: 'System' },
-      { fromStatus: 'CONFIRMED', toStatus: 'PAID', timestamp: makeDate(7, 5), actor: 'System' },
-    ],
-    payments: [{ amount: 145.00, status: 'paid', method: 'Card Online' }],
-    createdAt: makeDate(6, 45), updatedAt: makeDate(7, 5),
-  },
-};
-
-const DUMMY_STATS: OrdersStats = {
-  total: 8, new: 2, confirmed: 1, inProgress: 3, delivered: 1, failed: 1,
-};
 
 // ──────────────────────────────────────────────
 // API Methods
@@ -427,18 +347,7 @@ export const ordersApi = {
         },
       };
     } catch {
-      let filtered = [...DUMMY_ORDER_SUMMARIES];
-      if (params?.status) filtered = filtered.filter((o) => o.status === params.status);
-      if (params?.type) filtered = filtered.filter((o) => o.type === params.type);
-      if (params?.search) {
-        const q = params.search.toLowerCase();
-        filtered = filtered.filter((o) => o.orderNumber.toLowerCase().includes(q) || o.customerName.toLowerCase().includes(q));
-      }
-      return {
-        stats: DUMMY_STATS,
-        orders: filtered,
-        pagination: { currentPage: 1, lastPage: 1, perPage: 20, total: filtered.length },
-      };
+      return { stats: { total: 0, new: 0, confirmed: 0, inProgress: 0, delivered: 0, failed: 0 }, orders: [] };
     }
   },
 
@@ -449,8 +358,6 @@ export const ordersApi = {
       const backendData = unwrap(response.data);
       return mapBackendOrderToDetail(backendData);
     } catch {
-      const dummy = DUMMY_ORDER_DETAILS[id];
-      if (dummy) return dummy;
       throw new Error(`Order #${id} not found`);
     }
   },
@@ -461,9 +368,7 @@ export const ordersApi = {
       const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus.toUpperCase() });
       return mapBackendOrderToDetail(unwrap(response.data));
     } catch {
-      const dummy = DUMMY_ORDER_DETAILS[orderId];
-      if (!dummy) throw new Error('Order not found');
-      return { ...dummy, status: newStatus, updatedAt: new Date().toISOString() };
+      throw new Error('Order not found');
     }
   },
 
@@ -473,9 +378,33 @@ export const ordersApi = {
       const response = await apiClient.post<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/confirm-warehouse-receipt`);
       return mapBackendOrderToDetail(unwrap(response.data));
     } catch {
-      const dummy = DUMMY_ORDER_DETAILS[orderId];
-      if (!dummy) throw new Error('Order not found');
-      return { ...dummy, status: 'pending_aggregation', updatedAt: new Date().toISOString() };
+      throw new Error('Order not found');
+    }
+  },
+
+  /** Reschedule order — uses updateStatus with POSTPONED status + notes for now */
+  rescheduleOrder: async (orderId: number, scheduledDate: string, reason: string): Promise<OrderDetail> => {
+    try {
+      const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, {
+        status: 'POSTPONED',
+        note: reason,
+      });
+      return mapBackendOrderToDetail(unwrap(response.data));
+    } catch {
+      throw new Error('Failed to reschedule order');
+    }
+  },
+
+  /** Transfer order — placeholder for POST /api/v1/admin/orders/{id}/transfer */
+  transferOrder: async (orderId: number, warehouseId: number, reason: string): Promise<OrderDetail> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/transfer`, {
+        warehouse_id: warehouseId,
+        reason,
+      });
+      return mapBackendOrderToDetail(unwrap(response.data));
+    } catch {
+      throw new Error('Failed to transfer order');
     }
   },
 };

@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { productsApi, type DashboardProduct } from '../api/productsApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -24,6 +25,7 @@ export function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const id = parseInt(productId || '0', 10);
+  const { t } = useTranslation();
 
   const { data: product, isLoading, isError, error, refetch } = useQuery<DashboardProduct>({
     queryKey: productKeys.detail(id),
@@ -37,10 +39,10 @@ export function ProductDetailPage() {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.PRODUCTS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Products
+          <ArrowLeft size={16} /> {t('products.detail.back')}
         </button>
         <ErrorState
-          title="Failed to load product"
+          title={t('products.detail.errorTitle')}
           message={error instanceof Error ? error.message : 'An unexpected error occurred'}
           onRetry={() => refetch()}
         />
@@ -71,7 +73,7 @@ export function ProductDetailPage() {
     <div className="space-y-6 animate-fade-up">
       {/* Back */}
       <button onClick={() => navigate(ROUTES.PRODUCTS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Products
+        <ArrowLeft size={16} /> {t('products.detail.back')}
       </button>
 
       {/* Hero */}
@@ -88,16 +90,16 @@ export function ProductDetailPage() {
                 <span className="text-sm text-text-tertiary">{product.nameAr}</span>
                 <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
                 {product.isAvailable ? (
-                  <Badge variant="green" size="sm">Available</Badge>
+                  <Badge variant="green" size="sm">{t('products.detail.active')}</Badge>
                 ) : (
-                  <Badge variant="red" size="sm">Disabled</Badge>
+                  <Badge variant="red" size="sm">{t('products.detail.disabled')}</Badge>
                 )}
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 line-clamp-2">{product.description}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Button variant="secondary" size="sm" leftIcon={<Package size={14} />} onClick={() => navigate(ROUTES.PRODUCT_EDIT(product.id))}>
-                Edit
+                {t('common.edit')}
               </Button>
             </div>
           </div>
@@ -110,9 +112,9 @@ export function ProductDetailPage() {
         <Card padding="md" hover>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">Price</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('products.detail.price')}</p>
               <p className="text-2xl font-extrabold text-brand-accent font-display mt-1">{product.price.toFixed(2)}</p>
-              <p className="text-xs text-text-tertiary font-body">SAR per {product.unit}</p>
+              <p className="text-xs text-text-tertiary font-body">{t('products.detail.perUnit', { unit: product.unit })}</p>
             </div>
             <div className="p-2.5 rounded-lg bg-brand-accent-light text-brand-accent">
               <TrendingUp size={18} />
@@ -122,7 +124,7 @@ export function ProductDetailPage() {
         <Card padding="md" hover>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">Stock</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('products.detail.stock')}</p>
               <p className="text-2xl font-extrabold text-text-primary font-display mt-1">{product.stockQuantity}</p>
               <p className="text-xs text-text-tertiary font-body">{product.unit}s</p>
             </div>
@@ -134,7 +136,7 @@ export function ProductDetailPage() {
         <Card padding="md" hover>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">Category</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('products.detail.category')}</p>
               <p className="text-xl font-extrabold text-text-primary font-display mt-1 truncate max-w-[120px]">{product.categoryName}</p>
               <p className="text-xs text-text-tertiary font-body"><Layers size={10} className="inline" /> ID: {product.categoryId}</p>
             </div>
@@ -146,9 +148,9 @@ export function ProductDetailPage() {
         <Card padding="md" hover>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">Orders</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('products.detail.orders')}</p>
               <p className="text-2xl font-extrabold text-text-primary font-display mt-1">{product.totalOrders}</p>
-              <p className="text-xs text-text-tertiary font-body"><ShoppingCart size={10} className="inline" /> total</p>
+              <p className="text-xs text-text-tertiary font-body"><ShoppingCart size={10} className="inline" /> {t('products.detail.total')}</p>
             </div>
             <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
               <ShoppingCart size={18} />
@@ -162,12 +164,12 @@ export function ProductDetailPage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Package size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Stock Level</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.stockLevel')}</h3>
           </div>
           {isLowStock && (
             <div className="flex items-center gap-1 text-xs font-bold text-amber-600">
               <AlertTriangle size={12} />
-              Low Stock
+              {t('products.detail.lowStock')}
             </div>
           )}
         </div>
@@ -181,8 +183,8 @@ export function ProductDetailPage() {
           />
         </div>
         <div className="flex items-center justify-between mt-2 text-xs text-text-secondary font-body">
-          <span>{product.stockQuantity} {product.unit}s in stock</span>
-          <span>{stockPercent.toFixed(0)}% relative stock level</span>
+          <span>{t('products.detail.inStock', { count: product.stockQuantity, unit: product.unit })}</span>
+          <span>{t('products.detail.relativeStock', { percent: stockPercent.toFixed(0) })}</span>
         </div>
       </Card>
 
@@ -192,28 +194,28 @@ export function ProductDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Tag size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Product Details</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.productDetails')}</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Hash size={12} /> SKU</span>
+              <span className="text-text-secondary flex items-center gap-2"><Hash size={12} /> {t('products.detail.sku')}</span>
               <span className="font-bold text-text-primary">{product.nameAr ? `SKU-${product.id}` : '—'}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Package size={12} /> Unit</span>
+              <span className="text-text-secondary flex items-center gap-2"><Package size={12} /> {t('products.detail.unit')}</span>
               <span className="font-bold text-text-primary">{product.unit}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Layers size={12} /> Category</span>
+              <span className="text-text-secondary flex items-center gap-2"><Layers size={12} /> {t('products.detail.category')}</span>
               <span className="font-bold text-text-primary">{product.categoryName}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><TrendingUp size={12} /> Price</span>
+              <span className="text-text-secondary flex items-center gap-2"><TrendingUp size={12} /> {t('products.detail.price')}</span>
               <span className="font-extrabold text-brand-accent">{product.price.toFixed(2)} SAR</span>
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Image size={12} /> Image</span>
-              <span className="font-bold text-text-primary">{product.imageUrl || 'No image'}</span>
+              <span className="text-text-secondary flex items-center gap-2"><Image size={12} /> {t('products.detail.image')}</span>
+              <span className="font-bold text-text-primary">{product.imageUrl || t('products.detail.noImage')}</span>
             </div>
           </div>
         </Card>
@@ -222,27 +224,27 @@ export function ProductDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Building2 size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Supplier Information</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.supplierInfo')}</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Building2 size={12} /> Supplier</span>
-              <span className="font-bold text-text-primary">{product.supplierName || 'Internal'}</span>
+              <span className="text-text-secondary flex items-center gap-2"><Building2 size={12} /> {t('products.detail.supplier')}</span>
+              <span className="font-bold text-text-primary">{product.supplierName || t('products.catalog.internal')}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Users size={12} /> Source</span>
+              <span className="text-text-secondary flex items-center gap-2"><Users size={12} /> {t('products.detail.source')}</span>
               <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><CheckCircle2 size={12} /> Status</span>
+              <span className="text-text-secondary flex items-center gap-2"><CheckCircle2 size={12} /> {t('products.detail.status')}</span>
               {product.isAvailable ? (
-                <span className="font-bold text-green-600 flex items-center gap-1"><CheckCircle2 size={12} /> Active</span>
+                <span className="font-bold text-green-600 flex items-center gap-1"><CheckCircle2 size={12} /> {t('products.detail.active')}</span>
               ) : (
-                <span className="font-bold text-red-500 flex items-center gap-1"><XCircle size={12} /> Disabled</span>
+                <span className="font-bold text-red-500 flex items-center gap-1"><XCircle size={12} /> {t('products.detail.disabled')}</span>
               )}
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><ShoppingCart size={12} /> Total Orders</span>
+              <span className="text-text-secondary flex items-center gap-2"><ShoppingCart size={12} /> {t('products.detail.totalOrders')}</span>
               <span className="font-bold text-text-primary">{product.totalOrders}</span>
             </div>
           </div>
@@ -254,7 +256,7 @@ export function ProductDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Package size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Description</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.description')}</h3>
           </div>
           <div className="space-y-3 text-sm font-body">
             {product.description && <p className="text-text-primary">{product.description}</p>}
@@ -269,10 +271,10 @@ export function ProductDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Package size={16} className="text-brand-accent" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Stock Movements</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.stockMovements')}</h3>
         </div>
         <p className="text-sm text-text-secondary font-body">
-          Stock movement history will appear here once the backend provides this data.
+          {t('products.detail.stockMovementsPlaceholder')}
         </p>
       </Card>
     </div>

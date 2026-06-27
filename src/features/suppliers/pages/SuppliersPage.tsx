@@ -9,12 +9,18 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useToastStore } from '@/stores/toastStore';
 import { Building2, Users, CheckCircle2, AlertTriangle, Star, Search, Filter, Plus } from 'lucide-react';
 import type { SupplierStatus } from '../api/suppliersApi';
 
 const STATUS_BADGE: Record<SupplierStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green', inactive: 'yellow', suspended: 'red', pending_approval: 'purple',
+};
+
+const STATUS_LABELS: Record<SupplierStatus, string> = {
+  active: 'Active',
+  inactive: 'Inactive',
+  suspended: 'Suspended',
+  pending_approval: 'Pending Approval',
 };
 
 

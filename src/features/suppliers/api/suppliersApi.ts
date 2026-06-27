@@ -11,8 +11,8 @@
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
-import { unwrap } from '@/lib/apiHelpers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
+import type { DashboardProduct } from '@/features/products/api/productsApi';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -98,6 +98,47 @@ interface BackendSuppliersResponse {
   };
 }
 
+// ── Backend Product Type (matches ProductResource from GET /suppliers/{id}/products) ──
+
+interface BackendSupplierProduct {
+  id: number;
+  sku: string;
+  name_ar: string;
+  price: string;
+  unit: string;
+  stock_quantity: number;
+  approval_status: string;
+  rejection_reason: string | null;
+  is_active: boolean;
+  primary_image: string | null;
+  updated_at: string;
+  supplier?: { id: number; business_name: string };
+  category?: { id: number; name: string };
+}
+
+function mapBackendProductToDashboard(bp: BackendSupplierProduct): DashboardProduct {
+  return {
+    id: bp.id,
+    name: bp.name_ar,
+    nameAr: bp.name_ar,
+    description: '',
+    descriptionAr: '',
+    price: parseFloat(bp.price) || 0,
+    unit: bp.unit || 'piece',
+    imageUrl: bp.primary_image || null,
+    categoryId: bp.category?.id || 0,
+    categoryName: bp.category?.name || 'Uncategorized',
+    supplierId: bp.supplier?.id || null,
+    supplierName: bp.supplier?.business_name || null,
+    source: 'supplier',
+    isAvailable: bp.is_active,
+    stockQuantity: Number(bp.stock_quantity),
+    totalOrders: 0,
+    createdAt: bp.updated_at,
+    updatedAt: bp.updated_at,
+  };
+}
+
 // ── Mapping: BackendSupplier → frontend Supplier ──
 
 function mapApprovalStatus(status: string): SupplierStatus {
@@ -136,76 +177,6 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
   };
 }
 
-// ── Dummy Data ──
-
-const now = new Date();
-
-const DUMMY_SUPPLIERS: Supplier[] = [
-  {
-    id: 1, name: 'Fresh Farm Co.', nameAr: 'المزرعة الطازجة', email: 'contact@freshfarm.com',
-    phone: '+966501234001', commercialRegister: 'CR-2025-001', taxNumber: 'TX-3001',
-    status: 'active', paymentTerms: 'net_30', commissionRate: 12, rating: 4.5,
-    totalOrders: 48, totalRevenue: 124500, acceptanceRate: 94,
-    categories: ['Vegetables', 'Fruits', 'Herbs'], regions: ['Riyadh North', 'Riyadh South'],
-    contactPerson: 'Ahmed Al-Mutairi', contactPhone: '+966501234111', address: 'Riyadh, Industrial Zone',
-    notes: 'Preferred supplier for organic produce', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-  {
-    id: 2, name: 'Dairy Best Ltd.', nameAr: 'الألبان الأفضل', email: 'info@dairybest.com',
-    phone: '+966501234002', commercialRegister: 'CR-2025-002', taxNumber: 'TX-3002',
-    status: 'active', paymentTerms: 'net_15', commissionRate: 10, rating: 4.8,
-    totalOrders: 36, totalRevenue: 89000, acceptanceRate: 97,
-    categories: ['Dairy', 'Eggs', 'Cheese'], regions: ['Riyadh North', 'Jeddah Central'],
-    contactPerson: 'Khalid Al-Otaibi', contactPhone: '+966501234222', address: 'Jeddah, Industrial Area',
-    notes: 'Exclusive dairy supplier', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-  {
-    id: 3, name: 'Golden Grains', nameAr: 'الحبوب الذهبية', email: 'orders@goldengrains.com',
-    phone: '+966501234003', commercialRegister: 'CR-2025-003', taxNumber: 'TX-3003',
-    status: 'active', paymentTerms: 'net_30', commissionRate: 8, rating: 4.2,
-    totalOrders: 29, totalRevenue: 67000, acceptanceRate: 91,
-    categories: ['Bakery', 'Grains', 'Flour'], regions: ['Dammam East', 'Riyadh North'],
-    contactPerson: 'Sami Al-Shammari', contactPhone: '+966501234333', address: 'Dammam, Industrial City',
-    notes: '', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-  {
-    id: 4, name: 'Premium Meats', nameAr: 'اللحوم الممتازة', email: 'sales@premiummeats.com',
-    phone: '+966501234004', commercialRegister: 'CR-2025-004', taxNumber: 'TX-3004',
-    status: 'active', paymentTerms: 'net_15', commissionRate: 15, rating: 4.0,
-    totalOrders: 22, totalRevenue: 156000, acceptanceRate: 86,
-    categories: ['Meat', 'Poultry', 'Seafood'], regions: ['Jeddah Central', 'Mecca North'],
-    contactPerson: 'Nasser Al-Ghamdi', contactPhone: '+966501234444', address: 'Mecca, Industrial Area',
-    notes: 'High-value items, requires special handling', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-  {
-    id: 5, name: 'Organic Valley', nameAr: 'الوادي العضوي', email: 'info@organicvalley.com',
-    phone: '+966501234005', commercialRegister: 'CR-2025-005', taxNumber: 'TX-3005',
-    status: 'pending_approval', paymentTerms: 'net_45', commissionRate: 10, rating: 0,
-    totalOrders: 0, totalRevenue: 0, acceptanceRate: 100,
-    categories: ['Organic', 'Health', 'Supplements'], regions: ['Riyadh North'],
-    contactPerson: 'Huda Al-Zahrani', contactPhone: '+966501234555', address: 'Riyadh, Al-Olaya',
-    notes: 'New supplier — pending contract review', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-  {
-    id: 6, name: 'Seafood Express', nameAr: 'المأكولات البحرية السريعة', email: 'catch@seafoodexpress.com',
-    phone: '+966501234006', commercialRegister: 'CR-2025-006', taxNumber: 'TX-3006',
-    status: 'suspended', paymentTerms: 'prepaid', commissionRate: 18, rating: 2.5,
-    totalOrders: 8, totalRevenue: 45000, acceptanceRate: 62,
-    categories: ['Seafood', 'Fish'], regions: ['Dammam East'],
-    contactPerson: 'Fahad Al-Dossary', contactPhone: '+966501234666', address: 'Dammam, Fishing Port',
-    notes: 'Suspended due to quality issues — under review', createdAt: now.toISOString(), updatedAt: now.toISOString(),
-  },
-];
-
-const DUMMY_STATS = {
-  total: 6, active: 3, pendingApproval: 1, suspended: 1,
-  avgRating: 4.0, totalOrders: 143, totalRevenue: 481500,
-};
-
-function getDummyPageData(): SuppliersPageData {
-  return { stats: DUMMY_STATS, suppliers: DUMMY_SUPPLIERS };
-}
-
 export const suppliersApi = {
   /** Fetch all suppliers page data (stats + list) */
   getPageData: async (): Promise<SuppliersPageData> => {
@@ -233,7 +204,7 @@ export const suppliersApi = {
         suppliers,
       };
     } catch {
-      return getDummyPageData();
+      return { stats: { total: 0, active: 0, pendingApproval: 0, suspended: 0, avgRating: 0, totalOrders: 0, totalRevenue: 0 }, suppliers: [] };
     }
   },
 
@@ -253,7 +224,7 @@ export const suppliersApi = {
         },
       };
     } catch {
-      return { data: DUMMY_SUPPLIERS, meta: { currentPage: 1, lastPage: 1, perPage: 20, total: DUMMY_SUPPLIERS.length } };
+      throw new Error('Failed to fetch suppliers');
     }
   },
 
@@ -263,9 +234,7 @@ export const suppliersApi = {
       const response = await apiClient.get<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`);
       return mapBackendSupplier(response.data.data);
     } catch {
-      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-      if (!supplier) throw new Error('Supplier not found');
-      return supplier;
+      throw new Error('Supplier not found');
     }
   },
 
@@ -275,31 +244,7 @@ export const suppliersApi = {
       const response = await apiClient.post<ApiResponse<BackendSupplier>>('/api/v1/admin/suppliers', data);
       return mapBackendSupplier(response.data.data);
     } catch {
-      const newSupplier: Supplier = {
-        id: DUMMY_SUPPLIERS.length + 1,
-        name: data.name || 'New Supplier',
-        nameAr: data.nameAr || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        commercialRegister: data.commercialRegister || '',
-        taxNumber: data.taxNumber || '',
-        status: 'pending_approval',
-        paymentTerms: data.paymentTerms || 'net_30',
-        commissionRate: data.commissionRate || 10,
-        rating: 0,
-        totalOrders: 0,
-        totalRevenue: 0,
-        acceptanceRate: 100,
-        categories: data.categories || [],
-        regions: data.regions || [],
-        contactPerson: data.contactPerson || '',
-        contactPhone: data.contactPhone || '',
-        address: data.address || '',
-        notes: data.notes || '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      return newSupplier;
+      throw new Error('Failed to create supplier');
     }
   },
 
@@ -309,9 +254,7 @@ export const suppliersApi = {
       const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
       return mapBackendSupplier(response.data.data);
     } catch {
-      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-      if (!supplier) throw new Error('Supplier not found');
-      return { ...supplier, ...data, updatedAt: new Date().toISOString() };
+      throw new Error('Supplier not found');
     }
   },
 
@@ -321,9 +264,7 @@ export const suppliersApi = {
       const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/approve`);
       return mapBackendSupplier(response.data.data);
     } catch {
-      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-      if (!supplier) throw new Error('Supplier not found');
-      return { ...supplier, status: 'active', updatedAt: new Date().toISOString() };
+      throw new Error('Supplier not found');
     }
   },
 
@@ -333,7 +274,18 @@ export const suppliersApi = {
       const response = await apiClient.get<ApiResponse<BackendSupplier[]>>('/api/v1/admin/suppliers/pending-approvals');
       return response.data.data.map(mapBackendSupplier);
     } catch {
-      return DUMMY_SUPPLIERS.filter((s) => s.status === 'pending_approval');
+      return [];
+    }
+  },
+
+  /** Fetch products belonging to this supplier */
+  getSupplierProducts: async (supplierId: number): Promise<DashboardProduct[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<{ products: BackendSupplierProduct[]; meta: Record<string, unknown> }>>(`/api/v1/admin/suppliers/${supplierId}/products`);
+      const data = response.data.data;
+      return (data.products || []).map(mapBackendProductToDashboard);
+    } catch {
+      return [];
     }
   },
 
@@ -343,9 +295,7 @@ export const suppliersApi = {
       const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/reject`, { reason });
       return mapBackendSupplier(response.data.data);
     } catch {
-      const supplier = DUMMY_SUPPLIERS.find((s) => s.id === id);
-      if (!supplier) throw new Error('Supplier not found');
-      return { ...supplier, status: 'suspended', notes: reason, updatedAt: new Date().toISOString() };
+      throw new Error('Failed to suspend supplier');
     }
   },
 };

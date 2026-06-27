@@ -40,7 +40,7 @@ export function CreateProductPage() {
         unit: form.unit,
         stockQuantity: parseInt(form.stockQuantity) || 0,
         categoryId: parseInt(form.categoryId) || 1,
-        source: form.source as any,
+        source: form.source as 'supplier' | 'internal' | 'seasonal',
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       addToast('success', 'Product created successfully');

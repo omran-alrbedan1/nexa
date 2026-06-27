@@ -18,15 +18,15 @@ interface StatCardData {
 // ── SVG Icons (inline to avoid loading lucide on public page) ──
 
 const ICONS = {
-  orders: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
-  suppliers: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
-  revenue: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
-  fulfillment: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
-  trendUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-  trendLive: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  eye: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  eyeOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  orders: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  suppliers: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  revenue: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  fulfillment: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  trendUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  trendLive: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  eye: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  eyeOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
 };
 
 // ── Default Placeholder Stats ──
@@ -202,51 +202,51 @@ export function LoginPage() {
           </defs>
 
           {/* Dashed connection lines */}
-          <path d="M 300 320 Q 200 200 100 160" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 300 320 Q 350 180 380 130" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 300 320 Q 420 280 500 320" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 300 320 Q 400 420 480 480" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 300 320 Q 280 430 260 520" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 300 320 Q 180 380 80 400" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.4"/>
-          <path d="M 100 160 Q 200 280 300 320" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
-          <path d="M 380 130 Q 450 250 500 320" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
-          <path d="M 500 320 Q 490 400 480 480" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
-          <path d="M 480 480 Q 370 500 260 520" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
-          <path d="M 260 520 Q 170 470 80 400" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
-          <path d="M 80 400 Q 90 280 100 160" stroke="#2dd4a8" stroke-width="1.5" fill="none" stroke-dasharray="6,6" opacity="0.3"/>
+          <path d="M 300 320 Q 200 200 100 160" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 300 320 Q 350 180 380 130" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 300 320 Q 420 280 500 320" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 300 320 Q 400 420 480 480" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 300 320 Q 280 430 260 520" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 300 320 Q 180 380 80 400" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.4"/>
+          <path d="M 100 160 Q 200 280 300 320" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
+          <path d="M 380 130 Q 450 250 500 320" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
+          <path d="M 500 320 Q 490 400 480 480" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
+          <path d="M 480 480 Q 370 500 260 520" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
+          <path d="M 260 520 Q 170 470 80 400" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
+          <path d="M 80 400 Q 90 280 100 160" stroke="#2dd4a8" strokeWidth="1.5" fill="none" strokeDasharray="6,6" opacity="0.3"/>
 
           {/* NEXA Hub (center, green) */}
-          <circle cx="300" cy="320" r="28" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" stroke-width="1.5" filter="url(#glow-green)"/>
+          <circle cx="300" cy="320" r="28" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" strokeWidth="1.5" filter="url(#glow-green)"/>
           <circle cx="300" cy="320" r="10" fill="#2dd4a8" opacity="0.8"/>
           <circle cx="300" cy="320" r="4" fill="#fff"/>
 
           {/* Air Freight (top, green) */}
-          <circle cx="380" cy="130" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" stroke-width="1.5" filter="url(#glow-green)"/>
+          <circle cx="380" cy="130" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" strokeWidth="1.5" filter="url(#glow-green)"/>
           <circle cx="380" cy="130" r="8" fill="#2dd4a8" opacity="0.8"/>
           <circle cx="380" cy="130" r="3" fill="#fff"/>
 
           {/* Rejected node (left, red) */}
-          <circle cx="100" cy="160" r="22" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="1.5" filter="url(#glow-red)"/>
+          <circle cx="100" cy="160" r="22" fill="rgba(239,68,68,0.15)" stroke="#ef4444" strokeWidth="1.5" filter="url(#glow-red)"/>
           <circle cx="100" cy="160" r="8" fill="#ef4444" opacity="0.8"/>
           <circle cx="100" cy="160" r="3" fill="#fff"/>
 
           {/* Regional (right, green) */}
-          <circle cx="500" cy="320" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" stroke-width="1.5" filter="url(#glow-green)"/>
+          <circle cx="500" cy="320" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" strokeWidth="1.5" filter="url(#glow-green)"/>
           <circle cx="500" cy="320" r="8" fill="#2dd4a8" opacity="0.8"/>
           <circle cx="500" cy="320" r="3" fill="#fff"/>
 
           {/* Suspended node (right-mid, orange) */}
-          <circle cx="480" cy="480" r="22" fill="rgba(249,115,22,0.15)" stroke="#f97316" stroke-width="1.5" filter="url(#glow-orange)"/>
+          <circle cx="480" cy="480" r="22" fill="rgba(249,115,22,0.15)" stroke="#f97316" strokeWidth="1.5" filter="url(#glow-orange)"/>
           <circle cx="480" cy="480" r="8" fill="#f97316" opacity="0.8"/>
           <circle cx="480" cy="480" r="3" fill="#fff"/>
 
           {/* Distribution (bottom, green) */}
-          <circle cx="260" cy="520" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" stroke-width="1.5" filter="url(#glow-green)"/>
+          <circle cx="260" cy="520" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" strokeWidth="1.5" filter="url(#glow-green)"/>
           <circle cx="260" cy="520" r="8" fill="#2dd4a8" opacity="0.8"/>
           <circle cx="260" cy="520" r="3" fill="#fff"/>
 
           {/* Left edge node */}
-          <circle cx="80" cy="400" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" stroke-width="1.5" filter="url(#glow-green)"/>
+          <circle cx="80" cy="400" r="22" fill="rgba(45,212,168,0.15)" stroke="#2dd4a8" strokeWidth="1.5" filter="url(#glow-green)"/>
           <circle cx="80" cy="400" r="8" fill="#2dd4a8" opacity="0.8"/>
           <circle cx="80" cy="400" r="3" fill="#fff"/>
         </svg>
@@ -427,15 +427,15 @@ export function LoginPage() {
           {/* Trust badges */}
           <div style={styles.trustBadges}>
             <div style={styles.trustBadge}>
-              <span style={styles.trustIcon} dangerouslySetInnerHTML={{ __html: ICONS.fulfillment.replace('stroke-width="2"', 'stroke-width="2" style="color:#2dd4a8"') }} />
+              <span style={styles.trustIcon} dangerouslySetInnerHTML={{ __html: ICONS.fulfillment.replace('strokeWidth="2"', 'strokeWidth="2" style="color:#2dd4a8"') }} />
               Verified Supplier Platform
             </div>
             <div style={styles.trustBadge}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Secure Business Operations
             </div>
             <div style={styles.trustBadge}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               Protected Commercial Data
             </div>
           </div>

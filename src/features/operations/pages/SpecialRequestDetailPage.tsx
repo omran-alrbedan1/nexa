@@ -172,7 +172,7 @@ export function SpecialRequestDetailPage() {
                 ...(request.status !== 'pending_management' ? [{ status: 'Assigned for Pricing', time: request.updatedAt, desc: `Assigned to ${request.assignedTo || 'staff'}` }] : []),
                 ...(request.priceQuote ? [{ status: 'Price Quote Submitted', time: request.updatedAt, desc: `${request.priceQuote} SAR — awaiting customer approval` }] : []),
               ].map((step, idx, arr) => (
-                <div key={idx} className="relative pb-6 last:pb-0">
+                <div key={idx} className="relative pb-10 last:pb-0">
                   <div className={cn(
                     'absolute -left-[23px] w-[22px] h-[22px] rounded-full border-2 border-white flex items-center justify-center',
                     idx === arr.length - 1 ? 'bg-brand-primary' : 'bg-white'

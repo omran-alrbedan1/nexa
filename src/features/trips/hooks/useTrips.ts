@@ -20,8 +20,8 @@ export function useAssignDriver() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ tripId, driverId, driverName }: { tripId: number; driverId: number; driverName: string }) =>
-      tripsApi.assignDriver(tripId, driverId, driverName),
+    mutationFn: ({ tripId, driverId }: { tripId: number; driverId: number }) =>
+      tripsApi.assignDriver(tripId, driverId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.pageData() });
       addToast('success', 'Driver assigned to trip');

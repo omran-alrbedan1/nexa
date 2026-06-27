@@ -28,8 +28,12 @@ export function Modal({
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
+  const onCloseRef = useRef(onClose);
 
-  // Trap focus and handle Escape
+  // Keep the callback ref in sync without triggering effects
+  onCloseRef.current = onClose;
+
+  // Trap focus and handle Escape — only runs when `open` changes
   useEffect(() => {
     if (!open) return;
 
@@ -37,7 +41,7 @@ export function Modal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -83,7 +87,7 @@ export function Modal({
       document.body.style.overflow = '';
       (previousActiveElement.current as HTMLElement)?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

@@ -196,55 +196,6 @@ export interface DashboardWidgetsExpanded {
   topAreas: TopArea[];
 }
 
-// ── Dummy data for frontend-only widgets ──
-
-const DUMMY_RECENT_ORDERS: RecentOrder[] = [
-  { id: 1, orderNumber: 'ORD-2025-001', customerName: 'Ahmed Ali', type: 'regular', status: 'delivered', total: 245.00, createdAt: '2025-06-07T09:15:00Z' },
-  { id: 2, orderNumber: 'ORD-2025-002', customerName: 'Sara Khalid', type: 'special', status: 'pending_pricing', total: 0, createdAt: '2025-06-07T09:30:00Z' },
-  { id: 3, orderNumber: 'ORD-2025-003', customerName: 'Mohamed Noor', type: 'regular', status: 'out_for_delivery', total: 189.50, createdAt: '2025-06-07T08:45:00Z' },
-  { id: 4, orderNumber: 'ORD-2025-004', customerName: 'Nora Hassan', type: 'seasonal', status: 'confirmed', total: 320.00, createdAt: '2025-06-07T07:20:00Z' },
-  { id: 5, orderNumber: 'ORD-2025-005', customerName: 'Faisal Omar', type: 'regular', status: 'pending_aggregation', total: 78.00, createdAt: '2025-06-06T16:10:00Z' },
-];
-
-const DUMMY_PENDING_APPROVALS: PendingApproval[] = [
-  { id: 1, orderNumber: 'ORD-2025-002', customerName: 'Sara Khalid', requestDetails: 'Organic honey 5kg + Premium dates box', createdAt: '2025-06-07T09:30:00Z' },
-  { id: 2, orderNumber: 'ORD-2025-006', customerName: 'Layla Ibrahim', requestDetails: 'Imported cheese selection (3 types)', createdAt: '2025-06-07T08:15:00Z' },
-  { id: 3, orderNumber: 'ORD-2025-007', customerName: 'Khalid Salem', requestDetails: 'Fresh seafood platter for 10 guests', createdAt: '2025-06-06T14:20:00Z' },
-];
-
-const DUMMY_DRIVER_ACTIVITY: DriverStatus[] = [
-  { id: 1, name: 'Hassan Ali', status: 'on_trip', completedToday: 8, regionName: 'Riyadh North' },
-  { id: 2, name: 'Omar Farouk', status: 'available', completedToday: 12, regionName: 'Riyadh South' },
-  { id: 3, name: 'Khaled Ahmed', status: 'on_trip', completedToday: 5, regionName: 'Jeddah Central' },
-  { id: 4, name: 'Majid Sultan', status: 'offline', completedToday: 3, regionName: 'Dammam East' },
-  { id: 5, name: 'Sami Walid', status: 'available', completedToday: 0, regionName: 'Mecca North' },
-];
-
-const DUMMY_TIME_KPIS: TimeKPI[] = [
-  { metric: 'Avg Order Time (→ Delivery)', averageHours: 28.5, trend: 'down', trendPercent: 8 },
-  { metric: 'Avg Supply Time', averageHours: 14.2, trend: 'down', trendPercent: 12 },
-  { metric: 'Avg Aggregation Time', averageHours: 6.8, trend: 'stable', trendPercent: 1 },
-  { metric: 'Avg Trip Setup Time', averageHours: 3.5, trend: 'down', trendPercent: 15 },
-  { metric: 'Avg Last-Mile Delivery', averageHours: 2.1, trend: 'up', trendPercent: 5 },
-  { metric: 'First-Attempt Success Rate', averageHours: 89, trend: 'up', trendPercent: 3 },
-];
-
-const DUMMY_TOP_SUPPLIERS: TopSupplier[] = [
-  { id: 1, name: 'Fresh Farm Co.', orderCount: 48, acceptanceRate: 94 },
-  { id: 2, name: 'Dairy Best Ltd.', orderCount: 36, acceptanceRate: 97 },
-  { id: 3, name: 'Golden Grains', orderCount: 29, acceptanceRate: 91 },
-  { id: 4, name: 'Premium Meats', orderCount: 22, acceptanceRate: 86 },
-  { id: 5, name: 'Organic Valley', orderCount: 18, acceptanceRate: 100 },
-];
-
-const DUMMY_TOP_AREAS: TopArea[] = [
-  { id: 1, name: 'Riyadh North', orderCount: 98, totalRevenue: 48500 },
-  { id: 2, name: 'Jeddah Central', orderCount: 76, totalRevenue: 37200 },
-  { id: 3, name: 'Dammam East', orderCount: 54, totalRevenue: 28100 },
-  { id: 4, name: 'Mecca North', orderCount: 42, totalRevenue: 19500 },
-  { id: 5, name: 'Riyadh South', orderCount: 38, totalRevenue: 18200 },
-];
-
 // ── Helper: build frontend types from backend data ──
 
 function buildActionRequired(ar: DashboardActionRequired): ActionRequiredItem[] {
@@ -309,7 +260,7 @@ async function fetchRecentOrders(): Promise<RecentOrder[]> {
       createdAt: o.createdAt,
     }));
   } catch {
-    return DUMMY_RECENT_ORDERS;
+    return [];
   }
 }
 
@@ -325,7 +276,7 @@ async function fetchPendingApprovals(): Promise<PendingApproval[]> {
       createdAt: s.createdAt,
     }));
   } catch {
-    return DUMMY_PENDING_APPROVALS;
+    return [];
   }
 }
 
@@ -344,7 +295,7 @@ async function fetchTopSuppliers(): Promise<TopSupplier[]> {
         acceptanceRate: s.acceptanceRate,
       }));
   } catch {
-    return DUMMY_TOP_SUPPLIERS;
+    return [];
   }
 }
 
@@ -363,7 +314,7 @@ async function fetchTopAreas(): Promise<TopArea[]> {
         totalRevenue: r.totalRevenue,
       }));
   } catch {
-    return DUMMY_TOP_AREAS;
+    return [];
   }
 }
 
@@ -386,7 +337,7 @@ async function fetchDriverActivity(): Promise<DriverStatus[]> {
       };
     });
   } catch {
-    return DUMMY_DRIVER_ACTIVITY;
+    return [];
   }
 }
 
@@ -407,7 +358,7 @@ function transformBackendResponse(backend: DashboardBackendResponse): DashboardW
     tripSummary: buildTripSummary(backend.trips_today),
 
     // Frontend-only widgets — populated by fetchWidgetData() call below
-    timeKPIs: DUMMY_TIME_KPIS,
+    timeKPIs: [],
     topSuppliers: [],
     topAreas: [],
   };
@@ -418,11 +369,19 @@ export const dashboardApi = {
    * Fetch all dashboard widget data.
    * Calls the real backend for core stats, derives widget data from backend response,
    * and fetches widget-specific data from their respective APIs.
+   * Accepts optional filter params (dateFrom, dateTo) passed as query params to the dashboard API.
    */
-  getWidgetsExpanded: async (): Promise<DashboardWidgetsExpanded> => {
+  getWidgetsExpanded: async (filters?: { dateFrom?: string; dateTo?: string }): Promise<DashboardWidgetsExpanded> => {
+    // Build query string from filter params
+    const params = new URLSearchParams();
+    if (filters?.dateFrom) params.set('from_date', filters.dateFrom);
+    if (filters?.dateTo) params.set('to_date', filters.dateTo);
+    const qs = params.toString();
+    const url = `/api/v1/admin/dashboard${qs ? `?${qs}` : ''}`;
+
     // Fire all data fetches in parallel
     const [dashboardResult, recentOrdersData, pendingApprovalsData, driverActivityData, topSuppliersData, topAreasData] = await Promise.all([
-      apiClient.get<ApiResponse<DashboardBackendResponse>>('/api/v1/admin/dashboard').then((r) => r.data.data).catch(() => null as DashboardBackendResponse | null),
+      apiClient.get<ApiResponse<DashboardBackendResponse>>(url).then((r) => r.data.data).catch(() => null as DashboardBackendResponse | null),
       fetchRecentOrders(),
       fetchPendingApprovals(),
       fetchDriverActivity(),
@@ -430,26 +389,12 @@ export const dashboardApi = {
       fetchTopAreas(),
     ]);
 
-    // If the real dashboard backend was available, use it; otherwise fall back to all-dummy
-    let backendData: DashboardBackendResponse;
-    if (dashboardResult) {
-      backendData = dashboardResult;
-    } else {
-      // If backend is not available, return all-dummy data for development
-      backendData = {
-        orders: { today: 47, week: 342, month: 1425, by_type: { regular: 230, special: 45, seasonal: 67 } },
-        action_required: {
-          special_orders_pending_admin: 3, special_orders_pending_pricing: 4, orders_pending_customer: 2,
-          orders_in_supply_delayed: 5, orders_ready_without_trip: 11, trips_without_driver: 3, delivery_failed_open: 2,
-        },
-        pipeline: { in_supply: 12, in_aggregation: 8, ready_to_ship: 11, out_for_delivery: 9, delivered_today: 47 },
-        trips_today: { scheduled: 4, in_progress: 3, completed: 8 },
-        revenue: 8390.50,
-        pending_approvals: { suppliers: 1, products: 0 },
-      };
+    // Throw if the main dashboard API is unavailable — let the UI show error state
+    if (!dashboardResult) {
+      throw new Error('Dashboard data is unavailable. Please check your connection.');
     }
 
-    const result = transformBackendResponse(backendData);
+    const result = transformBackendResponse(dashboardResult);
     result.recentOrders = recentOrdersData;
     result.pendingApprovals = pendingApprovalsData;
     result.driverActivity = driverActivityData;

@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ToastContainer } from '@/components/ui/Toast';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ROUTES } from '@/routes/routes';
 
 // ── Auth pages ──
@@ -95,6 +96,60 @@ const CreateTripPage = lazy(() =>
 const DriversPage = lazy(() =>
   import('@/features/drivers/pages/DriversPage').then((m) => ({ default: m.DriversPage }))
 );
+const DriverDetailPage = lazy(() =>
+  import('@/features/drivers/pages/DriverDetailPage').then((m) => ({ default: m.DriverDetailPage }))
+);
+
+// ── Payments ──
+const PaymentsPage = lazy(() =>
+  import('@/features/payments/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage }))
+);
+
+// ── Support Tickets ──
+const SupportTicketsPage = lazy(() =>
+  import('@/features/support/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage }))
+);
+
+// ── Special Orders ──
+const SpecialOrdersPage = lazy(() =>
+  import('@/features/special-orders/pages/SpecialOrdersPage').then((m) => ({ default: m.SpecialOrdersPage }))
+);
+const SpecialOrderDetailPage = lazy(() =>
+  import('@/features/special-orders/pages/SpecialOrderDetailPage').then((m) => ({ default: m.SpecialOrderDetailPage }))
+);
+
+// ── Reports ──
+const ReportsPage = lazy(() =>
+  import('@/features/reports/pages/ReportsPage').then((m) => ({ default: m.ReportsPage }))
+);
+
+// ── Customers ──
+const CustomersPage = lazy(() =>
+  import('@/features/customers/pages/CustomersPage').then((m) => ({ default: m.CustomersPage }))
+);
+const CustomerDetailPage = lazy(() =>
+  import('@/features/customers/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage }))
+);
+
+// ── Settings ──
+const SettingsPage = lazy(() =>
+  import('@/features/settings/pages/SettingsPage').then((m) => ({ default: m.SettingsPage }))
+);
+const RolesPage = lazy(() =>
+  import('@/features/settings/pages/RolesPage').then((m) => ({ default: m.RolesPage }))
+);
+const StaffPage = lazy(() =>
+  import('@/features/settings/pages/StaffPage').then((m) => ({ default: m.StaffPage }))
+);
+const BannersPage = lazy(() =>
+  import('@/features/settings/pages/BannersPage').then((m) => ({ default: m.BannersPage }))
+);
+const NotificationsPage = lazy(() =>
+  import('@/features/settings/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage }))
+);
+const AuditLogsPage = lazy(() =>
+  import('@/features/settings/pages/AuditLogsPage').then((m) => ({ default: m.AuditLogsPage }))
+);
 
 // ── Complaints & Special Requests ──
 const ComplaintDetailPage = lazy(() =>
@@ -145,9 +200,10 @@ function PlaceholderPage({ title }: { title: string }) {
 export function App() {
   return (
     <Providers>
-      <ToastContainer />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
+      <ErrorBoundary>
+        <ToastContainer />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           {/* ── Public routes ── */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
@@ -181,6 +237,25 @@ export function App() {
               <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<TripDetailPage />} />
               <Route path={ROUTES.TRIP_CREATE} element={<CreateTripPage />} />
               <Route path={ROUTES.DRIVERS} element={<DriversPage />} />
+              <Route path={ROUTES.DRIVER_DETAIL(':driverId')} element={<DriverDetailPage />} />
+
+              {/* Payments */}
+              <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
+              <Route path={ROUTES.PAYMENT_DETAIL(':paymentId')} element={<PaymentsPage />} />
+
+              {/* Support Tickets */}
+              <Route path={ROUTES.SUPPORT_TICKETS} element={<SupportTicketsPage />} />
+
+              {/* Reports */}
+              <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
+
+              {/* Special Orders */}
+              <Route path={ROUTES.SPECIAL_ORDERS} element={<SpecialOrdersPage />} />
+              <Route path={ROUTES.SPECIAL_ORDER_DETAIL(':requestId')} element={<SpecialOrderDetailPage />} />
+
+              {/* Customers */}
+              <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
+              <Route path={ROUTES.CUSTOMER_DETAIL(':customerId')} element={<CustomerDetailPage />} />
 
               {/* Orders */}
               <Route path={ROUTES.ORDERS} element={<OrdersPage />} />
@@ -194,6 +269,14 @@ export function App() {
               <Route path={ROUTES.WAREHOUSE_SETTINGS} element={<WarehouseSettingsPage />} />
               <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
 
+              {/* Settings */}
+              <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+              <Route path={ROUTES.SETTINGS_ROLES} element={<RolesPage />} />
+              <Route path={ROUTES.SETTINGS_STAFF} element={<StaffPage />} />
+              <Route path={ROUTES.SETTINGS_BANNERS} element={<BannersPage />} />
+              <Route path={ROUTES.SETTINGS_NOTIFICATIONS} element={<NotificationsPage />} />
+              <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
+
               {/* Operations sub-pages */}
               <Route path={ROUTES.COMPLAINT_DETAIL(':complaintId')} element={<ComplaintDetailPage />} />
               <Route path={ROUTES.SPECIAL_REQUEST_DETAIL(':requestId')} element={<SpecialRequestDetailPage />} />
@@ -205,6 +288,7 @@ export function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+    </ErrorBoundary>
     </Providers>
   );
 }

@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardWidgetsExpanded } from '../hooks/useDashboardStats';
@@ -7,6 +8,7 @@ import { WarehouseDashboard } from '../components/WarehouseDashboard';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TrendingUp, CalendarDays } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { getDefaultFilters, type DashboardFilterState } from '../components/DashboardFilterBar';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin Dashboard',
@@ -45,7 +47,15 @@ function getGreeting(): string {
 export function DashboardPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const { data, isLoading, error, refetch } = useDashboardWidgetsExpanded();
+  const [filters, setFilters] = useState<DashboardFilterState>(getDefaultFilters);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Merge partial filter updates into full state (no data loss)
+  const handleFilterChange = useCallback((partial: Partial<DashboardFilterState>) => {
+    setFilters((prev) => ({ ...prev, ...partial }));
+  }, []);
+
+  const { data, isLoading, error, refetch } = useDashboardWidgetsExpanded(filters);
 
   const role = user?.role ?? 'admin';
   const title = ROLE_LABELS[role] || 'Dashboard';
@@ -108,12 +118,50 @@ export function DashboardPage() {
       </div>
 
       {/* Role-specific dashboard */}
-      {role === 'admin' && <AdminDashboard data={data} isLoading={isLoading} />}
-      {role === 'operations' && <OperationsDashboard data={data} isLoading={isLoading} />}
-      {role === 'aggregation' && <WarehouseDashboard data={data} isLoading={isLoading} />}
+      {role === 'admin' && (
+        <AdminDashboard
+          data={data}
+          isLoading={isLoading}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded((p) => !p)}
+          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+        />
+      )}
+      {role === 'operations' && (
+        <OperationsDashboard
+          data={data}
+          isLoading={isLoading}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded((p) => !p)}
+          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+        />
+      )}
+      {role === 'aggregation' && (
+        <WarehouseDashboard
+          data={data}
+          isLoading={isLoading}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded((p) => !p)}
+          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+        />
+      )}
 
       {!['admin', 'operations', 'aggregation'].includes(role) && (
-        <AdminDashboard data={data} isLoading={isLoading} />
+        <AdminDashboard
+          data={data}
+          isLoading={isLoading}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded((p) => !p)}
+          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+        />
       )}
     </div>
   );

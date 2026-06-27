@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt } from '../hooks/useOrders';
+import { useTranslation } from 'react-i18next';
+import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder } from '../hooks/useOrders';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -11,8 +12,8 @@ import { useToastStore } from '@/stores/toastStore';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
   CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
+  CalendarDays, Building2, ArrowRightLeft,
 } from 'lucide-react';
-import type { OrderStatus } from '@/types/marketplace';
 import type { OrderDetail } from '../api/ordersApi';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
@@ -74,20 +75,30 @@ export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const id = parseInt(orderId || '0', 10);
+  const { t } = useTranslation();
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
   const updateStatus = useUpdateOrderStatus();
   const confirmReceipt = useConfirmWarehouseReceipt();
+  const rescheduleOrder = useRescheduleOrder();
+  const transferOrder = useTransferOrder();
   const addToast = useToastStore((s) => s.addToast);
   const [cancelModal, setCancelModal] = useState(false);
+  const [rescheduleModal, setRescheduleModal] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleTime, setRescheduleTime] = useState('');
+  const [rescheduleReason, setRescheduleReason] = useState('');
+  const [transferModal, setTransferModal] = useState(false);
+  const [transferWarehouseId, setTransferWarehouseId] = useState('');
+  const [transferReason, setTransferReason] = useState('');
 
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.ORDERS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Orders
+          <ArrowLeft size={16} /> {t('orders.detail.back')}
         </button>
         <ErrorState
-          title="Failed to load order"
+          title={t('orders.detail.errorTitle')}
           message={error instanceof Error ? error.message : 'An unexpected error occurred'}
           onRetry={() => refetch()}
         />
@@ -111,13 +122,24 @@ export function OrderDetailPage() {
   const getAvailableActions = (o: OrderDetail) => {
     const actions: Array<{ label: string; onClick: () => void; variant: 'primary' | 'danger' | 'secondary'; icon?: React.ReactNode }> = [];
     if (o.status === 'new' || o.status === 'pending_management') {
-      actions.push({ label: 'Confirm Order', onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'confirmed' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
+      actions.push({ label: t('orders.detail.confirmOrder'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'confirmed' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
     }
     if (o.status === 'confirmed') {
-      actions.push({ label: 'Confirm Receipt', onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
+      actions.push({ label: t('orders.detail.confirmReceipt'), onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
     }
     if (!['delivered', 'cancelled', 'refunded'].includes(o.status)) {
-      actions.push({ label: 'Cancel Order', onClick: () => setCancelModal(true), variant: 'danger', icon: <XCircle size={14} /> });
+      actions.push({ label: t('orders.detail.reschedule'), onClick: () => {
+        setRescheduleDate('');
+        setRescheduleTime('');
+        setRescheduleReason('');
+        setRescheduleModal(true);
+      }, variant: 'secondary', icon: <CalendarDays size={14} /> });
+      actions.push({ label: t('orders.detail.transfer'), onClick: () => {
+        setTransferWarehouseId('');
+        setTransferReason('');
+        setTransferModal(true);
+      }, variant: 'secondary', icon: <ArrowRightLeft size={14} /> });
+      actions.push({ label: t('orders.detail.cancelOrder'), onClick: () => setCancelModal(true), variant: 'danger', icon: <XCircle size={14} /> });
     }
     return actions;
   };
@@ -128,7 +150,7 @@ export function OrderDetailPage() {
     <div className="space-y-6 animate-fade-up">
       {/* Back + Hero */}
       <button onClick={() => navigate(ROUTES.ORDERS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Orders
+        <ArrowLeft size={16} /> {t('orders.detail.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
@@ -167,21 +189,21 @@ export function OrderDetailPage() {
 
       {/* 4 Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <OrderInfoCard icon={<Phone size={16} />} label="Customer">
+        <OrderInfoCard icon={<Phone size={16} />} label={t('orders.detail.customer')}>
           <p className="font-bold text-text-primary">{order.customerName}</p>
           <p className="text-text-secondary text-xs mt-0.5">{order.customerPhone}</p>
           {order.customerEmail && <p className="text-text-secondary text-xs truncate">{order.customerEmail}</p>}
           {order.deliveryAddress && <p className="text-text-tertiary text-xs mt-0.5 flex items-center gap-1"><MapPin size={10} />{order.deliveryAddress}</p>}
         </OrderInfoCard>
 
-        <OrderInfoCard icon={<Package size={16} />} label="Order Info">
-          <p>Status: <span className="font-bold">{STATUS_LABELS[order.status] || order.status}</span></p>
-          <p className="text-xs text-text-secondary">Type: {order.orderType}</p>
-          <p className="text-xs text-text-secondary">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</p>
-          <p className="text-xs text-text-secondary">Created: {new Date(order.createdAt).toLocaleDateString()}</p>
+        <OrderInfoCard icon={<Package size={16} />} label={t('orders.detail.orderInfo')}>
+          <p>{t('orders.detail.status')}: <span className="font-bold">{STATUS_LABELS[order.status] || order.status}</span></p>
+          <p className="text-xs text-text-secondary">{t('orders.detail.type')}: {order.orderType}</p>
+          <p className="text-xs text-text-secondary">{t('orders.detail.items', { count: order.items.length })}</p>
+          <p className="text-xs text-text-secondary">{t('orders.detail.created')}: {new Date(order.createdAt).toLocaleDateString()}</p>
         </OrderInfoCard>
 
-        <OrderInfoCard icon={<Truck size={16} />} label="Delivery">
+        <OrderInfoCard icon={<Truck size={16} />} label={t('orders.detail.delivery')}>
           <p className="text-xs">{order.warehouseName || order.deliveryZone || '—'}{order.deliveryZone && order.warehouseName ? ` · ${order.deliveryZone}` : ''}</p>
           {order.supplierName && <p className="text-xs text-text-secondary">Supplier: {order.supplierName}</p>}
           {order.scheduledDate ? (
@@ -189,15 +211,15 @@ export function OrderDetailPage() {
               <Clock size={10} />{new Date(order.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </p>
           ) : (
-            <p className="text-xs text-text-tertiary">Not scheduled</p>
+            <p className="text-xs text-text-tertiary">{t('orders.detail.notScheduled')}</p>
           )}
         </OrderInfoCard>
 
-        <OrderInfoCard icon={<CreditCard size={16} />} label="Payment">
+        <OrderInfoCard icon={<CreditCard size={16} />} label={t('orders.detail.payment')}>
           <p className="text-lg font-extrabold text-text-primary font-display">{order.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} SAR</p>
           <div className="flex items-center gap-2 text-xs text-text-secondary mt-0.5">
-            <span>Sub: {order.subtotal.toFixed(2)}</span>
-            <span>Fee: {order.deliveryFee.toFixed(2)}</span>
+            <span>{t('orders.detail.subtotal')}: {order.subtotal.toFixed(2)}</span>
+            <span>{t('orders.detail.deliveryFee')}: {order.deliveryFee.toFixed(2)}</span>
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{order.paymentStatus}</Badge>
@@ -210,16 +232,16 @@ export function OrderDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Package size={16} className="text-brand-accent" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Order Items ({order.items.length})</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.orderItems', { count: order.items.length })}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm font-body">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left py-2.5 pr-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Item</th>
-                <th className="text-center py-2.5 px-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Qty</th>
-                <th className="text-right py-2.5 px-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Unit Price</th>
-                <th className="text-right py-2.5 pl-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Total</th>
+                <th className="text-left py-2.5 pr-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.item')}</th>
+                <th className="text-center py-2.5 px-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.qty')}</th>
+                <th className="text-right py-2.5 px-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.unitPrice')}</th>
+                <th className="text-right py-2.5 pl-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.total')}</th>
               </tr>
             </thead>
             <tbody>
@@ -236,15 +258,15 @@ export function OrderDetailPage() {
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-border-default">
-                <td colSpan={3} className="py-3 pr-4 text-right text-sm text-text-secondary font-body">Subtotal</td>
+                <td colSpan={3} className="py-3 pr-4 text-right text-sm text-text-secondary font-body">{t('orders.detail.subtotal')}</td>
                 <td className="py-3 pl-4 text-right text-sm text-text-secondary font-body">{order.subtotal.toFixed(2)} SAR</td>
               </tr>
               <tr>
-                <td colSpan={3} className="py-1 pr-4 text-right text-sm text-text-secondary font-body">Delivery Fee</td>
+                <td colSpan={3} className="py-1 pr-4 text-right text-sm text-text-secondary font-body">{t('orders.detail.deliveryFee')}</td>
                 <td className="py-1 pl-4 text-right text-sm text-text-secondary font-body">{order.deliveryFee.toFixed(2)} SAR</td>
               </tr>
               <tr className="text-base">
-                <td colSpan={3} className="py-3 pr-4 text-right font-extrabold text-text-primary font-display">Total</td>
+                <td colSpan={3} className="py-3 pr-4 text-right font-extrabold text-text-primary font-display">{t('orders.detail.totalLabel')}</td>
                 <td className="py-3 pl-4 text-right font-extrabold text-brand-accent font-display">{order.total.toFixed(2)} SAR</td>
               </tr>
             </tfoot>
@@ -252,13 +274,13 @@ export function OrderDetailPage() {
         </div>
         {order.customerNotes && (
           <div className="mt-4 p-3 rounded-xl bg-brand-accent-light/50 border border-brand-accent/10">
-            <p className="text-xs font-bold text-brand-accent uppercase tracking-wider font-body mb-1">Customer Notes</p>
+            <p className="text-xs font-bold text-brand-accent uppercase tracking-wider font-body mb-1">{t('orders.detail.customerNotes')}</p>
             <p className="text-sm text-text-primary font-body">{order.customerNotes}</p>
           </div>
         )}
         {order.internalNotes && (
           <div className="mt-3 p-3 rounded-xl bg-brand-primary-light/50 border border-brand-primary/10">
-            <p className="text-xs font-bold text-brand-primary uppercase tracking-wider font-body mb-1">Internal Notes</p>
+            <p className="text-xs font-bold text-brand-primary uppercase tracking-wider font-body mb-1">{t('orders.detail.internalNotes')}</p>
             <p className="text-sm text-text-primary font-body">{order.internalNotes}</p>
           </div>
         )}
@@ -269,13 +291,13 @@ export function OrderDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-5">
             <Clock size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Order Timeline</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.orderTimeline')}</h3>
           </div>
           <div className="relative pl-8">
             {/* Vertical line */}
             <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-default" />
             {order.timeline.map((log, idx) => (
-              <div key={idx} className="relative pb-6 last:pb-0">
+              <div key={idx} className="relative pb-10 last:pb-0">
                 <div className={cn(
                   'absolute -left-[23px] w-[22px] h-[22px] rounded-full border-2 border-white flex items-center justify-center',
                   idx === order.timeline.length - 1 ? 'bg-brand-accent' : 'bg-white'
@@ -295,7 +317,7 @@ export function OrderDetailPage() {
                     </span>
                   </div>
                   <p className="text-xs text-text-secondary font-body mt-0.5">
-                    {log.actor === 'system' ? 'System' : `by ${log.actor}`}
+                    {log.actor === 'system' ? 'System' : t('orders.detail.by', { actor: log.actor })}
                     {log.fromStatus && ` (from ${STATUS_LABELS[log.fromStatus.toLowerCase()] || log.fromStatus})`}
                   </p>
                 </div>
@@ -310,7 +332,7 @@ export function OrderDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <CreditCard size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Payments</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.payments')}</h3>
           </div>
           {order.payments.map((p, idx) => (
             <div key={idx} className="flex items-center justify-between py-3 border-b border-border-default/50 last:border-0">
@@ -330,21 +352,122 @@ export function OrderDetailPage() {
       )}
 
       {/* Cancel Modal */}
-      <Modal open={cancelModal} onClose={() => setCancelModal(false)} title={`Cancel ${order.orderNumber}`}>
+      <Modal open={cancelModal} onClose={() => setCancelModal(false)} title={t('orders.detail.cancelModalTitle', { number: order.orderNumber })}>
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-100">
             <AlertTriangle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-red-700 font-body">
-              Are you sure you want to cancel this order? This action cannot be undone. The customer will be notified.
+              {t('orders.detail.cancelModalWarning')}
             </p>
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setCancelModal(false)}>Keep Order</Button>
+            <Button variant="secondary" size="sm" onClick={() => setCancelModal(false)}>{t('orders.detail.keepOrder')}</Button>
             <Button variant="danger" size="sm" isLoading={updateStatus.isPending} onClick={() => {
               updateStatus.mutate({ orderId: order.id, newStatus: 'cancelled' });
               setCancelModal(false);
             }}>
-              Yes, Cancel Order
+              {t('orders.detail.yesCancel')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Reschedule Modal */}
+      <Modal open={rescheduleModal} onClose={() => setRescheduleModal(false)} title={t('orders.detail.rescheduleTitle', { number: order.orderNumber })}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.newDate')}</label>
+              <input
+                type="date"
+                value={rescheduleDate}
+                onChange={(e) => setRescheduleDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.newTime')}</label>
+              <input
+                type="time"
+                value={rescheduleTime}
+                onChange={(e) => setRescheduleTime(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.rescheduleReason')}</label>
+            <textarea
+              rows={2}
+              value={rescheduleReason}
+              onChange={(e) => setRescheduleReason(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
+              placeholder={t('orders.detail.reschedulePlaceholder')}
+            />
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
+            <CalendarDays size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700 font-body">{t('orders.detail.rescheduleWarning')}</p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setRescheduleModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="accent" size="sm" isLoading={rescheduleOrder.isPending} disabled={!rescheduleDate} onClick={() => {
+              const scheduledAt = rescheduleTime
+                ? `${rescheduleDate}T${rescheduleTime}:00`
+                : rescheduleDate;
+              rescheduleOrder.mutate({
+                orderId: order.id,
+                scheduledDate: scheduledAt,
+                reason: rescheduleReason,
+              });
+              setRescheduleModal(false);
+            }}>
+              {t('orders.detail.confirmReschedule')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Transfer Modal */}
+      <Modal open={transferModal} onClose={() => setTransferModal(false)} title={t('orders.detail.transferTitle', { number: order.orderNumber })}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.transferWarehouse')}</label>
+            <input
+              type="number"
+              value={transferWarehouseId}
+              onChange={(e) => setTransferWarehouseId(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              placeholder={t('orders.detail.warehouseIdPlaceholder')}
+              min="1"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.transferReason')}</label>
+            <textarea
+              rows={2}
+              value={transferReason}
+              onChange={(e) => setTransferReason(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
+              placeholder={t('orders.detail.transferPlaceholder')}
+            />
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+            <Building2 size={18} className="text-blue-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-700 font-body">{t('orders.detail.transferWarning')}</p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setTransferModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="accent" size="sm" isLoading={transferOrder.isPending} disabled={!transferWarehouseId} onClick={() => {
+              transferOrder.mutate({
+                orderId: order.id,
+                warehouseId: parseInt(transferWarehouseId),
+                reason: transferReason,
+              });
+              setTransferModal(false);
+            }}>
+              {t('orders.detail.confirmTransfer')}
             </Button>
           </div>
         </div>

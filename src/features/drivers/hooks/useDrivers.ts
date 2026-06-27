@@ -5,6 +5,7 @@ import { useToastStore } from '@/stores/toastStore';
 export const driverKeys = {
   all: ['drivers'] as const,
   pageData: () => [...driverKeys.all, 'page-data'] as const,
+  detail: (id: number) => [...driverKeys.all, 'detail', id] as const,
 };
 
 export function useDriversPage() {
@@ -21,7 +22,7 @@ export function useToggleDriverAvailability() {
   return useMutation({
     mutationFn: (id: number) => driversApi.toggleAvailability(id),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: driverKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: driverKeys.all });
       addToast('success', data.isAvailable ? 'Driver marked available' : 'Driver marked unavailable');
     },
     onError: () => addToast('error', 'Failed to update driver status'),

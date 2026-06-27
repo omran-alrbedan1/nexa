@@ -36,7 +36,7 @@ export function useUpdateOrderStatus() {
 
   return useMutation({
     mutationFn: ({ orderId, newStatus }: { orderId: number; newStatus: string }) =>
-      ordersApi.updateOrderStatus(orderId, newStatus as any),
+      ordersApi.updateOrderStatus(orderId, newStatus as Parameters<typeof ordersApi.updateOrderStatus>[1]),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       const label =
@@ -65,6 +65,40 @@ export function useConfirmWarehouseReceipt() {
     },
     onError: () => {
       addToast('error', 'Failed to confirm warehouse receipt');
+    },
+  });
+}
+
+export function useRescheduleOrder() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ orderId, scheduledDate, reason }: { orderId: number; scheduledDate: string; reason: string }) =>
+      ordersApi.rescheduleOrder(orderId, scheduledDate, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+      addToast('success', 'Order rescheduled');
+    },
+    onError: () => {
+      addToast('error', 'Failed to reschedule order');
+    },
+  });
+}
+
+export function useTransferOrder() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ orderId, warehouseId, reason }: { orderId: number; warehouseId: number; reason: string }) =>
+      ordersApi.transferOrder(orderId, warehouseId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+      addToast('success', 'Order transferred');
+    },
+    onError: () => {
+      addToast('error', 'Failed to transfer order');
     },
   });
 }

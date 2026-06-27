@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { tripsApi, type DashboardTrip } from '../api/tripsApi';
-import { useAssignDriver, useStartTrip, useCompleteTrip } from '../hooks/useTrips';
+import { useAssignDriver, useStartTrip, useCompleteTrip, tripKeys } from '../hooks/useTrips';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useToastStore } from '@/stores/toastStore';
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
-  CheckCircle2, XCircle, ShoppingCart, Phone, Warehouse,
+  CheckCircle2, ShoppingCart, Warehouse,
 } from 'lucide-react';
-import { tripKeys } from '../hooks/useTrips';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
   scheduled: 'purple', assigned: 'yellow', accepted: 'teal',
@@ -34,8 +33,8 @@ export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const navigate = useNavigate();
   const id = parseInt(tripId || '0', 10);
-  const queryClient = useQueryClient();
-  const addToast = useToastStore((s) => s.addToast);
+  const { t } = useTranslation();
+
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
   const completeTrip = useCompleteTrip();
@@ -63,9 +62,9 @@ export function TripDetailPage() {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.TRIPS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Trips
+          <ArrowLeft size={16} /> {t('trips.detail.back')}
         </button>
-        <ErrorState title="Failed to load trip" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+        <ErrorState title={t('trips.detail.errorTitle')} message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -87,7 +86,7 @@ export function TripDetailPage() {
   return (
     <div className="space-y-6 animate-fade-up">
       <button onClick={() => navigate(ROUTES.TRIPS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Trips
+        <ArrowLeft size={16} /> {t('trips.detail.back')}
       </button>
 
       {/* Hero */}
@@ -110,17 +109,17 @@ export function TripDetailPage() {
             <div className="flex items-center gap-2 flex-shrink-0">
               {trip.status === 'scheduled' && !trip.driverId && (
                 <Button variant="primary" size="sm" leftIcon={<User size={14} />} onClick={() => setAssignModal({ open: true, driverId: 0, driverName: '' })}>
-                  Assign Driver
+                  {t('trips.detail.assignButton')}
                 </Button>
               )}
               {(trip.status === 'scheduled' || trip.status === 'assigned') && (
                 <Button variant="primary" size="sm" leftIcon={<Navigation size={14} />} isLoading={startTrip.isPending} onClick={() => startTrip.mutate(trip.id)}>
-                  Start Trip
+                  {t('trips.list.startTrip')}
                 </Button>
               )}
               {trip.status === 'in_progress' && (
                 <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={completeTrip.isPending} onClick={() => completeTrip.mutate(trip.id)}>
-                  Complete
+                  {t('trips.list.complete')}
                 </Button>
               )}
             </div>
@@ -137,13 +136,11 @@ export function TripDetailPage() {
               <User size={16} />
             </div>
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">Driver</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('trips.detail.driver')}</p>
               {trip.driverName ? (
-                <>
-                  <p className="text-sm font-bold text-text-primary">{trip.driverName}</p>
-                </>
+                <p className="text-sm font-bold text-text-primary">{trip.driverName}</p>
               ) : (
-                <p className="text-sm text-amber-600 font-bold">Unassigned</p>
+                <p className="text-sm text-amber-600 font-bold">{t('trips.detail.unassigned')}</p>
               )}
             </div>
           </div>
@@ -154,7 +151,7 @@ export function TripDetailPage() {
               <Warehouse size={16} />
             </div>
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">Region</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('trips.detail.region')}</p>
               <p className="text-sm font-bold text-text-primary">{trip.regionName}</p>
               <p className="text-xs text-text-secondary">{trip.clusterName}</p>
             </div>
@@ -166,7 +163,7 @@ export function TripDetailPage() {
               <Calendar size={16} />
             </div>
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">Schedule</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('trips.detail.schedule')}</p>
               <p className="text-sm font-bold text-text-primary">{new Date(trip.scheduledDate).toLocaleDateString()}</p>
               <p className="text-xs text-text-secondary">{trip.timeSlot}</p>
             </div>
@@ -178,9 +175,9 @@ export function TripDetailPage() {
               <ShoppingCart size={16} />
             </div>
             <div>
-              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">Stats</p>
-              <p className="text-sm font-bold text-text-primary">{trip.orderCount} orders</p>
-              <p className="text-xs text-text-secondary">{trip.totalValue.toLocaleString()} SAR · {trip.completedOrders}/{trip.orderCount} done</p>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('trips.detail.stats')}</p>
+              <p className="text-sm font-bold text-text-primary">{t('trips.detail.total', { count: trip.orderCount })}</p>
+              <p className="text-xs text-text-secondary">{trip.totalValue.toLocaleString()} SAR · {t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</p>
             </div>
           </div>
         </Card>
@@ -190,16 +187,16 @@ export function TripDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <ShoppingCart size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Orders on this Trip</h3>
-          <span className="text-xs text-text-tertiary">({trip.orderCount} total)</span>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.ordersOnTrip')}</h3>
+          <span className="text-xs text-text-tertiary">{t('trips.detail.total', { count: trip.orderCount })}</span>
         </div>
         <p className="text-sm text-text-secondary font-body">
-          Order details for this trip will appear here once the backend provides order data.
+          {t('trips.detail.orderDetailsPlaceholder')}
         </p>
         <div className="mt-3 flex items-center gap-4 text-xs text-text-tertiary font-body">
-          <span className="font-bold text-text-primary">{trip.completedOrders} delivered</span>
-          <span>{trip.failedOrders} failed</span>
-          <span>{trip.orderCount - trip.completedOrders - trip.failedOrders} pending</span>
+          <span className="font-bold text-text-primary">{t('trips.detail.delivered', { count: trip.completedOrders })}</span>
+          <span>{t('trips.detail.failed', { count: trip.failedOrders })}</span>
+          <span>{t('trips.detail.pending', { count: trip.orderCount - trip.completedOrders - trip.failedOrders })}</span>
         </div>
       </Card>
 
@@ -207,7 +204,7 @@ export function TripDetailPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-5">
           <Clock size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Trip Timeline</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.tripTimeline')}</h3>
         </div>
         <div className="relative pl-8">
           <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-default" />
@@ -217,7 +214,7 @@ export function TripDetailPage() {
             ...(trip.startedAt ? [{ status: 'Started', time: trip.startedAt, actor: 'System' }] : []),
             ...(trip.completedAt ? [{ status: 'Completed', time: trip.completedAt, actor: trip.driverName || 'System' }] : []),
           ].map((step, idx, arr) => (
-            <div key={idx} className="relative pb-6 last:pb-0">
+            <div key={idx} className="relative pb-10 last:pb-0">
               <div className={cn(
                 'absolute -left-[23px] w-[22px] h-[22px] rounded-full border-2 border-white flex items-center justify-center',
                 idx === arr.length - 1 ? 'bg-brand-primary' : 'bg-white'
@@ -229,7 +226,7 @@ export function TripDetailPage() {
                 <span className="text-xs text-text-tertiary font-body ml-2">
                   {new Date(step.time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
-                <p className="text-xs text-text-secondary font-body mt-0.5">by {step.actor}</p>
+                <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.detail.by', { actor: step.actor })}</p>
               </div>
             </div>
           ))}
@@ -241,16 +238,16 @@ export function TripDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-2">
             <MapPin size={16} className="text-amber-600" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Notes</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.notes')}</h3>
           </div>
           <p className="text-sm text-text-secondary font-body">{trip.notes}</p>
         </Card>
       )}
 
       {/* Assign Driver Modal */}
-      <Modal open={assignModal.open} onClose={() => setAssignModal({ ...assignModal, open: false })} title={`Assign Driver — ${trip.tripNumber}`}>
+      <Modal open={assignModal.open} onClose={() => setAssignModal({ ...assignModal, open: false })} title={t('trips.detail.assignModalTitle', { trip: trip.tripNumber })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Select a driver for {trip.regionName}</p>
+          <p className="text-sm text-text-secondary font-body">{t('trips.detail.selectDriverLabel', { region: trip.regionName })}</p>
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {availableDrivers.filter((d) => !d.regionName || d.regionName === trip.regionName).map((driver) => (
               <button
@@ -270,7 +267,7 @@ export function TripDetailPage() {
                   <div>
                     <p className="text-sm font-bold text-text-primary">{driver.name}</p>
                     <p className="text-xs text-text-secondary">
-                      {driver.regionName} · {driver.isAvailable ? <span className="text-green-600 font-bold">Available</span> : <span className="text-amber-600 font-bold">On Trip</span>}
+                      {driver.regionName} · {driver.isAvailable ? <span className="text-green-600 font-bold">{t('trips.detail.available')}</span> : <span className="text-amber-600 font-bold">{t('trips.detail.onTrip')}</span>}
                     </p>
                   </div>
                 </div>
@@ -278,12 +275,12 @@ export function TripDetailPage() {
             ))}
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>{t('trips.detail.cancel')}</Button>
             <Button variant="primary" size="sm" disabled={!assignModal.driverId} isLoading={assignDriver.isPending} onClick={() => {
               if (!assignModal.driverId) return;
-              assignDriver.mutate({ tripId: trip.id, driverId: assignModal.driverId, driverName: assignModal.driverName });
+              assignDriver.mutate({ tripId: trip.id, driverId: assignModal.driverId });
               setAssignModal({ ...assignModal, open: false });
-            }}>Assign Driver</Button>
+            }}>{t('trips.detail.assignButton')}</Button>
           </div>
         </div>
       </Modal>

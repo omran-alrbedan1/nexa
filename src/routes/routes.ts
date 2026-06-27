@@ -40,6 +40,10 @@ export const ROUTES = {
   COMPLAINT_DETAIL: (complaintId: number | string) => `/complaints/${complaintId}`,
   SPECIAL_REQUEST_DETAIL: (requestId: number | string) => `/special-requests/${requestId}`,
 
+  // Dedicated Special Orders
+  SPECIAL_ORDERS: '/special-orders',
+  SPECIAL_ORDER_DETAIL: (id: number | string) => `/special-orders/${id}`,
+
   // Products management
   PRODUCTS: '/products',
   PRODUCT_CREATE: '/products/create',
@@ -53,4 +57,29 @@ export const ROUTES = {
 
   // Drivers
   DRIVERS: '/drivers',
+
+  // Customers
+  CUSTOMERS: '/customers',
+  CUSTOMER_DETAIL: (customerId: number | string) => `/customers/${customerId}`,
+
+  // Payments
+  PAYMENTS: '/payments',
+  PAYMENT_DETAIL: (paymentId: number | string) => `/payments/${paymentId}`,
+
+  // Support Tickets
+  SUPPORT_TICKETS: '/support',
+
+  // Reports
+  REPORTS: '/reports',
+
+  // Driver detail
+  DRIVER_DETAIL: (driverId: number | string) => `/drivers/${driverId}`,
+
+  // Settings
+  SETTINGS: '/settings',
+  SETTINGS_ROLES: '/settings/roles',
+  SETTINGS_STAFF: '/settings/staff',
+  SETTINGS_BANNERS: '/settings/banners',
+  SETTINGS_NOTIFICATIONS: '/settings/notifications',
+  SETTINGS_AUDIT: '/settings/audit',
 } as const;

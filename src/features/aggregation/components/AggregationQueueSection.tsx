@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -30,6 +31,7 @@ interface AggregationQueueSectionProps {
 }
 
 export function AggregationQueueSection({ items, isLoading }: AggregationQueueSectionProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
   const [search, setSearch] = useState('');
@@ -44,7 +46,7 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
     queued: 0, processing: 1, packed: 2, completed: 3,
   };
 
-  let displayItems = [...items];
+  const displayItems = [...items];
   if (sortByPriority) {
     displayItems.sort((a, b) => priorityOrder[a.status] - priorityOrder[b.status]);
   }
@@ -211,7 +213,7 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}
+            onClick={() => navigate('/aggregation')}
           >
             {t('warehouse.aggregationQueue.viewFullQueue')} →
           </button>

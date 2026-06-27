@@ -5,13 +5,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
+import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalette';
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   LayoutDashboard, ClipboardList, Truck, Warehouse, Users,
   Map, Megaphone, Package, Menu, Bell, X,
-  LogOut, ChevronRight, Search, Sun, Moon,
+  LogOut, ChevronRight, Search, Sun, Moon, Settings2,
+  CreditCard, LifeBuoy, BarChart3, FileClock,
 } from 'lucide-react';
 
 interface NavItem {
@@ -31,6 +33,12 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { to: ROUTES.REGIONS, label: 'nav.regions', icon: <Map size={20} />, roles: ['admin', 'operations'] },
   { to: ROUTES.CAMPAIGNS, label: 'nav.campaigns', icon: <Megaphone size={20} />, roles: ['admin', 'operations'] },
   { to: ROUTES.PRODUCTS, label: 'nav.products', icon: <Package size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.REPORTS, label: 'nav.reports', icon: <BarChart3 size={20} />, roles: ['admin'] },
+  { to: ROUTES.SPECIAL_ORDERS, label: 'nav.specialOrders', icon: <FileClock size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.CUSTOMERS, label: 'nav.customers', icon: <Users size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.PAYMENTS, label: 'nav.payments', icon: <CreditCard size={20} />, roles: ['admin'] },
+  { to: ROUTES.SUPPORT_TICKETS, label: 'nav.support', icon: <LifeBuoy size={20} />, roles: ['admin', 'operations'] },
+  { to: ROUTES.SETTINGS, label: 'nav.settings', icon: <Settings2 size={20} />, roles: ['admin'] },
 ];
 
 export function AppLayout() {
@@ -42,6 +50,7 @@ export function AppLayout() {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { open: commandOpen, setOpen: setCommandOpen } = useCommandPalette();
 
   const handleLogout = async () => {
     await logout();
@@ -144,6 +153,9 @@ export function AppLayout() {
         </div>
       </aside>
 
+      {/* ── Command Palette ── */}
+      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} userRole={user?.role} />
+
       {/* ── Notifications Panel ── */}
       <NotificationsPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
 
@@ -169,14 +181,18 @@ export function AppLayout() {
             </div>
 
             {/* Search - Desktop */}
-            <div className="hidden md:flex relative flex-1 max-w-md mx-6">
-              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
-              <input
-                type="text"
-                placeholder={t('app.searchPlaceholder')}
-                className="w-full pl-10 pr-4 py-2 bg-bg-input border border-border-default rounded-full text-sm font-body text-text-primary outline-none transition-all focus:border-brand-primary focus:ring-2 focus:ring-brand-primary-light"
-              />
-            </div>
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="hidden md:flex relative flex-1 max-w-md mx-6 group"
+            >
+              <div className="w-full flex items-center gap-2 pl-10 pr-4 py-2 bg-bg-input border border-border-default rounded-full text-sm font-body text-text-tertiary outline-none transition-all group-hover:border-brand-primary/50 group-hover:bg-white cursor-pointer">
+                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <span>{t('app.searchPlaceholder')}</span>
+                <span className="ml-auto flex items-center gap-0.5 text-[11px] text-text-tertiary bg-bg-section-alt px-1.5 py-0.5 rounded-md border border-border-default font-mono">
+                  <span className="text-xs">⌘</span>K
+                </span>
+              </div>
+            </button>
 
             {/* Right Section */}
             <div className="flex items-center gap-1">
@@ -208,14 +224,15 @@ export function AppLayout() {
 
           {/* Mobile Search */}
           <div className="md:hidden px-4 pb-3">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-full text-sm font-body text-text-primary outline-none transition-all focus:border-brand-primary"
-              />
-            </div>
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="relative w-full"
+            >
+              <div className="w-full flex items-center gap-2 pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-full text-sm font-body text-text-tertiary outline-none transition-all hover:border-brand-primary/50 hover:bg-white cursor-pointer text-left">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <span>{t('app.searchPlaceholder')}</span>
+              </div>
+            </button>
           </div>
         </header>
 

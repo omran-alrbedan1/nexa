@@ -1,18 +1,19 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
+import { useApproveSupplier, useSuspendSupplier, useSupplierProducts } from '../hooks/useSuppliers';
 import { suppliersApi } from '../api/suppliersApi';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useToastStore } from '@/stores/toastStore';
+
 import { useState } from 'react';
 import {
   ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2,
-  Percent, Phone, Mail, MapPin, CreditCard, FileText, Package, AlertTriangle,
+  Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle,
 } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
 import type { Supplier } from '../api/suppliersApi';
@@ -21,22 +22,131 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green', inactive: 'yellow', suspended: 'red', pending_approval: 'purple',
 };
 
-const STAT_CONFIG = [
-  { key: 'totalOrders', label: 'Total Orders', icon: ShoppingCart, variant: 'teal' as const },
-  { key: 'totalRevenue', label: 'Revenue', icon: TrendingUp, variant: 'success' as const, suffix: '' },
-  { key: 'rating', label: 'Rating', icon: Star, variant: 'warning' as const, suffix: '/5', format: 'toFixed1' as const },
-  { key: 'acceptanceRate', label: 'Acceptance Rate', icon: Percent, variant: 'teal' as const, suffix: '%' },
-  { key: 'commissionRate', label: 'Commission', icon: Percent, variant: 'coral' as const, suffix: '%' },
-];
-
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
+}
+
+// ── Supplier Products Section ──
+
+function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (key: string, opts?: any) => string }) {
+  const navigate = useNavigate();
+  const { data: products, isLoading, isError, refetch } = useSupplierProducts(supplierId);
+
+  if (isLoading) {
+    return (
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-4">
+          <Package size={16} className="text-brand-primary" />
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.products')}</h3>
+        </div>
+        <div className="space-y-3 animate-pulse">
+          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-gray-100 rounded-xl" />)}
+        </div>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-4">
+          <Package size={16} className="text-brand-primary" />
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.products')}</h3>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-status-error font-body">{t('common.error')}</p>
+          <Button variant="secondary" size="sm" onClick={() => refetch()}>{t('common.retry')}</Button>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Package size={16} className="text-brand-primary" />
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.products')}</h3>
+          {products && products.length > 0 && (
+            <span className="text-xs text-text-tertiary font-body">({products.length})</span>
+          )}
+        </div>
+      </div>
+
+      {!products || products.length === 0 ? (
+        <p className="text-sm text-text-secondary font-body">{t('suppliers.detail.productsPlaceholder')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm font-body">
+            <thead>
+              <tr className="border-b border-border-default">
+                <th className="text-left py-2.5 pr-3 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('products.detail.productDetails')}</th>
+                <th className="text-right py-2.5 px-3 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('products.detail.price')}</th>
+                <th className="text-center py-2.5 px-3 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('products.detail.stock')}</th>
+                <th className="text-left py-2.5 px-3 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('products.detail.category')}</th>
+                <th className="text-center py-2.5 pl-3 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('common.status')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr
+                  key={product.id}
+                  className="border-b border-border-default/50 last:border-0 hover:bg-bg-section-alt/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(ROUTES.PRODUCT_DETAIL(product.id))}
+                >
+                  <td className="py-3 pr-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-9 h-9 flex-shrink-0">
+                        {product.imageUrl ? (
+                          <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full rounded-lg object-cover border border-border-default/60" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        ) : null}
+                        <div className="w-9 h-9 rounded-lg bg-brand-primary-light flex items-center justify-center">
+                          <Package size={15} className="text-brand-primary" />
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-text-primary font-body truncate">{product.name}</p>
+                        <p className="text-xs text-text-tertiary font-body">{product.unit}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3 px-3 text-right">
+                    <span className="text-sm font-extrabold text-text-primary font-display">{product.price.toFixed(2)}</span>
+                    <span className="text-xs text-text-tertiary ml-1">SAR</span>
+                  </td>
+                  <td className="py-3 px-3 text-center">
+                    <span className={cn(
+                      'text-sm font-bold',
+                      product.stockQuantity === 0 ? 'text-status-error' :
+                      product.stockQuantity < 20 ? 'text-status-warning' :
+                      'text-text-primary'
+                    )}>
+                      {product.stockQuantity}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 text-left">
+                    <span className="text-sm text-text-secondary">{product.categoryName}</span>
+                  </td>
+                  <td className="py-3 pl-3 text-center">
+                    <Badge variant={product.isAvailable ? 'green' : 'red'} size="sm">
+                      {product.isAvailable ? t('common.active') : t('common.inactive')}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
 }
 
 export function SupplierDetailPage() {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
   const id = parseInt(supplierId || '0', 10);
+  const { t } = useTranslation();
 
   const { data: supplier, isLoading, isError, error, refetch } = useQuery<Supplier>({
     queryKey: supplierKeys.detail(id),
@@ -48,17 +158,24 @@ export function SupplierDetailPage() {
 
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
-  const addToast = useToastStore((s) => s.addToast);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
+
+  const STAT_CONFIG = [
+    { key: 'totalOrders', label: t('suppliers.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const },
+    { key: 'totalRevenue', label: t('suppliers.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '' },
+    { key: 'rating', label: t('suppliers.detail.rating'), icon: Star, variant: 'warning' as const, suffix: '/5', format: 'toFixed1' as const },
+    { key: 'acceptanceRate', label: t('suppliers.detail.acceptanceRate'), icon: Percent, variant: 'teal' as const, suffix: '%' },
+    { key: 'commissionRate', label: t('suppliers.detail.commissionRate'), icon: Percent, variant: 'coral' as const, suffix: '%' },
+  ];
 
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.SUPPLIERS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Suppliers
+          <ArrowLeft size={16} /> {t('suppliers.detail.back')}
         </button>
         <ErrorState
-          title="Failed to load supplier"
+          title={t('suppliers.detail.errorTitle')}
           message={error instanceof Error ? error.message : 'An unexpected error occurred'}
           onRetry={() => refetch()}
         />
@@ -96,7 +213,7 @@ export function SupplierDetailPage() {
     <div className="space-y-6 animate-fade-up">
       {/* Back */}
       <button onClick={() => navigate(ROUTES.SUPPLIERS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Suppliers
+        <ArrowLeft size={16} /> {t('suppliers.detail.back')}
       </button>
 
       {/* Hero */}
@@ -120,12 +237,12 @@ export function SupplierDetailPage() {
             <div className="flex items-center gap-2 flex-shrink-0">
               {supplier.status === 'pending_approval' && (
                 <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approveSupplier.isPending} onClick={() => approveSupplier.mutate(supplier.id)}>
-                  Approve
+                  {t('suppliers.list.approve')}
                 </Button>
               )}
               {supplier.status === 'active' && (
                 <Button variant="danger" size="sm" leftIcon={<AlertTriangle size={14} />} onClick={() => setSuspendModal({ open: true, reason: '' })}>
-                  Suspend
+                  {t('suppliers.list.suspend')}
                 </Button>
               )}
             </div>
@@ -166,7 +283,7 @@ export function SupplierDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Building2 size={16} className="text-brand-primary" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Contact Information</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.contactInfo')}</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-sm font-body">
@@ -179,7 +296,7 @@ export function SupplierDetailPage() {
             </div>
             <div className="flex items-center gap-3 text-sm font-body">
               <MapPin size={14} className="text-text-tertiary flex-shrink-0" />
-              <span className="text-text-primary">{supplier.address || 'No address on file'}</span>
+              <span className="text-text-primary">{supplier.address || t('suppliers.detail.noAddress')}</span>
             </div>
             {supplier.contactPerson && (
               <div className="flex items-center gap-3 text-sm font-body">
@@ -193,7 +310,7 @@ export function SupplierDetailPage() {
           </div>
           {supplier.notes && (
             <div className="mt-5 p-3 rounded-xl bg-brand-accent-light/50 border border-brand-accent/10">
-              <p className="text-xs font-bold text-brand-accent uppercase tracking-wider font-body mb-1">Notes</p>
+              <p className="text-xs font-bold text-brand-accent uppercase tracking-wider font-body mb-1">{t('suppliers.detail.notes')}</p>
               <p className="text-sm text-text-primary font-body">{supplier.notes}</p>
             </div>
           )}
@@ -203,27 +320,27 @@ export function SupplierDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <FileText size={16} className="text-brand-primary" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Business Information</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.businessInfo')}</h3>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">Commercial Register</span>
+              <span className="text-text-secondary">{t('suppliers.detail.commercialRegister')}</span>
               <span className="font-bold text-text-primary">{supplier.commercialRegister || '—'}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">Tax Number</span>
+              <span className="text-text-secondary">{t('suppliers.detail.taxNumber')}</span>
               <span className="font-bold text-text-primary">{supplier.taxNumber || '—'}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">Payment Terms</span>
+              <span className="text-text-secondary">{t('suppliers.detail.paymentTerms')}</span>
               <span className="font-bold text-text-primary capitalize">{supplier.paymentTerms.replace(/_/g, ' ')}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">Commission Rate</span>
+              <span className="text-text-secondary">{t('suppliers.detail.commissionRate')}</span>
               <span className="font-bold text-text-primary">{supplier.commissionRate}%</span>
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
-              <span className="text-text-secondary">Rating</span>
+              <span className="text-text-secondary">{t('suppliers.detail.rating')}</span>
               <span className="font-bold text-amber-600 flex items-center gap-1">
                 <Star size={14} fill="currentColor" />{supplier.rating.toFixed(1)} / 5
               </span>
@@ -233,7 +350,7 @@ export function SupplierDetailPage() {
           <div className="mt-5">
             {supplier.categories.length > 0 && (
               <div className="mb-2">
-                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">Categories</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">{t('suppliers.detail.categories')}</p>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}
                 </div>
@@ -241,7 +358,7 @@ export function SupplierDetailPage() {
             )}
             {supplier.regions.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">Delivery Regions</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">{t('suppliers.detail.deliveryRegions')}</p>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {supplier.regions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
                 </div>
@@ -250,47 +367,38 @@ export function SupplierDetailPage() {
           </div>
         </Card>
       </div>
-
       {/* Products from supplier */}
-      <Card padding="lg">
-        <div className="flex items-center gap-2 mb-4">
-          <Package size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Supplier Products</h3>
-        </div>
-        <p className="text-sm text-text-secondary font-body">
-          Product catalog for this supplier will appear here once the backend provides product data.
-        </p>
-      </Card>
+      <SupplierProductsSection supplierId={id} t={t} />
 
       {/* Recent Orders */}
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <ShoppingCart size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Recent Orders</h3>
-          <span className="text-xs text-text-tertiary">({supplier.totalOrders} total)</span>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.recentOrders')}</h3>
+          <span className="text-xs text-text-tertiary">{t('suppliers.detail.totalCount', { count: supplier.totalOrders })}</span>
         </div>
         <p className="text-sm text-text-secondary font-body">
-          Order history for this supplier will appear here once the backend provides order data.
+          {t('suppliers.detail.recentOrdersPlaceholder')}
         </p>
       </Card>
 
       {/* Suspend Modal */}
-      <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={`Suspend ${supplier.name}`}>
+      <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={t('suppliers.list.suspendTitle', { name: supplier.name })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Enter the reason for suspending this supplier. They will not be able to receive orders while suspended.</p>
+          <p className="text-sm text-text-secondary font-body">{t('suppliers.list.suspendDescription')}</p>
           <textarea
             rows={3}
             value={suspendModal.reason}
             onChange={(e) => setSuspendModal({ ...suspendModal, reason: e.target.value })}
             className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light resize-none bg-bg-input"
-            placeholder="Reason for suspension..."
+            placeholder={t('suppliers.list.suspendReason')}
           />
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>{t('common.cancel')}</Button>
             <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendSupplier.isPending} onClick={() => {
               suspendSupplier.mutate({ id: supplier.id, reason: suspendModal.reason });
               setSuspendModal({ ...suspendModal, open: false });
-            }}>Confirm Suspend</Button>
+            }}>{t('suppliers.list.confirmSuspend')}</Button>
           </div>
         </div>
       </Modal>

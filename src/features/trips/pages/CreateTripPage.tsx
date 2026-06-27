@@ -10,7 +10,7 @@ import { ordersApi } from '@/features/orders/api/ordersApi';
 import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
 import { regionsApi } from '@/features/regions/api/regionsApi';
 import { tripsApi } from '../api/tripsApi';
-import { ArrowLeft, Truck, Save, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Truck, Save, User } from 'lucide-react';
 
 export function CreateTripPage() {
   const navigate = useNavigate();

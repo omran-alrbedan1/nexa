@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { DashboardWidgetsExpanded } from '../api/dashboardApi';
 import { DashboardFilterBar } from './DashboardFilterBar';
+import type { DashboardFilterState } from './DashboardFilterBar';
 import { StatsCard } from './StatsCard';
+import { ROUTES } from '@/routes/routes';
 import { RevenueChart } from './RevenueChart';
 import { OrdersByStatusChart } from './OrdersByStatusChart';
 import { RecentOrdersWidget } from './RecentOrdersWidget';
@@ -18,15 +21,27 @@ import { Package, TrendingUp, Truck, AlertTriangle } from 'lucide-react';
 interface AdminDashboardProps {
   data: DashboardWidgetsExpanded | undefined;
   isLoading: boolean;
+  filters: DashboardFilterState;
+  onFilterChange: (filters: Partial<DashboardFilterState>) => void;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+  onResetFilters: () => void;
 }
 
-export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
+export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: AdminDashboardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
       {/* Global Filters */}
-      <DashboardFilterBar />
+      <DashboardFilterBar
+        filters={filters}
+        onFilterChange={onFilterChange}
+        onReset={onResetFilters}
+        expanded={isExpanded}
+        onToggleExpanded={onToggleExpanded}
+      />
 
       {/* ═══ Bento Stats Grid — 4 cards ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -37,6 +52,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
           variant="teal"
           isLoading={isLoading}
           icon={<Package size={20} />}
+          onClick={() => navigate(ROUTES.ORDERS)}
         />
         <StatsCard
           title={t('dashboard.stats.revenueToday')}
@@ -46,6 +62,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
           isLoading={isLoading}
           trend={{ value: 12, isPositive: true }}
           icon={<TrendingUp size={20} />}
+          onClick={() => navigate(`${ROUTES.ORDERS}?status=paid`)}
         />
         <StatsCard
           title={t('dashboard.stats.activeDrivers')}
@@ -54,6 +71,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
           variant="purple"
           isLoading={isLoading}
           icon={<Truck size={20} />}
+          onClick={() => navigate(ROUTES.DRIVERS)}
         />
         <StatsCard
           title={t('dashboard.stats.pendingRequests')}
@@ -62,6 +80,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
           variant="coral"
           isLoading={isLoading}
           icon={<AlertTriangle size={20} />}
+          onClick={() => navigate(ROUTES.OPERATIONS)}
         />
       </div>
 
@@ -74,7 +93,7 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
 
       {/* ═══ Charts Row ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RevenueChart />
+        <RevenueChart todayRevenue={data?.stats.revenueToday} isLoading={isLoading} />
         <OrdersByStatusChart pipeline={data?.pipeline?.reduce((acc, p) => ({ ...acc, [p.stage]: p.count }), {} as Record<string, number>)} ordersByType={data?.stats.ordersByType} />
       </div>
 
@@ -93,10 +112,16 @@ export function AdminDashboard({ data, isLoading }: AdminDashboardProps) {
       </div>
 
       {/* ═══ Top Suppliers + Top Areas ═══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BestSuppliersWidget suppliers={data?.topSuppliers ?? []} isLoading={isLoading} />
-        <BestAreasWidget areas={data?.topAreas ?? []} isLoading={isLoading} />
-      </div>
+      {data?.topAreas && data.topAreas.length > 1 ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BestSuppliersWidget suppliers={data?.topSuppliers ?? []} isLoading={isLoading} />
+          <BestAreasWidget areas={data?.topAreas ?? []} isLoading={isLoading} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6">
+          <BestSuppliersWidget suppliers={data?.topSuppliers ?? []} isLoading={isLoading} />
+        </div>
+      )}
     </div>
   );
 }

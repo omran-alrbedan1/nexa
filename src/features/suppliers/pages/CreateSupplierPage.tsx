@@ -39,7 +39,7 @@ export function CreateSupplierPage() {
         address: form.address,
         commercialRegister: form.commercialRegister,
         taxNumber: form.taxNumber,
-        paymentTerms: form.paymentTerms as any,
+        paymentTerms: form.paymentTerms as 'net_15' | 'net_30' | 'net_45' | 'prepaid',
         commissionRate: parseFloat(form.commissionRate) || 10,
         contactPerson: form.contactPerson,
         contactPhone: form.contactPhone,

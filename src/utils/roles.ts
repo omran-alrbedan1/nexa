@@ -3,8 +3,7 @@
  * Adapted for the Laravel backend where dashboard staff use 'staff' user_type + permissions.
  */
 
-import { userTypeToDashboardRole } from '@/types/marketplace';
-import type { UserRole, UserType, UserStatus } from '@/types/marketplace';
+import type { UserRole } from '@/types/marketplace';
 
 /** Check if a user has a specific permission */
 export function hasPermission(permissions: string[], required: string): boolean {

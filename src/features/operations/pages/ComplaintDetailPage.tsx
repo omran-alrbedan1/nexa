@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { type Complaint } from '../api/operationsApi';
+import { operationsApi, type Complaint } from '../api/operationsApi';
 import { useAssignComplaint, useResolveComplaint } from '../hooks/useOperations';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -22,14 +22,7 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'teal'> = {
   open: 'red', in_progress: 'yellow', resolved: 'green', closed: 'teal',
 };
 
-const now = new Date();
-const today = now.toISOString().split('T')[0];
 
-const DUMMY_COMPLAINTS: Complaint[] = [
-  { id: 1, ticketNumber: 'TKT-2025-001', customerId: 108, customerName: 'Majid Sultan', subject: 'Delivery not received', description: 'Order ORD-2025-108 was marked as failed delivery. Customer claims they were home at the time of delivery. Requesting re-delivery or refund.', status: 'open', priority: 'high', assignedTo: null, relatedOrderNumber: 'ORD-2025-108', createdAt: `${today}T11:45:00Z`, updatedAt: `${today}T11:45:00Z` },
-  { id: 2, ticketNumber: 'TKT-2025-002', customerId: 111, customerName: 'Huda Ahmed', subject: 'Wrong item received', description: 'Received chicken instead of beef in my order. Need replacement or refund for the difference.', status: 'in_progress', priority: 'medium', assignedTo: 'Operations Staff', relatedOrderNumber: 'ORD-2025-111', createdAt: `${today}T01:00:00Z`, updatedAt: `${today}T08:00:00Z` },
-  { id: 3, ticketNumber: 'TKT-2025-003', customerId: 112, customerName: 'Sami Walid', subject: 'Delivery delay', description: 'Order was supposed to arrive yesterday. Still not received. Customer has been waiting for 24+ hours.', status: 'open', priority: 'urgent', assignedTo: null, relatedOrderNumber: 'ORD-2025-112', createdAt: `${today}T06:00:00Z`, updatedAt: `${today}T06:00:00Z` },
-];
 
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
@@ -44,18 +37,10 @@ export function ComplaintDetailPage() {
   const { data: complaint, isLoading, isError, error, refetch } = useQuery<Complaint>({
     queryKey: ['complaints-detail', id],
     queryFn: async () => {
-      try {
-        // Try real backend first
-        const response = await operationsApi.getSupportTickets({ complaintId: id });
-        const found = response.data.find((c) => c.id === id);
-        if (found) return found;
-      } catch {
-        // Fall through to dummy
-      }
-      // Fallback: find in dummy data
-      const found = DUMMY_COMPLAINTS.find((c) => c.id === id);
-      if (!found) throw new Error('Complaint not found');
-      return found;
+      const response = await operationsApi.getSupportTickets({ complaintId: id });
+      const found = response.data.find((c) => c.id === id);
+      if (found) return found;
+      throw new Error('Complaint not found');
     },
     enabled: id > 0,
     staleTime: 30_000,

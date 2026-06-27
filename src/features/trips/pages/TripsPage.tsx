@@ -45,6 +45,7 @@ export function TripsPage() {
     open: boolean; trip: DashboardTrip | null; driverId: number; driverName: string;
   }>({ open: false, trip: null, driverId: 0, driverName: '' });
   const [statusFilter, setStatusFilter] = useState<TripStatus | ''>('');
+  const [scheduleView, setScheduleView] = useState(false);
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -58,6 +59,9 @@ export function TripsPage() {
 
   const stats = data?.stats;
   const trips = (data?.trips ?? []).filter((t) => !statusFilter || t.status === statusFilter);
+  const displayTrips = scheduleView
+    ? [...trips].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
+    : trips;
   const availableDrivers = data?.availableDrivers ?? [];
 
   const getActions = (trip: DashboardTrip) => {
@@ -140,7 +144,7 @@ export function TripsPage() {
         <CardHeader
           action={
             <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={() => useToastStore.getState().addToast('info', t('common.comingSoon'))}>{t('trips.list.scheduleView')}</Button>
+              <Button variant={scheduleView ? 'primary' : 'secondary'} size="sm" onClick={() => setScheduleView(!scheduleView)}>{scheduleView ? t('trips.list.listView') : t('trips.list.scheduleView')}</Button>
               <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreateTrip}>{t('trips.list.newTrip')}</Button>
             </div>
           }
@@ -171,11 +175,11 @@ export function TripsPage() {
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1,2,3,4].map((i) => <div key={i} className="h-22 bg-gray-100 rounded-xl" />)}</div>
-        ) : trips.length === 0 ? (
+        ) : displayTrips.length === 0 ? (
           <EmptyState title={t('trips.list.noTrips')} description={statusFilter ? t('trips.list.noFilterMatch') : t('trips.list.createFirst')} />
         ) : (
           <div className="space-y-2">
-            {trips.map((trip) => (
+            {displayTrips.map((trip) => (
               <div key={trip.id} onClick={() => navigate(ROUTES.TRIP_DETAIL(trip.id))} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all group cursor-pointer">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5">

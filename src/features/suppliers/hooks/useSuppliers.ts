@@ -1,18 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
 import { suppliersApi, type SuppliersPageData } from '../api/suppliersApi';
+import type { DashboardProduct } from '@/features/products/api/productsApi';
 
 export const supplierKeys = {
   all: ['suppliers'] as const,
   pageData: () => [...supplierKeys.all, 'page-data'] as const,
   list: () => [...supplierKeys.all, 'list'] as const,
   detail: (id: number) => [...supplierKeys.all, 'detail', id] as const,
+  products: (id: number) => [...supplierKeys.all, 'products', id] as const,
 };
 
 export function useSuppliersPage() {
   return useQuery<SuppliersPageData>({
     queryKey: supplierKeys.pageData(),
     queryFn: () => suppliersApi.getPageData(),
+    staleTime: 30_000,
+  });
+}
+
+/** Fetch products belonging to a supplier */
+export function useSupplierProducts(supplierId: number) {
+  return useQuery<DashboardProduct[]>({
+    queryKey: supplierKeys.products(supplierId),
+    queryFn: () => suppliersApi.getSupplierProducts(supplierId),
+    enabled: supplierId > 0,
     staleTime: 30_000,
   });
 }

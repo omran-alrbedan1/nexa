@@ -85,28 +85,17 @@ function mapBackendDriver(d: BackendDriver): Driver {
   };
 }
 
-// ── Dummy Data ──
-
-const DUMMY_DRIVERS: Driver[] = [
-  { id: 1, name: 'Hassan Ali', phone: '+966501234001', email: 'hassan@example.com', vehicleType: 'Van', vehiclePlate: 'ABC-1234', zoneName: 'Riyadh North', isAvailable: false, totalTrips: 45, totalOrders: 320, rating: 4.8, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 2, name: 'Omar Farouk', phone: '+966501234002', email: 'omar@example.com', vehicleType: 'Truck', vehiclePlate: 'XYZ-5678', zoneName: 'Riyadh South', isAvailable: false, totalTrips: 38, totalOrders: 290, rating: 4.5, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 3, name: 'Khaled Ahmed', phone: '+966501234003', email: 'khaled@example.com', vehicleType: 'Van', vehiclePlate: 'DEF-9012', zoneName: 'Jeddah Central', isAvailable: true, totalTrips: 52, totalOrders: 410, rating: 4.9, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 4, name: 'Majid Sultan', phone: '+966501234004', email: 'majid@example.com', vehicleType: 'Truck', vehiclePlate: 'GHI-3456', zoneName: 'Dammam East', isAvailable: true, totalTrips: 27, totalOrders: 195, rating: 4.2, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 5, name: 'Sami Walid', phone: '+966501234005', email: 'sami@example.com', vehicleType: 'Van', vehiclePlate: 'JKL-7890', zoneName: 'Mecca North', isAvailable: true, totalTrips: 19, totalOrders: 140, rating: 4.0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 6, name: 'Faisal Omar', phone: '+966501234006', email: 'faisal@example.com', vehicleType: 'Van', vehiclePlate: 'MNO-1234', zoneName: 'Riyadh North', isAvailable: true, totalTrips: 12, totalOrders: 85, rating: 3.8, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 7, name: 'Nasser Al-Ghamdi', phone: '+966501234007', email: 'nasser@example.com', vehicleType: 'Motorcycle', vehiclePlate: 'PQR-5678', zoneName: 'Jeddah Central', isAvailable: false, totalTrips: 8, totalOrders: 42, rating: 3.5, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-];
-
-function getDummyPageData(): DriversPageData {
-  const available = DUMMY_DRIVERS.filter((d) => d.isAvailable).length;
-  const onTrip = DUMMY_DRIVERS.length - available;
-  return {
-    stats: { total: DUMMY_DRIVERS.length, available, onTrip: onTrip > 0 ? Math.ceil(onTrip * 0.6) : 0, inactive: onTrip > 0 ? Math.floor(onTrip * 0.4) : 0 },
-    drivers: DUMMY_DRIVERS,
-  };
-}
-
 export const driversApi = {
+  /** Fetch single driver */
+  getDriver: async (id: number): Promise<Driver> => {
+    try {
+      const response = await apiClient.get<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}`);
+      return mapBackendDriver(response.data.data);
+    } catch {
+      throw new Error('Driver not found');
+    }
+  },
+
   /** Fetch all drivers */
   getPageData: async (): Promise<DriversPageData> => {
     try {
@@ -123,7 +112,7 @@ export const driversApi = {
         drivers,
       };
     } catch {
-      return getDummyPageData();
+      return { stats: { total: 0, available: 0, onTrip: 0, inactive: 0 }, drivers: [] };
     }
   },
 
@@ -133,7 +122,7 @@ export const driversApi = {
       const response = await apiClient.get<ApiResponse<BackendDriver[]>>('/api/v1/admin/drivers/pending-approvals');
       return response.data.data.map(mapBackendDriver);
     } catch {
-      return DUMMY_DRIVERS.filter((d) => !d.isAvailable);
+      return [];
     }
   },
 
@@ -143,9 +132,7 @@ export const driversApi = {
       const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/approve`);
       return mapBackendDriver(response.data.data);
     } catch {
-      const driver = DUMMY_DRIVERS.find((d) => d.id === id);
-      if (!driver) throw new Error('Driver not found');
-      return { ...driver, isAvailable: true, updatedAt: new Date().toISOString() };
+      throw new Error('Driver not found');
     }
   },
 
@@ -155,9 +142,7 @@ export const driversApi = {
       const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/reject`, { reason: reason || '' });
       return mapBackendDriver(response.data.data);
     } catch {
-      const driver = DUMMY_DRIVERS.find((d) => d.id === id);
-      if (!driver) throw new Error('Driver not found');
-      return { ...driver, isAvailable: false, updatedAt: new Date().toISOString() };
+      throw new Error('Driver not found');
     }
   },
 
@@ -167,9 +152,7 @@ export const driversApi = {
       const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`);
       return mapBackendDriver(response.data.data);
     } catch {
-      const driver = DUMMY_DRIVERS.find((d) => d.id === id);
-      if (!driver) throw new Error('Driver not found');
-      return { ...driver, isAvailable: !driver.isAvailable, updatedAt: new Date().toISOString() };
+      throw new Error('Driver not found');
     }
   },
 };

@@ -9,6 +9,7 @@ interface StatsCardProps {
   trend?: { value: number; isPositive: boolean };
   variant?: 'teal' | 'coral' | 'primary' | 'warning' | 'success' | 'purple';
   isLoading?: boolean;
+  onClick?: () => void;
 }
 
 const iconBgStyles = {
@@ -37,6 +38,7 @@ export function StatsCard({
   trend,
   variant = 'teal',
   isLoading = false,
+  onClick,
 }: StatsCardProps) {
   if (isLoading) {
     return (
@@ -51,7 +53,16 @@ export function StatsCard({
   }
 
   return (
-    <Card padding="md" hover className={cn('relative overflow-hidden group', accentBorderStyles[variant])}>
+    <Card
+      padding="md"
+      hover
+      className={cn(
+        'relative overflow-hidden group',
+        accentBorderStyles[variant],
+        onClick && 'cursor-pointer'
+      )}
+      onClick={onClick}
+    >
       {/* Background glow effect */}
       <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-5 group-hover:opacity-10 transition-all"
         style={{ backgroundColor: variant === 'coral' ? '#E76F51' : '#2A9D8F' }}

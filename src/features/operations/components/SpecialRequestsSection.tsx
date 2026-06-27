@@ -117,17 +117,17 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
         {/* Filter tabs */}
         <div className="flex items-center gap-2 mb-4">
           <div className="flex bg-gray-100 rounded-lg p-0.5">
-            {(['all', 'mine', 'unassigned'] as const).map((t) => (
+            {(['all', 'mine', 'unassigned'] as const).map((ft) => (
               <button
-                key={t}
-                onClick={() => setTypeFilter(t)}
+                key={ft}
+                onClick={() => setTypeFilter(ft)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  typeFilter === t
+                  typeFilter === ft
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {t === 'all' ? t('operations.specialRequests.all') : t === 'mine' ? t('operations.specialRequests.mine') : t('operations.specialRequests.unassigned')}
+                {ft === 'all' ? t('operations.specialRequests.all') : ft === 'mine' ? t('operations.specialRequests.mine') : t('operations.specialRequests.unassigned')}
               </button>
             ))}
           </div>
