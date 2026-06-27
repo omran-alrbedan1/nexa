@@ -1,5 +1,5 @@
 # Nexa Dashboard CI/CD Pipeline
-# Build Docker image -> Push to GitLab Registry -> Deploy via SSH
+# Strategy: Build Docker image -> Push to GitLab Registry -> Deploy via SSH
 
 image: node:20-alpine
 
@@ -36,8 +36,8 @@ lint-test:
   dependencies:
     - install
   script:
-    - "npm run lint 2>/dev/null || echo 'Lint: no errors or skipped'"
-    - "npx tsc --noEmit"
+    - npm run lint 2>/dev/null || echo "Lint: no errors or skipped"
+    - npx tsc --noEmit
   allow_failure: true
 
 build-app:
@@ -45,7 +45,7 @@ build-app:
   dependencies:
     - install
   script:
-    - "npm run build"
+    - npm run build
   artifacts:
     paths:
       - dist/
@@ -60,34 +60,31 @@ build-push-docker:
     DOCKER_DRIVER: overlay2
   dependencies: []
   script:
-    - "echo 'Logging in to GitLab Container Registry...'"
-    - "echo \"$CI_REGISTRY_PASSWORD\" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin"
-    - "echo \"Building image: $IMAGE_NAME:$IMAGE_TAG\""
-    - "docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $IMAGE_NAME:$CI_COMMIT_BRANCH -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:$CI_COMMIT_BRANCH ."
-    - "echo 'Pushing image...'"
-    - "docker push $IMAGE_NAME:$IMAGE_TAG"
-    - "docker push $IMAGE_NAME:$CI_COMMIT_BRANCH"
+    - echo "Logging in to GitLab Container Registry..."
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+    - echo "Building image: $IMAGE_NAME:$IMAGE_TAG"
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $IMAGE_NAME:$CI_COMMIT_BRANCH -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:$CI_COMMIT_BRANCH .
+    - echo "Pushing image..."
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
   only:
     - develop
     - main
 
-.deploy-base: &deploy-base
+deploy-dev:
   stage: deploy
   image: alpine:latest
   dependencies: []
   before_script:
-    - "apk add --no-cache openssh-client"
-    - "eval $(ssh-agent -s)"
-    - "echo \"$SSH_PRIVATE_KEY\" | tr -d '\\r' | ssh-add - > /dev/null"
-    - "mkdir -p ~/.ssh"
-    - "chmod 700 ~/.ssh"
-    - "echo \"$SSH_KNOWN_HOSTS\" > ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null"
-
-deploy-dev:
-  <<: *deploy-base
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
   script:
-    - "echo 'Deploying to DEV ($SSH_HOST)...'"
-    - "ssh $SSH_USER@$SSH_HOST 'cd $DEPLOY_PATH && echo VITE_API_BASE_URL=$DEV_API_URL > .env && echo VITE_APP_NAME=Nexa-Dashboard-Dev >> .env && echo $IMAGE_TAG > .image-tag && sed -i s|image:.*|image:$IMAGE_NAME:$IMAGE_TAG| docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate'"
+    - echo "Deploying to DEV ($SSH_HOST)..."
+    - "ssh $SSH_USER@$SSH_HOST \"cd $DEPLOY_PATH && echo 'VITE_API_BASE_URL=$DEV_API_URL' > .env && echo 'VITE_APP_NAME=Nexa Dashboard (Dev)' >> .env && echo '$IMAGE_TAG' > .image-tag && sed -i 's|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|' docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate\""
   environment:
     name: development
     url: https://dev-nexa.futxtech.com
@@ -95,10 +92,19 @@ deploy-dev:
     - develop
 
 deploy-prod:
-  <<: *deploy-base
+  stage: deploy
+  image: alpine:latest
+  dependencies: []
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
   script:
-    - "echo 'Deploying to PRODUCTION ($SSH_HOST)...'"
-    - "ssh $SSH_USER@$SSH_HOST 'cd $DEPLOY_PATH && echo VITE_API_BASE_URL=$PROD_API_URL > .env && echo VITE_APP_NAME=Nexa-Dashboard >> .env && echo $IMAGE_TAG > .image-tag && sed -i s|image:.*|image:$IMAGE_NAME:$IMAGE_TAG| docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate'"
+    - echo "Deploying to PRODUCTION ($SSH_HOST)..."
+    - "ssh $SSH_USER@$SSH_HOST \"cd $DEPLOY_PATH && echo 'VITE_API_BASE_URL=$PROD_API_URL' > .env && echo 'VITE_APP_NAME=Nexa Dashboard' >> .env && echo '$IMAGE_TAG' > .image-tag && sed -i 's|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|' docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate\""
   environment:
     name: production
     url: https://nexa.futxtech.com
