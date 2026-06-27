@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────
+#  Nexa Dashboard — Production Docker Compose
+#  Used by GitLab CI/CD deploy stage to run the SPA
+#  Place on the server at: $DEPLOY_PATH/docker-compose.prod.yml
+# ─────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+  nexa-dashboard:
+    image: ${CI_REGISTRY_IMAGE:-registry.gitlab.futxtech.com/nexa/nexa-dashboard}:${IMAGE_TAG:-main-latest}
+    container_name: nexa-dashboard
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:80"
+    networks:
+      - central_network
+    env_file:
+      - .env
+
+networks:
+  central_network:
+    external: true

@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.gitlab
+.gitignore
+*.md
+docs
+.env
+.env.*
+stitch_nexa_operations_management_dashboard
+nexa_operations_prototype.html
+nexa_v2_desgin.webm
+__tests__
+__snapshots__
+coverage

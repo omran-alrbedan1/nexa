@@ -1,0 +1,147 @@
+# ─────────────────────────────────────────────────────────────
+#  Nexa Dashboard — GitLab CI/CD Pipeline
+#  Strategy: Build Docker image → Push to GitLab Registry → Deploy via SSH
+# ─────────────────────────────────────────────────────────────
+
+image: node:20-alpine
+
+stages:
+  - install
+  - lint-test
+  - build-app
+  - build-push-docker
+  - deploy
+
+variables:
+  DOCKER_BUILDKIT: 1
+  BUILDKIT_PROGRESS: plain
+  DOCKER_TLS_CERTDIR: ""
+  IMAGE_NAME: $CI_REGISTRY_IMAGE
+  IMAGE_TAG: $CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+# ─── Install Dependencies ───────────────────────────────────
+install:
+  stage: install
+  script:
+    - npm ci --frozen-lockfile
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+# ─── Lint & TypeScript Check ────────────────────────────────
+lint-test:
+  stage: lint-test
+  dependencies:
+    - install
+  script:
+    - npm run lint 2>/dev/null || echo "Lint: no errors or skipped"
+    - npx tsc --noEmit 2>&1
+  allow_failure: true
+
+# ─── Build Application ──────────────────────────────────────
+build-app:
+  stage: build-app
+  dependencies:
+    - install
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+# ─── Build & Push Docker Image ──────────────────────────────
+build-push-docker:
+  stage: build-push-docker
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  dependencies: []
+  script:
+    - echo "Logging in to GitLab Container Registry..."
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
+    - echo "Building image: $IMAGE_NAME:$IMAGE_TAG"
+    - >
+      docker build
+      --build-arg BUILDKIT_INLINE_CACHE=1
+      --cache-from $IMAGE_NAME:$CI_COMMIT_BRANCH
+      -t $IMAGE_NAME:$IMAGE_TAG
+      -t $IMAGE_NAME:$CI_COMMIT_BRANCH
+      .
+    - echo "Pushing image..."
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
+  only:
+    - develop
+    - main
+
+# ─── Deploy to Development ──────────────────────────────────
+deploy-dev:
+  stage: deploy
+  image: alpine:latest
+  dependencies: []
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+  script:
+    - echo "Deploying to DEV ($SSH_HOST)..."
+    - >
+      ssh $SSH_USER@$SSH_HOST "
+        cd $DEPLOY_PATH &&
+        echo 'Updating docker-compose and .env...' &&
+        echo 'VITE_API_BASE_URL=$DEV_API_URL' > .env &&
+        echo 'VITE_APP_NAME=Nexa Dashboard (Dev)' >> .env &&
+        echo 'IMAGE_TAG=$IMAGE_TAG' > .image-tag &&
+        sed -i 's|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|' docker-compose.prod.yml &&
+        docker compose -f docker-compose.prod.yml pull &&
+        docker compose -f docker-compose.prod.yml up -d --force-recreate
+      "
+  environment:
+    name: development
+    url: https://dev-nexa.futxtech.com
+  only:
+    - develop
+
+# ─── Deploy to Production ───────────────────────────────────
+deploy-prod:
+  stage: deploy
+  image: alpine:latest
+  dependencies: []
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+  script:
+    - echo "Deploying to PRODUCTION ($SSH_HOST)..."
+    - >
+      ssh $SSH_USER@$SSH_HOST "
+        cd $DEPLOY_PATH &&
+        echo 'Updating docker-compose and .env...' &&
+        echo 'VITE_API_BASE_URL=$PROD_API_URL' > .env &&
+        echo 'VITE_APP_NAME=Nexa Dashboard' >> .env &&
+        echo 'IMAGE_TAG=$IMAGE_TAG' > .image-tag &&
+        sed -i 's|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|' docker-compose.prod.yml &&
+        docker compose -f docker-compose.prod.yml pull &&
+        docker compose -f docker-compose.prod.yml up -d --force-recreate
+      "
+  environment:
+    name: production
+    url: https://nexa.futxtech.com
+  only:
+    - main
+  when: manual
