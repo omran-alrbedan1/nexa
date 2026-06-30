@@ -10,7 +10,7 @@ services:
     container_name: ${CONTAINER_NAME}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${APP_PORT:-3000}:80"
+      - "${APP_PORT:-3101}:80"
     networks:
       - central_network
     env_file:
