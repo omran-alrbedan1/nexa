@@ -29,7 +29,7 @@ deploy_dev:
   variables:
     DEPLOY_DIR: /home/gitlab-runner/nexa/dashboard-dev
     IMAGE_TAG: dev
-    APP_PORT: 3005
+    PRIMARY_PORT: 3101
     CONTAINER_NAME: nexa_dashboard_dev
     COMPOSE_PROJECT_NAME: nexa-dev
   script:
@@ -38,7 +38,7 @@ deploy_dev:
       mkdir -p ${DEPLOY_DIR}
       cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
       cd ${DEPLOY_DIR}
-      PORT=${APP_PORT}
+      PORT=${PRIMARY_PORT}
       if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
         echo "Port $PORT is in use — trying fallback $((PORT + 100))"
         PORT=$((PORT + 100))
@@ -75,7 +75,7 @@ deploy_prod:
   variables:
     DEPLOY_DIR: /home/gitlab-runner/nexa/dashboard
     IMAGE_TAG: latest
-    APP_PORT: 3004
+    PRIMARY_PORT: 3103
     CONTAINER_NAME: nexa_dashboard_prod
     COMPOSE_PROJECT_NAME: nexa-prod
   script:
@@ -84,7 +84,7 @@ deploy_prod:
       mkdir -p ${DEPLOY_DIR}
       cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
       cd ${DEPLOY_DIR}
-      PORT=${APP_PORT}
+      PORT=${PRIMARY_PORT}
       if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
         echo "Port $PORT is in use — trying fallback $((PORT + 100))"
         PORT=$((PORT + 100))
