@@ -66,12 +66,6 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
-      {/* Backdrop — always dismissable */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
-        onClick={onCancel}
-      />
-
       {/* Dialog */}
       <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         {/* Icon */}

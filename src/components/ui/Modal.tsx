@@ -98,15 +98,6 @@ export function Modal({
       aria-modal="true"
       aria-label={title}
     >
-      {/* Backdrop */}
-      <div
-        className={cn(
-          'absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity',
-          closeOnBackdrop && 'cursor-pointer'
-        )}
-        onClick={closeOnBackdrop ? onClose : undefined}
-      />
-
       {/* Dialog */}
       <div
         ref={modalRef}
