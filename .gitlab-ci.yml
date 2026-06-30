@@ -29,27 +29,28 @@ deploy_dev:
   variables:
     DEPLOY_DIR: /home/gitlab-runner/nexa/dashboard-dev
     IMAGE_TAG: dev
-    APP_PORT: 3003
+    APP_PORT: 3005
     CONTAINER_NAME: nexa_dashboard_dev
     COMPOSE_PROJECT_NAME: nexa-dev
   script:
-    - mkdir -p ${DEPLOY_DIR}
-    - cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
-    - cd ${DEPLOY_DIR}
     - |
+      set -e
+      mkdir -p ${DEPLOY_DIR}
+      cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
+      cd ${DEPLOY_DIR}
       PORT=${APP_PORT}
       if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
         echo "Port $PORT is in use — trying fallback $((PORT + 100))"
         PORT=$((PORT + 100))
       fi
-    - echo "IMAGE_TAG=${IMAGE_TAG}" > .env
-    - echo "VITE_API_BASE_URL=${DEV_API_URL}" >> .env
-    - echo "APP_PORT=${PORT}" >> .env
-    - echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
-    - echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
-    - docker compose --env-file .env config
-    - docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
-    - docker image prune -f
+      echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+      echo "VITE_API_BASE_URL=${DEV_API_URL}" >> .env
+      echo "APP_PORT=${PORT}" >> .env
+      echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
+      echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
+      docker compose --env-file .env config
+      docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
+      docker image prune -f
 
 # ─── PROD (main branch) ─────────────────────────────────
 
@@ -74,24 +75,25 @@ deploy_prod:
   variables:
     DEPLOY_DIR: /home/gitlab-runner/nexa/dashboard
     IMAGE_TAG: latest
-    APP_PORT: 3001
+    APP_PORT: 3004
     CONTAINER_NAME: nexa_dashboard_prod
     COMPOSE_PROJECT_NAME: nexa-prod
   script:
-    - mkdir -p ${DEPLOY_DIR}
-    - cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
-    - cd ${DEPLOY_DIR}
     - |
+      set -e
+      mkdir -p ${DEPLOY_DIR}
+      cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
+      cd ${DEPLOY_DIR}
       PORT=${APP_PORT}
       if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
         echo "Port $PORT is in use — trying fallback $((PORT + 100))"
         PORT=$((PORT + 100))
       fi
-    - echo "IMAGE_TAG=${IMAGE_TAG}" > .env
-    - echo "VITE_API_BASE_URL=${PROD_API_URL}" >> .env
-    - echo "APP_PORT=${PORT}" >> .env
-    - echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
-    - echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
-    - docker compose --env-file .env config
-    - docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
-    - docker image prune -f
+      echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+      echo "VITE_API_BASE_URL=${PROD_API_URL}" >> .env
+      echo "APP_PORT=${PORT}" >> .env
+      echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
+      echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
+      docker compose --env-file .env config
+      docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
+      docker image prune -f
