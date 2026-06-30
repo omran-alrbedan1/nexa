@@ -61,7 +61,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
       typeFilter === 'all'
         ? true
         : typeFilter === 'mine'
-          ? r.assignedTo === user?.name
+          ? r.assignedTo === user?.full_name
           : !r.assignedTo;
     return matchesStatus && matchesType;
   });
@@ -97,7 +97,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
   };
 
   const handleAssign = (requestId: number) => {
-    assignForPricing.mutate({ requestId, assignedTo: user?.name || 'Operations Staff' });
+    assignForPricing.mutate({ requestId, assignedTo: user?.full_name || 'Operations Staff' });
   };
 
   return (
@@ -230,7 +230,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
                       {t('operations.specialRequests.assignToMe')}
                     </Button>
                   )}
-                  {req.status === 'pending_pricing' && req.assignedTo === user?.name && (
+                  {req.status === 'pending_pricing' && req.assignedTo === user?.full_name && (
                     <Button
                       variant="primary"
                       size="sm"

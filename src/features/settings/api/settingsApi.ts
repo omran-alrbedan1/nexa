@@ -117,14 +117,6 @@ export interface Setting {
   type: string;
 }
 
-interface BackendSetting {
-  id: number;
-  group: string;
-  key: string;
-  value: string;
-  type: string;
-}
-
 // ──────────────────────────────────────────────
 // Banner Types
 // ──────────────────────────────────────────────

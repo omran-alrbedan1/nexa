@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { regionsApi, type Region } from '../api/regionsApi';
 import { useToggleRegionActive, useUpdateDeliveryFee, useUpdateZone } from '../hooks/useRegions';
@@ -16,8 +16,6 @@ import { ClustersSection } from '../components/ClustersSection';
 import { DeliverySlotsSection } from '../components/DeliverySlotsSection';
 import { WorkingDaysSection } from '../components/WorkingDaysSection';
 import { ZoneForm } from '../components/ZoneForm';
-
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const REGION_TABS = [
   { key: 'overview', label: 'regions.tabs.overview', icon: Globe },
@@ -35,7 +33,6 @@ export function RegionDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(regionId || '0', 10);
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
   const updateZone = useUpdateZone();

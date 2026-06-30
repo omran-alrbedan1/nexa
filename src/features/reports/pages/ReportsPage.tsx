@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOrdersReport, useRevenueReport, useSuppliersReport } from '../hooks/useReports';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { DollarSign, Building2, BarChart3, CalendarDays, Package, CheckCircle2, XCircle, MapPin, Star, Truck } from 'lucide-react';
 

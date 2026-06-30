@@ -33,7 +33,7 @@ export function SupportTicketsPage() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ tickets: Record<string, unknown>[]; meta: Record<string, unknown> }>>('/api/v1/admin/support-tickets');
+      const response = await apiClient.get<ApiResponse<{ tickets: any[]; meta: any }>>('/api/v1/admin/support-tickets');
       return response.data.data;
     },
     staleTime: 30_000,
@@ -60,7 +60,7 @@ export function SupportTicketsPage() {
     onError: () => addToast('error', 'Failed to update ticket status'),
   });
 
-  const tickets = (data?.tickets || []).filter((t: Record<string, unknown>) => {
+  const tickets = (data?.tickets || []).filter((t: any) => {
     const matchesSearch = !search || t.subject?.toLowerCase().includes(search.toLowerCase()) || t.ticket_number?.includes(search);
     const matchesStatus = !statusFilter || t.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -121,7 +121,7 @@ export function SupportTicketsPage() {
           <EmptyState title={t('support.noTickets')} description={t('support.allResolved')} />
         ) : (
           <div className="space-y-2">
-            {tickets.map((ticket: Record<string, unknown>) => (
+            {tickets.map((ticket: any) => (
               <div key={ticket.id} className="rounded-xl border border-border-default/60 overflow-hidden">
                 <div
                   onClick={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
@@ -171,7 +171,7 @@ export function SupportTicketsPage() {
                 {expandedId === ticket.id && ticket.messages && ticket.messages.length > 0 && (
                   <div className="border-t border-border-default/50 px-4 py-3 bg-bg-section-alt/50">
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {ticket.messages.map((msg: Record<string, unknown>) => (
+                      {ticket.messages.map((msg: any) => (
                         <div key={msg.id} className={`p-3 rounded-xl text-sm ${msg.is_internal ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-border-default/60'}`}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-bold text-text-secondary">{msg.user?.full_name || t('support.system')}</span>

@@ -13,17 +13,17 @@ const STATUS_OPTIONS = [
   { key: '', label: 'All Statuses' },
   { key: 'pending_admin', label: 'Pending Admin', color: 'purple' as const },
   { key: 'pending_pricing', label: 'Pending Pricing', color: 'yellow' as const },
-  { key: 'pending_customer', label: 'Awaiting Customer', color: 'blue' as const },
+  { key: 'pending_customer', label: 'Awaiting Customer', color: 'teal' as const },
   { key: 'priced', label: 'Priced', color: 'teal' as const },
   { key: 'approved', label: 'Approved', color: 'green' as const },
   { key: 'rejected', label: 'Rejected', color: 'red' as const },
   { key: 'cancelled', label: 'Cancelled', color: 'red' as const },
 ];
 
-const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal' | 'blue'> = {
+const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
   pending_admin: 'purple',
   pending_pricing: 'yellow',
-  pending_customer: 'blue',
+  pending_customer: 'teal',
   priced: 'teal',
   approved: 'green',
   rejected: 'red',

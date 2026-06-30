@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { tripsApi, type DashboardTrip } from '../api/tripsApi';
 import { useAssignDriver, useStartTrip, useCompleteTrip, tripKeys } from '../hooks/useTrips';

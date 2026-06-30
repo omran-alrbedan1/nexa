@@ -54,8 +54,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 
 
-const TYPE_BADGE_COLORS: Record<OrderType, 'blue' | 'yellow' | 'purple'> = {
-  regular: 'blue',
+const TYPE_BADGE_COLORS: Record<OrderType, 'teal' | 'yellow' | 'purple'> = {
+  regular: 'teal',
   special: 'yellow',
   seasonal: 'purple',
 };

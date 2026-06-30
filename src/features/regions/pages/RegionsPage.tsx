@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
-import { MapPin, CheckCircle2, Layers, ShoppingCart, TrendingUp, Map, Globe, DollarSign, Plus } from 'lucide-react';
+import { MapPin, CheckCircle2, Layers, ShoppingCart, Map, Globe, DollarSign, Plus } from 'lucide-react';
 import { ZoneForm } from '../components/ZoneForm';
 
 

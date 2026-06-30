@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuditLogs } from '../hooks/useSettings';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuditLogs } from '../hooks/useSettings';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
@@ -113,6 +110,7 @@ export function AuditLogsPage() {
                 <Pagination
                   currentPage={page}
                   lastPage={meta.lastPage}
+                  total={meta.total}
                   onPageChange={setPage}
                 />
               </div>

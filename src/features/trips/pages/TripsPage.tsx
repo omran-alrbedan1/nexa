@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
@@ -244,7 +243,7 @@ export function TripsPage() {
             <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" disabled={!assignModal.driverId} isLoading={assignDriver.isPending} onClick={() => {
               if (!assignModal.trip || !assignModal.driverId) return;
-              assignDriver.mutate({ tripId: assignModal.trip.id, driverId: assignModal.driverId, driverName: assignModal.driverName });
+              assignDriver.mutate({ tripId: assignModal.trip.id, driverId: assignModal.driverId });
               setAssignModal({ ...assignModal, open: false });
             }}>{t('trips.list.assignButton')}</Button>
           </div>

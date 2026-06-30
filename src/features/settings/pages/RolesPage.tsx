@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRoles, useUpdateRolePermissions } from '../hooks/useSettings';
-import { Card, CardHeader } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -20,10 +20,6 @@ const PERMISSION_GROUPS: Record<string, string> = {
   reports: 'settings.roles.groups.reports',
   settings: 'settings.roles.groups.settings',
 };
-
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
 
 export function RolesPage() {
   const { t } = useTranslation();
@@ -65,7 +61,7 @@ export function RolesPage() {
     setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
   };
 
-  const selectGroup = (group: string, permissions: Permission[]) => {
+  const selectGroup = (_group: string, permissions: Permission[]) => {
     const groupIds = permissions.map((p) => p.id);
     const allSelected = groupIds.every((id) => selectedPermissionIds.includes(id));
     if (allSelected) {

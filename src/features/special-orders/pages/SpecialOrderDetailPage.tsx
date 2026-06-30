@@ -14,10 +14,10 @@ import {
   Building2, Pencil, RefreshCw, BadgePercent,
 } from 'lucide-react';
 
-const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal' | 'blue'> = {
+const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
   pending_admin: 'purple',
   pending_pricing: 'yellow',
-  pending_customer: 'blue',
+  pending_customer: 'teal',
   priced: 'teal',
   approved: 'green',
   rejected: 'red',
