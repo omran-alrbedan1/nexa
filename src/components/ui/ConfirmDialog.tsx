@@ -68,7 +68,7 @@ export function ConfirmDialog({
     >
       {/* Backdrop — always dismissable */}
       <div
-        className="absolute inset-0 bg-black/50 transition-opacity"
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
         onClick={onCancel}
       />
 

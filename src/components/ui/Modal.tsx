@@ -101,7 +101,7 @@ export function Modal({
       {/* Backdrop */}
       <div
         className={cn(
-          'absolute inset-0 bg-black/50 transition-opacity',
+          'absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity',
           closeOnBackdrop && 'cursor-pointer'
         )}
         onClick={closeOnBackdrop ? onClose : undefined}

@@ -98,11 +98,12 @@ export function AppLayout() {
           <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center text-white font-display font-bold text-lg shadow-sm">
             N
           </div>
-          <div>              <h1 className="font-display text-base font-bold text-brand-primary-dark">
-              NEXA Ops
+          <div>
+            <h1 className="font-display text-base font-bold text-brand-primary-dark">
+              {'NEXA ' + (user?.role === 'admin' ? 'Admin' : user?.role === 'aggregation' ? 'Warehouse' : 'Ops')}
             </h1>
             <p className="text-[11px] font-medium text-text-secondary font-body">
-              {t('app.subtitle')}
+              {user?.role === 'admin' ? 'Management' : user?.role === 'aggregation' ? 'Fulfillment' : 'Management Suite'}
             </p>
           </div>
           {isMobile && (
@@ -175,7 +176,7 @@ export function AppLayout() {
               </button>
               <div className="hidden md:block">
                 <h2 className="font-display text-lg font-extrabold text-brand-primary">
-                  {t('app.headerTitle')}
+                  {'NEXA ' + (user?.role === 'admin' ? 'Admin' : user?.role === 'aggregation' ? 'Warehouse' : 'Operations')}
                 </h2>
               </div>
             </div>
