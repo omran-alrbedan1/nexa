@@ -1,95 +1,97 @@
 # Nexa Dashboard CI/CD Pipeline
-# Strategy: Build Docker image -> Push to GitLab Registry -> Deploy via SSH
-
-image: node:20-alpine
+# Strategy: Shell executor on server → Build image locally → Deploy via docker-compose
+# Runner tag: server213 (must be registered on the target server)
 
 stages:
-  - install
-  - lint-test
-  - build-push-docker
+  - build
   - deploy
 
-variables:
-  DOCKER_BUILDKIT: 1
-  BUILDKIT_PROGRESS: plain
-  DOCKER_TLS_CERTDIR: ""
-  IMAGE_NAME: $CI_REGISTRY_IMAGE
-  IMAGE_TAG: $CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+# ─── DEV (develop branch) ────────────────────────────────
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-
-install:
-  stage: install
-  script:
-    - npm ci --frozen-lockfile
-  artifacts:
-    paths:
-      - node_modules/
-    expire_in: 1 hour
-
-lint-test:
-  stage: lint-test
-  dependencies:
-    - install
-  script:
-    - 'npm run lint 2>/dev/null || echo "Lint: no errors or skipped"'
-    - npx tsc --noEmit
-  allow_failure: true
-
-build-push-docker:
-  stage: build-push-docker
-  image: docker:27
-  services:
-    - docker:27-dind
+build_dev:
+  stage: build
+  tags:
+    - server213
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
   variables:
-    DOCKER_DRIVER: overlay2
-  dependencies: []
+    IMAGE_TAG: dev
   script:
-    - echo "Logging in to GitLab Container Registry..."
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY --username $CI_REGISTRY_USER --password-stdin
-    - 'echo "Building image: $IMAGE_NAME:$IMAGE_TAG"'
-    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $IMAGE_NAME:$CI_COMMIT_BRANCH -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:$CI_COMMIT_BRANCH .
-    - echo "Pushing image..."
-    - docker push $IMAGE_NAME:$IMAGE_TAG
-    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_BRANCH == "develop"
+    - docker build -t nexa-dashboard:${IMAGE_TAG}
+        --build-arg VITE_API_BASE_URL=${DEV_API_URL} .
 
-.deploy-base: &deploy-base
+deploy_dev:
   stage: deploy
-  image: alpine:latest
-  dependencies: []
-  timeout: 10 minutes
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-
-deploy-dev:
-  <<: *deploy-base
-  script:
-    - echo "Deploying to DEV ($SSH_HOST)..."
-    - 'ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH && grep image: docker-compose.prod.yml | grep $IMAGE_NAME | head -1 | sed s/.*:// > .previous-image-tag && echo ''VITE_API_BASE_URL=$DEV_API_URL'' > .env && echo ''VITE_APP_NAME=Nexa Dashboard (Dev)'' >> .env && echo ''$IMAGE_TAG'' > .image-tag && sed -i \"s|image: $IMAGE_NAME:.*|image: $IMAGE_NAME:$IMAGE_TAG|\" docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate && sleep 5 && docker compose -f docker-compose.prod.yml ps | grep -q ''Up''"'
-  environment:
-    name: development
+  tags:
+    - server213
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
-
-deploy-prod:
-  <<: *deploy-base
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  variables:
+    DEPLOY_DIR: /opt/futurex/nexa/dashboard-dev
+    IMAGE_TAG: dev
+    APP_PORT: 3003
+    CONTAINER_NAME: nexa_dashboard_dev
+    COMPOSE_PROJECT_NAME: nexa-dev
   script:
-    - echo "Deploying to PRODUCTION ($SSH_HOST)..."
-    - 'ssh $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH && grep image: docker-compose.prod.yml | grep $IMAGE_NAME | head -1 | sed s/.*:// > .previous-image-tag && echo ''VITE_API_BASE_URL=$PROD_API_URL'' > .env && echo ''VITE_APP_NAME=Nexa Dashboard'' >> .env && echo ''$IMAGE_TAG'' > .image-tag && sed -i \"s|image: $IMAGE_NAME:.*|image: $IMAGE_NAME:$IMAGE_TAG|\" docker-compose.prod.yml && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d --force-recreate && sleep 5 && docker compose -f docker-compose.prod.yml ps | grep -q ''Up''"'
-  environment:
-    name: production
+    - mkdir -p ${DEPLOY_DIR}
+    - cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
+    - cd ${DEPLOY_DIR}
+    - |
+      PORT=${APP_PORT}
+      if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
+        echo "Port $PORT is in use — trying fallback $((PORT + 100))"
+        PORT=$((PORT + 100))
+      fi
+    - echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+    - echo "VITE_API_BASE_URL=${DEV_API_URL}" >> .env
+    - echo "APP_PORT=${PORT}" >> .env
+    - echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
+    - echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
+    - docker compose --env-file .env config
+    - docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
+    - docker image prune -f
+
+# ─── PROD (main branch) ─────────────────────────────────
+
+build_prod:
+  stage: build
+  tags:
+    - server213
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  variables:
+    IMAGE_TAG: latest
+  script:
+    - docker build -t nexa-dashboard:${IMAGE_TAG}
+        --build-arg VITE_API_BASE_URL=${PROD_API_URL} .
+
+deploy_prod:
+  stage: deploy
+  tags:
+    - server213
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  variables:
+    DEPLOY_DIR: /opt/futurex/nexa/dashboard
+    IMAGE_TAG: latest
+    APP_PORT: 3001
+    CONTAINER_NAME: nexa_dashboard_prod
+    COMPOSE_PROJECT_NAME: nexa-prod
+  script:
+    - mkdir -p ${DEPLOY_DIR}
+    - cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
+    - cd ${DEPLOY_DIR}
+    - |
+      PORT=${APP_PORT}
+      if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
+        echo "Port $PORT is in use — trying fallback $((PORT + 100))"
+        PORT=$((PORT + 100))
+      fi
+    - echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+    - echo "VITE_API_BASE_URL=${PROD_API_URL}" >> .env
+    - echo "APP_PORT=${PORT}" >> .env
+    - echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
+    - echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
+    - docker compose --env-file .env config
+    - docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
+    - docker image prune -f
