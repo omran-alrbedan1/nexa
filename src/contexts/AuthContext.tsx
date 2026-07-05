@@ -9,6 +9,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
 import { authApi } from '@/features/auth/api/authApi';
+import { setAuthToken } from '@/lib/axios';
 import type { User, UserRole, UserType } from '@/types/marketplace';
 import { userTypeToDashboardRole } from '@/types/marketplace';
 
@@ -75,20 +76,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  // ── On mount: restore session from localStorage ──
+  // ── On mount: verify session via backend (httpOnly cookie) ──
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const savedUser = localStorage.getItem('auth_user');
-
-    if (token && savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
-    }
-    setIsLoading(false);
+    authApi
+      .me()
+      .then((res) => {
+        const backendUser = res.data as unknown as Record<string, unknown>;
+        setUser(mapBackendUser(backendUser));
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   // ── Login: call the real backend API ──
@@ -98,11 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // response = { success, message, data: { token, token_type, expires_at, user } }
       const { token, user: backendUser } = response.data;
+      setAuthToken(token);
 
       const mappedUser = mapBackendUser(backendUser as unknown as Record<string, unknown>);
-
-      localStorage.setItem('auth_token', token);
-      localStorage.setItem('auth_user', JSON.stringify(mappedUser));
       setUser(mappedUser);
 
       addToast(
@@ -113,15 +110,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [addToast]
   );
 
-  // ── Logout: revoke token on backend + clear local state ──
+  // ── Logout: revoke session on backend + clear state ──
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
     } catch {
       // Even if the API call fails, clear local state
     }
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    setAuthToken(null);
     setUser(null);
     queryClient.clear();
     addToast('info', 'Signed out');

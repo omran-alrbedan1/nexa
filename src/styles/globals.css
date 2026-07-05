@@ -161,7 +161,7 @@
 }
 
 .dark .bg-gray-100 {
-  background-color: #1E293B;
+  background-color: var(--color-bg-card);
 }
 
 .dark .text-gray-500 {
@@ -217,11 +217,11 @@
 }
 
 .dark .bg-red-50 {
-  background-color: #3A1E15;
+  background-color: var(--color-brand-accent-light);
 }
 
 .dark .border-red-200 {
-  border-color: #7F1D1D;
+  border-color: var(--color-border-default);
 }
 
 .dark .text-red-700 {

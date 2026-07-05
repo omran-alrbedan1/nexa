@@ -15,6 +15,7 @@ import { ShoppingBag, Package, CheckCircle2, AlertTriangle,
 } from 'lucide-react';
 import type { OrderStatus, OrderType } from '@/types/marketplace';
 import type { OrderSummary } from '../api/ordersApi';
+import { cn } from '@/lib/utils';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -57,10 +58,6 @@ const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
 };
 
 
-
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
 
 export function OrdersPage() {
   const navigate = useNavigate();

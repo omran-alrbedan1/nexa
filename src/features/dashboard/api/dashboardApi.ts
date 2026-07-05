@@ -248,97 +248,75 @@ function buildStatsFromBackend(backend: DashboardBackendResponse): DashboardWidg
 // ── Helper: fetch widget data from their respective APIs ──
 
 async function fetchRecentOrders(): Promise<RecentOrder[]> {
-  try {
-    const result = await ordersApi.getOrders({ perPage: 5 });
-    return result.orders.map((o) => ({
-      id: o.id,
-      orderNumber: o.orderNumber,
-      customerName: o.customerName,
-      type: o.type,
-      status: o.status,
-      total: o.total,
-      createdAt: o.createdAt,
-    }));
-  } catch {
-    return [];
-  }
+  const result = await ordersApi.getOrders({ perPage: 5 });
+  return result.orders.map((o) => ({
+    id: o.id,
+    orderNumber: o.orderNumber,
+    customerName: o.customerName,
+    type: o.type,
+    status: o.status,
+    total: o.total,
+    createdAt: o.createdAt,
+  }));
 }
 
 async function fetchPendingApprovals(): Promise<PendingApproval[]> {
-  try {
-    const pendingSuppliers = await suppliersApi.getPendingApprovals();
-    if (pendingSuppliers.length === 0) return [];
-    return pendingSuppliers.map((s) => ({
-      id: s.id,
-      orderNumber: `SPL-${s.id}`,
-      customerName: s.name,
-      requestDetails: s.notes || `New supplier pending approval`,
-      createdAt: s.createdAt,
-    }));
-  } catch {
-    return [];
-  }
+  const pendingSuppliers = await suppliersApi.getPendingApprovals();
+  if (pendingSuppliers.length === 0) return [];
+  return pendingSuppliers.map((s) => ({
+    id: s.id,
+    orderNumber: `SPL-${s.id}`,
+    customerName: s.name,
+    requestDetails: s.notes || `New supplier pending approval`,
+    createdAt: s.createdAt,
+  }));
 }
 
 async function fetchTopSuppliers(): Promise<TopSupplier[]> {
-  try {
-    const result = await suppliersApi.getPageData();
-    // Sort by totalOrders desc, take top 5, map to TopSupplier
-    return result.suppliers
-      .filter((s) => s.totalOrders > 0)
-      .sort((a, b) => b.totalOrders - a.totalOrders)
-      .slice(0, 5)
-      .map((s) => ({
-        id: s.id,
-        name: s.name,
-        orderCount: s.totalOrders,
-        acceptanceRate: s.acceptanceRate,
-      }));
-  } catch {
-    return [];
-  }
+  const result = await suppliersApi.getPageData();
+  return result.suppliers
+    .filter((s) => s.totalOrders > 0)
+    .sort((a, b) => b.totalOrders - a.totalOrders)
+    .slice(0, 5)
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      orderCount: s.totalOrders,
+      acceptanceRate: s.acceptanceRate,
+    }));
 }
 
 async function fetchTopAreas(): Promise<TopArea[]> {
-  try {
-    const result = await regionsApi.getPageData();
-    // Sort by totalOrders desc, take top 5, map to TopArea
-    return result.regions
-      .filter((r) => r.totalOrders > 0)
-      .sort((a, b) => b.totalOrders - a.totalOrders)
-      .slice(0, 5)
-      .map((r) => ({
-        id: r.id,
-        name: r.name,
-        orderCount: r.totalOrders,
-        totalRevenue: r.totalRevenue,
-      }));
-  } catch {
-    return [];
-  }
+  const result = await regionsApi.getPageData();
+  return result.regions
+    .filter((r) => r.totalOrders > 0)
+    .sort((a, b) => b.totalOrders - a.totalOrders)
+    .slice(0, 5)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      orderCount: r.totalOrders,
+      totalRevenue: r.totalRevenue,
+    }));
 }
 
 async function fetchDriverActivity(): Promise<DriverStatus[]> {
-  try {
-    const result = await driversApi.getPageData();
-    return result.drivers.map((d) => {
-      let status: DriverStatus['status'] = 'offline';
-      if (d.isAvailable) {
-        status = 'available';
-      } else if (d.totalTrips > 0) {
-        status = 'on_trip';
-      }
-      return {
-        id: d.id,
-        name: d.name,
-        status,
-        completedToday: d.totalOrders,
-        regionName: d.zoneName,
-      };
-    });
-  } catch {
-    return [];
-  }
+  const result = await driversApi.getPageData();
+  return result.drivers.map((d) => {
+    let status: DriverStatus['status'] = 'offline';
+    if (d.isAvailable) {
+      status = 'available';
+    } else if (d.totalTrips > 0) {
+      status = 'on_trip';
+    }
+    return {
+      id: d.id,
+      name: d.name,
+      status,
+      completedToday: d.totalOrders,
+      regionName: d.zoneName,
+    };
+  });
 }
 
 // ── Transform backend response to frontend shape ──

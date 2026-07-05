@@ -167,96 +167,60 @@ function mapSummary(bo: BackendSpecialOrder): SpecialOrderSummary {
 export const specialOrdersApi = {
   /** Fetch paginated special orders list */
   getList: async (params?: { status?: string; page?: number; perPage?: number; search?: string }): Promise<{ data: SpecialOrderSummary[]; total: number }> => {
-    try {
-      const queryParams = new URLSearchParams();
-      if (params?.status) queryParams.set('status', params.status);
-      if (params?.page) queryParams.set('page', String(params.page));
-      if (params?.perPage) queryParams.set('per_page', String(params.perPage));
-      if (params?.search) queryParams.set('search', params.search);
-      const qs = queryParams.toString();
-      const response = await apiClient.get<ApiResponse<BackendListResponse>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
-      const data = response.data.data;
-      return {
-        data: data.special_orders.map(mapSummary),
-        total: data.meta.total,
-      };
-    } catch {
-      return { data: [], total: 0 };
-    }
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.set('status', params.status);
+    if (params?.page) queryParams.set('page', String(params.page));
+    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    if (params?.search) queryParams.set('search', params.search);
+    const qs = queryParams.toString();
+    const response = await apiClient.get<ApiResponse<BackendListResponse>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
+    const data = response.data.data;
+    return {
+      data: data.special_orders.map(mapSummary),
+      total: data.meta.total,
+    };
   },
 
   /** Fetch single special order detail */
   getDetail: async (id: number): Promise<SpecialOrder> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendSpecialOrder>>(`/api/v1/admin/special-orders/${id}`);
-      return mapDetail(response.data.data);
-    } catch {
-      throw new Error('Special order not found');
-    }
+    const response = await apiClient.get<ApiResponse<BackendSpecialOrder>>(`/api/v1/admin/special-orders/${id}`);
+    return mapDetail(response.data.data);
   },
 
   /** Assign supplier */
   assignSupplier: async (id: number, supplierId: number): Promise<void> => {
-    try {
-      await apiClient.post(`/api/v1/admin/special-orders/${id}/assign-supplier`, { supplier_id: supplierId });
-    } catch {
-      throw new Error('Failed to assign supplier');
-    }
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/assign-supplier`, { supplier_id: supplierId });
   },
 
   /** Assign staff */
   assignStaff: async (id: number, staffUserId: number): Promise<void> => {
-    try {
-      await apiClient.post(`/api/v1/admin/special-orders/${id}/assign-staff`, { staff_user_id: staffUserId });
-    } catch {
-      throw new Error('Failed to assign staff');
-    }
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/assign-staff`, { staff_user_id: staffUserId });
   },
 
   /** Approve special order */
   approve: async (id: number, note?: string): Promise<void> => {
-    try {
-      await apiClient.post(`/api/v1/admin/special-orders/${id}/approve`, { note: note || '' });
-    } catch {
-      throw new Error('Failed to approve special order');
-    }
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/approve`, { note: note || '' });
   },
 
   /** Reject special order */
   reject: async (id: number, reason: string): Promise<void> => {
-    try {
-      await apiClient.post(`/api/v1/admin/special-orders/${id}/reject`, { reason });
-    } catch {
-      throw new Error('Failed to reject special order');
-    }
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/reject`, { reason });
   },
 
   /** Update internal notes */
   updateNotes: async (id: number, notes: string): Promise<void> => {
-    try {
-      await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes });
-    } catch {
-      throw new Error('Failed to update notes');
-    }
+    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes });
   },
 
   /** Convert to regular order */
   convertToOrder: async (id: number): Promise<void> => {
-    try {
-      await apiClient.post(`/api/v1/admin/special-orders/${id}/convert-to-order`);
-    } catch {
-      throw new Error('Failed to convert special order');
-    }
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/convert-to-order`);
   },
 
   /** Submit price quote — backend stores pricing in notes via PUT /special-orders/{id}/notes */
   submitPriceQuote: async (id: number, price: number, notes: string): Promise<void> => {
-    try {
-      const pricingNotes = `Price Quote: SAR ${price}. ${notes ? notes : ''}`;
-      await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes: pricingNotes });
-    } catch {
-      throw new Error('Failed to submit price quote');
-    }
+    const pricingNotes = `Price Quote: SAR ${price}. ${notes ? notes : ''}`;
+    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes: pricingNotes });
   },
 };
 

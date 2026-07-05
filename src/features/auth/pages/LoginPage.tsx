@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth, getDefaultRoute } from '@/contexts/AuthContext';
-import { useToastStore } from '@/stores/toastStore';
 import { apiClient } from '@/lib/axios';
+import { LoginForm } from '@/features/auth/components/LoginForm';
 
 // ── Types ──
 
@@ -24,9 +22,6 @@ const ICONS = {
   fulfillment: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
   trendUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
   trendLive: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  eye: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  eyeOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
 };
 
 // ── Default Placeholder Stats ──
@@ -54,9 +49,6 @@ const DEFAULT_STATS: StatCardData[] = [
 
 async function fetchLoginStats(): Promise<StatCardData[]> {
   try {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return DEFAULT_STATS;
-
     const res = await apiClient.get('/api/v1/admin/dashboard');
     const d = res.data?.data;
     if (!d) return DEFAULT_STATS;
@@ -97,14 +89,6 @@ async function fetchLoginStats(): Promise<StatCardData[]> {
   }
 }
 
-// ── Quick-fill credentials ──
-
-const QUICK_FILL = [
-  { email: 'admin@nexa.local', label: 'Admin', color: '#2dd4a8' },
-  { email: 'ops@nexa.local', label: 'Ops', color: '#3b82f6' },
-  { email: 'warehouse@nexa.local', label: 'Warehouse', color: '#a855f7' },
-];
-
 // ── Helpers ──
 
 const ICON_BG_CLASS: Record<string, string> = {
@@ -124,29 +108,16 @@ const ICON_COLOR: Record<string, string> = {
 // ── Component ──
 
 export function LoginPage() {
+  const [stats, setStats] = useState<StatCardData[]>(DEFAULT_STATS);
+  const statsLoaded = useRef(false);
+
   // Inject focus styles once on mount, clean up on unmount
   useEffect(() => {
     const style = document.createElement('style');
-    style.textContent = `
-      input:focus {
-        border-color: #2dd4a8 !important;
-      }
-    `;
+    style.textContent = `input:focus { border-color: #2dd4a8 !important; }`;
     document.head.appendChild(style);
     return () => style.remove();
   }, []);
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState<StatCardData[]>(DEFAULT_STATS);
-  const statsLoaded = useRef(false);
 
   // ── Fetch stats on mount ──
   useEffect(() => {
@@ -155,30 +126,6 @@ export function LoginPage() {
       fetchLoginStats().then(setStats);
     }
   }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-    try {
-      await login(email, password);
-      const destination = from || getDefaultRoute(undefined);
-      navigate(destination, { replace: true });
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (err instanceof Error ? err.message : 'Login failed. Check your credentials.');
-      setError(message);
-      useToastStore.getState().addToast('error', message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const quickFill = (credEmail: string) => {
-    setEmail(credEmail);
-    setPassword('password');
-  };
 
   return (
     <div style={styles.pageContainer}>
@@ -325,121 +272,7 @@ export function LoginPage() {
 
       {/* ── RIGHT PANEL (Light) ── */}
       <div style={styles.rightPanel}>
-        <div style={styles.loginCard}>
-          {/* Logo */}
-          <div style={styles.loginLogo}>
-            <div style={styles.loginLogoIcon}>N</div>
-            <span style={styles.loginLogoName}>NEXA</span>
-            <span style={styles.loginLogoSub}>Operations</span>
-          </div>
-
-          <h2 style={styles.loginTitle}>Welcome Back</h2>
-          <p style={styles.loginSubtitle}>Sign in to your operations dashboard.</p>
-
-          {error && (
-            <div style={styles.errorBox} role="alert">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <label style={styles.formLabel}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-              placeholder="admin@nexa.local"
-              style={styles.textInput}
-            />
-
-            <label style={{ ...styles.formLabel, marginTop: 20 }}>Password</label>
-            <div style={styles.passwordWrapper}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Enter password"
-                style={styles.passwordInput}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={styles.eyeBtn}
-                dangerouslySetInnerHTML={{ __html: showPassword ? ICONS.eyeOff : ICONS.eye }}
-              />
-            </div>
-
-            <div style={styles.formOptions}>
-              <label style={styles.rememberMe}>
-                <input type="checkbox" defaultChecked style={styles.checkbox} />
-                Remember me
-              </label>
-              <a href="#" style={styles.forgotLink} onClick={(e) => e.preventDefault()}>
-                Forgot Password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                ...styles.loginBtn,
-                opacity: isLoading ? 0.7 : 1,
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {isLoading ? 'Signing in...' : (
-                <>
-                  Login to Dashboard
-                  <span style={styles.btnArrow} dangerouslySetInnerHTML={{ __html: ICONS.arrowRight }} />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Quick-fill */}
-          <div style={styles.divider}>
-            <div style={styles.dividerLine} />
-            <span style={styles.dividerText}>quick login</span>
-            <div style={styles.dividerLine} />
-          </div>
-
-          <div style={styles.quickFillRow}>
-            {QUICK_FILL.map((cred) => (
-              <button
-                key={cred.email}
-                type="button"
-                onClick={() => quickFill(cred.email)}
-                style={{
-                  ...styles.quickFillBtn,
-                  borderColor: cred.color,
-                  color: cred.color,
-                }}
-              >
-                {cred.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Trust badges */}
-          <div style={styles.trustBadges}>
-            <div style={styles.trustBadge}>
-              <span style={styles.trustIcon} dangerouslySetInnerHTML={{ __html: ICONS.fulfillment.replace('strokeWidth="2"', 'strokeWidth="2" style="color:#2dd4a8"') }} />
-              Verified Supplier Platform
-            </div>
-            <div style={styles.trustBadge}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Secure Business Operations
-            </div>
-            <div style={styles.trustBadge}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Protected Commercial Data
-            </div>
-          </div>
-        </div>
+        <LoginForm />
       </div>
 
       {/* Animation styles */}
@@ -665,221 +498,6 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     padding: 40,
     background: '#f0f2f5',
-  },
-  loginCard: {
-    background: '#fff',
-    borderRadius: 24,
-    padding: '44px 40px',
-    width: '100%',
-    maxWidth: 420,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-  },
-  loginLogo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 28,
-  },
-  loginLogoIcon: {
-    width: 32,
-    height: 32,
-    background: '#2dd4a8',
-    borderRadius: 8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 700,
-    fontSize: 14,
-    color: '#0a1628',
-  },
-  loginLogoName: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: '#1a1a2e',
-  },
-  loginLogoSub: {
-    fontSize: 13,
-    color: '#2dd4a8',
-    fontWeight: 500,
-  },
-  loginTitle: {
-    fontSize: 26,
-    fontWeight: 700,
-    color: '#1a1a2e',
-    marginBottom: 6,
-  },
-  loginSubtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 28,
-  },
-  errorBox: {
-    background: '#fef2f2',
-    border: '1px solid #fecaca',
-    color: '#b91c1c',
-    padding: '12px 16px',
-    borderRadius: 12,
-    fontSize: 13,
-    marginBottom: 16,
-    lineHeight: 1.4,
-  },
-  formLabel: {
-    display: 'block',
-    fontSize: 11,
-    fontWeight: 700,
-    color: '#374151',
-    letterSpacing: 1,
-    textTransform: 'uppercase' as const,
-    marginBottom: 8,
-  },
-  textInput: {
-    width: '100%',
-    padding: '13px 16px',
-    border: '1.5px solid #e5e7eb',
-    borderRadius: 12,
-    background: '#f9fafb',
-    fontSize: 14,
-    color: '#374151',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    boxSizing: 'border-box' as const,
-  },
-  passwordWrapper: {
-    position: 'relative',
-    marginBottom: 20,
-  },
-  passwordInput: {
-    width: '100%',
-    padding: '13px 48px 13px 16px',
-    border: '1.5px solid #e5e7eb',
-    borderRadius: 12,
-    background: '#f9fafb',
-    fontSize: 14,
-    color: '#374151',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-    boxSizing: 'border-box' as const,
-  },
-  eyeBtn: {
-    position: 'absolute',
-    right: 14,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: '#9ca3af',
-    display: 'flex',
-    padding: 0,
-  },
-  formOptions: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  rememberMe: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    fontSize: 13,
-    color: '#6b7280',
-    cursor: 'pointer',
-  },
-  checkbox: {
-    width: 16,
-    height: 16,
-    accentColor: '#2dd4a8',
-  },
-  forgotLink: {
-    fontSize: 13,
-    color: '#2dd4a8',
-    textDecoration: 'none',
-    fontWeight: 600,
-  },
-  loginBtn: {
-    width: '100%',
-    padding: '15px 20px',
-    background: 'linear-gradient(135deg, #2dd4a8, #20b892)',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 14,
-    fontSize: 15,
-    fontWeight: 600,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    transition: 'transform 0.15s, box-shadow 0.15s',
-    boxShadow: '0 4px 16px rgba(45,212,168,0.3)',
-  },
-  btnArrow: {
-    display: 'inline-flex',
-    width: 18,
-    height: 18,
-  },
-
-  // ── Divider & Quick Fill ──
-  divider: {
-    display: 'flex',
-    alignItems: 'center',
-    margin: '20px 0',
-    gap: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    background: '#e5e7eb',
-  },
-  dividerText: {
-    fontSize: 12,
-    color: '#9ca3af',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    fontWeight: 500,
-  },
-  quickFillRow: {
-    display: 'flex',
-    gap: 8,
-    marginBottom: 20,
-  },
-  quickFillBtn: {
-    flex: 1,
-    padding: '10px 16px',
-    background: '#fff',
-    border: '1.5px solid',
-    borderRadius: 10,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.15s',
-    textAlign: 'center' as const,
-  },
-
-  // ── Trust Badges ──
-  trustBadges: {
-    marginTop: 20,
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 8,
-    alignItems: 'center',
-  },
-  trustBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    background: '#f3f4f6',
-    borderRadius: 20,
-    padding: '7px 14px',
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: 500,
-  },
-  trustIcon: {
-    width: 14,
-    height: 14,
-    display: 'inline-flex',
-    color: '#2dd4a8',
   },
 };
 

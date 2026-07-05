@@ -88,72 +88,48 @@ function mapBackendDriver(d: BackendDriver): Driver {
 export const driversApi = {
   /** Fetch single driver */
   getDriver: async (id: number): Promise<Driver> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}`);
-      return mapBackendDriver(response.data.data);
-    } catch {
-      throw new Error('Driver not found');
-    }
+    const response = await apiClient.get<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}`);
+    return mapBackendDriver(response.data.data);
   },
 
   /** Fetch all drivers */
   getPageData: async (): Promise<DriversPageData> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers');
-      const backendData = response.data.data;
-      const drivers = backendData.drivers.map(mapBackendDriver);
-      return {
-        stats: {
-          total: drivers.length,
-          available: drivers.filter((d) => d.isAvailable).length,
-          onTrip: drivers.filter((d) => !d.isAvailable).length,
-          inactive: 0,
-        },
-        drivers,
-      };
-    } catch {
-      return { stats: { total: 0, available: 0, onTrip: 0, inactive: 0 }, drivers: [] };
-    }
+    const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers');
+    const backendData = response.data.data;
+    const drivers = backendData.drivers.map(mapBackendDriver);
+    return {
+      stats: {
+        total: drivers.length,
+        available: drivers.filter((d) => d.isAvailable).length,
+        onTrip: drivers.filter((d) => !d.isAvailable).length,
+        inactive: 0,
+      },
+      drivers,
+    };
   },
 
   /** Fetch pending-approval drivers */
   getPendingApprovals: async (): Promise<Driver[]> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendDriver[]>>('/api/v1/admin/drivers/pending-approvals');
-      return response.data.data.map(mapBackendDriver);
-    } catch {
-      return [];
-    }
+    const response = await apiClient.get<ApiResponse<{ drivers: BackendDriver[] }>>('/api/v1/admin/drivers/pending-approvals');
+    return (response.data.data?.drivers ?? []).map(mapBackendDriver);
   },
 
   /** Approve a pending driver */
   approveDriver: async (id: number): Promise<Driver> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/approve`);
-      return mapBackendDriver(response.data.data);
-    } catch {
-      throw new Error('Driver not found');
-    }
+    const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/approve`);
+    return mapBackendDriver(response.data.data);
   },
 
   /** Reject a pending driver */
   rejectDriver: async (id: number, reason?: string): Promise<Driver> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/reject`, { reason: reason || '' });
-      return mapBackendDriver(response.data.data);
-    } catch {
-      throw new Error('Driver not found');
-    }
+    const response = await apiClient.post<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/reject`, { reason: reason || '' });
+    return mapBackendDriver(response.data.data);
   },
 
   /** Toggle driver availability — backend uses PUT /drivers/{id}/availability */
   toggleAvailability: async (id: number): Promise<Driver> => {
-    try {
-      const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`);
-      return mapBackendDriver(response.data.data);
-    } catch {
-      throw new Error('Driver not found');
-    }
+    const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`);
+    return mapBackendDriver(response.data.data);
   },
 };
 

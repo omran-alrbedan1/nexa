@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
 import type { UserRole } from '@/types/marketplace';
@@ -11,8 +11,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedRouteProps) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -40,9 +41,8 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
           </div>
           <button
             onClick={() => {
-              localStorage.removeItem('auth_token');
-              localStorage.removeItem('auth_user');
-              window.location.href = ROUTES.LOGIN;
+              logout();
+              navigate(ROUTES.LOGIN);
             }}
             className="mt-4 text-sm text-blue-600 hover:underline"
           >
@@ -66,9 +66,8 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
         </div>
         <button
           onClick={() => {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('auth_user');
-            window.location.href = ROUTES.LOGIN;
+            logout();
+            navigate(ROUTES.LOGIN);
           }}
           className="mt-4 text-sm text-blue-600 hover:underline"
         >

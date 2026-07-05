@@ -126,7 +126,6 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
 export const productsApi = {
   /** Fetch all products page data (stats + categories + products) */
   getPageData: async (): Promise<ProductsPageData> => {
-    try {
       const [productsRes, categoriesRes] = await Promise.all([
         apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products'),
         apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories').catch(() => null),
@@ -153,14 +152,10 @@ export const productsApi = {
         categories,
         products,
       };
-    } catch {
-      return { stats: { totalProducts: 0, available: 0, outOfStock: 0, categories: 0, suppliers: 0, avgPrice: 0 }, categories: [], products: [] };
-    }
   },
 
   /** Get paginated product list */
   getProducts: async (): Promise<PaginatedResponse<DashboardProduct>> => {
-    try {
       const response = await apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products');
       const backendData = response.data.data;
       const products = backendData.products.map(mapBackendProduct);
@@ -173,93 +168,58 @@ export const productsApi = {
           total: backendData.meta.total,
         },
       };
-    } catch {
-      throw new Error('Failed to fetch products');
-    }
   },
 
   /** Get single product */
   getProduct: async (id: number): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.get<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`);
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 
   /** Create a new product */
   createProduct: async (data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', data);
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Failed to create product');
-    }
   },
 
   /** Update product */
   updateProduct: async (id: number, data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, data);
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 
   /** Fetch pending-approval products (uses dedicated endpoint) */
   getPendingApprovals: async (): Promise<DashboardProduct[]> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendProduct[]>>('/api/v1/admin/products/pending-approvals');
-      return response.data.data.map(mapBackendProduct);
-    } catch {
-      return [];
-    }
+      const response = await apiClient.get<ApiResponse<{ products: BackendProduct[] }>>('/api/v1/admin/products/pending-approvals');
+      return (response.data.data?.products ?? []).map(mapBackendProduct);
   },
 
   /** Toggle product availability */
   toggleAvailability: async (id: number): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/toggle`);
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 
   /** Approve a pending product */
   approveProduct: async (id: number): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/approve`);
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 
   /** Reject a pending product with a reason */
   rejectProduct: async (id: number, reason: string): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/reject`, { reason });
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 
   /** Adjust stock level (add or remove units) — backend expects {quantity, type, note?} */
   adjustStock: async (id: number, adjustment: number, reason: string, type: 'add' | 'deduct' = 'add'): Promise<DashboardProduct> => {
-    try {
       const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}/stock-adjust`, {
         quantity: Math.abs(adjustment),
         type,
         note: reason,
       });
       return mapBackendProduct(response.data.data);
-    } catch {
-      throw new Error('Product not found');
-    }
   },
 };
 

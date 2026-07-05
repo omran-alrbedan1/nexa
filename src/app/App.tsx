@@ -189,14 +189,6 @@ function NotFound() {
   );
 }
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="flex items-center justify-center h-64">
-      <p className="text-gray-400 text-lg">{title} — Coming soon</p>
-    </div>
-  );
-}
-
 export function App() {
   return (
     <Providers>
@@ -214,72 +206,86 @@ export function App() {
               {/* Redirect root to dashboard */}
               <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
-              {/* Dashboard — accessible by all roles */}
+              {/* Dashboard — accessible by all roles with admin_panel.access */}
               <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
               <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
 
-
-
-              {/* Admin pages */}
-              <Route path={ROUTES.SUPPLIERS} element={<SuppliersPage />} />
-              <Route path={ROUTES.SUPPLIER_CREATE} element={<CreateSupplierPage />} />
-              <Route path={ROUTES.SUPPLIER_DETAIL(':supplierId')} element={<SupplierDetailPage />} />
-              <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
-              <Route path={ROUTES.PRODUCT_CREATE} element={<CreateProductPage />} />
-              <Route path={ROUTES.PRODUCT_EDIT(':productId')} element={<EditProductPage />} />
-              <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<ProductDetailPage />} />
-              <Route path={ROUTES.REGIONS} element={<RegionsPage />} />
-              <Route path={ROUTES.REGION_DETAIL(':regionId')} element={<RegionDetailPage />} />
-              <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
-              <Route path={ROUTES.CAMPAIGN_DETAIL(':campaignId')} element={<CampaignDetailPage />} />
-              <Route path={ROUTES.CAMPAIGN_CREATE} element={<CreateCampaignPage />} />
-              <Route path={ROUTES.TRIPS} element={<TripsPage />} />
-              <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<TripDetailPage />} />
-              <Route path={ROUTES.TRIP_CREATE} element={<CreateTripPage />} />
-              <Route path={ROUTES.DRIVERS} element={<DriversPage />} />
-              <Route path={ROUTES.DRIVER_DETAIL(':driverId')} element={<DriverDetailPage />} />
-
-              {/* Payments */}
-              <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
-              <Route path={ROUTES.PAYMENT_DETAIL(':paymentId')} element={<PaymentsPage />} />
-
-              {/* Support Tickets */}
-              <Route path={ROUTES.SUPPORT_TICKETS} element={<SupportTicketsPage />} />
-
-              {/* Reports */}
-              <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
-
-              {/* Special Orders */}
-              <Route path={ROUTES.SPECIAL_ORDERS} element={<SpecialOrdersPage />} />
-              <Route path={ROUTES.SPECIAL_ORDER_DETAIL(':requestId')} element={<SpecialOrderDetailPage />} />
-
-              {/* Customers */}
-              <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
-              <Route path={ROUTES.CUSTOMER_DETAIL(':customerId')} element={<CustomerDetailPage />} />
-
-              {/* Orders */}
-              <Route path={ROUTES.ORDERS} element={<OrdersPage />} />
-              <Route path={ROUTES.ORDER_DETAIL(':orderId')} element={<OrderDetailPage />} />
-
-              {/* Operations */}
+              {/* Operations — accessible by operations role */}
               <Route path={ROUTES.OPERATIONS} element={<OperationsPage />} />
 
-              {/* Aggregation (warehouse) */}
+              {/* Aggregation (warehouse) — accessible by aggregation role */}
               <Route path={ROUTES.AGGREGATION} element={<AggregationPage />} />
               <Route path={ROUTES.WAREHOUSE_SETTINGS} element={<WarehouseSettingsPage />} />
               <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
 
-              {/* Settings */}
-              <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
-              <Route path={ROUTES.SETTINGS_ROLES} element={<RolesPage />} />
-              <Route path={ROUTES.SETTINGS_STAFF} element={<StaffPage />} />
-              <Route path={ROUTES.SETTINGS_BANNERS} element={<BannersPage />} />
-              <Route path={ROUTES.SETTINGS_NOTIFICATIONS} element={<NotificationsPage />} />
-              <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
-
               {/* Operations sub-pages */}
               <Route path={ROUTES.COMPLAINT_DETAIL(':complaintId')} element={<ComplaintDetailPage />} />
               <Route path={ROUTES.SPECIAL_REQUEST_DETAIL(':requestId')} element={<SpecialRequestDetailPage />} />
+
+              {/* Orders & payments — requires orders.view or orders.manage */}
+              <Route element={<ProtectedRoute requiredPermissions={['orders.view', 'orders.manage']} />}>
+                <Route path={ROUTES.ORDERS} element={<OrdersPage />} />
+                <Route path={ROUTES.ORDER_DETAIL(':orderId')} element={<OrderDetailPage />} />
+                <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
+                <Route path={ROUTES.PAYMENT_DETAIL(':paymentId')} element={<PaymentsPage />} />
+                <Route path={ROUTES.SUPPORT_TICKETS} element={<SupportTicketsPage />} />
+                <Route path={ROUTES.SPECIAL_ORDERS} element={<SpecialOrdersPage />} />
+                <Route path={ROUTES.SPECIAL_ORDER_DETAIL(':requestId')} element={<SpecialOrderDetailPage />} />
+              </Route>
+
+              {/* Customers — requires customers.view or customers.manage */}
+              <Route element={<ProtectedRoute requiredPermissions={['customers.view', 'customers.manage']} />}>
+                <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
+                <Route path={ROUTES.CUSTOMER_DETAIL(':customerId')} element={<CustomerDetailPage />} />
+              </Route>
+
+              {/* Suppliers — requires suppliers.view */}
+              <Route element={<ProtectedRoute requiredPermissions={['suppliers.view']} />}>
+                <Route path={ROUTES.SUPPLIERS} element={<SuppliersPage />} />
+                <Route path={ROUTES.SUPPLIER_CREATE} element={<CreateSupplierPage />} />
+                <Route path={ROUTES.SUPPLIER_DETAIL(':supplierId')} element={<SupplierDetailPage />} />
+              </Route>
+
+              {/* Products & campaigns — requires products.view */}
+              <Route element={<ProtectedRoute requiredPermissions={['products.view']} />}>
+                <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
+                <Route path={ROUTES.PRODUCT_CREATE} element={<CreateProductPage />} />
+                <Route path={ROUTES.PRODUCT_EDIT(':productId')} element={<EditProductPage />} />
+                <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<ProductDetailPage />} />
+                <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
+                <Route path={ROUTES.CAMPAIGN_DETAIL(':campaignId')} element={<CampaignDetailPage />} />
+                <Route path={ROUTES.CAMPAIGN_CREATE} element={<CreateCampaignPage />} />
+              </Route>
+
+              {/* Trips — requires trips.view or trips.manage */}
+              <Route element={<ProtectedRoute requiredPermissions={['trips.view', 'trips.manage']} />}>
+                <Route path={ROUTES.TRIPS} element={<TripsPage />} />
+                <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<TripDetailPage />} />
+                <Route path={ROUTES.TRIP_CREATE} element={<CreateTripPage />} />
+              </Route>
+
+              {/* Drivers — requires drivers.view */}
+              <Route element={<ProtectedRoute requiredPermissions={['drivers.view']} />}>
+                <Route path={ROUTES.DRIVERS} element={<DriversPage />} />
+                <Route path={ROUTES.DRIVER_DETAIL(':driverId')} element={<DriverDetailPage />} />
+              </Route>
+
+              {/* Regions & settings — requires settings.manage */}
+              <Route element={<ProtectedRoute requiredPermissions={['settings.manage']} />}>
+                <Route path={ROUTES.REGIONS} element={<RegionsPage />} />
+                <Route path={ROUTES.REGION_DETAIL(':regionId')} element={<RegionDetailPage />} />
+                <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+                <Route path={ROUTES.SETTINGS_ROLES} element={<RolesPage />} />
+                <Route path={ROUTES.SETTINGS_STAFF} element={<StaffPage />} />
+                <Route path={ROUTES.SETTINGS_BANNERS} element={<BannersPage />} />
+                <Route path={ROUTES.SETTINGS_NOTIFICATIONS} element={<NotificationsPage />} />
+                <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
+              </Route>
+
+              {/* Reports — requires reports.view */}
+              <Route element={<ProtectedRoute requiredPermissions={['reports.view']} />}>
+                <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
+              </Route>
 
             </Route>
           </Route>

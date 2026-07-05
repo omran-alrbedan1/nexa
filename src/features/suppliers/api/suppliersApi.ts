@@ -11,6 +11,7 @@
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
+import { mapSupplierApprovalStatus } from '@/lib/enumMappers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { DashboardProduct } from '@/features/products/api/productsApi';
 
@@ -141,15 +142,6 @@ function mapBackendProductToDashboard(bp: BackendSupplierProduct): DashboardProd
 
 // ── Mapping: BackendSupplier → frontend Supplier ──
 
-function mapApprovalStatus(status: string): SupplierStatus {
-  switch (status) {
-    case 'approved': return 'active';
-    case 'pending': return 'pending_approval';
-    case 'rejected': return 'suspended';
-    default: return 'inactive';
-  }
-}
-
 function mapBackendSupplier(bs: BackendSupplier): Supplier {
   return {
     id: bs.id,
@@ -159,7 +151,7 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     phone: bs.user?.phone || '',
     commercialRegister: '', // not available from backend
     taxNumber: '', // not available from backend
-    status: mapApprovalStatus(bs.approval_status),
+    status: mapSupplierApprovalStatus(bs.approval_status) as SupplierStatus,
     paymentTerms: 'net_30', // default — not available from backend
     commissionRate: 10, // default — not available from backend
     rating: Number(bs.rating_avg ?? 0),
@@ -180,123 +172,87 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
 export const suppliersApi = {
   /** Fetch all suppliers page data (stats + list) */
   getPageData: async (): Promise<SuppliersPageData> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
-      const backendData = response.data.data; // { suppliers: [...], meta: {...} }
-      const suppliers = backendData.suppliers.map(mapBackendSupplier);
-      const active = suppliers.filter((s) => s.status === 'active').length;
-      const pending = suppliers.filter((s) => s.status === 'pending_approval').length;
-      const suspended = suppliers.filter((s) => s.status === 'suspended').length;
-      const ratings = suppliers.filter((s) => s.rating > 0);
-      const avgRating = ratings.length > 0
-        ? ratings.reduce((sum, s) => sum + s.rating, 0) / ratings.length
-        : 0;
-      return {
-        stats: {
-          total: suppliers.length,
-          active,
-          pendingApproval: pending,
-          suspended,
-          avgRating: Math.round(avgRating * 10) / 10,
-          totalOrders: suppliers.reduce((sum, s) => sum + s.totalOrders, 0),
-          totalRevenue: suppliers.reduce((sum, s) => sum + s.totalRevenue, 0),
-        },
-        suppliers,
-      };
-    } catch {
-      return { stats: { total: 0, active: 0, pendingApproval: 0, suspended: 0, avgRating: 0, totalOrders: 0, totalRevenue: 0 }, suppliers: [] };
-    }
+    const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
+    const backendData = response.data.data;
+    const suppliers = backendData.suppliers.map(mapBackendSupplier);
+    const active = suppliers.filter((s) => s.status === 'active').length;
+    const pending = suppliers.filter((s) => s.status === 'pending_approval').length;
+    const suspended = suppliers.filter((s) => s.status === 'suspended').length;
+    const ratings = suppliers.filter((s) => s.rating > 0);
+    const avgRating = ratings.length > 0
+      ? ratings.reduce((sum, s) => sum + s.rating, 0) / ratings.length
+      : 0;
+    return {
+      stats: {
+        total: suppliers.length,
+        active,
+        pendingApproval: pending,
+        suspended,
+        avgRating: Math.round(avgRating * 10) / 10,
+        totalOrders: suppliers.reduce((sum, s) => sum + s.totalOrders, 0),
+        totalRevenue: suppliers.reduce((sum, s) => sum + s.totalRevenue, 0),
+      },
+      suppliers,
+    };
   },
 
   /** Get paginated supplier list */
   getSuppliers: async (): Promise<PaginatedResponse<Supplier>> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
-      const backendData = response.data.data;
-      const suppliers = backendData.suppliers.map(mapBackendSupplier);
-      return {
-        data: suppliers,
-        meta: {
-          currentPage: backendData.meta.current_page,
-          lastPage: backendData.meta.last_page,
-          perPage: 20,
-          total: backendData.meta.total,
-        },
-      };
-    } catch {
-      throw new Error('Failed to fetch suppliers');
-    }
+    const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
+    const backendData = response.data.data;
+    const suppliers = backendData.suppliers.map(mapBackendSupplier);
+    return {
+      data: suppliers,
+      meta: {
+        currentPage: backendData.meta.current_page,
+        lastPage: backendData.meta.last_page,
+        perPage: 20,
+        total: backendData.meta.total,
+      },
+    };
   },
 
   /** Get single supplier */
   getSupplier: async (id: number): Promise<Supplier> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`);
-      return mapBackendSupplier(response.data.data);
-    } catch {
-      throw new Error('Supplier not found');
-    }
+    const response = await apiClient.get<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`);
+    return mapBackendSupplier(response.data.data);
   },
 
   /** Create a new supplier */
   createSupplier: async (data: Partial<Supplier>): Promise<Supplier> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendSupplier>>('/api/v1/admin/suppliers', data);
-      return mapBackendSupplier(response.data.data);
-    } catch {
-      throw new Error('Failed to create supplier');
-    }
+    const response = await apiClient.post<ApiResponse<BackendSupplier>>('/api/v1/admin/suppliers', data);
+    return mapBackendSupplier(response.data.data);
   },
 
   /** Update an existing supplier */
   updateSupplier: async (id: number, data: Partial<Supplier>): Promise<Supplier> => {
-    try {
-      const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
-      return mapBackendSupplier(response.data.data);
-    } catch {
-      throw new Error('Supplier not found');
-    }
+    const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
+    return mapBackendSupplier(response.data.data);
   },
 
   /** Approve a pending supplier */
   approveSupplier: async (id: number): Promise<Supplier> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/approve`);
-      return mapBackendSupplier(response.data.data);
-    } catch {
-      throw new Error('Supplier not found');
-    }
+    const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/approve`);
+    return mapBackendSupplier(response.data.data);
   },
 
-  /** Fetch pending-approval suppliers (uses dedicated endpoint) */
+  /** Fetch pending-approval suppliers */
   getPendingApprovals: async (): Promise<Supplier[]> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendSupplier[]>>('/api/v1/admin/suppliers/pending-approvals');
-      return response.data.data.map(mapBackendSupplier);
-    } catch {
-      return [];
-    }
+    const response = await apiClient.get<ApiResponse<{ suppliers: BackendSupplier[] }>>('/api/v1/admin/suppliers/pending-approvals');
+    return (response.data.data?.suppliers ?? []).map(mapBackendSupplier);
   },
 
   /** Fetch products belonging to this supplier */
   getSupplierProducts: async (supplierId: number): Promise<DashboardProduct[]> => {
-    try {
-      const response = await apiClient.get<ApiResponse<{ products: BackendSupplierProduct[]; meta: Record<string, unknown> }>>(`/api/v1/admin/suppliers/${supplierId}/products`);
-      const data = response.data.data;
-      return (data.products || []).map(mapBackendProductToDashboard);
-    } catch {
-      return [];
-    }
+    const response = await apiClient.get<ApiResponse<{ products: BackendSupplierProduct[]; meta: Record<string, unknown> }>>(`/api/v1/admin/suppliers/${supplierId}/products`);
+    const data = response.data.data;
+    return (data.products || []).map(mapBackendProductToDashboard);
   },
 
   /** Suspend a supplier */
   suspendSupplier: async (id: number, reason: string): Promise<Supplier> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/reject`, { reason });
-      return mapBackendSupplier(response.data.data);
-    } catch {
-      throw new Error('Failed to suspend supplier');
-    }
+    const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/reject`, { reason });
+    return mapBackendSupplier(response.data.data);
   },
 };
 

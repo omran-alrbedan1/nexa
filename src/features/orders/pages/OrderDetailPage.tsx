@@ -15,6 +15,7 @@ import {
   CalendarDays, Building2, ArrowRightLeft,
 } from 'lucide-react';
 import type { OrderDetail } from '../api/ordersApi';
+import { cn } from '@/lib/utils';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -65,10 +66,6 @@ function OrderInfoCard({ icon, label, children }: { icon: React.ReactNode; label
       </div>
     </Card>
   );
-}
-
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
 }
 
 export function OrderDetailPage() {

@@ -12,6 +12,7 @@
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
+import { mapFromBackend, CAMPAIGN_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
 import type { ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
@@ -95,18 +96,6 @@ interface BackendCampaignsResponse {
 
 // ── Mapping ──
 
-function mapBackendCampaignStatus(status: string): CampaignStatus {
-  const map: Record<string, CampaignStatus> = {
-    'draft': 'draft',
-    'scheduled': 'scheduled',
-    'open': 'active',
-    'closed': 'ended',
-    'fulfilled': 'ended',
-    'archived': 'ended',
-  };
-  return map[status] || 'draft';
-}
-
 function mapBackendCampaign(c: BackendCampaign): Campaign {
   return {
     id: c.id,
@@ -114,7 +103,7 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
     nameAr: c.name_ar,
     description: c.description || '',
     descriptionAr: '',
-    status: mapBackendCampaignStatus(c.status),
+    status: mapFromBackend(c.status, CAMPAIGN_STATUS_BACKEND_TO_FRONTEND) as CampaignStatus,
     startDate: c.starts_at,
     endDate: c.ends_at,
     products: [],
@@ -132,26 +121,22 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
 export const campaignsApi = {
   /** Fetch all campaigns page data */
   getPageData: async (): Promise<CampaignsPageData> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/campaigns');
-      const backendData = response.data.data;
-      const campaigns = backendData.campaigns.map(mapBackendCampaign);
-      return {
-        stats: {
-          total: campaigns.length,
-          active: campaigns.filter((c) => c.status === 'active').length,
-          scheduled: campaigns.filter((c) => c.status === 'scheduled').length,
-          draft: campaigns.filter((c) => c.status === 'draft').length,
-          ended: campaigns.filter((c) => c.status === 'ended').length,
-          totalRevenue: campaigns.reduce((s, c) => s + c.totalRevenue, 0),
-          totalOrders: campaigns.reduce((s, c) => s + c.totalOrders, 0),
-          totalBudget: campaigns.reduce((s, c) => s + c.budget, 0),
-        },
-        campaigns,
-      };
-    } catch {
-      return { stats: { total: 0, active: 0, scheduled: 0, draft: 0, ended: 0, totalRevenue: 0, totalOrders: 0, totalBudget: 0 }, campaigns: [] };
-    }
+    const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/campaigns');
+    const backendData = response.data.data;
+    const campaigns = backendData.campaigns.map(mapBackendCampaign);
+    return {
+      stats: {
+        total: campaigns.length,
+        active: campaigns.filter((c) => c.status === 'active').length,
+        scheduled: campaigns.filter((c) => c.status === 'scheduled').length,
+        draft: campaigns.filter((c) => c.status === 'draft').length,
+        ended: campaigns.filter((c) => c.status === 'ended').length,
+        totalRevenue: campaigns.reduce((s, c) => s + c.totalRevenue, 0),
+        totalOrders: campaigns.reduce((s, c) => s + c.totalOrders, 0),
+        totalBudget: campaigns.reduce((s, c) => s + c.budget, 0),
+      },
+      campaigns,
+    };
   },
 
   /** Create a new campaign — backend POST /api/v1/admin/campaigns */
@@ -164,41 +149,29 @@ export const campaignsApi = {
     endsAt: string;
     status?: string;
   }): Promise<Campaign> => {
-    try {
-      const response = await apiClient.post<ApiResponse<BackendCampaign>>('/api/v1/admin/campaigns', {
-        name_en: data.name,
-        name_ar: data.nameAr || data.name,
-        description: data.description,
-        zone_id: data.zoneId,
-        starts_at: data.startsAt,
-        ends_at: data.endsAt,
-        status: data.status || 'draft',
-      });
-      return mapBackendCampaign(response.data.data);
-    } catch {
-      throw new Error('Failed to create campaign');
-    }
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>('/api/v1/admin/campaigns', {
+      name_en: data.name,
+      name_ar: data.nameAr || data.name,
+      description: data.description,
+      zone_id: data.zoneId,
+      starts_at: data.startsAt,
+      ends_at: data.endsAt,
+      status: data.status || 'draft',
+    });
+    return mapBackendCampaign(response.data.data);
   },
 
   /** Get single campaign */
   getCampaign: async (id: number): Promise<Campaign> => {
-    try {
-      const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`);
-      return mapBackendCampaign(response.data.data);
-    } catch {
-      throw new Error('Campaign not found');
-    }
+    const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`);
+    return mapBackendCampaign(response.data.data);
   },
 
   /** Activate, close, or archive a campaign */
   campaignAction: async (id: number, action: 'activate' | 'end' | 'cancel'): Promise<Campaign> => {
-    try {
-      const endpoint = action === 'activate' ? 'activate' : action === 'end' ? 'close' : 'archive';
-      const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}/${endpoint}`);
-      return mapBackendCampaign(response.data.data);
-    } catch {
-      throw new Error('Campaign not found');
-    }
+    const endpoint = action === 'activate' ? 'activate' : action === 'end' ? 'close' : 'archive';
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}/${endpoint}`);
+    return mapBackendCampaign(response.data.data);
   },
 };
 

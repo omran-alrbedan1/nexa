@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersApi, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
 import { useToastStore } from '@/stores/toastStore';
+import { extractErrorMessage } from '@/lib/apiHelpers';
 
 export const ordersKeys = {
   all: ['orders'] as const,
@@ -47,8 +48,8 @@ export function useUpdateOrderStatus() {
             : 'updated';
       addToast('success', `Order ${label} successfully`);
     },
-    onError: () => {
-      addToast('error', 'Failed to update order status');
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 }
@@ -63,8 +64,8 @@ export function useConfirmWarehouseReceipt() {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       addToast('success', 'Warehouse receipt confirmed');
     },
-    onError: () => {
-      addToast('error', 'Failed to confirm warehouse receipt');
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 }
@@ -80,8 +81,8 @@ export function useRescheduleOrder() {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       addToast('success', 'Order rescheduled');
     },
-    onError: () => {
-      addToast('error', 'Failed to reschedule order');
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 }
@@ -97,8 +98,8 @@ export function useTransferOrder() {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       addToast('success', 'Order transferred');
     },
-    onError: () => {
-      addToast('error', 'Failed to transfer order');
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 }

@@ -2,20 +2,36 @@ import axios from 'axios';
 import { env } from '@/config/env';
 import { useToastStore } from '@/stores/toastStore';
 
+let _authToken: string | null = localStorage.getItem('auth_token');
+
+export function setAuthToken(token: string | null) {
+  _authToken = token;
+  if (token) {
+    localStorage.setItem('auth_token', token);
+  } else {
+    localStorage.removeItem('auth_token');
+  }
+}
+
+export function getAuthToken(): string | null {
+  return _authToken;
+}
+
 export const apiClient = axios.create({
-  baseURL: env.API_BASE_URL,
+  baseURL: import.meta.env.DEV ? '' : env.API_BASE_URL,
   timeout: 15_000,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   // Send current language to backend for localization
   const lang = localStorage.getItem('nexa-lang') || 'en';
   config.headers['Accept-Language'] = lang;
+  // Attach auth token if available (backend uses Bearer token auth)
+  if (_authToken) {
+    config.headers.Authorization = `Bearer ${_authToken}`;
+  }
   return config;
 });
 
@@ -25,10 +41,9 @@ apiClient.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       const requestUrl = error.config?.url || '';
 
-      // 401 — clear session and redirect to login (no toast, handled by ProtectedRoute)
-      // Skip the redirect for login endpoint — a 401 there means wrong credentials, not expired session
-      if (error.response?.status === 401 && !requestUrl.includes('/login')) {
-        localStorage.removeItem('auth_token');
+      // 401 — redirect to login (session expired/invalid)
+      // Skip redirect for login endpoint — a 401 there means wrong credentials
+      if (error.response?.status === 401 && !requestUrl.includes('/login') && window.location.pathname !== '/login') {
         window.location.href = '/login';
         return Promise.reject(error);
       }
