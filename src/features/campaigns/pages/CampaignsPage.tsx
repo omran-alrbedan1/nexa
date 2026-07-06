@@ -67,7 +67,7 @@ export function CampaignsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {[
           { key: 'total', label: t('campaigns.stats.totalCampaigns'), icon: Megaphone, variant: 'teal' as const },
           { key: 'active', label: t('campaigns.stats.active'), icon: PlayCircle, variant: 'success' as const },
@@ -144,16 +144,16 @@ export function CampaignsPage() {
           <div className="space-y-3">
             {campaigns.map((camp) => (
               <div key={camp.id} onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(camp.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
-                <div className="flex items-start justify-between">
+                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
                       <div className="w-9 h-9 rounded-xl bg-brand-accent-light flex items-center justify-center flex-shrink-0">
                         <Megaphone size={16} className="text-brand-accent" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{camp.name}</span>
-                          <span className="text-xs text-text-tertiary">{camp.nameAr}</span>
+                         <div className="flex items-center gap-2 flex-wrap">
+                           <span className="text-sm font-bold text-text-primary font-body truncate">{camp.name}</span>
+                          <span className="text-xs text-text-tertiary truncate hidden sm:inline">{camp.nameAr}</span>
                           <Badge variant={STATUS_BADGE[camp.status]} size="sm">{camp.status}</Badge>
                         </div>
                       </div>
@@ -169,7 +169,7 @@ export function CampaignsPage() {
                       {/* Products preview */}
                       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                         {camp.products.map((p) => (
-                          <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body">
+                          <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body truncate max-w-full">
                             {p.productName} — <span className="font-bold text-brand-accent">{p.campaignPrice} SAR</span>
                             <span className="text-text-tertiary line-through ml-1">{p.regularPrice} SAR</span>
                           </div>
@@ -180,7 +180,7 @@ export function CampaignsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     {getActions(camp.status).map((action) => (
                       <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={(e) => { e.stopPropagation(); campaignAction.mutate({ id: camp.id, action: action.action }); }}>
                         {action.label}

@@ -55,7 +55,7 @@ export function ProductDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
         <div className="grid grid-cols-2 gap-5">
@@ -86,8 +86,8 @@ export function ProductDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{product.name}</h1>
-                <span className="text-sm text-text-tertiary">{product.nameAr}</span>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{product.name}</h1>
+                <span className="text-sm text-text-tertiary truncate hidden sm:inline">{product.nameAr}</span>
                 <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
                 {product.isAvailable ? (
                   <Badge variant="green" size="sm">{t('products.detail.active')}</Badge>
@@ -108,7 +108,7 @@ export function ProductDetailPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start justify-between">
             <div>

@@ -112,7 +112,7 @@ export function LoginForm() {
   };
 
   return (
-    <div style={{ background: '#fff', borderRadius: 24, padding: '44px 40px', width: '100%', maxWidth: 420, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+    <div style={{ background: '#fff', borderRadius: 24, padding: '32px 24px', width: '100%', maxWidth: 420, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
         <div style={{ width: 32, height: 32, background: '#2dd4a8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#0a1628' }}>N</div>

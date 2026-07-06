@@ -35,7 +35,7 @@ export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, i
       />
 
       {/* ═══ Stats grid — warehouse focused ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <StatsCard
           title={t('dashboard.stats.inSupply')}
           value={data?.pipeline.find((p) => p.stage === 'in_supply')?.count ?? '-'}
@@ -155,7 +155,7 @@ export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, i
       </div>
 
       {/* ═══ Today's Throughput ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {[
           { label: t('dashboard.warehouseQueue.itemsReceived'), value: '156', icon: Package, bg: 'from-brand-accent/10 to-brand-accent-light', iconColor: 'text-brand-accent', textColor: 'text-brand-accent-dark' },
           { label: t('dashboard.warehouseQueue.itemsProcessed'), value: '98', icon: Boxes, bg: 'from-brand-primary/10 to-brand-primary-light', iconColor: 'text-brand-primary', textColor: 'text-brand-primary-dark' },

@@ -139,7 +139,7 @@ export function StaffPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     <Button variant="outline" size="sm" onClick={() => openRoleModal(member)}>
                       <Shield size={14} className="mr-1" /> {t('settings.staff.roles')}
                     </Button>

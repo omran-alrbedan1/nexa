@@ -45,14 +45,14 @@ export function ReportsPage() {
       </div>
 
       {/* Date Filter */}
-      <div className="flex items-center gap-3 bg-white rounded-xl border border-border-default/60 p-3 shadow-card">
+      <div className="flex flex-wrap items-center gap-3 bg-white rounded-xl border border-border-default/60 p-3 shadow-card">
         <CalendarDays size={16} className="text-text-tertiary" />
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-text-secondary font-body">{t('reports.from')}</span>
           <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
             className="px-2.5 py-1.5 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input" />
         </div>
-        <span className="text-text-tertiary text-xs">—</span>
+        <span className="text-text-tertiary text-xs hidden sm:inline">—</span>
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-text-secondary font-body">{t('reports.to')}</span>
           <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
@@ -102,7 +102,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
   if (isLoading || !data) {
     return (
       <div className="space-y-5 animate-pulse">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}
         </div>
         <div className="h-64 bg-gray-100 rounded-xl" />
@@ -115,7 +115,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
   return (
     <div className="space-y-5">
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600"><BarChart3 size={16} /></div>
@@ -228,7 +228,7 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
   if (isLoading || !data) {
     return (
       <div className="space-y-5 animate-pulse">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl" />)}
         </div>
         <div className="h-48 bg-gray-100 rounded-xl" />
@@ -241,7 +241,7 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
   return (
     <div className="space-y-5">
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600"><DollarSign size={16} /></div>

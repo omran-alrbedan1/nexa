@@ -106,10 +106,10 @@ export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded,
 
   return (
     <div className="bg-white rounded-xl border border-border-default/60 shadow-card">
-      <div className="flex items-center justify-between p-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between p-3 flex-wrap gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
           {/* Date range presets */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             {DATE_PRESETS.map(({ key, label }) => (
               <button
                 key={key}
@@ -125,25 +125,25 @@ export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded,
               </button>
             ))}
           </div>
-          <span className="text-border-default">|</span>
+          <span className="text-border-default hidden sm:inline">|</span>
           <div className="flex items-center gap-2">
-            <CalendarDays size={14} className="text-text-tertiary" />
+            <CalendarDays size={14} className="text-text-tertiary flex-shrink-0" />
             <input
               type="date"
               value={filters.dateFrom}
               onChange={(e) => handleDateFromChange(e.target.value)}
-              className="px-2.5 py-1.5 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input w-32"
+              className="px-2.5 py-1.5 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input w-full sm:w-32"
             />
-            <span className="text-text-tertiary text-xs">—</span>
+            <span className="text-text-tertiary text-xs hidden sm:inline">—</span>
             <input
               type="date"
               value={filters.dateTo}
               onChange={(e) => handleDateToChange(e.target.value)}
-              className="px-2.5 py-1.5 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input w-32"
+              className="px-2.5 py-1.5 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input w-full sm:w-32"
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={onReset}
             className="p-1.5 text-text-tertiary hover:text-text-secondary hover:bg-bg-section-alt rounded-lg transition-colors"

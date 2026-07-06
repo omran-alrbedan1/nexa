@@ -82,7 +82,7 @@ export function CustomerDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
           ))}
@@ -144,12 +144,12 @@ export function CustomerDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{customer.fullName}</h1>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{customer.fullName}</h1>
                 <Badge variant={STATUS_BADGE[customer.status]} size="sm">
                   {STATUS_LABELS[customer.status]}
                 </Badge>
               </div>
-              <p className="text-sm text-text-secondary font-body mt-1">
+              <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {customer.email} · {customer.phone}
               </p>
             </div>
@@ -201,7 +201,7 @@ export function CustomerDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
           return (

@@ -38,10 +38,17 @@ deploy_dev:
       mkdir -p ${DEPLOY_DIR}
       cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
       cd ${DEPLOY_DIR}
-      PORT=${PRIMARY_PORT}
-      if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
-        echo "Port $PORT is in use — trying fallback $((PORT + 100))"
-        PORT=$((PORT + 100))
+      FALLBACK_PORT=$((PRIMARY_PORT + 100))
+      docker compose --env-file .env down 2>/dev/null || true
+      if ! ss -tlnp 2>/dev/null | grep -q ":${PRIMARY_PORT} "; then
+        PORT=${PRIMARY_PORT}
+        echo "Port ${PRIMARY_PORT} is free — using it"
+      elif ! ss -tlnp 2>/dev/null | grep -q ":${FALLBACK_PORT} "; then
+        PORT=${FALLBACK_PORT}
+        echo "Port ${PRIMARY_PORT} occupied — using fallback ${FALLBACK_PORT}"
+      else
+        echo "ERROR: Both ports ${PRIMARY_PORT} and ${FALLBACK_PORT} are in use by other services"
+        exit 1
       fi
       echo "IMAGE_TAG=${IMAGE_TAG}" > .env
       echo "VITE_API_BASE_URL=${DEV_API_URL}" >> .env
@@ -84,10 +91,17 @@ deploy_prod:
       mkdir -p ${DEPLOY_DIR}
       cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
       cd ${DEPLOY_DIR}
-      PORT=${PRIMARY_PORT}
-      if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
-        echo "Port $PORT is in use — trying fallback $((PORT + 100))"
-        PORT=$((PORT + 100))
+      FALLBACK_PORT=$((PRIMARY_PORT + 100))
+      docker compose --env-file .env down 2>/dev/null || true
+      if ! ss -tlnp 2>/dev/null | grep -q ":${PRIMARY_PORT} "; then
+        PORT=${PRIMARY_PORT}
+        echo "Port ${PRIMARY_PORT} is free — using it"
+      elif ! ss -tlnp 2>/dev/null | grep -q ":${FALLBACK_PORT} "; then
+        PORT=${FALLBACK_PORT}
+        echo "Port ${PRIMARY_PORT} occupied — using fallback ${FALLBACK_PORT}"
+      else
+        echo "ERROR: Both ports ${PRIMARY_PORT} and ${FALLBACK_PORT} are in use by other services"
+        exit 1
       fi
       echo "IMAGE_TAG=${IMAGE_TAG}" > .env
       echo "VITE_API_BASE_URL=${PROD_API_URL}" >> .env

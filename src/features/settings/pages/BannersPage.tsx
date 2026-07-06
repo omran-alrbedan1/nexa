@@ -122,7 +122,7 @@ export function BannersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     <button onClick={() => toggleActive(banner)} className="p-1.5 text-text-secondary hover:text-brand-primary rounded-lg hover:bg-bg-section-alt transition-all" title={banner.isActive ? t('common.deactivate') : t('common.activate')}>
                       {banner.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                     </button>

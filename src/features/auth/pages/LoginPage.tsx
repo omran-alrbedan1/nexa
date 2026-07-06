@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { apiClient } from '@/lib/axios';
+import { apiClient, getAuthToken } from '@/lib/axios';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 
 // ── Types ──
@@ -48,6 +48,7 @@ const DEFAULT_STATS: StatCardData[] = [
 // ── Fetch Live Stats from Backend ──
 
 async function fetchLoginStats(): Promise<StatCardData[]> {
+  if (!getAuthToken()) return DEFAULT_STATS;
   try {
     const res = await apiClient.get('/api/v1/admin/dashboard');
     const d = res.data?.data;
@@ -128,9 +129,9 @@ export function LoginPage() {
   }, []);
 
   return (
-    <div style={styles.pageContainer}>
-      {/* ── LEFT PANEL (Dark) ── */}
-      <div style={styles.leftPanel}>
+    <div className="flex flex-col md:flex-row w-screen min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      {/* ── LEFT PANEL (Dark, hidden on mobile) ── */}
+      <div className="hidden md:flex relative flex-1 overflow-hidden flex-col px-8 py-8" style={styles.leftPanel}>
         {/* Network SVG — dashed connection lines & glowing nodes */}
         <svg style={styles.networkSvg} viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -270,8 +271,8 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL (Light) ── */}
-      <div style={styles.rightPanel}>
+      {/* ── RIGHT PANEL (Light, full-width on mobile) ── */}
+      <div className="w-full md:w-[480px] flex items-center justify-center px-6 md:px-10 py-8" style={{ background: '#f0f2f5', minWidth: 0 }}>
         <LoginForm />
       </div>
 

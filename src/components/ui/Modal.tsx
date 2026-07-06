@@ -11,11 +11,11 @@ interface ModalProps {
 }
 
 const sizeStyles = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  full: 'max-w-4xl',
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-md',
+  lg: 'sm:max-w-lg',
+  xl: 'sm:max-w-xl',
+  full: 'sm:max-w-4xl',
 };
 
 export function Modal({
@@ -97,9 +97,17 @@ export function Modal({
       role="dialog"
       aria-modal="true"
       aria-label={title}
-    >
-      {/* Dialog */}
-      <div
+      >
+        {/* Backdrop */}
+        <div
+          className={cn(
+            'absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity',
+            closeOnBackdrop && 'cursor-pointer'
+          )}
+          onClick={closeOnBackdrop ? onClose : undefined}
+        />
+        {/* Dialog */}
+        <div
         ref={modalRef}
         className={cn(
           'relative w-full bg-white rounded-xl shadow-2xl',
@@ -109,7 +117,7 @@ export function Modal({
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
@@ -124,7 +132,7 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className={cn('px-6 py-4', !title && 'pt-6')}>{children}</div>
+        <div className={cn('px-4 sm:px-6 py-4', !title && 'pt-6')}>{children}</div>
       </div>
     </div>
   );

@@ -74,7 +74,7 @@ export function TripDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       </div>
@@ -102,7 +102,7 @@ export function TripDetailPage() {
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{trip.tripNumber}</h1>
                 <Badge variant={STATUS_BADGE[trip.status] || 'purple'} size="sm">{STATUS_LABELS[trip.status]}</Badge>
               </div>
-              <p className="text-sm text-text-secondary font-body mt-1">
+              <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {trip.regionName}{trip.clusterName ? ` · ${trip.clusterName}` : ''} · {trip.scheduledDate} · {trip.timeSlot}
               </p>
             </div>
@@ -129,7 +129,7 @@ export function TripDetailPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary">

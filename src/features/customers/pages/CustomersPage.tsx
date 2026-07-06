@@ -100,7 +100,7 @@ export function CustomersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {[
           { key: 'total', label: t('customers.stats.total'), icon: Users, variant: 'teal' as const },
           { key: 'active', label: t('customers.stats.active'), icon: UserCheck, variant: 'success' as const },
@@ -150,8 +150,8 @@ export function CustomersPage() {
           </div>
         </CardHeader>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
@@ -195,16 +195,16 @@ export function CustomersPage() {
                 onClick={() => navigate(ROUTES.CUSTOMER_DETAIL(customer.id))}
                 className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer"
               >
-                <div className="flex items-start justify-between">
+                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
                       <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
                         <Users size={16} className="text-brand-primary" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{customer.fullName}</span>
-                          <Badge variant={STATUS_BADGE[customer.status]} size="sm">
+                         <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-bold text-text-primary font-body truncate">{customer.fullName}</span>
+                           <Badge variant={STATUS_BADGE[customer.status]} size="sm">
                             {STATUS_LABELS[customer.status]}
                           </Badge>
                         </div>
@@ -212,7 +212,7 @@ export function CustomersPage() {
                     </div>
                     <div className="ml-11 mt-2">
                       <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span>{customer.email} · {customer.phone}</span>
+                        <span className="truncate">{customer.email} · {customer.phone}</span>
                       </div>
                       <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
                         <span className="flex items-center gap-1">
@@ -240,7 +240,7 @@ export function CustomersPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     {customer.status === 'active' && (
                       <Button
                         variant="danger"

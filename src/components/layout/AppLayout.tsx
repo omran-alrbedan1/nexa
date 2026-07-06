@@ -84,7 +84,7 @@ export function AppLayout() {
       {/* ── Sidebar ── */}
       <aside
         className={cn(
-          'fixed md:sticky top-0 left-0 z-40 h-screen flex flex-col',
+          'fixed md:sticky top-0 start-0 z-40 h-screen flex flex-col',
           'bg-white border-r border-border-default shadow-card',
           'transition-transform duration-300 ease-in-out',
           'w-sidebar-width flex-shrink-0',

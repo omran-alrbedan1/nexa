@@ -155,20 +155,20 @@ export function CreateCampaignPage() {
         ) : (
           <div className="space-y-3">
             {products.map((p) => (
-              <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-default/60">
-                <div className="flex-1 min-w-0">
+              <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-3 rounded-xl border border-border-default/60">
+                <div className="flex-1 min-w-0 w-full sm:w-auto">
                   <p className="text-xs font-bold text-text-secondary mb-1">Product Name</p>
                   <input value={p.productName} onChange={(e) => updateProduct(p.id, 'productName', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" />
                 </div>
-                <div className="w-20">
+                <div className="w-20 flex-shrink-0">
                   <p className="text-xs font-bold text-text-secondary mb-1">Regular</p>
                   <p className="text-xs text-text-secondary py-1.5">{p.regularPrice > 0 ? `${p.regularPrice} SAR` : '—'}</p>
                 </div>
-                <div className="w-24">
+                <div className="w-24 flex-shrink-0">
                   <p className="text-xs font-bold text-text-secondary mb-1">Campaign Price</p>
                   <input type="number" step="0.5" min="0" value={p.campaignPrice} onChange={(e) => updateProduct(p.id, 'campaignPrice', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="0.00" />
                 </div>
-                <div className="w-20">
+                <div className="w-20 flex-shrink-0">
                   <p className="text-xs font-bold text-text-secondary mb-1">Qty</p>
                   <input type="number" min="0" value={p.quantity} onChange={(e) => updateProduct(p.id, 'quantity', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="0" />
                 </div>

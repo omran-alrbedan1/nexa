@@ -73,7 +73,7 @@ export function DriversPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {[
           { key: 'total', label: t('drivers.stats.totalDrivers'), icon: Users, variant: 'teal' as const },
           { key: 'available', label: t('drivers.stats.available'), icon: CheckCircle2, variant: 'success' as const },
@@ -128,15 +128,15 @@ export function DriversPage() {
             <div className="space-y-3">
               {pendingDrivers.map((driver) => (
                 <div key={driver.id} className="p-4 rounded-xl border border-amber-100 bg-amber-50/30">
-                  <div className="flex items-center justify-between">
+                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-600 flex-shrink-0">
                           {driver.name.charAt(0)}
                         </div>
                         <div>
-                          <span className="text-sm font-bold text-text-primary font-body">{driver.name}</span>
-                          <div className="flex items-center gap-3 text-xs text-text-secondary font-body mt-0.5">
+                          <span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>
+                          <div className="flex items-center gap-3 text-xs text-text-secondary font-body mt-0.5 flex-wrap">
                             <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
                             <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
                             <span>{driver.vehicleType} · {driver.vehiclePlate}</span>
@@ -144,10 +144,10 @@ export function DriversPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                      <Button
-                        variant="primary" size="sm"
-                        leftIcon={<ThumbsUp size={12} />}
+                     <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
+                       <Button
+                         variant="primary" size="sm"
+                         leftIcon={<ThumbsUp size={12} />}
                         isLoading={approveDriver.isPending}
                         onClick={() => approveDriver.mutate(driver.id)}
                       >
@@ -180,7 +180,7 @@ export function DriversPage() {
         </CardHeader>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+          <div className="w-full sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
@@ -199,7 +199,7 @@ export function DriversPage() {
           <div className="space-y-3">
             {drivers.map((driver) => (
               <div key={driver.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
-                <div className="flex items-start justify-between">
+                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-brand-primary-light flex items-center justify-center text-sm font-bold text-brand-primary flex-shrink-0">
@@ -207,8 +207,8 @@ export function DriversPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{driver.name}</span>
-                          <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-amber-500'}`} />
+                          <span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>
+                          <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-amber-500'} flex-shrink-0`} />
                           <span className={`text-xs font-bold ${driver.isAvailable ? 'text-green-600' : 'text-amber-600'}`}>
                             {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
                           </span>
@@ -222,15 +222,15 @@ export function DriversPage() {
                         <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
                         <span className="flex items-center gap-1"><Star size={10} className="text-amber-500" />{driver.rating.toFixed(1)}</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body">
+                       <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
                         <span>{t('drivers.list.trips', { count: driver.totalTrips })}</span>
                         <span>{t('drivers.list.ordersDelivered', { count: driver.totalOrders })}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                    <Button
-                      variant={driver.isAvailable ? 'secondary' : 'primary'}
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
+                     <Button
+                       variant={driver.isAvailable ? 'secondary' : 'primary'}
                       size="sm"
                       isLoading={toggleAvailability.isPending}
                       onClick={() => toggleAvailability.mutate(driver.id)}

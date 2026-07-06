@@ -97,7 +97,7 @@ export function InventoryPage() {
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
           return (
@@ -151,7 +151,7 @@ export function InventoryPage() {
         </CardHeader>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+          <div className="w-full sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..." className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
@@ -168,19 +168,19 @@ export function InventoryPage() {
               const stockPercent = Math.min((product.stockQuantity / maxEst) * 100, 100);
               const isLow = product.isAvailable && product.stockQuantity > 0 && product.stockQuantity < 20;
               return (
-                <div key={product.id} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all group">
+                 <div key={product.id} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all group">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-brand-primary-light flex items-center justify-center flex-shrink-0">
                         <Package size={14} className="text-brand-primary" />
                       </div>
-                      <span className="text-sm font-bold text-text-primary font-body">{product.name}</span>
+                       <span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>
                       {!product.isAvailable && <Badge variant="red" size="sm">Disabled</Badge>}
                       {isLow && <Badge variant="yellow" size="sm">Low Stock</Badge>}
                       {product.stockQuantity === 0 && <Badge variant="red" size="sm">Out</Badge>}
                     </div>
                     <div className="ml-10 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body">
+                       <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
                         <span className="font-bold text-text-primary">{product.stockQuantity}</span> {product.unit}s
                         <span>{product.price.toFixed(2)} SAR</span>
                         {product.supplierName && <span>{product.supplierName}</span>}
@@ -190,7 +190,7 @@ export function InventoryPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     <Button variant="secondary" size="sm" leftIcon={<Plus size={12} />} onClick={() => setStockModal({ open: true, product, adjustment: 10, reason: 'Restock' })}>
                       Restock
                     </Button>

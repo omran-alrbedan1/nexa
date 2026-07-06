@@ -58,7 +58,7 @@ export function OperationsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
         {[
           { key: 'newOrders', label: t('operations.stats.newOrdersToday'), value: stats?.newOrdersToday ?? '—', sub: 'Awaiting processing' },
           { key: 'pendingSpecials', label: t('operations.stats.pendingSpecials'), value: stats?.pendingSpecials ?? '—', sub: `${stats?.pendingPricing ?? 0} ${t('operations.stats.awaitingPricing').toLowerCase()}` },

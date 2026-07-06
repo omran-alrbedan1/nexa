@@ -63,7 +63,7 @@ export function CampaignDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       </div>
@@ -129,7 +129,7 @@ export function CampaignDetailPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
           const val = campaign[s.key as keyof Campaign];

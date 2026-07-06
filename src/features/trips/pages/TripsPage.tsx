@@ -103,7 +103,7 @@ export function TripsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {[
           { key: 'total', label: t('trips.stats.totalTrips'), icon: Truck, variant: 'teal' as const },
           { key: 'scheduled', label: t('trips.stats.scheduled'), icon: Calendar, variant: 'purple' as const },
@@ -185,20 +185,20 @@ export function TripsPage() {
                     <div className="w-8 h-8 rounded-lg bg-brand-primary-light flex items-center justify-center flex-shrink-0">
                       <Truck size={14} className="text-brand-primary" />
                     </div>
-                    <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors">{trip.tripNumber}</span>
+                     <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors truncate">{trip.tripNumber}</span>
                     <Badge variant={getStatusVariant(trip.status)} size="sm">{STATUS_LABELS[trip.status]}</Badge>
                   </div>
-                  <p className="text-xs text-text-secondary font-body mt-1.5 ml-10">
+                   <p className="text-xs text-text-secondary font-body mt-1.5 ml-10 truncate">
                     {trip.regionName} · {trip.clusterName} · {trip.scheduledDate} · {trip.timeSlot}
                   </p>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body ml-10">
+                   <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body ml-10 flex-wrap">
                     <span>{t('trips.list.driver', { name: trip.driverName ? <span className="font-bold text-text-primary">{trip.driverName}</span> : <span className="text-status-error font-bold">{t('trips.list.unassigned')}</span> })}</span>
                     <span>{trip.orderCount} {t('trips.stats.orders').toLowerCase()} · <span className="font-bold text-text-primary">{trip.totalValue.toLocaleString()} SAR</span></span>
                     {trip.status === 'in_progress' && <span>{t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</span>}
                     {trip.notes && <span className="text-amber-600 truncate max-w-[200px]">{trip.notes}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                 <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                   {getActions(trip).map((action, i) => (
                     <Button key={i} variant={action.variant} size="sm" leftIcon={action.icon} onClick={(e) => { e.stopPropagation(); action.onClick(); }}>
                       {action.label}

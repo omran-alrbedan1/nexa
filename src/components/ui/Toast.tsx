@@ -23,7 +23,7 @@ function ToastItem({ id, type, message }: { id: string; type: ToastType; message
       className={cn(
         'flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg',
         'animate-slide-in transition-all duration-300',
-        'min-w-[300px] max-w-[420px]',
+        'min-w-[260px] max-w-[420px]',
         variantStyles[type]
       )}
     >

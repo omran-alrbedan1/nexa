@@ -41,7 +41,7 @@ export function DriverDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       </div>
@@ -64,7 +64,7 @@ export function DriverDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{driver.name}</h1>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{driver.name}</h1>
                 <Badge variant={driver.isAvailable ? 'green' : 'red'} size="sm">
                   {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
                 </Badge>
@@ -75,9 +75,9 @@ export function DriverDetailPage() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-3 text-sm text-text-secondary font-body mt-1.5">
+              <div className="flex items-center gap-3 text-sm text-text-secondary font-body mt-1.5 flex-wrap">
                 <span className="flex items-center gap-1"><Phone size={14} /> {driver.phone}</span>
-                {driver.email && <span className="flex items-center gap-1"><Mail size={14} /> {driver.email}</span>}
+                {driver.email && <span className="flex items-center gap-1 truncate"><Mail size={14} /> {driver.email}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -96,7 +96,7 @@ export function DriverDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><Route size={16} /></div>

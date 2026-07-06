@@ -41,7 +41,7 @@ export function AggregationPage() {
       </div>
 
       {/* Throughput Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
         {[
           { label: t('warehouse.stats.itemsReceived'), key: 'itemsReceived', value: data?.throughput.itemsReceived ?? 0 },
           { label: t('warehouse.stats.itemsProcessed'), key: 'itemsProcessed', value: data?.throughput.itemsProcessed ?? 0 },

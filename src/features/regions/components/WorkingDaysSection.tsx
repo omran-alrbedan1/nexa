@@ -75,7 +75,7 @@ export function WorkingDaysSection({ region }: WorkingDaysSectionProps) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
         {DAY_NAMES.map((day) => {
           const isWorking = workingDays[day.key] ?? false;
           const label = isRtl ? day.ar : day.en;

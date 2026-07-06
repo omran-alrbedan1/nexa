@@ -72,7 +72,7 @@ export function SuppliersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
         {[
           { key: 'total', label: t('suppliers.stats.totalSuppliers'), icon: Building2, variant: 'teal' as const },
           { key: 'active', label: t('suppliers.stats.active'), icon: CheckCircle2, variant: 'success' as const },
@@ -122,8 +122,8 @@ export function SuppliersPage() {
           </div>
         </CardHeader>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
@@ -163,16 +163,16 @@ export function SuppliersPage() {
                         <Building2 size={16} className="text-brand-primary" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{supplier.name}</span>
-                          <span className="text-xs text-text-tertiary">{supplier.nameAr}</span>
+                         <div className="flex items-center gap-2 flex-wrap">
+                           <span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>
+                          <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
                           <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || supplier.status.replace('_', ' ')}</Badge>
                         </div>
                       </div>
                     </div>
                     <div className="ml-11 mt-2">
                       <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span>{supplier.email} · {supplier.phone}</span>
+                        <span className="truncate">{supplier.email} · {supplier.phone}</span>
                         <span>CR: {supplier.commercialRegister}</span>
                       </div>
                       <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
@@ -190,7 +190,7 @@ export function SuppliersPage() {
                       {supplier.notes && <p className="text-xs text-brand-accent mt-1.5 italic font-body">{supplier.notes}</p>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     {supplier.status === 'pending_approval' && (
                       <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>{t('suppliers.list.approve')}</Button>
                     )}

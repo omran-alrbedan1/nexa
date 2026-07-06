@@ -95,7 +95,7 @@ export function PaymentsPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
@@ -133,8 +133,8 @@ export function PaymentsPage() {
           </div>
         </CardHeader>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('payments.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
@@ -158,7 +158,7 @@ export function PaymentsPage() {
           <div className="space-y-2">
             {payments.map((payment: any) => (
               <div key={payment.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all">
-                <div className="flex items-start justify-between">
+                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
@@ -166,10 +166,10 @@ export function PaymentsPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{payment.amount?.toLocaleString()} SAR</span>
+                           <span className="text-sm font-bold text-text-primary font-body truncate">{payment.amount?.toLocaleString()} SAR</span>
                           <Badge variant={STATUS_BADGE[payment.status] || 'yellow'} size="sm">{payment.status}</Badge>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
+                         <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
                           <span>{payment.transaction_id}</span>
                           {payment.order && <span>Order #{payment.order.order_number}</span>}
                           {payment.payment_method && <span>{payment.payment_method.name_ar}</span>}
@@ -178,7 +178,7 @@ export function PaymentsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                     {payment.status === 'paid' && (
                       <Button variant="secondary" size="sm" leftIcon={<Ban size={12} />} onClick={() => setRefundModal({ open: true, paymentId: payment.id, amount: '', reason: '' })}>
                         {t('payments.refund')}

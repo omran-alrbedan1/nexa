@@ -76,7 +76,8 @@ function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (ke
       {!products || products.length === 0 ? (
         <p className="text-sm text-text-secondary font-body">{t('suppliers.detail.productsPlaceholder')}</p>
       ) : (
-        <div className="overflow-x-auto">
+        <>
+        <div className="overflow-x-auto hidden sm:block">
           <table className="w-full text-sm font-body">
             <thead>
               <tr className="border-b border-border-default">
@@ -137,6 +138,55 @@ function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (ke
             </tbody>
           </table>
         </div>
+        {/* Mobile card view */}
+        <div className="block sm:hidden space-y-3">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="p-4 rounded-xl bg-bg-section-alt border border-border-default/60 space-y-2 cursor-pointer"
+              onClick={() => navigate(ROUTES.PRODUCT_DETAIL(product.id))}
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative w-9 h-9 flex-shrink-0">
+                  {product.imageUrl ? (
+                    <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full rounded-lg object-cover border border-border-default/60" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  ) : null}
+                  <div className="w-9 h-9 rounded-lg bg-brand-primary-light flex items-center justify-center">
+                    <Package size={15} className="text-brand-primary" />
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-text-primary font-body truncate">{product.name}</p>
+                  <p className="text-xs text-text-tertiary font-body">{product.unit}</p>
+                </div>
+                <Badge variant={product.isAvailable ? 'green' : 'red'} size="sm">
+                  {product.isAvailable ? t('common.active') : t('common.inactive')}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-border-default/50">
+                <div>
+                  <span className="text-text-tertiary">{t('products.detail.price')} </span>
+                  <span className="font-bold text-text-primary">{product.price.toFixed(2)}</span>
+                  <span className="text-text-tertiary"> SAR</span>
+                </div>
+                <div>
+                  <span className="text-text-tertiary">{t('products.detail.stock')} </span>
+                  <span className={cn(
+                    'font-bold',
+                    product.stockQuantity === 0 ? 'text-status-error' :
+                    product.stockQuantity < 20 ? 'text-status-warning' :
+                    'text-text-primary'
+                  )}>{product.stockQuantity}</span>
+                </div>
+                <div>
+                  <span className="text-text-tertiary">{t('products.detail.category')} </span>
+                  <span className="text-text-primary">{product.categoryName}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        </>
       )}
     </Card>
   );
@@ -188,7 +238,7 @@ export function SupplierDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
           {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
         <div className="grid grid-cols-2 gap-5">
@@ -226,11 +276,11 @@ export function SupplierDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{supplier.name}</h1>
-                <span className="text-sm text-text-tertiary">{supplier.nameAr}</span>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{supplier.name}</h1>
+                <span className="text-sm text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
                 <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{supplier.status.replace('_', ' ')}</Badge>
               </div>
-              <p className="text-sm text-text-secondary font-body mt-1">
+              <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {supplier.email} · {supplier.phone}
               </p>
             </div>
@@ -252,7 +302,7 @@ export function SupplierDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
           return (

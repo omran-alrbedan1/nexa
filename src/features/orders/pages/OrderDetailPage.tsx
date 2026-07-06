@@ -108,7 +108,7 @@ export function OrderDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
         <div className="h-64 bg-gray-100 rounded-xl animate-pulse" />
@@ -185,7 +185,7 @@ export function OrderDetailPage() {
       )}
 
       {/* 4 Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <OrderInfoCard icon={<Phone size={16} />} label={t('orders.detail.customer')}>
           <p className="font-bold text-text-primary">{order.customerName}</p>
           <p className="text-text-secondary text-xs mt-0.5">{order.customerPhone}</p>
@@ -231,7 +231,7 @@ export function OrderDetailPage() {
           <Package size={16} className="text-brand-accent" />
           <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.orderItems', { count: order.items.length })}</h3>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto hidden sm:block">
           <table className="w-full text-sm font-body">
             <thead>
               <tr className="border-b border-border-default">
@@ -268,6 +268,42 @@ export function OrderDetailPage() {
               </tr>
             </tfoot>
           </table>
+        </div>
+        {/* Mobile card view */}
+        <div className="block sm:hidden space-y-4">
+          {order.items.map((item) => (
+            <div key={item.id} className="p-4 rounded-xl bg-bg-section-alt border border-border-default/60 space-y-2">
+              <p className="text-sm font-bold text-text-primary font-body">{item.productName}</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-text-tertiary">{t('orders.detail.qty')} </span>
+                  <span className="text-text-primary font-medium">{item.quantity}</span>
+                </div>
+                <div>
+                  <span className="text-text-tertiary">{t('orders.detail.unitPrice')} </span>
+                  <span className="text-text-primary font-medium">{item.unitPrice.toFixed(2)}</span>
+                </div>
+                <div className="col-span-2 pt-1 border-t border-border-default/50">
+                  <span className="text-text-tertiary">{t('orders.detail.total')} </span>
+                  <span className="font-bold text-text-primary">{item.totalPrice.toFixed(2)} SAR</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="p-4 rounded-xl bg-white border border-border-default/60 space-y-1.5 text-sm">
+            <div className="flex justify-between text-text-secondary">
+              <span>{t('orders.detail.subtotal')}</span>
+              <span>{order.subtotal.toFixed(2)} SAR</span>
+            </div>
+            <div className="flex justify-between text-text-secondary">
+              <span>{t('orders.detail.deliveryFee')}</span>
+              <span>{order.deliveryFee.toFixed(2)} SAR</span>
+            </div>
+            <div className="flex justify-between font-extrabold text-lg pt-1.5 border-t border-border-default text-text-primary font-display">
+              <span>{t('orders.detail.totalLabel')}</span>
+              <span className="text-brand-accent">{order.total.toFixed(2)} SAR</span>
+            </div>
+          </div>
         </div>
         {order.customerNotes && (
           <div className="mt-4 p-3 rounded-xl bg-brand-accent-light/50 border border-brand-accent/10">

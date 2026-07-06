@@ -135,11 +135,11 @@ export function SupportTicketsPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-text-primary font-body">{ticket.subject}</span>
+                             <span className="text-sm font-bold text-text-primary font-body truncate">{ticket.subject}</span>
                             <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{ticket.status?.replace('_', ' ')}</Badge>
                             <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
+                           <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
                             <span>#{ticket.ticket_number}</span>
                             {ticket.customer && <span>{ticket.customer.full_name}</span>}
                             {ticket.assignee && <span className="flex items-center gap-1"><UserCheck size={12} /> {ticket.assignee.full_name}</span>}
@@ -148,7 +148,7 @@ export function SupportTicketsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                     <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
                       {!ticket.assignee && (
                         <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setAssignModal({ open: true, ticketId: ticket.id, staffId: '' }); }}>
                           <UserCheck size={12} className="mr-1" /> {t('support.assign')}

@@ -74,7 +74,7 @@ export function SpecialOrdersPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card padding="md" hover onClick={() => setStatusFilter('')}>
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('specialOrders.total')}</p>
           <p className="text-xl font-extrabold text-text-primary font-display mt-1">{orders.length}</p>
@@ -104,8 +104,8 @@ export function SpecialOrdersPage() {
         </CardHeader>
 
         {/* Search + Filter */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('specialOrders.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
@@ -139,17 +139,17 @@ export function SpecialOrdersPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{order.referenceNumber}</span>
+                           <span className="text-sm font-bold text-text-primary font-body truncate">{order.referenceNumber}</span>
                           <Badge variant={STATUS_BADGE[order.status] || 'yellow'} size="sm">{STATUS_OPTIONS.find((o) => o.key === order.status)?.label || order.status}</Badge>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
+                         <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
                           <span className="flex items-center gap-1"><User size={12} /> {order.customerName}</span>
                           <span className="flex items-center gap-1"><Phone size={12} /> {order.customerPhone}</span>
                         </div>
                       </div>
                     </div>
                     <p className="text-sm text-text-secondary font-body mt-2 line-clamp-2">{order.customerNotes}</p>
-                    <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1.5">
+                     <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1.5 flex-wrap">
                       {order.itemCount > 0 && <span>{order.itemCount} item(s)</span>}
                       {order.assignedToName && <span>Assigned: {order.assignedToName}</span>}
                       <span>{new Date(order.createdAt).toLocaleDateString()}</span>

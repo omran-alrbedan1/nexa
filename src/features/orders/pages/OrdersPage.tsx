@@ -157,7 +157,7 @@ export function OrdersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {[
           { key: 'total', label: t('orders.stats.totalOrders'), icon: ListOrdered, variant: 'teal' as const },
           { key: 'new', label: t('orders.stats.new'), icon: Package, variant: 'purple' as const },
@@ -210,7 +210,7 @@ export function OrdersPage() {
 
         {/* Filter bar */}
         <div className="flex items-center gap-3 mb-5 flex-wrap">
-          <div className="flex-1 min-w-[200px] max-w-xs relative">
+          <div className="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
@@ -251,21 +251,21 @@ export function OrdersPage() {
               <option value="seasonal">Seasonal</option>
             </select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <CalendarDays size={14} className="text-text-tertiary" />
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => handleDateFromChange(e.target.value)}
-              className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-36"
+              className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-full sm:w-36"
               title={t('orders.list.fromDate')}
             />
-            <span className="text-text-tertiary text-xs">—</span>
+            <span className="text-text-tertiary text-xs hidden sm:inline">—</span>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => handleDateToChange(e.target.value)}
-              className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-36"
+              className="px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light w-full sm:w-36"
               title={t('orders.list.toDate')}
             />
           </div>
@@ -289,15 +289,15 @@ export function OrdersPage() {
                       <div className="w-8 h-8 rounded-lg bg-brand-accent-light flex items-center justify-center flex-shrink-0">
                         <ShoppingBag size={14} className="text-brand-accent" />
                       </div>
-                      <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-accent transition-colors">{order.orderNumber}</span>
+                       <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-accent transition-colors truncate">{order.orderNumber}</span>
                       <Badge variant={TYPE_BADGE[order.type]} size="sm">{order.type}</Badge>
                       <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
                     </div>
-                    <p className="text-xs text-text-secondary font-body mt-1.5 ml-10">
+                    <p className="text-xs text-text-secondary font-body mt-1.5 ml-10 truncate">
                       {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                   <div className="flex items-center gap-3 ml-2 sm:ml-4 flex-shrink-0">
                     <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${order.total.toFixed(2)} SAR` : 'TBD'}</span>
                     <div className="p-1.5 rounded-lg group-hover:bg-white/80 transition-colors">
                       <ChevronRight size={16} className="text-text-tertiary" />

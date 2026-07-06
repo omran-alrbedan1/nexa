@@ -76,7 +76,7 @@ export function ProductsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {[
           { key: 'totalProducts', label: t('products.stats.totalProducts'), icon: Package, variant: 'teal' as const },
           { key: 'available', label: t('products.stats.available'), icon: CheckCircle2, variant: 'success' as const },
@@ -140,9 +140,9 @@ export function ProductsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <Package size={14} className="text-amber-600" />
-                      <span className="text-sm font-bold text-text-primary font-body">{product.name}</span>
+                       <span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>
                     </div>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">
+                     <p className="text-xs text-text-secondary font-body mt-0.5 truncate">
                       {product.supplierName || 'No supplier'} · {product.categoryName}
                     </p>
                   </div>
@@ -192,8 +192,8 @@ export function ProductsPage() {
           </div>
         </CardHeader>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 max-w-xs relative">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
@@ -242,19 +242,19 @@ export function ProductsPage() {
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors">{product.name}</span>
-                      <span className="text-xs text-text-tertiary">{product.nameAr}</span>
-                      <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
+                     <div className="flex items-center gap-2.5 flex-wrap">
+                       <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors truncate">{product.name}</span>
+                       <span className="text-xs text-text-tertiary truncate hidden sm:inline">{product.nameAr}</span>
+                       <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
                       {!product.isAvailable && <Badge variant="red" size="sm">{t('products.catalog.disabled')}</Badge>}
                       {product.isAvailable && product.stockQuantity < 20 && <Badge variant="yellow" size="sm">{t('products.catalog.lowStockBadge', { count: product.stockQuantity })}</Badge>}
                     </div>
-                    <p className="text-xs text-text-secondary font-body mt-1">
-                      {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {product.totalOrders} orders
-                    </p>
+                     <p className="text-xs text-text-secondary font-body mt-1 truncate">
+                       {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {product.totalOrders} orders
+                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                 <div className="flex items-center gap-3 ml-2 sm:ml-4 flex-shrink-0">
                   <span className="text-sm font-extrabold text-text-primary font-display">{product.price.toFixed(2)} <span className="text-text-tertiary text-xs font-body">SAR</span></span>
                   <Button
                     variant={product.isAvailable ? 'secondary' : 'primary'}

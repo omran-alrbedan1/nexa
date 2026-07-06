@@ -66,7 +66,7 @@ export function RegionDetailPage() {
       <div className="space-y-6 animate-fade-up">
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
         <div className="h-40 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       </div>
@@ -89,8 +89,8 @@ export function RegionDetailPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{region.name}</h1>
-                <span className="text-sm text-text-tertiary">{region.nameAr}</span>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{region.name}</h1>
+                <span className="text-sm text-text-tertiary truncate hidden sm:inline">{region.nameAr}</span>
                 {region.isActive ? <Badge variant="green" size="sm">{t('regions.detail.activeClusters')}</Badge> : <Badge variant="red" size="sm">{t('regions.detail.inactiveClusters')}</Badge>}
               </div>
             </div>
@@ -111,7 +111,7 @@ export function RegionDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <Card padding="md" hover>
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
@@ -177,7 +177,7 @@ export function RegionDetailPage() {
       {activeTab === 'overview' && (
         <>
           {/* Stat cards remain */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             <Card padding="md" hover>
               <div className="flex items-start gap-3">
                 <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
