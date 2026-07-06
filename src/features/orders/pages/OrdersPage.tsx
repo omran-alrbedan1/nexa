@@ -17,6 +17,7 @@ import { ShoppingBag, Package, CheckCircle2, AlertTriangle,
 import type { OrderStatus, OrderType } from '@/types/marketplace';
 import type { OrderSummary } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -69,6 +70,7 @@ export function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const updateStatus = useUpdateOrderStatus();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   const { data, isLoading, isError, error, refetch } = useOrdersList({
     search: search || undefined,
@@ -107,7 +109,7 @@ export function OrdersPage() {
   };
 
   const exportCSV = useCallback(() => {
-    const headers = ['Order #','Customer','Type','Status','Total (SAR)','Region','Supplier','Created At'];
+    const headers = ['Order #','Customer','Type','Status','Total','Region','Supplier','Created At'];
     const rows = orders.map((o) => [
       o.orderNumber,
       o.customerName,
@@ -291,7 +293,7 @@ export function OrdersPage() {
                     <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
                   </>}
                   actions={<>
-                    <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${order.total.toFixed(2)} SAR` : 'TBD'}</span>
+                    <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}</span>
                     <ChevronRight size={16} className="text-text-tertiary" />
                   </>}
                 >

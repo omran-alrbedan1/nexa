@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { useOrdersReport, useRevenueReport, useSuppliersReport } from '../hooks/useReports';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -17,6 +18,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 export function ReportsPage() {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const [activeTab, setActiveTab] = useState('orders');
   const today = new Date().toISOString().split('T')[0];
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -130,7 +132,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
             <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><DollarSign size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('reports.orders.totalRevenue')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{data.totals.revenue.toLocaleString()} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(data.totals.revenue)}</p>
             </div>
           </div>
         </Card>
@@ -186,7 +188,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
                 <span className="text-sm font-bold text-text-primary font-body capitalize">{status.replace(/_/g, ' ')}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-secondary">{info.count} {t('reports.orders.orders')}</span>
-                  <span className="text-xs font-bold text-text-primary">{info.revenue.toLocaleString()} SAR</span>
+                  <span className="text-xs font-bold text-text-primary">{formatPrice(info.revenue)}</span>
                 </div>
               </div>
             ))}
@@ -205,7 +207,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
                 <span className="text-sm font-bold text-text-primary font-body capitalize">{type}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-secondary">{info.count} {t('reports.orders.orders')}</span>
-                  <span className="text-xs font-bold text-text-primary">{info.revenue.toLocaleString()} SAR</span>
+                  <span className="text-xs font-bold text-text-primary">{formatPrice(info.revenue)}</span>
                 </div>
               </div>
             ))}
@@ -247,7 +249,7 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
             <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600"><DollarSign size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('reports.revenue.totalRevenue')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{data.totalRevenue.toLocaleString()} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(data.totalRevenue)}</p>
             </div>
           </div>
         </Card>
@@ -256,7 +258,7 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
             <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><Truck size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('reports.revenue.deliveryFees')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{data.totalDeliveryFees.toLocaleString()} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(data.totalDeliveryFees)}</p>
             </div>
           </div>
         </Card>
@@ -288,8 +290,8 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
                   <span className="text-xs text-text-tertiary">{zone.orders} orders</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-text-secondary">{zone.deliveryFees.toLocaleString()} SAR fees</span>
-                  <span className="text-xs font-bold text-text-primary">{zone.revenue.toLocaleString()} SAR</span>
+                  <span className="text-xs text-text-secondary">{formatPrice(zone.deliveryFees)} fees</span>
+                  <span className="text-xs font-bold text-text-primary">{formatPrice(zone.revenue)}</span>
                 </div>
               </div>
               <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden">
@@ -358,7 +360,7 @@ function SuppliersReportTab({ filters, t }: { filters: { from: string; to: strin
                     {supplier.ratingAvg > 0 && (
                       <span className="text-xs text-amber-500 flex items-center gap-0.5"><Star size={12} fill="currentColor" />{supplier.ratingAvg.toFixed(1)}</span>
                     )}
-                    <span className="text-xs font-bold text-text-primary">{supplier.revenue.toLocaleString()} SAR</span>
+                    <span className="text-xs font-bold text-text-primary">{formatPrice(supplier.revenue)}</span>
                   </div>
                 </div>
                 <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">

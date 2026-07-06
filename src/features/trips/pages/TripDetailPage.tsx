@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
   CheckCircle2, ShoppingCart, Warehouse,
@@ -34,6 +35,7 @@ export function TripDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(tripId || '0', 10);
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
@@ -177,7 +179,7 @@ export function TripDetailPage() {
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('trips.detail.stats')}</p>
               <p className="text-sm font-bold text-text-primary">{t('trips.detail.total', { count: trip.orderCount })}</p>
-              <p className="text-xs text-text-secondary">{trip.totalValue.toLocaleString()} SAR · {t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</p>
+              <p className="text-xs text-text-secondary">{formatPrice(trip.totalValue)} · {t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</p>
             </div>
           </div>
         </Card>

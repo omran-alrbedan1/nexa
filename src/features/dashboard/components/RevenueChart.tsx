@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { TrendingUp } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface RevenueChartProps {
   /** Daily revenue data from API. If empty/undefined, chart shows placeholder */
@@ -12,6 +13,7 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data, todayRevenue, isLoading }: RevenueChartProps) {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   return (
     <Card padding="lg" hover>
@@ -45,7 +47,7 @@ export function RevenueChart({ data, todayRevenue, isLoading }: RevenueChartProp
             return (
               <div key={item.day} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
                 <span className="text-[10px] font-bold text-text-secondary font-body opacity-0 group-hover:opacity-100 transition-opacity">
-                  SAR {item.amount.toLocaleString()}
+                  {formatPrice(item.amount)}
                 </span>
                 <div className="relative w-full max-w-[40px] flex flex-col items-center">
                   <div
@@ -65,7 +67,7 @@ export function RevenueChart({ data, todayRevenue, isLoading }: RevenueChartProp
           <TrendingUp size={32} className="text-text-tertiary mb-2 opacity-40" />
           <p className="text-sm text-text-secondary font-body">
             {todayRevenue
-              ? `${t('dashboard.todayRevenue')}: SAR ${todayRevenue.toLocaleString()}`
+              ? `${t('dashboard.todayRevenue')}: ${formatPrice(todayRevenue)}`
               : t('common.noData')}
           </p>
         </div>

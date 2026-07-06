@@ -10,6 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
 import type { DashboardTrip } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
@@ -36,6 +37,7 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
 export function TripsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data, isLoading, isError, error, refetch } = useTripsPage();
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
@@ -197,7 +199,7 @@ export function TripsPage() {
                 </p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
                   <span>{t('trips.list.driver', { name: trip.driverName ? <span className="font-bold text-text-primary">{trip.driverName}</span> : <span className="text-status-error font-bold">{t('trips.list.unassigned')}</span> })}</span>
-                  <span>{trip.orderCount} {t('trips.stats.orders').toLowerCase()} · <span className="font-bold text-text-primary">{trip.totalValue.toLocaleString()} SAR</span></span>
+                  <span>{trip.orderCount} {t('trips.stats.orders').toLowerCase()} · <span className="font-bold text-text-primary">{formatPrice(trip.totalValue)}</span></span>
                   {trip.status === 'in_progress' && <span>{t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</span>}
                   {trip.notes && <span className="text-amber-600 truncate max-w-[200px]">{trip.notes}</span>}
                 </div>

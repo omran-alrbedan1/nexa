@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 import { useState } from 'react';
 import {
@@ -30,6 +31,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (key: string, opts?: any) => string }) {
   const navigate = useNavigate();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data: products, isLoading, isError, refetch } = useSupplierProducts(supplierId);
 
   if (isLoading) {
@@ -112,8 +114,7 @@ function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (ke
                     </div>
                   </td>
                   <td className="py-3 px-3 text-right">
-                    <span className="text-sm font-extrabold text-text-primary font-display">{product.price.toFixed(2)}</span>
-                    <span className="text-xs text-text-tertiary ml-1">SAR</span>
+                    <span className="text-sm font-extrabold text-text-primary font-display">{formatPrice(product.price)}</span>
                   </td>
                   <td className="py-3 px-3 text-center">
                     <span className={cn(
@@ -166,8 +167,7 @@ function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (ke
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-2 border-t border-border-default/50">
                 <div>
                   <span className="text-text-tertiary">{t('products.detail.price')} </span>
-                  <span className="font-bold text-text-primary">{product.price.toFixed(2)}</span>
-                  <span className="text-text-tertiary"> SAR</span>
+<span className="font-bold text-text-primary">{formatPrice(product.price)}</span>
                 </div>
                 <div>
                   <span className="text-text-tertiary">{t('products.detail.stock')} </span>

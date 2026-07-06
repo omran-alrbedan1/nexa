@@ -16,6 +16,7 @@ import { apiClient } from '@/lib/axios';
 import { unwrap } from '@/lib/apiHelpers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/types/marketplace';
+import { formatPrice } from '@/utils/currency';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -491,7 +492,7 @@ export const operationsApi = {
   /** Submit a price quote — backend uses PUT /special-orders/{id}/notes to store pricing */
   submitPriceQuote: async (requestId: number, price: number, notes: string): Promise<SpecialRequest> => {
     try {
-      const pricingNotes = `Price Quote: SAR ${price}. ${notes ? notes : ''}`;
+      const pricingNotes = `Price Quote: ${formatPrice(price)}. ${notes ? notes : ''}`;
       const response = await apiClient.put<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/notes`, {
         notes: pricingNotes,
       });

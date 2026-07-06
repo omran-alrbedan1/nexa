@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import {
   ArrowLeft, FileClock, DollarSign, User, Calendar,
   CheckCircle2, Phone, XCircle,
@@ -43,6 +44,7 @@ export function SpecialRequestDetailPage() {
   const { requestId } = useParams<{ requestId: string }>();
   const navigate = useNavigate();
   const id = parseInt(requestId || '0', 10);
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const queryClient = useQueryClient();
 
   const { data: request, isLoading, isError, error, refetch } = useQuery<SpecialRequest>({
@@ -170,7 +172,7 @@ export function SpecialRequestDetailPage() {
               {[
                 { status: 'Request Created', time: request.createdAt, desc: 'Customer submitted request' },
                 ...(request.status !== 'pending_management' ? [{ status: 'Assigned for Pricing', time: request.updatedAt, desc: `Assigned to ${request.assignedTo || 'staff'}` }] : []),
-                ...(request.priceQuote ? [{ status: 'Price Quote Submitted', time: request.updatedAt, desc: `${request.priceQuote} SAR — awaiting customer approval` }] : []),
+                ...(request.priceQuote ? [{ status: 'Price Quote Submitted', time: request.updatedAt, desc: `${formatPrice(request.priceQuote)} — awaiting customer approval` }] : []),
               ].map((step, idx, arr) => (
                 <div key={idx} className="relative pb-10 last:pb-0">
                   <div className={cn(
@@ -215,12 +217,12 @@ export function SpecialRequestDetailPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Est. Budget</span>
-                <span className="font-bold text-text-primary">{request.estimatedBudget ? `${request.estimatedBudget} SAR` : '—'}</span>
+                <span className="font-bold text-text-primary">{request.estimatedBudget ? `${formatPrice(request.estimatedBudget)}` : '—'}</span>
               </div>
               <div className="flex justify-between text-sm pt-2 border-t border-border-default/50">
                 <span className="text-text-secondary">Price Quote</span>
                 <span className={request.priceQuote ? 'font-extrabold text-brand-accent' : 'text-text-tertiary'}>
-                  {request.priceQuote ? `${request.priceQuote} SAR` : 'Pending'}
+                  {request.priceQuote ? `${formatPrice(request.priceQuote)}` : 'Pending'}
                 </span>
               </div>
             </div>
@@ -246,7 +248,7 @@ export function SpecialRequestDetailPage() {
       <Modal open={quoteModal.open} onClose={() => setQuoteModal({ ...quoteModal, open: false })} title={`Set Price Quote — ${request.orderNumber}`}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-text-secondary font-body mb-1">Price (SAR)</label>
+            <label className="block text-sm font-bold text-text-secondary font-body mb-1">Price</label>
             <input type="number" step="0.5" min="0" value={quoteModal.price}
               onChange={(e) => setQuoteModal({ ...quoteModal, price: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary bg-bg-input" />

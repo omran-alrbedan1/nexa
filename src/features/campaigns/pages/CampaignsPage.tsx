@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { ROUTES } from '@/routes/routes';
 import { Megaphone, PlayCircle, CalendarClock, FileEdit, ShoppingCart, TrendingUp, Filter, Plus, CalendarRange } from 'lucide-react';
 import type { CampaignStatus } from '../api/campaignsApi';
@@ -24,6 +25,7 @@ export function CampaignsPage() {
   const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
 
@@ -75,7 +77,7 @@ export function CampaignsPage() {
           { key: 'scheduled', label: t('campaigns.stats.scheduled'), icon: CalendarClock, variant: 'teal' as const },
           { key: 'draft', label: t('campaigns.stats.drafts'), icon: FileEdit, variant: 'warning' as const },
           { key: 'totalOrders', label: t('campaigns.stats.totalOrders'), icon: ShoppingCart, variant: 'coral' as const },
-          { key: 'totalRevenue', label: t('campaigns.stats.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', format: true },
+          { key: 'totalRevenue', label: t('campaigns.stats.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '', format: true },
         ].map((s) => {
           const Icon = s.icon;
           return (
@@ -164,14 +166,14 @@ export function CampaignsPage() {
                 <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
                   <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span><span>{t('campaigns.list.products', { count: camp.products.length })}</span>
                   <span>{t('campaigns.list.orders', { count: camp.totalOrders })}</span>
-                  <span className="font-bold text-brand-primary">{camp.totalRevenue.toLocaleString()} SAR</span>
+                  <span className="font-bold text-brand-primary">{formatPrice(camp.totalRevenue)}</span>
                   <span>{t('campaigns.list.budget', { spent: camp.spentAmount.toLocaleString(), total: camp.budget.toLocaleString() })}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   {camp.products.map((p) => (
                     <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body truncate max-w-full">
-                      {p.productName} — <span className="font-bold text-brand-accent">{p.campaignPrice} SAR</span>
-                      <span className="text-text-tertiary line-through ml-1">{p.regularPrice} SAR</span>
+                      {p.productName} — <span className="font-bold text-brand-accent">{formatPrice(p.campaignPrice)}</span>
+                      <span className="text-text-tertiary line-through ml-1">{formatPrice(p.regularPrice)}</span>
                     </div>
                   ))}
                 </div>

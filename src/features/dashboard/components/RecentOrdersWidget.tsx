@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import type { RecentOrder } from '../api/dashboardApi';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 function formatTimeAgo(dateStr: string): string {
   const now = Date.now();
@@ -37,6 +38,7 @@ interface RecentOrdersWidgetProps {
 
 export function RecentOrdersWidget({ orders, isLoading }: RecentOrdersWidgetProps) {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   return (
     <Card padding="lg" hover>
@@ -79,7 +81,7 @@ export function RecentOrdersWidget({ orders, isLoading }: RecentOrdersWidgetProp
               <div className="flex items-center gap-3 ml-4">
                 {order.total > 0 && (
                   <span className="text-sm font-extrabold text-text-primary font-display">
-                    SAR {order.total.toFixed(2)}
+                    {formatPrice(order.total)}
                   </span>
                 )}
                 <Badge

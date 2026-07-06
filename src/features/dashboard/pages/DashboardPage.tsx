@@ -8,6 +8,7 @@ import { WarehouseDashboard } from '../components/WarehouseDashboard';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TrendingUp, CalendarDays } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { getDefaultFilters, type DashboardFilterState } from '../components/DashboardFilterBar';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -49,6 +50,7 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<DashboardFilterState>(getDefaultFilters);
   const [isExpanded, setIsExpanded] = useState(false);
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   // Merge partial filter updates into full state (no data loss)
   const handleFilterChange = useCallback((partial: Partial<DashboardFilterState>) => {
@@ -102,13 +104,13 @@ export function DashboardPage() {
             <div className="bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3 shadow-xs">
               <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">{t('dashboard.todayRevenue')}</p>
               <p className="text-lg font-extrabold text-brand-primary font-display">
-                SAR {(data?.stats.revenueToday ?? 0).toLocaleString()}
+                {formatPrice(data?.stats.revenueToday ?? 0)}
               </p>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3 hidden sm:block shadow-xs">
               <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider font-body">{t('dashboard.thisMonth')}</p>
               <p className="text-lg font-extrabold text-brand-accent font-display">
-                SAR {(data?.stats.revenueThisMonth ?? 0).toLocaleString()}
+                {formatPrice(data?.stats.revenueThisMonth ?? 0)}
               </p>
             </div>
           </div>

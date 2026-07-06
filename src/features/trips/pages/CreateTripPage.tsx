@@ -9,11 +9,13 @@ import { useToastStore } from '@/stores/toastStore';
 import { ordersApi } from '@/features/orders/api/ordersApi';
 import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
 import { regionsApi } from '@/features/regions/api/regionsApi';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { tripsApi } from '../api/tripsApi';
 import { ArrowLeft, Truck, Save, User } from 'lucide-react';
 
 export function CreateTripPage() {
   const navigate = useNavigate();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const addToast = useToastStore((s) => s.addToast);
   const [form, setForm] = useState({
     tripCode: '', warehouseId: '1', deliveryZone: '1', cluster: '1',
@@ -197,7 +199,7 @@ export function CreateTripPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Fee Override (SAR)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Fee Override</label>
               <input type="number" min="0" value={form.deliveryFeeOverride} onChange={(e) => handleChange('deliveryFeeOverride', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="Leave empty for default" />
             </div>
           </div>
@@ -212,7 +214,7 @@ export function CreateTripPage() {
             <p className="text-xs text-text-secondary font-body mt-0.5">Select orders ready to ship in this zone</p>
           </div>
           {selectedCount > 0 && (
-            <Badge variant="teal">{selectedCount} selected · {selectedTotal.toFixed(2)} SAR</Badge>
+            <Badge variant="teal">{selectedCount} selected · {formatPrice(selectedTotal)}</Badge>
           )}
         </div>
         {ordersLoading ? (
@@ -228,7 +230,7 @@ export function CreateTripPage() {
                   <p className="text-sm font-bold text-text-primary font-body">{order.customerName}</p>
                   <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemCount} items</p>
                 </div>
-                <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${order.total.toFixed(2)} SAR` : 'TBD'}</span>
+                <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}</span>
               </label>
             ))}
           </div>

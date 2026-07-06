@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToastStore } from '@/stores/toastStore';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { useAssignForPricing, useSubmitPriceQuote } from '../hooks/useOperations';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
@@ -41,6 +42,7 @@ interface SpecialRequestsSectionProps {
 export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { user } = useAuth();
   const assignForPricing = useAssignForPricing();
   const submitQuote = useSubmitPriceQuote();
@@ -304,7 +306,7 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
           {pricingModal.request?.estimatedBudget && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('operations.specialRequests.estimatedBudget')}</label>
-              <p className="text-sm text-gray-900">{pricingModal.request.estimatedBudget} SAR</p>
+              <p className="text-sm text-gray-900">{formatPrice(pricingModal.request.estimatedBudget)}</p>
             </div>
           )}
           <div>

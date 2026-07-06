@@ -12,6 +12,7 @@ import {
   ArrowLeft, Package, Star, ShoppingCart, TrendingUp, Building2,
   Tag, Hash, Ruler, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users,
 } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = {
   supplier: 'teal', internal: 'purple', seasonal: 'yellow',
@@ -26,6 +27,7 @@ export function ProductDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(productId || '0', 10);
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   const { data: product, isLoading, isError, error, refetch } = useQuery<DashboardProduct>({
     queryKey: productKeys.detail(id),
@@ -211,7 +213,7 @@ export function ProductDetailPage() {
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
               <span className="text-text-secondary flex items-center gap-2"><TrendingUp size={12} /> {t('products.detail.price')}</span>
-              <span className="font-extrabold text-brand-accent">{product.price.toFixed(2)} SAR</span>
+              <span className="font-extrabold text-brand-accent">{formatPrice(product.price)}</span>
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
               <span className="text-text-secondary flex items-center gap-2"><Image size={12} /> {t('products.detail.image')}</span>

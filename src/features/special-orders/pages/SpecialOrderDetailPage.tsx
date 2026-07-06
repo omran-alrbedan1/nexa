@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { useSpecialOrderDetail, useAssignStaff, useAssignSupplier, useApproveSpecialOrder, useRejectSpecialOrder, useUpdateNotes, useConvertToOrder, useSubmitPriceQuote } from '../hooks/useSpecialOrders';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -43,6 +44,7 @@ export function SpecialOrderDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(requestId || '0', 10);
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   const { data: order, isLoading, isError, error, refetch } = useSpecialOrderDetail(id);
   const assignStaff = useAssignStaff();
@@ -130,7 +132,7 @@ export function SpecialOrderDetailPage() {
   const timelineSteps = [
     { status: 'Created', time: order.createdAt, desc: 'Special order request submitted', done: true },
     ...(order.status !== 'pending_admin' ? [{ status: 'Assigned', time: order.updatedAt, desc: order.assignedSupplier ? `Assigned to ${order.assignedSupplier.businessName}` : 'Staff assigned', done: true }] : []),
-    ...(order.priceQuotes.length > 0 ? [{ status: 'Priced', time: order.updatedAt, desc: `${order.priceQuotes[0].total} SAR quote submitted`, done: true }] : []),
+    ...(order.priceQuotes.length > 0 ? [{ status: 'Priced', time: order.updatedAt, desc: `${formatPrice(order.priceQuotes[0].total)} quote submitted`, done: true }] : []),
     ...(order.status === 'approved' ? [{ status: 'Approved', time: order.updatedAt, desc: 'Order approved', done: true }] : []),
     ...(order.status === 'rejected' ? [{ status: 'Rejected', time: order.updatedAt, desc: order.rejectionReason || 'Rejected', done: true }] : []),
   ];
@@ -266,7 +268,7 @@ export function SpecialOrderDetailPage() {
                       <span className="text-sm font-bold text-text-primary font-body">{quote.quoteNumber}</span>
                       <Badge variant={quote.status === 'accepted' ? 'green' : quote.status === 'rejected' ? 'red' : 'yellow'} size="sm">{quote.status}</Badge>
                     </div>
-                    <span className="text-sm font-extrabold text-brand-accent">{quote.total.toLocaleString()} SAR</span>
+                    <span className="text-sm font-extrabold text-brand-accent">{formatPrice(quote.total)}</span>
                   </div>
                 ))}
               </div>
@@ -438,7 +440,7 @@ export function SpecialOrderDetailPage() {
                 min="0"
                 step="0.01"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-text-tertiary">SAR</span>
+
             </div>
           </div>
           <div>

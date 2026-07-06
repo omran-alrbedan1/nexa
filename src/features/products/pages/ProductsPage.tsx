@@ -13,6 +13,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
 import { ListItem } from '@/components/ui/ListItem';
 import { Package, CheckCircle2, AlertTriangle, Layers, Users, TrendingUp, Plus, Search, Filter, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = { supplier: 'teal', internal: 'purple', seasonal: 'yellow' };
 
@@ -21,6 +22,7 @@ const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = { supplier: '
 export function ProductsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data, isLoading, isError, error, refetch } = useProductsPage();
   const toggleAvailability = useToggleProductAvailability();
   const approveProduct = useApproveProduct();
@@ -84,7 +86,7 @@ export function ProductsPage() {
           { key: 'outOfStock', label: t('products.stats.outOfStock'), icon: AlertTriangle, variant: 'coral' as const },
           { key: 'categories', label: t('products.stats.categories'), icon: Layers, variant: 'purple' as const },
           { key: 'suppliers', label: t('products.stats.suppliers'), icon: Users, variant: 'warning' as const },
-          { key: 'avgPrice', label: t('products.stats.avgPrice'), icon: TrendingUp, variant: 'teal' as const, suffix: ' SAR' },
+          { key: 'avgPrice', label: t('products.stats.avgPrice'), icon: TrendingUp, variant: 'teal' as const, suffix: '' },
         ].map((s) => {
           const Icon = s.icon;
           return (
@@ -237,7 +239,7 @@ export function ProductsPage() {
                   {product.isAvailable && product.stockQuantity < 20 && <Badge variant="yellow" size="sm">{t('products.catalog.lowStockBadge', { count: product.stockQuantity })}</Badge>}
                 </>}
                 actions={<>
-                  <span className="text-sm font-extrabold text-text-primary font-display">{product.price.toFixed(2)} <span className="text-text-tertiary text-xs font-body">SAR</span></span>
+                  <span className="text-sm font-extrabold text-text-primary font-display">{formatPrice(product.price)}</span>
                   <Button
                     variant={product.isAvailable ? 'secondary' : 'primary'}
                     size="sm"

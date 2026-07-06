@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
+import { CurrencySwitch } from '@/components/ui/CurrencySwitch';
 import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalette';
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
@@ -197,6 +198,7 @@ export function AppLayout() {
 
             {/* Right Section */}
             <div className="flex items-center gap-1">
+              <CurrencySwitch />
               <LanguageSwitch />
               <button
                 onClick={() => setNotificationsOpen(true)}

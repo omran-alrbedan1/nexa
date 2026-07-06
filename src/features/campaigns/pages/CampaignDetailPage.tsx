@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, Megaphone, CalendarRange, ShoppingCart, TrendingUp,
@@ -26,6 +27,7 @@ export function CampaignDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(campaignId || '0', 10);
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const campaignAction = useCampaignAction();
 
   const { data: campaign, isLoading, isError, error, refetch } = useQuery<Campaign>({
@@ -38,9 +40,9 @@ export function CampaignDetailPage() {
 
   const STAT_CONFIG = [
     { key: 'totalOrders', label: t('campaigns.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const, suffix: '' },
-    { key: 'totalRevenue', label: t('campaigns.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: ' SAR', prefix: '' },
-    { key: 'budget', label: t('campaigns.detail.budget'), icon: Wallet, variant: 'coral' as const, suffix: ' SAR' },
-    { key: 'spentAmount', label: t('campaigns.detail.spent'), icon: Wallet, variant: 'warning' as const, suffix: ' SAR' },
+    { key: 'totalRevenue', label: t('campaigns.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '', prefix: '' },
+    { key: 'budget', label: t('campaigns.detail.budget'), icon: Wallet, variant: 'coral' as const, suffix: '' },
+    { key: 'spentAmount', label: t('campaigns.detail.spent'), icon: Wallet, variant: 'warning' as const, suffix: '' },
   ];
 
   if (isError) {
@@ -238,11 +240,11 @@ export function CampaignDetailPage() {
                     <span className="text-xs text-text-tertiary">{p.productNameAr}</span>
                   </div>
                   <p className="text-xs text-text-secondary font-body mt-1 ml-6">
-                    {p.unit} · Qty: {p.quantity} · Regular: <span className="line-through text-text-tertiary">{p.regularPrice} SAR</span>
+                    {p.unit} · Qty: {p.quantity} · Regular: <span className="line-through text-text-tertiary">{formatPrice(p.regularPrice)}</span>
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className="text-lg font-extrabold text-brand-accent font-display">{p.campaignPrice} <span className="text-xs font-body text-text-tertiary">SAR</span></p>
+                  <p className="text-lg font-extrabold text-brand-accent font-display">{formatPrice(p.campaignPrice)}</p>
                   <p className="text-xs text-green-600 font-bold">
                     {t('campaigns.detail.percentOff', { percent: Math.round((1 - p.campaignPrice / p.regularPrice) * 100) })}
                   </p>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -79,6 +80,7 @@ export function OrderDetailPage() {
   const rescheduleOrder = useRescheduleOrder();
   const transferOrder = useTransferOrder();
   const addToast = useToastStore((s) => s.addToast);
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const [cancelModal, setCancelModal] = useState(false);
   const [rescheduleModal, setRescheduleModal] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -213,7 +215,7 @@ export function OrderDetailPage() {
         </OrderInfoCard>
 
         <OrderInfoCard icon={<CreditCard size={16} />} label={t('orders.detail.payment')}>
-          <p className="text-lg font-extrabold text-text-primary font-display">{order.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} SAR</p>
+          <p className="text-lg font-extrabold text-text-primary font-display">{formatPrice(order.total)}</p>
           <div className="flex items-center gap-2 text-xs text-text-secondary mt-0.5">
             <span>{t('orders.detail.subtotal')}: {order.subtotal.toFixed(2)}</span>
             <span>{t('orders.detail.deliveryFee')}: {order.deliveryFee.toFixed(2)}</span>
@@ -249,22 +251,22 @@ export function OrderDetailPage() {
                   </td>
                   <td className="py-3 px-4 text-center text-text-secondary">{item.quantity}</td>
                   <td className="py-3 px-4 text-right text-text-secondary">{item.unitPrice.toFixed(2)}</td>
-                  <td className="py-3 pl-4 text-right font-bold text-text-primary">{item.totalPrice.toFixed(2)} SAR</td>
+                  <td className="py-3 pl-4 text-right font-bold text-text-primary">{formatPrice(item.totalPrice)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-border-default">
                 <td colSpan={3} className="py-3 pr-4 text-right text-sm text-text-secondary font-body">{t('orders.detail.subtotal')}</td>
-                <td className="py-3 pl-4 text-right text-sm text-text-secondary font-body">{order.subtotal.toFixed(2)} SAR</td>
+                <td className="py-3 pl-4 text-right text-sm text-text-secondary font-body">{formatPrice(order.subtotal)}</td>
               </tr>
               <tr>
                 <td colSpan={3} className="py-1 pr-4 text-right text-sm text-text-secondary font-body">{t('orders.detail.deliveryFee')}</td>
-                <td className="py-1 pl-4 text-right text-sm text-text-secondary font-body">{order.deliveryFee.toFixed(2)} SAR</td>
+                <td className="py-1 pl-4 text-right text-sm text-text-secondary font-body">{formatPrice(order.deliveryFee)}</td>
               </tr>
               <tr className="text-base">
                 <td colSpan={3} className="py-3 pr-4 text-right font-extrabold text-text-primary font-display">{t('orders.detail.totalLabel')}</td>
-                <td className="py-3 pl-4 text-right font-extrabold text-brand-accent font-display">{order.total.toFixed(2)} SAR</td>
+                <td className="py-3 pl-4 text-right font-extrabold text-brand-accent font-display">{formatPrice(order.total)}</td>
               </tr>
             </tfoot>
           </table>
@@ -285,7 +287,7 @@ export function OrderDetailPage() {
                 </div>
                 <div className="col-span-2 pt-1 border-t border-border-default/50">
                   <span className="text-text-tertiary">{t('orders.detail.total')} </span>
-                  <span className="font-bold text-text-primary">{item.totalPrice.toFixed(2)} SAR</span>
+                  <span className="font-bold text-text-primary">{formatPrice(item.totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -293,15 +295,15 @@ export function OrderDetailPage() {
           <div className="p-4 rounded-xl bg-white border border-border-default/60 space-y-1.5 text-sm">
             <div className="flex justify-between text-text-secondary">
               <span>{t('orders.detail.subtotal')}</span>
-              <span>{order.subtotal.toFixed(2)} SAR</span>
+              <span>{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-text-secondary">
               <span>{t('orders.detail.deliveryFee')}</span>
-              <span>{order.deliveryFee.toFixed(2)} SAR</span>
+              <span>{formatPrice(order.deliveryFee)}</span>
             </div>
             <div className="flex justify-between font-extrabold text-lg pt-1.5 border-t border-border-default text-text-primary font-display">
               <span>{t('orders.detail.totalLabel')}</span>
-              <span className="text-brand-accent">{order.total.toFixed(2)} SAR</span>
+              <span className="text-brand-accent">{formatPrice(order.total)}</span>
             </div>
           </div>
         </div>
@@ -374,7 +376,7 @@ export function OrderDetailPage() {
                   <CheckCircle2 size={14} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-text-primary font-body">{p.amount.toFixed(2)} SAR</p>
+                  <p className="text-sm font-bold text-text-primary font-body">{formatPrice(p.amount)}</p>
                   <p className="text-xs text-text-secondary font-body">{p.method}</p>
                 </div>
               </div>

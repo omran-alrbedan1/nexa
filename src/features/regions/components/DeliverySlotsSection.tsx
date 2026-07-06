@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Clock, Plus, CalendarDays, Truck, Users } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface DeliverySlotsSectionProps {
   zoneId: number;
@@ -14,6 +15,7 @@ interface DeliverySlotsSectionProps {
 
 export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data: slots, isLoading } = useDeliverySlots();
   const createSlot = useCreateDeliverySlot();
   const updateSlot = useUpdateDeliverySlot();
@@ -83,7 +85,7 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
                     <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
                       <span className="flex items-center gap-1"><Truck size={12} /> {t('regions.slots.capacity', { count: slot.max_capacity })}</span>
                       <span className="flex items-center gap-1"><Users size={12} /> {t('regions.slots.booked', { count: slot.booked_count || 0 })}</span>
-                      <span>{slot.delivery_fee} SAR</span>
+                      <span>{formatPrice(slot.delivery_fee)}</span>
                     </div>
                   </div>
                 </div>

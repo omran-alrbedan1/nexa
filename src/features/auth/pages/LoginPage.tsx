@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { apiClient, getAuthToken } from '@/lib/axios';
+import { formatPrice } from '@/utils/currency';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 
 // ── Types ──
@@ -36,7 +37,7 @@ const DEFAULT_STATS: StatCardData[] = [
     trend: 'live', iconSvg: ICONS.suppliers, iconBg: 'blue',
   },
   {
-    label: 'Monthly Revenue', value: 'SAR 482K', sublabel: '+12.5% growth',
+    label: 'Monthly Revenue', value: '482K', sublabel: '+12.5% growth',
     trend: 'up', iconSvg: ICONS.revenue, iconBg: 'orange',
   },
   {
@@ -74,7 +75,7 @@ async function fetchLoginStats(): Promise<StatCardData[]> {
       },
       {
         label: 'Revenue',
-        value: d.revenue ? `SAR ${Number(d.revenue).toLocaleString()}` : 'SAR 482K',
+        value: d.revenue ? `${formatPrice(Number(d.revenue))}` : '482K',
         sublabel: 'This month',
         trend: 'up', iconSvg: ICONS.revenue, iconBg: 'orange',
       },

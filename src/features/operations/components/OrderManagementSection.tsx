@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useToastStore } from '@/stores/toastStore';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { useUpdateOrderStatus } from '../hooks/useOperations';
 import type { OperationsOrder } from '../api/operationsApi';
 import type { OrderStatus, OrderType } from '@/types/marketplace';
@@ -68,6 +69,7 @@ interface OrderManagementSectionProps {
 export function OrderManagementSection({ orders, isLoading }: OrderManagementSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');
@@ -85,7 +87,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
 
   /** Export filtered orders as CSV */
   const exportAsCSV = () => {
-    const headers = ['Order #', 'Customer', 'Type', 'Status', 'Items', 'Total (SAR)', 'Region', 'Created'].join(',');
+    const headers = ['Order #', 'Customer', 'Type', 'Status', 'Items', 'Total', 'Region', 'Created'].join(',');
     const rows = filtered.map((o) => [
       o.orderNumber,
       `"${o.customerName}"`,
@@ -240,7 +242,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
                     <span className="text-gray-400 mx-1">·</span>
                     {order.itemCount} items
                     <span className="text-gray-400 mx-1">·</span>
-                    {order.total > 0 ? `${order.total.toFixed(2)} SAR` : 'TBD'}
+                    {order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5 truncate max-w-lg">{order.items}</p>
                   {order.notes && (

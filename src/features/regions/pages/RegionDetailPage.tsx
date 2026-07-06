@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { ArrowLeft, MapPin, Globe, Layers, Clock, DollarSign, CheckCircle2, XCircle, Map, Zap, ShoppingCart, Calendar, Pencil, Settings2 } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { regionKeys } from '../hooks/useRegions';
 import { ClustersSection } from '../components/ClustersSection';
 import { DeliverySlotsSection } from '../components/DeliverySlotsSection';
@@ -33,6 +34,7 @@ export function RegionDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(regionId || '0', 10);
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
   const updateZone = useUpdateZone();
@@ -117,7 +119,7 @@ export function RegionDetailPage() {
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.deliveryFee')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{region.deliveryFee} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.deliveryFee)}</p>
             </div>
           </div>
         </Card>
@@ -126,7 +128,7 @@ export function RegionDetailPage() {
             <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><CheckCircle2 size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.minOrder')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{region.minimumOrder} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.minimumOrder)}</p>
             </div>
           </div>
         </Card>
@@ -135,7 +137,7 @@ export function RegionDetailPage() {
             <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><Zap size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.freeDelivery')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{region.freeDeliveryThreshold ? `${region.freeDeliveryThreshold} SAR` : '—'}</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{region.freeDeliveryThreshold ? `${formatPrice(region.freeDeliveryThreshold)}` : '—'}</p>
             </div>
           </div>
         </Card>
@@ -145,7 +147,7 @@ export function RegionDetailPage() {
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.orders')}</p>
               <p className="text-xl font-extrabold text-text-primary font-display">{region.totalOrders}</p>
-              <p className="text-xs text-text-tertiary">{region.totalRevenue.toLocaleString()} SAR</p>
+              <p className="text-xs text-text-tertiary">{formatPrice(region.totalRevenue)}</p>
             </div>
           </div>
         </Card>
@@ -183,7 +185,7 @@ export function RegionDetailPage() {
                 <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.deliveryFee')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{region.deliveryFee} SAR</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.deliveryFee)}</p>
                 </div>
               </div>
             </Card>
@@ -192,7 +194,7 @@ export function RegionDetailPage() {
                 <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><CheckCircle2 size={16} /></div>
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.minOrder')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{region.minimumOrder} SAR</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.minimumOrder)}</p>
                 </div>
               </div>
             </Card>
@@ -201,7 +203,7 @@ export function RegionDetailPage() {
                 <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><Zap size={16} /></div>
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.freeDelivery')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{region.freeDeliveryThreshold ? `${region.freeDeliveryThreshold} SAR` : '—'}</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display">{region.freeDeliveryThreshold ? `${formatPrice(region.freeDeliveryThreshold)}` : '—'}</p>
                 </div>
               </div>
             </Card>
@@ -211,7 +213,7 @@ export function RegionDetailPage() {
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.orders')}</p>
                   <p className="text-xl font-extrabold text-text-primary font-display">{region.totalOrders}</p>
-                  <p className="text-xs text-text-tertiary">{region.totalRevenue.toLocaleString()} SAR</p>
+                  <p className="text-xs text-text-tertiary">{formatPrice(region.totalRevenue)}</p>
                 </div>
               </div>
             </Card>

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi } from '../api/campaignsApi';
@@ -19,6 +20,7 @@ interface CampaignFormProduct {
 
 export function CreateCampaignPage() {
   const navigate = useNavigate();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const addToast = useToastStore((s) => s.addToast);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -162,7 +164,7 @@ export function CreateCampaignPage() {
                 </div>
                 <div className="w-20 flex-shrink-0">
                   <p className="text-xs font-bold text-text-secondary mb-1">Regular</p>
-                  <p className="text-xs text-text-secondary py-1.5">{p.regularPrice > 0 ? `${p.regularPrice} SAR` : '—'}</p>
+                  <p className="text-xs text-text-secondary py-1.5">{p.regularPrice > 0 ? `${formatPrice(p.regularPrice)}` : '—'}</p>
                 </div>
                 <div className="w-24 flex-shrink-0">
                   <p className="text-xs font-bold text-text-secondary mb-1">Campaign Price</p>

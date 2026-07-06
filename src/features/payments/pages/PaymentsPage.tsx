@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { DollarSign, Search, Filter, CreditCard, ArrowLeftRight, Ban } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import type { ApiResponse, PaginatedResponse } from '@/types/common';
 
 interface Payment {
@@ -35,6 +36,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 export function PaymentsPage() {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
@@ -111,7 +113,7 @@ export function PaymentsPage() {
             <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><DollarSign size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('payments.totalAmount')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{totalAmount.toLocaleString()} SAR</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(totalAmount)}</p>
             </div>
           </div>
         </Card>
@@ -162,7 +164,7 @@ export function PaymentsPage() {
                 key={payment.id}
                 icon={<DollarSign size={16} className="text-green-600" />}
                 iconClassName="bg-green-50"
-                title={<span className="text-sm font-bold text-text-primary font-body truncate">{payment.amount?.toLocaleString()} SAR</span>}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{formatPrice(payment.amount ?? 0)}</span>}
                 badges={<Badge variant={STATUS_BADGE[payment.status] || 'yellow'} size="sm">{payment.status}</Badge>}
                 actions={payment.status === 'paid' && (
                   <Button variant="secondary" size="sm" leftIcon={<Ban size={12} />} onClick={() => setRefundModal({ open: true, paymentId: payment.id, amount: '', reason: '' })}>

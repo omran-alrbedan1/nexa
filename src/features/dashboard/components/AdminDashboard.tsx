@@ -17,6 +17,7 @@ import { BestSuppliersWidget } from './BestSuppliersWidget';
 import { BestAreasWidget } from './BestAreasWidget';
 import { TripSummaryWidget } from './TripSummaryWidget';
 import { Package, TrendingUp, Truck, AlertTriangle } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface AdminDashboardProps {
   data: DashboardWidgetsExpanded | undefined;
@@ -31,6 +32,7 @@ interface AdminDashboardProps {
 export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: AdminDashboardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
 
   return (
     <div className="space-y-6">
@@ -56,7 +58,7 @@ export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExp
         />
         <StatsCard
           title={t('dashboard.stats.revenueToday')}
-          value={data ? `SAR ${data.stats.revenueToday.toLocaleString()}` : '-'}
+          value={data ? `${formatPrice(data.stats.revenueToday)}` : '-'}
           subtitle={t('dashboard.subtitle.revenueMonth', { amount: (data?.stats.revenueThisMonth ?? 0).toLocaleString() })}
           variant="primary"
           isLoading={isLoading}

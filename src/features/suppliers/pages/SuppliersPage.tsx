@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -29,6 +30,7 @@ const STATUS_LABELS: Record<SupplierStatus, string> = {
 export function SuppliersPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data, isLoading, isError, error, refetch } = useSuppliersPage();
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
@@ -182,7 +184,7 @@ export function SuppliersPage() {
                 <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
                   <span className="flex items-center gap-1"><Star size={12} className="text-status-star" />{supplier.rating.toFixed(1)}</span>
                   <span>{t('suppliers.list.orders', { count: supplier.totalOrders })}</span>
-                  <span className="font-bold text-text-primary">{supplier.totalRevenue.toLocaleString()} SAR</span>
+                  <span className="font-bold text-text-primary">{formatPrice(supplier.totalRevenue)}</span>
                   <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
                   <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
                   <span>{supplier.paymentTerms.replace(/_/g, ' ')}</span>

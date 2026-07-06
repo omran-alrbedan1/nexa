@@ -13,6 +13,7 @@ import {
   Package, AlertTriangle, CheckCircle2, XCircle, Search,
   Plus, Minus,
 } from 'lucide-react';
+import { useCurrencyStore } from '@/stores/currencyStore';
 import { productKeys } from '@/features/products/hooks/useProductsAdmin';
 
 const STAT_CONFIG = [
@@ -27,6 +28,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 }
 
 export function InventoryPage() {
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: productKeys.pageData(),
     queryFn: () => productsApi.getPageData(),
@@ -186,7 +188,7 @@ export function InventoryPage() {
                 >
                   <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
                     <span className="font-bold text-text-primary">{product.stockQuantity}</span> {product.unit}s
-                    <span>{product.price.toFixed(2)} SAR</span>
+                    <span>{formatPrice(product.price)}</span>
                     {product.supplierName && <span>{product.supplierName}</span>}
                   </div>
                   <div className="w-full max-w-xs h-2 rounded-full bg-gray-100 mt-1.5 overflow-hidden">

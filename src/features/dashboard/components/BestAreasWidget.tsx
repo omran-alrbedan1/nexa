@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { MapPin } from 'lucide-react';
 import type { TopArea } from '../api/dashboardApi';
+import { useCurrencyStore } from '@/stores/currencyStore';
 
 interface BestAreasWidgetProps {
   areas: TopArea[];
@@ -10,6 +11,7 @@ interface BestAreasWidgetProps {
 
 export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
   const { t } = useTranslation();
+  const formatPrice = useCurrencyStore(s => s.formatPrice);
   const maxRevenue = Math.max(...areas.map((a) => a.totalRevenue), 1);
 
   return (
@@ -46,7 +48,7 @@ export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
                   <div className="flex items-center gap-3 text-xs">
                     <span className="text-text-secondary font-body">{t('dashboard.topAreas.orders', { count: area.orderCount })}</span>
                     <span className="font-extrabold text-status-success font-display">
-                      SAR {area.totalRevenue.toLocaleString()}
+                      {formatPrice(area.totalRevenue)}
                     </span>
                   </div>
                 </div>

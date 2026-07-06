@@ -133,7 +133,7 @@ export function EditProductPage() {
           <h3 className="text-sm font-bold text-text-primary font-display mb-4">Pricing & Inventory</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Price (SAR) *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Price *</label>
               <input type="number" step="0.01" min="0" value={form.price} onChange={(e) => handleChange('price', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>

@@ -5,7 +5,9 @@ import { ROUTES } from '@/routes/routes';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useSettings, useBulkUpdateSettings } from '../hooks/useSettings';
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, ClipboardList, Save } from 'lucide-react';
+import { useCurrencyStore, type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
+import { useToastStore } from '@/stores/toastStore';
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, ClipboardList, Save, DollarSign } from 'lucide-react';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -30,6 +32,27 @@ export function SettingsPage() {
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
 
   const generalSettings = (settings || []).filter((s) => s.group === 'general' || !s.group);
+
+  const storeCurrency = useCurrencyStore((s) => s.selectedCurrency);
+  const storeRates = useCurrencyStore((s) => s.exchangeRates);
+  const setStoreCurrency = useCurrencyStore((s) => s.setCurrency);
+  const setStoreRates = useCurrencyStore((s) => s.setExchangeRates);
+  const addToast = useToastStore((s) => s.addToast);
+
+  const [editCurrency, setEditCurrency] = useState<CurrencyCode>(storeCurrency);
+  const [editRates, setEditRates] = useState<ExchangeRates>({ ...storeRates });
+
+  const hasCurrencyChanges =
+    editCurrency !== storeCurrency ||
+    editRates.USD !== storeRates.USD ||
+    editRates.ILS !== storeRates.ILS ||
+    editRates.AED !== storeRates.AED;
+
+  const handleCurrencySave = () => {
+    setStoreCurrency(editCurrency);
+    setStoreRates(editRates);
+    addToast('success', t('settings.currency.saved'));
+  };
 
   useEffect(() => {
     if (activeTab !== 'general') {
@@ -159,6 +182,88 @@ export function SettingsPage() {
             ))}
           </div>
         )}
+      </Card>
+
+      {/* Currency Settings */}
+      <Card padding="lg">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center">
+              <DollarSign size={20} className="text-brand-primary" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('settings.currency.title')}</h3>
+              <p className="text-xs text-text-secondary font-body mt-0.5">{t('settings.currency.description')}</p>
+            </div>
+          </div>
+          {hasCurrencyChanges && (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Save size={14} />}
+              onClick={handleCurrencySave}
+            >
+              {t('common.save')}
+            </Button>
+          )}
+        </div>
+
+        <div className="mb-6">
+          <label className="text-sm font-bold text-text-primary font-body mb-2 block">{t('settings.currency.displayCurrency')}</label>
+          <select
+            value={editCurrency}
+            onChange={(e) => setEditCurrency(e.target.value as CurrencyCode)}
+            className="w-full max-w-xs px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+          >
+            <option value="USD">{t('settings.currency.usd')}</option>
+            <option value="ILS">{t('settings.currency.ils')}</option>
+            <option value="AED">{t('settings.currency.aed')}</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm font-bold text-text-primary font-body mb-2 block">{t('settings.currency.exchangeRates')}</label>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border-default/60">
+              <p className="text-sm font-bold text-text-primary font-body">{t('settings.currency.usd')}</p>
+              <div className="flex items-center gap-2">
+                <input
+                  value={editRates.USD}
+                  onChange={(e) => setEditRates((prev) => ({ ...prev, USD: parseFloat(e.target.value) || 0 }))}
+                  className="w-32 px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input text-right"
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                />
+                <span className="text-xs text-text-tertiary">{t('settings.currency.baseNote')}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border-default/60">
+              <p className="text-sm font-bold text-text-primary font-body">{t('settings.currency.ils')}</p>
+              <input
+                value={editRates.ILS}
+                onChange={(e) => setEditRates((prev) => ({ ...prev, ILS: parseFloat(e.target.value) || 0 }))}
+                className="w-32 px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input text-right"
+                type="number"
+                step="0.001"
+                min="0.001"
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border-default/60">
+              <p className="text-sm font-bold text-text-primary font-body">{t('settings.currency.aed')}</p>
+              <input
+                value={editRates.AED}
+                onChange={(e) => setEditRates((prev) => ({ ...prev, AED: parseFloat(e.target.value) || 0 }))}
+                className="w-32 px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input text-right"
+                type="number"
+                step="0.001"
+                min="0.001"
+              />
+            </div>
+          </div>
+        </div>
       </Card>
     </div>
   );
