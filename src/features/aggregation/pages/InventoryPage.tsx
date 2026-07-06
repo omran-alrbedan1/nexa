@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
+import { ListItem } from '@/components/ui/ListItem';
 import {
   Package, AlertTriangle, CheckCircle2, XCircle, Search,
   Plus, Minus,
@@ -168,34 +169,30 @@ export function InventoryPage() {
               const stockPercent = Math.min((product.stockQuantity / maxEst) * 100, 100);
               const isLow = product.isAvailable && product.stockQuantity > 0 && product.stockQuantity < 20;
               return (
-                 <div key={product.id} className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all group">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                        <Package size={14} className="text-brand-primary" />
-                      </div>
-                       <span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>
-                      {!product.isAvailable && <Badge variant="red" size="sm">Disabled</Badge>}
-                      {isLow && <Badge variant="yellow" size="sm">Low Stock</Badge>}
-                      {product.stockQuantity === 0 && <Badge variant="red" size="sm">Out</Badge>}
-                    </div>
-                    <div className="ml-10 mt-2">
-                       <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span className="font-bold text-text-primary">{product.stockQuantity}</span> {product.unit}s
-                        <span>{product.price.toFixed(2)} SAR</span>
-                        {product.supplierName && <span>{product.supplierName}</span>}
-                      </div>
-                      <div className="w-full max-w-xs h-2 rounded-full bg-gray-100 mt-1.5 overflow-hidden">
-                        <div className={cn('h-full rounded-full', isLow ? 'bg-amber-500' : product.stockQuantity === 0 ? 'bg-red-400' : 'bg-green-500')} style={{ width: `${stockPercent}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
+                <ListItem
+                  key={product.id}
+                  icon={<Package size={16} className="text-brand-primary" />}
+                  title={<span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>}
+                  badges={<>
+                    {!product.isAvailable && <Badge variant="red" size="sm">Disabled</Badge>}
+                    {isLow && <Badge variant="yellow" size="sm">Low Stock</Badge>}
+                    {product.stockQuantity === 0 && <Badge variant="red" size="sm">Out</Badge>}
+                  </>}
+                  actions={
                     <Button variant="secondary" size="sm" leftIcon={<Plus size={12} />} onClick={() => setStockModal({ open: true, product, adjustment: 10, reason: 'Restock' })}>
                       Restock
                     </Button>
+                  }
+                >
+                  <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                    <span className="font-bold text-text-primary">{product.stockQuantity}</span> {product.unit}s
+                    <span>{product.price.toFixed(2)} SAR</span>
+                    {product.supplierName && <span>{product.supplierName}</span>}
                   </div>
-                </div>
+                  <div className="w-full max-w-xs h-2 rounded-full bg-gray-100 mt-1.5 overflow-hidden">
+                    <div className={cn('h-full rounded-full', isLow ? 'bg-amber-500' : product.stockQuantity === 0 ? 'bg-red-400' : 'bg-green-500')} style={{ width: `${stockPercent}%` }} />
+                  </div>
+                </ListItem>
               );
             })}
           </div>

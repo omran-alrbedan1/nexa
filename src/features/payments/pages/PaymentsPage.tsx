@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { DollarSign, Search, Filter, CreditCard, ArrowLeftRight, Ban } from 'lucide-react';
 import type { ApiResponse, PaginatedResponse } from '@/types/common';
 
@@ -157,36 +158,25 @@ export function PaymentsPage() {
         ) : (
           <div className="space-y-2">
             {payments.map((payment: any) => (
-              <div key={payment.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all">
-                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-                        <DollarSign size={16} className="text-green-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                           <span className="text-sm font-bold text-text-primary font-body truncate">{payment.amount?.toLocaleString()} SAR</span>
-                          <Badge variant={STATUS_BADGE[payment.status] || 'yellow'} size="sm">{payment.status}</Badge>
-                        </div>
-                         <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
-                          <span>{payment.transaction_id}</span>
-                          {payment.order && <span>Order #{payment.order.order_number}</span>}
-                          {payment.payment_method && <span>{payment.payment_method.name_ar}</span>}
-                          <span>{new Date(payment.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    {payment.status === 'paid' && (
-                      <Button variant="secondary" size="sm" leftIcon={<Ban size={12} />} onClick={() => setRefundModal({ open: true, paymentId: payment.id, amount: '', reason: '' })}>
-                        {t('payments.refund')}
-                      </Button>
-                    )}
-                  </div>
+              <ListItem
+                key={payment.id}
+                icon={<DollarSign size={16} className="text-green-600" />}
+                iconClassName="bg-green-50"
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{payment.amount?.toLocaleString()} SAR</span>}
+                badges={<Badge variant={STATUS_BADGE[payment.status] || 'yellow'} size="sm">{payment.status}</Badge>}
+                actions={payment.status === 'paid' && (
+                  <Button variant="secondary" size="sm" leftIcon={<Ban size={12} />} onClick={() => setRefundModal({ open: true, paymentId: payment.id, amount: '', reason: '' })}>
+                    {t('payments.refund')}
+                  </Button>
+                )}
+              >
+                <div className="flex items-center gap-3 text-xs text-text-tertiary font-body flex-wrap">
+                  <span>{payment.transaction_id}</span>
+                  {payment.order && <span>Order #{payment.order.order_number}</span>}
+                  {payment.payment_method && <span>{payment.payment_method.name_ar}</span>}
+                  <span>{new Date(payment.created_at).toLocaleDateString()}</span>
                 </div>
-              </div>
+              </ListItem>
             ))}
           </div>
         )}

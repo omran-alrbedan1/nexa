@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { LifeBuoy, Search, Filter, UserCheck, Clock } from 'lucide-react';
 import type { ApiResponse } from '@/types/common';
 
@@ -123,50 +124,39 @@ export function SupportTicketsPage() {
           <div className="space-y-2">
             {tickets.map((ticket: any) => (
               <div key={ticket.id} className="rounded-xl border border-border-default/60 overflow-hidden">
-                <div
+                <ListItem
                   onClick={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
-                  className="p-4 hover:bg-bg-section-alt transition-all cursor-pointer"
+                  icon={<LifeBuoy size={16} className="text-brand-primary" />}
+                  title={<span className="text-sm font-bold text-text-primary font-body truncate">{ticket.subject}</span>}
+                  badges={<>
+                    <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{ticket.status?.replace('_', ' ')}</Badge>
+                    <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
+                  </>}
+                  actions={<>
+                    {!ticket.assignee && (
+                      <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setAssignModal({ open: true, ticketId: ticket.id, staffId: '' }); }}>
+                        <UserCheck size={12} className="mr-1" /> {t('support.assign')}
+                      </Button>
+                    )}
+                    {ticket.status === 'open' && (
+                      <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ ticketId: ticket.id, status: 'in_progress' }); }}>
+                        {t('support.start')}
+                      </Button>
+                    )}
+                    {ticket.status === 'in_progress' && (
+                      <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ ticketId: ticket.id, status: 'resolved' }); }}>
+                        {t('support.resolve')}
+                      </Button>
+                    )}
+                  </>}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                          <LifeBuoy size={16} className="text-brand-primary" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                             <span className="text-sm font-bold text-text-primary font-body truncate">{ticket.subject}</span>
-                            <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{ticket.status?.replace('_', ' ')}</Badge>
-                            <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
-                          </div>
-                           <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
-                            <span>#{ticket.ticket_number}</span>
-                            {ticket.customer && <span>{ticket.customer.full_name}</span>}
-                            {ticket.assignee && <span className="flex items-center gap-1"><UserCheck size={12} /> {ticket.assignee.full_name}</span>}
-                            <span className="flex items-center gap-1"><Clock size={12} /> {new Date(ticket.created_at).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                     <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                      {!ticket.assignee && (
-                        <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setAssignModal({ open: true, ticketId: ticket.id, staffId: '' }); }}>
-                          <UserCheck size={12} className="mr-1" /> {t('support.assign')}
-                        </Button>
-                      )}
-                      {ticket.status === 'open' && (
-                        <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ ticketId: ticket.id, status: 'in_progress' }); }}>
-                          {t('support.start')}
-                        </Button>
-                      )}
-                      {ticket.status === 'in_progress' && (
-                        <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ ticketId: ticket.id, status: 'resolved' }); }}>
-                          {t('support.resolve')}
-                        </Button>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3 text-xs text-text-tertiary font-body flex-wrap">
+                    <span>#{ticket.ticket_number}</span>
+                    {ticket.customer && <span>{ticket.customer.full_name}</span>}
+                    {ticket.assignee && <span className="flex items-center gap-1"><UserCheck size={12} /> {ticket.assignee.full_name}</span>}
+                    <span className="flex items-center gap-1"><Clock size={12} /> {new Date(ticket.created_at).toLocaleDateString()}</span>
                   </div>
-                </div>
+                </ListItem>
 
                 {expandedId === ticket.id && ticket.messages && ticket.messages.length > 0 && (
                   <div className="border-t border-border-default/50 px-4 py-3 bg-bg-section-alt/50">

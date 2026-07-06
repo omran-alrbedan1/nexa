@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { Users, UserPlus, Shield, Mail, Clock } from 'lucide-react';
 import type { StaffMember } from '../api/settingsApi';
 
@@ -109,50 +110,32 @@ export function StaffPage() {
         ) : (
           <div className="space-y-3">
             {staff.map((member) => (
-              <div key={member.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                        <Users size={16} className="text-brand-primary" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{member.fullName}</span>
-                          <Badge variant={member.status === 'active' ? 'green' : 'red'} size="sm">
-                            {member.status === 'active' ? t('common.active') : t('common.inactive')}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-11 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span className="flex items-center gap-1"><Mail size={12} /> {member.email}</span>
-                        {member.lastLoginAt && (
-                          <span className="flex items-center gap-1"><Clock size={12} /> {new Date(member.lastLoginAt).toLocaleDateString()}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        {member.roles.map((role) => (
-                          <Badge key={role.id} variant="teal" size="sm">{role.displayName}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => openRoleModal(member)}>
-                      <Shield size={14} className="mr-1" /> {t('settings.staff.roles')}
-                    </Button>
-                    <Button
-                      variant={member.status === 'active' ? 'danger' : 'primary'}
-                      size="sm"
-                      onClick={() => handleToggleStatus(member)}
-                    >
-                      {member.status === 'active' ? t('settings.staff.deactivate') : t('settings.staff.activate')}
-                    </Button>
-                  </div>
+              <ListItem
+                key={member.id}
+                icon={<Users size={16} className="text-brand-primary" />}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{member.fullName}</span>}
+                badges={<Badge variant={member.status === 'active' ? 'green' : 'red'} size="sm">{member.status === 'active' ? t('common.active') : t('common.inactive')}</Badge>}
+                actions={<>
+                  <Button variant="outline" size="sm" onClick={() => openRoleModal(member)}>
+                    <Shield size={14} className="mr-1" /> {t('settings.staff.roles')}
+                  </Button>
+                  <Button variant={member.status === 'active' ? 'danger' : 'primary'} size="sm" onClick={() => handleToggleStatus(member)}>
+                    {member.status === 'active' ? t('settings.staff.deactivate') : t('settings.staff.activate')}
+                  </Button>
+                </>}
+              >
+                <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                  <span className="flex items-center gap-1"><Mail size={12} /> {member.email}</span>
+                  {member.lastLoginAt && (
+                    <span className="flex items-center gap-1"><Clock size={12} /> {new Date(member.lastLoginAt).toLocaleDateString()}</span>
+                  )}
                 </div>
-              </div>
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {member.roles.map((role) => (
+                    <Badge key={role.id} variant="teal" size="sm">{role.displayName}</Badge>
+                  ))}
+                </div>
+              </ListItem>
             ))}
           </div>
         )}

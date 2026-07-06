@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import {
   Users, Truck, CheckCircle2, XCircle, Search, Filter, Star, Phone, MapPin, ThumbsUp, ThumbsDown, AlertTriangle,
 } from 'lucide-react';
@@ -127,42 +128,26 @@ export function DriversPage() {
           {showPendingTab && (
             <div className="space-y-3">
               {pendingDrivers.map((driver) => (
-                <div key={driver.id} className="p-4 rounded-xl border border-amber-100 bg-amber-50/30">
-                   <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-600 flex-shrink-0">
-                          {driver.name.charAt(0)}
-                        </div>
-                        <div>
-                          <span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>
-                          <div className="flex items-center gap-3 text-xs text-text-secondary font-body mt-0.5 flex-wrap">
-                            <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
-                            <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
-                            <span>{driver.vehicleType} · {driver.vehiclePlate}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                     <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                       <Button
-                         variant="primary" size="sm"
-                         leftIcon={<ThumbsUp size={12} />}
-                        isLoading={approveDriver.isPending}
-                        onClick={() => approveDriver.mutate(driver.id)}
-                      >
+                <div key={driver.id} className="rounded-xl border border-amber-100 bg-amber-50/30">
+                  <ListItem
+                    icon={<span className="text-sm font-bold text-amber-600">{driver.name.charAt(0)}</span>}
+                    iconClassName="bg-amber-100 rounded-full"
+                    title={<span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>}
+                    actions={<>
+                      <Button variant="primary" size="sm" leftIcon={<ThumbsUp size={12} />} isLoading={approveDriver.isPending} onClick={() => approveDriver.mutate(driver.id)}>
                         {t('drivers.pendingApproval.approve')}
                       </Button>
-                      <Button
-                        variant="secondary" size="sm"
-                        leftIcon={<ThumbsDown size={12} />}
-                        isLoading={rejectDriver.isPending}
-                        onClick={() => rejectDriver.mutate(driver.id)}
-                      >
+                      <Button variant="secondary" size="sm" leftIcon={<ThumbsDown size={12} />} isLoading={rejectDriver.isPending} onClick={() => rejectDriver.mutate(driver.id)}>
                         {t('drivers.pendingApproval.reject')}
                       </Button>
+                    </>}
+                  >
+                    <div className="flex items-center gap-3 text-xs text-text-secondary font-body flex-wrap">
+                      <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
+                      <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
+                      <span>{driver.vehicleType} · {driver.vehiclePlate}</span>
                     </div>
-                  </div>
+                  </ListItem>
                 </div>
               ))}
             </div>
@@ -198,48 +183,34 @@ export function DriversPage() {
         ) : (
           <div className="space-y-3">
             {drivers.map((driver) => (
-              <div key={driver.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all">
-                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand-primary-light flex items-center justify-center text-sm font-bold text-brand-primary flex-shrink-0">
-                        {driver.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>
-                          <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-amber-500'} flex-shrink-0`} />
-                          <span className={`text-xs font-bold ${driver.isAvailable ? 'text-green-600' : 'text-amber-600'}`}>
-                            {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-12 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span>{VEHICLE_ICONS[driver.vehicleType] || '🚗'} {driver.vehicleType} · {driver.vehiclePlate}</span>
-                        <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
-                        <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
-                        <span className="flex items-center gap-1"><Star size={10} className="text-amber-500" />{driver.rating.toFixed(1)}</span>
-                      </div>
-                       <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
-                        <span>{t('drivers.list.trips', { count: driver.totalTrips })}</span>
-                        <span>{t('drivers.list.ordersDelivered', { count: driver.totalOrders })}</span>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                     <Button
-                       variant={driver.isAvailable ? 'secondary' : 'primary'}
-                      size="sm"
-                      isLoading={toggleAvailability.isPending}
-                      onClick={() => toggleAvailability.mutate(driver.id)}
-                    >
-                      {driver.isAvailable ? t('drivers.list.setUnavailable') : t('drivers.list.setAvailable')}
-                    </Button>
-                  </div>
+              <ListItem
+                key={driver.id}
+                icon={<span className="text-sm font-bold text-brand-primary">{driver.name.charAt(0)}</span>}
+                iconClassName="bg-brand-primary-light rounded-full"
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>}
+                badges={<>
+                  <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-amber-500'} flex-shrink-0`} />
+                  <span className={`text-xs font-bold ${driver.isAvailable ? 'text-green-600' : 'text-amber-600'}`}>
+                    {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
+                  </span>
+                </>}
+                actions={
+                  <Button variant={driver.isAvailable ? 'secondary' : 'primary'} size="sm" isLoading={toggleAvailability.isPending} onClick={() => toggleAvailability.mutate(driver.id)}>
+                    {driver.isAvailable ? t('drivers.list.setUnavailable') : t('drivers.list.setAvailable')}
+                  </Button>
+                }
+              >
+                <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                  <span>{VEHICLE_ICONS[driver.vehicleType] || '🚗'} {driver.vehicleType} · {driver.vehiclePlate}</span>
+                  <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
+                  <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
+                  <span className="flex items-center gap-1"><Star size={10} className="text-amber-500" />{driver.rating.toFixed(1)}</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
+                  <span>{t('drivers.list.trips', { count: driver.totalTrips })}</span>
+                  <span>{t('drivers.list.ordersDelivered', { count: driver.totalOrders })}</span>
+                </div>
+              </ListItem>
             ))}
           </div>
         )}

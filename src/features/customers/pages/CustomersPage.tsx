@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ListItem } from '@/components/ui/ListItem';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Search, Filter, Users, UserCheck, UserX, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert } from 'lucide-react';
 import type { CustomerStatus } from '../api/customersApi';
@@ -190,94 +191,56 @@ export function CustomersPage() {
         ) : (
           <div className="space-y-3">
             {customers.map((customer) => (
-              <div
+              <ListItem
                 key={customer.id}
                 onClick={() => navigate(ROUTES.CUSTOMER_DETAIL(customer.id))}
-                className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer"
-              >
-                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                        <Users size={16} className="text-brand-primary" />
-                      </div>
-                      <div>
-                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-text-primary font-body truncate">{customer.fullName}</span>
-                           <Badge variant={STATUS_BADGE[customer.status]} size="sm">
-                            {STATUS_LABELS[customer.status]}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-11 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span className="truncate">{customer.email} · {customer.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Star size={12} className="text-status-star" />
-                          {customer.ratingAvg.toFixed(1)}
-                        </span>
-                        <span>{t('customers.list.orders', { count: customer.ordersCount })}</span>
-                        <span>
-                          {customer.defaultZone?.nameAr || t('customers.list.noZone')}
-                        </span>
-                      </div>
-                      {customer.addresses.length > 0 && (
-                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                          {customer.addresses.slice(0, 2).map((addr) => (
-                            <Badge key={addr.id} variant="teal" size="sm">
-                              {addr.label}: {addr.addressDetails}
-                            </Badge>
-                          ))}
-                          {customer.addresses.length > 2 && (
-                            <span className="text-xs text-text-tertiary">
-                              +{customer.addresses.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    {customer.status === 'active' && (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStatusChange(customer.id, customer.fullName, 'suspended');
-                        }}
-                      >
-                        {t('customers.list.suspend')}
-                      </Button>
-                    )}
-                    {customer.status === 'suspended' && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStatusChange(customer.id, customer.fullName, 'active');
-                        }}
-                      >
-                        {t('customers.list.activate')}
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(ROUTES.CUSTOMER_DETAIL(customer.id));
-                      }}
-                    >
-                      {t('customers.list.view')}
+                icon={<Users size={16} className="text-brand-primary" />}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{customer.fullName}</span>}
+                badges={<Badge variant={STATUS_BADGE[customer.status]} size="sm">{STATUS_LABELS[customer.status]}</Badge>}
+                actions={<>
+                  {customer.status === 'active' && (
+                    <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleStatusChange(customer.id, customer.fullName, 'suspended'); }}>
+                      {t('customers.list.suspend')}
                     </Button>
-                  </div>
+                  )}
+                  {customer.status === 'suspended' && (
+                    <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); handleStatusChange(customer.id, customer.fullName, 'active'); }}>
+                      {t('customers.list.activate')}
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.CUSTOMER_DETAIL(customer.id)); }}>
+                    {t('customers.list.view')}
+                  </Button>
+                </>}
+              >
+                <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                  <span className="truncate">{customer.email} · {customer.phone}</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <Star size={12} className="text-status-star" />
+                    {customer.ratingAvg.toFixed(1)}
+                  </span>
+                  <span>{t('customers.list.orders', { count: customer.ordersCount })}</span>
+                  <span>
+                    {customer.defaultZone?.nameAr || t('customers.list.noZone')}
+                  </span>
+                </div>
+                {customer.addresses.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                    {customer.addresses.slice(0, 2).map((addr) => (
+                      <Badge key={addr.id} variant="teal" size="sm">
+                        {addr.label}: {addr.addressDetails}
+                      </Badge>
+                    ))}
+                    {customer.addresses.length > 2 && (
+                      <span className="text-xs text-text-tertiary">
+                        +{customer.addresses.length - 2} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </ListItem>
             ))}
           </div>
         )}

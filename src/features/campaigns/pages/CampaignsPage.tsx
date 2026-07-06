@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
@@ -143,52 +144,41 @@ export function CampaignsPage() {
         ) : (
           <div className="space-y-3">
             {campaigns.map((camp) => (
-              <div key={camp.id} onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(camp.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
-                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-brand-accent-light flex items-center justify-center flex-shrink-0">
-                        <Megaphone size={16} className="text-brand-accent" />
-                      </div>
-                      <div>
-                         <div className="flex items-center gap-2 flex-wrap">
-                           <span className="text-sm font-bold text-text-primary font-body truncate">{camp.name}</span>
-                          <span className="text-xs text-text-tertiary truncate hidden sm:inline">{camp.nameAr}</span>
-                          <Badge variant={STATUS_BADGE[camp.status]} size="sm">{camp.status}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-11 mt-2">
-                      <p className="text-xs text-text-secondary font-body line-clamp-1">{camp.description}</p>
-                      <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
-                        <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span><span>{t('campaigns.list.products', { count: camp.products.length })}</span>
-                        <span>{t('campaigns.list.orders', { count: camp.totalOrders })}</span>
-                        <span className="font-bold text-brand-primary">{camp.totalRevenue.toLocaleString()} SAR</span>
-                        <span>{t('campaigns.list.budget', { spent: camp.spentAmount.toLocaleString(), total: camp.budget.toLocaleString() })}</span>
-                      </div>
-                      {/* Products preview */}
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        {camp.products.map((p) => (
-                          <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body truncate max-w-full">
-                            {p.productName} — <span className="font-bold text-brand-accent">{p.campaignPrice} SAR</span>
-                            <span className="text-text-tertiary line-through ml-1">{p.regularPrice} SAR</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        {camp.targetRegions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    {getActions(camp.status).map((action) => (
-                      <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={(e) => { e.stopPropagation(); campaignAction.mutate({ id: camp.id, action: action.action }); }}>
-                        {action.label}
-                      </Button>
-                    ))}
-                  </div>
+              <ListItem
+                key={camp.id}
+                onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(camp.id))}
+                icon={<Megaphone size={16} className="text-brand-accent" />}
+                iconClassName="bg-brand-accent-light"
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{camp.name}</span>}
+                badges={<>
+                  <span className="text-xs text-text-tertiary truncate hidden sm:inline">{camp.nameAr}</span>
+                  <Badge variant={STATUS_BADGE[camp.status]} size="sm">{camp.status}</Badge>
+                </>}
+                actions={getActions(camp.status).map((action) => (
+                  <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={(e) => { e.stopPropagation(); campaignAction.mutate({ id: camp.id, action: action.action }); }}>
+                    {action.label}
+                  </Button>
+                ))}
+              >
+                <p className="text-xs text-text-secondary font-body line-clamp-1">{camp.description}</p>
+                <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
+                  <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span><span>{t('campaigns.list.products', { count: camp.products.length })}</span>
+                  <span>{t('campaigns.list.orders', { count: camp.totalOrders })}</span>
+                  <span className="font-bold text-brand-primary">{camp.totalRevenue.toLocaleString()} SAR</span>
+                  <span>{t('campaigns.list.budget', { spent: camp.spentAmount.toLocaleString(), total: camp.budget.toLocaleString() })}</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {camp.products.map((p) => (
+                    <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body truncate max-w-full">
+                      {p.productName} — <span className="font-bold text-brand-accent">{p.campaignPrice} SAR</span>
+                      <span className="text-text-tertiary line-through ml-1">{p.regularPrice} SAR</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  {camp.targetRegions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
+                </div>
+              </ListItem>
             ))}
           </div>
         )}

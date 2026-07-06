@@ -129,9 +129,9 @@ export function LoginPage() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row w-screen min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-      {/* ── LEFT PANEL (Dark, hidden on mobile) ── */}
-      <div className="hidden md:flex relative flex-1 overflow-hidden flex-col px-8 py-8" style={styles.leftPanel}>
+    <div className="flex flex-col lg:flex-row w-screen min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      {/* ── LEFT PANEL (Dark, hidden on mobile & tablet) ── */}
+      <div className="hidden lg:flex relative flex-1 overflow-hidden flex-col px-8 py-8" style={styles.leftPanel}>
         {/* Network SVG — dashed connection lines & glowing nodes */}
         <svg style={styles.networkSvg} viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -271,8 +271,8 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL (Light, full-width on mobile) ── */}
-      <div className="w-full md:w-[480px] flex items-center justify-center px-6 md:px-10 py-8" style={{ background: '#f0f2f5', minWidth: 0 }}>
+      {/* ── RIGHT PANEL (Light, full-width on mobile & tablet) ── */}
+      <div className="w-full lg:w-[480px] flex items-center justify-center px-6 lg:px-10 py-8" style={{ background: '#f0f2f5', minWidth: 0 }}>
         <LoginForm />
       </div>
 
@@ -304,8 +304,6 @@ const styles: Record<string, React.CSSProperties> = {
     position: 'relative',
     background: '#0a1628',
     overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
     padding: '32px 40px',
   },
   networkSvg: {

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { Building2, Users, CheckCircle2, AlertTriangle, Star, Search, Filter, Plus } from 'lucide-react';
 import type { SupplierStatus } from '../api/suppliersApi';
 
@@ -155,52 +156,43 @@ export function SuppliersPage() {
         ) : (
           <div className="space-y-3">
             {suppliers.map((supplier) => (
-              <div key={supplier.id} onClick={() => navigate(ROUTES.SUPPLIER_DETAIL(supplier.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                        <Building2 size={16} className="text-brand-primary" />
-                      </div>
-                      <div>
-                         <div className="flex items-center gap-2 flex-wrap">
-                           <span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>
-                          <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
-                          <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || supplier.status.replace('_', ' ')}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-11 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span className="truncate">{supplier.email} · {supplier.phone}</span>
-                        <span>CR: {supplier.commercialRegister}</span>
-                      </div>
-                      <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
-                        <span className="flex items-center gap-1"><Star size={12} className="text-status-star" />{supplier.rating.toFixed(1)}</span>
-                        <span>{t('suppliers.list.orders', { count: supplier.totalOrders })}</span>
-                        <span className="font-bold text-text-primary">{supplier.totalRevenue.toLocaleString()} SAR</span>
-                        <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
-                        <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
-                        <span>{supplier.paymentTerms.replace(/_/g, ' ')}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}
-                        {supplier.regions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
-                      </div>
-                      {supplier.notes && <p className="text-xs text-brand-accent mt-1.5 italic font-body">{supplier.notes}</p>}
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    {supplier.status === 'pending_approval' && (
-                      <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>{t('suppliers.list.approve')}</Button>
-                    )}
-                    {supplier.status === 'active' && (
-                      <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>{t('suppliers.list.suspend')}</Button>
-                    )}
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>{t('suppliers.list.view')}</Button>
-                  </div>
+              <ListItem
+                key={supplier.id}
+                onClick={() => navigate(ROUTES.SUPPLIER_DETAIL(supplier.id))}
+                icon={<Building2 size={16} className="text-brand-primary" />}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>}
+                badges={<>
+                  <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
+                  <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || supplier.status.replace('_', ' ')}</Badge>
+                </>}
+                actions={<>
+                  {supplier.status === 'pending_approval' && (
+                    <Button variant="primary" size="sm" isLoading={approveSupplier.isPending} onClick={(e) => { e.stopPropagation(); approveSupplier.mutate(supplier.id); }}>{t('suppliers.list.approve')}</Button>
+                  )}
+                  {supplier.status === 'active' && (
+                    <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>{t('suppliers.list.suspend')}</Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>{t('suppliers.list.view')}</Button>
+                </>}
+              >
+                <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                  <span className="truncate">{supplier.email} · {supplier.phone}</span>
+                  <span>CR: {supplier.commercialRegister}</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
+                  <span className="flex items-center gap-1"><Star size={12} className="text-status-star" />{supplier.rating.toFixed(1)}</span>
+                  <span>{t('suppliers.list.orders', { count: supplier.totalOrders })}</span>
+                  <span className="font-bold text-text-primary">{supplier.totalRevenue.toLocaleString()} SAR</span>
+                  <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
+                  <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
+                  <span>{supplier.paymentTerms.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}
+                  {supplier.regions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}
+                </div>
+                {supplier.notes && <p className="text-xs text-brand-accent mt-1.5 italic font-body">{supplier.notes}</p>}
+              </ListItem>
             ))}
           </div>
         )}

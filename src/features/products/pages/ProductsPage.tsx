@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
+import { ListItem } from '@/components/ui/ListItem';
 import { Package, CheckCircle2, AlertTriangle, Layers, Users, TrendingUp, Plus, Search, Filter, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = { supplier: 'teal', internal: 'purple', seasonal: 'yellow' };
@@ -136,34 +137,24 @@ export function ProductsPage() {
           {showPendingTab && (
             <div className="space-y-2">
               {pendingProducts.map((product) => (
-                <div key={product.id} className="flex items-center justify-between py-3 px-4 rounded-xl border border-amber-100 bg-amber-50/30">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Package size={14} className="text-amber-600" />
-                       <span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>
-                    </div>
-                     <p className="text-xs text-text-secondary font-body mt-0.5 truncate">
+                <div key={product.id} className="rounded-xl border border-amber-100 bg-amber-50/30">
+                  <ListItem
+                    icon={<Package size={16} className="text-amber-600" />}
+                    iconClassName="bg-amber-100"
+                    title={<span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>}
+                    actions={<>
+                      <Button variant="primary" size="sm" leftIcon={<ThumbsUp size={12} />} isLoading={approveProduct.isPending} onClick={(e) => { e.stopPropagation(); approveProduct.mutate(product.id); }}>
+                        {t('products.pendingApproval.approve')}
+                      </Button>
+                      <Button variant="secondary" size="sm" leftIcon={<ThumbsDown size={12} />} isLoading={rejectProduct.isPending} onClick={(e) => { e.stopPropagation(); rejectProduct.mutate(product.id); }}>
+                        {t('products.pendingApproval.reject')}
+                      </Button>
+                    </>}
+                  >
+                    <p className="text-xs text-text-secondary font-body truncate">
                       {product.supplierName || 'No supplier'} · {product.categoryName}
                     </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="primary" size="sm"
-                      leftIcon={<ThumbsUp size={12} />}
-                      isLoading={approveProduct.isPending}
-                      onClick={(e) => { e.stopPropagation(); approveProduct.mutate(product.id); }}
-                    >
-                      {t('products.pendingApproval.approve')}
-                    </Button>
-                    <Button
-                      variant="secondary" size="sm"
-                      leftIcon={<ThumbsDown size={12} />}
-                      isLoading={rejectProduct.isPending}
-                      onClick={(e) => { e.stopPropagation(); rejectProduct.mutate(product.id); }}
-                    >
-                      {t('products.pendingApproval.reject')}
-                    </Button>
-                  </div>
+                  </ListItem>
                 </div>
               ))}
             </div>
@@ -222,39 +213,30 @@ export function ProductsPage() {
         ) : (
           <div className="space-y-2">
             {products.map((product) => (
-              <div
+              <ListItem
                 key={product.id}
-                className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer group"
                 onClick={() => navigate(ROUTES.PRODUCT_DETAIL(product.id))}
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="relative w-10 h-10 flex-shrink-0">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="absolute inset-0 w-full h-full rounded-lg object-cover border border-border-default/60"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                      />
-                    ) : null}
-                    <div className="w-10 h-10 rounded-lg bg-brand-primary-light flex items-center justify-center">
-                      <Package size={16} className="text-brand-primary" />
-                    </div>
-                  </div>
-                  <div className="min-w-0">
-                     <div className="flex items-center gap-2.5 flex-wrap">
-                       <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors truncate">{product.name}</span>
-                       <span className="text-xs text-text-tertiary truncate hidden sm:inline">{product.nameAr}</span>
-                       <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
-                      {!product.isAvailable && <Badge variant="red" size="sm">{t('products.catalog.disabled')}</Badge>}
-                      {product.isAvailable && product.stockQuantity < 20 && <Badge variant="yellow" size="sm">{t('products.catalog.lowStockBadge', { count: product.stockQuantity })}</Badge>}
-                    </div>
-                     <p className="text-xs text-text-secondary font-body mt-1 truncate">
-                       {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {product.totalOrders} orders
-                     </p>
-                  </div>
-                </div>
-                 <div className="flex items-center gap-3 ml-2 sm:ml-4 flex-shrink-0">
+                hideIconOnMobile={!!product.imageUrl}
+                icon={
+                  product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full h-full rounded-lg object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <Package size={16} className="text-brand-primary" />
+                  )
+                }
+                title={<span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors truncate">{product.name}</span>}
+                badges={<>
+                  <span className="text-xs text-text-tertiary truncate hidden sm:inline">{product.nameAr}</span>
+                  <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
+                  {!product.isAvailable && <Badge variant="red" size="sm">{t('products.catalog.disabled')}</Badge>}
+                  {product.isAvailable && product.stockQuantity < 20 && <Badge variant="yellow" size="sm">{t('products.catalog.lowStockBadge', { count: product.stockQuantity })}</Badge>}
+                </>}
+                actions={<>
                   <span className="text-sm font-extrabold text-text-primary font-display">{product.price.toFixed(2)} <span className="text-text-tertiary text-xs font-body">SAR</span></span>
                   <Button
                     variant={product.isAvailable ? 'secondary' : 'primary'}
@@ -264,8 +246,12 @@ export function ProductsPage() {
                   >
                     {product.isAvailable ? t('products.catalog.disable') : t('products.catalog.enable')}
                   </Button>
-                </div>
-              </div>
+                </>}
+              >
+                <p className="text-xs text-text-secondary font-body truncate">
+                  {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {product.totalOrders} orders
+                </p>
+              </ListItem>
             ))}
           </div>
         )}

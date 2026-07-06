@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { Banner } from '../api/settingsApi';
 
@@ -94,47 +95,29 @@ export function BannersPage() {
         ) : (
           <div className="space-y-3">
             {banners.map((banner) => (
-              <div key={banner.id} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 transition-all">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-16 h-12 rounded-lg bg-bg-section-alt overflow-hidden flex-shrink-0">
-                        {banner.image ? (
-                          <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-text-tertiary">
-                            <Image size={18} />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text-primary font-body">{banner.title}</span>
-                          <Badge variant={banner.isActive ? 'green' : 'red'} size="sm">
-                            {banner.isActive ? t('common.active') : t('common.inactive')}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
-                          <span>{t('settings.banners.order')}: {banner.sortOrder}</span>
-                          {banner.zone && <span>{banner.zone.nameAr}</span>}
-                          <span className="flex items-center gap-1"><Calendar size={12} /> {new Date(banner.startsAt).toLocaleDateString()} - {new Date(banner.endsAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    <button onClick={() => toggleActive(banner)} className="p-1.5 text-text-secondary hover:text-brand-primary rounded-lg hover:bg-bg-section-alt transition-all" title={banner.isActive ? t('common.deactivate') : t('common.activate')}>
-                      {banner.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                    </button>
-                    <button onClick={() => openEdit(banner)} className="p-1.5 text-text-secondary hover:text-brand-primary rounded-lg hover:bg-bg-section-alt transition-all">
-                      <Pencil size={16} />
-                    </button>
-                    <button onClick={() => setDeleteModal({ open: true, banner })} className="p-1.5 text-text-secondary hover:text-status-error rounded-lg hover:bg-brand-accent-light transition-all">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+              <ListItem
+                key={banner.id}
+                icon={<Image size={16} className="text-brand-primary" />}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{banner.title}</span>}
+                badges={<Badge variant={banner.isActive ? 'green' : 'red'} size="sm">{banner.isActive ? t('common.active') : t('common.inactive')}</Badge>}
+                actions={<>
+                  <button onClick={() => toggleActive(banner)} className="p-1.5 text-text-secondary hover:text-brand-primary rounded-lg hover:bg-bg-section-alt transition-all" title={banner.isActive ? t('common.deactivate') : t('common.activate')}>
+                    {banner.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                  </button>
+                  <button onClick={() => openEdit(banner)} className="p-1.5 text-text-secondary hover:text-brand-primary rounded-lg hover:bg-bg-section-alt transition-all">
+                    <Pencil size={16} />
+                  </button>
+                  <button onClick={() => setDeleteModal({ open: true, banner })} className="p-1.5 text-text-secondary hover:text-status-error rounded-lg hover:bg-brand-accent-light transition-all">
+                    <Trash2 size={16} />
+                  </button>
+                </>}
+              >
+                <div className="flex items-center gap-3 text-xs text-text-tertiary font-body flex-wrap">
+                  <span>{t('settings.banners.order')}: {banner.sortOrder}</span>
+                  {banner.zone && <span>{banner.zone.nameAr}</span>}
+                  <span className="flex items-center gap-1"><Calendar size={12} /> {new Date(banner.startsAt).toLocaleDateString()} - {new Date(banner.endsAt).toLocaleDateString()}</span>
                 </div>
-              </div>
+              </ListItem>
             ))}
           </div>
         )}

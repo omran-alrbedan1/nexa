@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, Map, Globe, DollarSign, Plus } from 'lucide-react';
@@ -119,51 +120,40 @@ export function RegionsPage() {
         ) : (
           <div className="space-y-3">
             {regions.map((region) => (
-              <div key={region.id} onClick={() => navigate(ROUTES.REGION_DETAIL(region.id))} className="p-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer">
-                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-brand-primary-light flex items-center justify-center flex-shrink-0">
-                        <MapPin size={16} className="text-brand-primary" />
-                      </div>
-                      <div>
-                         <div className="flex items-center gap-2 flex-wrap">
-                           <span className="text-sm font-bold text-text-primary font-body truncate">{region.name}</span>
-                          <span className="text-xs text-text-tertiary truncate hidden sm:inline">{region.nameAr}</span>
-                          {region.isActive ? <Badge variant="green" size="sm">{t('regions.list.active')}</Badge> : <Badge variant="red" size="sm">{t('regions.list.inactive')}</Badge>}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-11 mt-2">
-                      <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
-                        <span>{t('regions.list.fee', { amount: region.deliveryFee })}</span>
-                        <span>{t('regions.list.min', { amount: region.minimumOrder })}</span>
-                        {region.freeDeliveryThreshold && <span>{t('regions.list.freeOver', { amount: region.freeDeliveryThreshold })}</span>}
-                        <span>{t('regions.list.orders', { count: region.totalOrders })}</span>
-                        <span>{t('regions.list.revenue', { amount: region.totalRevenue.toLocaleString() })}</span>
-                      </div>
-                      {/* Clusters */}
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        {region.clusters.map((cl) => (
-                          <Badge key={cl.id} variant={cl.isActive ? 'teal' : 'yellow'} size="sm">{cl.name} {!cl.isActive && t('regions.list.inactiveBadge')}</Badge>
-                        ))}
-                      </div>
-                      {/* Time slots summary */}
-                      <p className="text-xs text-text-tertiary font-body mt-1.5 truncate">
-                        {t('regions.list.activeSlots', { count: region.timeSlots.filter((ts) => ts.isActive).length })} · 
-                        Sun–Thu: {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.startTime}–{region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.endTime} / 
-                        {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.maxOrders ?? 0} max per slot
-                      </p>
-                    </div>
-                  </div>
-                   <div className="flex items-center gap-2 ml-2 sm:ml-4 flex-shrink-0">
-                    <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={(e) => { e.stopPropagation(); openFeeModal(region); }}>{t('regions.list.feeButton')}</Button>
-                    <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={(e) => { e.stopPropagation(); toggleActive.mutate(region.id); }}>
-                      {region.isActive ? t('regions.list.deactivate') : t('regions.list.activate')}
-                    </Button>
-                  </div>
+              <ListItem
+                key={region.id}
+                onClick={() => navigate(ROUTES.REGION_DETAIL(region.id))}
+                icon={<MapPin size={16} className="text-brand-primary" />}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate">{region.name}</span>}
+                badges={<>
+                  <span className="text-xs text-text-tertiary truncate hidden sm:inline">{region.nameAr}</span>
+                  {region.isActive ? <Badge variant="green" size="sm">{t('regions.list.active')}</Badge> : <Badge variant="red" size="sm">{t('regions.list.inactive')}</Badge>}
+                </>}
+                actions={<>
+                  <Button variant="secondary" size="sm" leftIcon={<DollarSign size={12} />} onClick={(e) => { e.stopPropagation(); openFeeModal(region); }}>{t('regions.list.feeButton')}</Button>
+                  <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={(e) => { e.stopPropagation(); toggleActive.mutate(region.id); }}>
+                    {region.isActive ? t('regions.list.deactivate') : t('regions.list.activate')}
+                  </Button>
+                </>}
+              >
+                <div className="flex items-center gap-4 text-xs text-text-secondary font-body flex-wrap">
+                  <span>{t('regions.list.fee', { amount: region.deliveryFee })}</span>
+                  <span>{t('regions.list.min', { amount: region.minimumOrder })}</span>
+                  {region.freeDeliveryThreshold && <span>{t('regions.list.freeOver', { amount: region.freeDeliveryThreshold })}</span>}
+                  <span>{t('regions.list.orders', { count: region.totalOrders })}</span>
+                  <span>{t('regions.list.revenue', { amount: region.totalRevenue.toLocaleString() })}</span>
                 </div>
-              </div>
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {region.clusters.map((cl) => (
+                    <Badge key={cl.id} variant={cl.isActive ? 'teal' : 'yellow'} size="sm">{cl.name} {!cl.isActive && t('regions.list.inactiveBadge')}</Badge>
+                  ))}
+                </div>
+                <p className="text-xs text-text-tertiary font-body mt-1.5 truncate">
+                  {t('regions.list.activeSlots', { count: region.timeSlots.filter((ts) => ts.isActive).length })} · 
+                  Sun–Thu: {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.startTime}–{region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.endTime} / 
+                  {region.timeSlots.find((ts) => ts.dayOfWeek === 0)?.maxOrders ?? 0} max per slot
+                </p>
+              </ListItem>
             ))}
           </div>
         )}

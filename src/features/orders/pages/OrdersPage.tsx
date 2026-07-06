@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListItem } from '@/components/ui/ListItem';
 import { ROUTES } from '@/routes/routes';
 import { Pagination } from '@/components/ui/Pagination';
 import { ShoppingBag, Package, CheckCircle2, AlertTriangle,
@@ -279,31 +280,25 @@ export function OrdersPage() {
           <>
             <div className="space-y-2">
               {orders.map((order) => (
-                <div
+                <ListItem
                   key={order.id}
-                  className="flex items-center justify-between py-3.5 px-4 rounded-xl border border-border-default/60 hover:border-brand-primary/20 hover:bg-bg-section-alt transition-all cursor-pointer group"
                   onClick={() => navigate(ROUTES.ORDER_DETAIL(order.id))}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-brand-accent-light flex items-center justify-center flex-shrink-0">
-                        <ShoppingBag size={14} className="text-brand-accent" />
-                      </div>
-                       <span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-accent transition-colors truncate">{order.orderNumber}</span>
-                      <Badge variant={TYPE_BADGE[order.type]} size="sm">{order.type}</Badge>
-                      <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
-                    </div>
-                    <p className="text-xs text-text-secondary font-body mt-1.5 ml-10 truncate">
-                      {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                   <div className="flex items-center gap-3 ml-2 sm:ml-4 flex-shrink-0">
+                  icon={<ShoppingBag size={16} className="text-brand-accent" />}
+                  iconClassName="bg-brand-accent-light"
+                  title={<span className="text-sm font-bold text-text-primary font-body truncate">{order.orderNumber}</span>}
+                  badges={<>
+                    <Badge variant={TYPE_BADGE[order.type]} size="sm">{order.type}</Badge>
+                    <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
+                  </>}
+                  actions={<>
                     <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${order.total.toFixed(2)} SAR` : 'TBD'}</span>
-                    <div className="p-1.5 rounded-lg group-hover:bg-white/80 transition-colors">
-                      <ChevronRight size={16} className="text-text-tertiary" />
-                    </div>
-                  </div>
-                </div>
+                    <ChevronRight size={16} className="text-text-tertiary" />
+                  </>}
+                >
+                  <p className="text-xs text-text-secondary font-body truncate">
+                    {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
+                  </p>
+                </ListItem>
               ))}
             </div>
             {pagination && (
