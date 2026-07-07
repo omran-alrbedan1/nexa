@@ -34,8 +34,9 @@ export function useApproveSupplier() {
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => suppliersApi.approveSupplier(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
       addToast('success', 'Supplier approved successfully');
     },
     onError: () => addToast('error', 'Failed to approve supplier'),
@@ -47,8 +48,9 @@ export function useSuspendSupplier() {
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) => suppliersApi.suspendSupplier(id, reason),
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
       addToast('success', 'Supplier suspended');
     },
     onError: () => addToast('error', 'Failed to suspend supplier'),

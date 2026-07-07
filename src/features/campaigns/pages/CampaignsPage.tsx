@@ -9,7 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import { Megaphone, PlayCircle, CalendarClock, FileEdit, ShoppingCart, TrendingUp, Filter, Plus, CalendarRange } from 'lucide-react';
 import type { CampaignStatus } from '../api/campaignsApi';
@@ -25,7 +25,7 @@ export function CampaignsPage() {
   const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
 

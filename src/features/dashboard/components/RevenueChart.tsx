@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { TrendingUp } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 interface RevenueChartProps {
   /** Daily revenue data from API. If empty/undefined, chart shows placeholder */
@@ -13,7 +13,7 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data, todayRevenue, isLoading }: RevenueChartProps) {
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   return (
     <Card padding="lg" hover>

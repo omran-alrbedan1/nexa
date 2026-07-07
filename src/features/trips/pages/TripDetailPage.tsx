@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
   CheckCircle2, ShoppingCart, Warehouse,
@@ -35,7 +35,7 @@ export function TripDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(tripId || '0', 10);
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();

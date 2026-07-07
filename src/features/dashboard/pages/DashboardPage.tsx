@@ -8,7 +8,7 @@ import { WarehouseDashboard } from '../components/WarehouseDashboard';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TrendingUp, CalendarDays } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { getDefaultFilters, type DashboardFilterState } from '../components/DashboardFilterBar';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -50,7 +50,7 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<DashboardFilterState>(getDefaultFilters);
   const [isExpanded, setIsExpanded] = useState(false);
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   // Merge partial filter updates into full state (no data loss)
   const handleFilterChange = useCallback((partial: Partial<DashboardFilterState>) => {

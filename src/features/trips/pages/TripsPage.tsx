@@ -10,7 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
 import type { DashboardTrip } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
@@ -37,7 +37,7 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
 export function TripsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useTripsPage();
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();

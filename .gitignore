@@ -33,3 +33,4 @@ stitch_nexa_operations_management_dashboard/
 nexa_operations_prototype.html
 # Internal documentation (implementation plans, design docs)
 docs/
+.env

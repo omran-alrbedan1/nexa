@@ -17,7 +17,7 @@ import { BestSuppliersWidget } from './BestSuppliersWidget';
 import { BestAreasWidget } from './BestAreasWidget';
 import { TripSummaryWidget } from './TripSummaryWidget';
 import { Package, TrendingUp, Truck, AlertTriangle } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 interface AdminDashboardProps {
   data: DashboardWidgetsExpanded | undefined;
@@ -32,7 +32,7 @@ interface AdminDashboardProps {
 export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: AdminDashboardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   return (
     <div className="space-y-6">

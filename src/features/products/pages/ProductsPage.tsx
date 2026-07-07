@@ -13,7 +13,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { useToastStore } from '@/stores/toastStore';
 import { ListItem } from '@/components/ui/ListItem';
 import { Package, CheckCircle2, AlertTriangle, Layers, Users, TrendingUp, Plus, Search, Filter, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = { supplier: 'teal', internal: 'purple', seasonal: 'yellow' };
 
@@ -22,7 +22,7 @@ const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = { supplier: '
 export function ProductsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useProductsPage();
   const toggleAvailability = useToggleProductAvailability();
   const approveProduct = useApproveProduct();

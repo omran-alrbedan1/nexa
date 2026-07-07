@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi } from '../api/campaignsApi';
@@ -20,7 +20,7 @@ interface CampaignFormProduct {
 
 export function CreateCampaignPage() {
   const navigate = useNavigate();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const addToast = useToastStore((s) => s.addToast);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({

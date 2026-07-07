@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useToastStore } from '@/stores/toastStore';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useUpdateOrderStatus } from '../hooks/useOperations';
 import type { OperationsOrder } from '../api/operationsApi';
 import type { OrderStatus, OrderType } from '@/types/marketplace';
@@ -69,7 +69,7 @@ interface OrderManagementSectionProps {
 export function OrderManagementSection({ orders, isLoading }: OrderManagementSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');

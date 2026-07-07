@@ -707,6 +707,7 @@
       "accept": "القبول: {{rate}}%",
       "commission": "عمولة {{rate}}%",
       "approve": "اعتماد",
+      "reject": "رفض",
       "suspend": "إيقاف",
       "view": "عرض",
       "suspendTitle": "إيقاف {{name}}",

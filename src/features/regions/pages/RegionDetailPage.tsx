@@ -11,7 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { ArrowLeft, MapPin, Globe, Layers, Clock, DollarSign, CheckCircle2, XCircle, Map, Zap, ShoppingCart, Calendar, Pencil, Settings2 } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { regionKeys } from '../hooks/useRegions';
 import { ClustersSection } from '../components/ClustersSection';
 import { DeliverySlotsSection } from '../components/DeliverySlotsSection';
@@ -34,7 +34,7 @@ export function RegionDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(regionId || '0', 10);
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();
   const updateZone = useUpdateZone();

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -80,7 +80,7 @@ export function OrderDetailPage() {
   const rescheduleOrder = useRescheduleOrder();
   const transferOrder = useTransferOrder();
   const addToast = useToastStore((s) => s.addToast);
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const [cancelModal, setCancelModal] = useState(false);
   const [rescheduleModal, setRescheduleModal] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');

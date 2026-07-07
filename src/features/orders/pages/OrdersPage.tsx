@@ -17,7 +17,7 @@ import { ShoppingBag, Package, CheckCircle2, AlertTriangle,
 import type { OrderStatus, OrderType } from '@/types/marketplace';
 import type { OrderSummary } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -70,7 +70,7 @@ export function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const updateStatus = useUpdateOrderStatus();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   const { data, isLoading, isError, error, refetch } = useOrdersList({
     search: search || undefined,

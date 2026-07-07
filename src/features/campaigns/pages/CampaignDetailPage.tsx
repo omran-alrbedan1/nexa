@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, Megaphone, CalendarRange, ShoppingCart, TrendingUp,
@@ -27,7 +27,7 @@ export function CampaignDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(campaignId || '0', 10);
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const campaignAction = useCampaignAction();
 
   const { data: campaign, isLoading, isError, error, refetch } = useQuery<Campaign>({

@@ -707,6 +707,7 @@
       "accept": "קבלה: {{rate}}%",
       "commission": "עמלה {{rate}}%",
       "approve": "אשר",
+      "reject": "דחה",
       "suspend": "השעה",
       "view": "צפה",
       "suspendTitle": "השעה את {{name}}",

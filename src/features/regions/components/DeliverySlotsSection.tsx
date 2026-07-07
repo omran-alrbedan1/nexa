@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Clock, Plus, CalendarDays, Truck, Users } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 interface DeliverySlotsSectionProps {
   zoneId: number;
@@ -15,7 +15,7 @@ interface DeliverySlotsSectionProps {
 
 export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data: slots, isLoading } = useDeliverySlots();
   const createSlot = useCreateDeliverySlot();
   const updateSlot = useUpdateDeliverySlot();

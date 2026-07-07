@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToastStore } from '@/stores/toastStore';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useAssignForPricing, useSubmitPriceQuote } from '../hooks/useOperations';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
@@ -42,7 +42,7 @@ interface SpecialRequestsSectionProps {
 export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { user } = useAuth();
   const assignForPricing = useAssignForPricing();
   const submitQuote = useSubmitPriceQuote();

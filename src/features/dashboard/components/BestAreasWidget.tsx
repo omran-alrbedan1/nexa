@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { MapPin } from 'lucide-react';
 import type { TopArea } from '../api/dashboardApi';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 interface BestAreasWidgetProps {
   areas: TopArea[];
@@ -11,7 +11,7 @@ interface BestAreasWidgetProps {
 
 export function BestAreasWidget({ areas, isLoading }: BestAreasWidgetProps) {
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const maxRevenue = Math.max(...areas.map((a) => a.totalRevenue), 1);
 
   return (

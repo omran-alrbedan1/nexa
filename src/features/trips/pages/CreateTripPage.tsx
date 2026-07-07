@@ -9,13 +9,13 @@ import { useToastStore } from '@/stores/toastStore';
 import { ordersApi } from '@/features/orders/api/ordersApi';
 import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
 import { regionsApi } from '@/features/regions/api/regionsApi';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { tripsApi } from '../api/tripsApi';
 import { ArrowLeft, Truck, Save, User } from 'lucide-react';
 
 export function CreateTripPage() {
   const navigate = useNavigate();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const addToast = useToastStore((s) => s.addToast);
   const [form, setForm] = useState({
     tripCode: '', warehouseId: '1', deliveryZone: '1', cluster: '1',

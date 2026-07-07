@@ -12,7 +12,7 @@ import {
   ArrowLeft, Package, Star, ShoppingCart, TrendingUp, Building2,
   Tag, Hash, Ruler, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users,
 } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = {
   supplier: 'teal', internal: 'purple', seasonal: 'yellow',
@@ -27,7 +27,7 @@ export function ProductDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(productId || '0', 10);
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
 
   const { data: product, isLoading, isError, error, refetch } = useQuery<DashboardProduct>({
     queryKey: productKeys.detail(id),

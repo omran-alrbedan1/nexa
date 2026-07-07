@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 
 interface ListItemProps {
@@ -14,7 +14,7 @@ interface ListItemProps {
   className?: string;
 }
 
-export function ListItem({
+export const ListItem = memo(function ListItem({
   onClick,
   icon,
   iconClassName,
@@ -67,4 +67,4 @@ export function ListItem({
       </div>
     </div>
   );
-}
+});

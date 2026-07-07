@@ -707,6 +707,7 @@
       "accept": "Accept: {{rate}}%",
       "commission": "{{rate}}% commission",
       "approve": "Approve",
+      "reject": "Reject",
       "suspend": "Suspend",
       "view": "View",
       "suspendTitle": "Suspend {{name}}",

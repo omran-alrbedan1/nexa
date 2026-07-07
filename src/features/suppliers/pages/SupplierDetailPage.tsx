@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 import { useState } from 'react';
 import {
@@ -31,7 +31,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (key: string, opts?: any) => string }) {
   const navigate = useNavigate();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data: products, isLoading, isError, refetch } = useSupplierProducts(supplierId);
 
   if (isLoading) {
@@ -208,6 +208,8 @@ export function SupplierDetailPage() {
 
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
+  const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [suspendingId, setSuspendingId] = useState<number | null>(null);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
 
   const STAT_CONFIG = [
@@ -286,9 +288,14 @@ export function SupplierDetailPage() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {supplier.status === 'pending_approval' && (
-                <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approveSupplier.isPending} onClick={() => approveSupplier.mutate(supplier.id)}>
-                  {t('suppliers.list.approve')}
-                </Button>
+                <>
+                  <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approvingId === supplier.id} onClick={() => { setApprovingId(supplier.id); approveSupplier.mutate(supplier.id, { onSettled: () => setApprovingId(null) }); }}>
+                    {t('suppliers.list.approve')}
+                  </Button>
+                  <Button variant="danger" size="sm" leftIcon={<AlertTriangle size={14} />} onClick={() => setSuspendModal({ open: true, reason: '' })}>
+                    {t('suppliers.list.reject')}
+                  </Button>
+                </>
               )}
               {supplier.status === 'active' && (
                 <Button variant="danger" size="sm" leftIcon={<AlertTriangle size={14} />} onClick={() => setSuspendModal({ open: true, reason: '' })}>
@@ -445,8 +452,9 @@ export function SupplierDetailPage() {
           />
           <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>{t('common.cancel')}</Button>
-            <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendSupplier.isPending} onClick={() => {
-              suspendSupplier.mutate({ id: supplier.id, reason: suspendModal.reason });
+            <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendingId === supplier.id} onClick={() => {
+              setSuspendingId(supplier.id);
+              suspendSupplier.mutate({ id: supplier.id, reason: suspendModal.reason }, { onSettled: () => setSuspendingId(null) });
               setSuspendModal({ ...suspendModal, open: false });
             }}>{t('suppliers.list.confirmSuspend')}</Button>
           </div>

@@ -707,6 +707,7 @@
       "accept": "Принятие: {{rate}}%",
       "commission": "Комиссия {{rate}}%",
       "approve": "Одобрить",
+      "reject": "Отклонить",
       "suspend": "Приостановить",
       "view": "Просмотр",
       "suspendTitle": "Приостановить {{name}}",

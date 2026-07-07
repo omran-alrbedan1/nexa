@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import {
   ArrowLeft, FileClock, DollarSign, User, Calendar,
   CheckCircle2, Phone, XCircle,
@@ -44,7 +44,7 @@ export function SpecialRequestDetailPage() {
   const { requestId } = useParams<{ requestId: string }>();
   const navigate = useNavigate();
   const id = parseInt(requestId || '0', 10);
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const queryClient = useQueryClient();
 
   const { data: request, isLoading, isError, error, refetch } = useQuery<SpecialRequest>({

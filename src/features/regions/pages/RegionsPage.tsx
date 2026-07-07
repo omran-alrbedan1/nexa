@@ -11,7 +11,7 @@ import { ListItem } from '@/components/ui/ListItem';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, Map, Globe, DollarSign, Plus } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ZoneForm } from '../components/ZoneForm';
 
 
@@ -19,7 +19,7 @@ import { ZoneForm } from '../components/ZoneForm';
 export function RegionsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useRegionsPage();
   const toggleActive = useToggleRegionActive();
   const updateFee = useUpdateDeliveryFee();

@@ -13,7 +13,7 @@ import {
   Package, AlertTriangle, CheckCircle2, XCircle, Search,
   Plus, Minus,
 } from 'lucide-react';
-import { useCurrencyStore } from '@/stores/currencyStore';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { productKeys } from '@/features/products/hooks/useProductsAdmin';
 
 const STAT_CONFIG = [
@@ -28,7 +28,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 }
 
 export function InventoryPage() {
-  const formatPrice = useCurrencyStore(s => s.formatPrice);
+  const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: productKeys.pageData(),
     queryFn: () => productsApi.getPageData(),
