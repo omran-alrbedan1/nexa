@@ -188,7 +188,7 @@ export function NotificationsPanel({ open, onClose }: NotificationsPanelProps) {
         ref={panelRef}
         tabIndex={-1}
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white border-s border-border-default shadow-lg',
+          'fixed top-0 right-0 rtl:left-0 rtl:right-auto z-50 h-full w-full max-w-md bg-white border-s rtl:border-e border-border-default shadow-lg',
           'transition-transform duration-300 ease-in-out',
           'flex flex-col',
           open ? 'panel-open' : 'panel-closed'
