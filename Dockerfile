@@ -29,7 +29,7 @@ RUN apk add --no-cache wget
 
 # Security: ensure nginx can read the files (nginx master runs as root, workers as nginx)
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+  chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
 
