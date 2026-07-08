@@ -82,4 +82,5 @@ export const ROUTES = {
   SETTINGS_BANNERS: '/settings/banners',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
   SETTINGS_AUDIT: '/settings/audit',
+  SETTINGS_PRIVACY_POLICY: '/settings/privacy-policy',
 } as const;

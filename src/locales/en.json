@@ -46,7 +46,8 @@
       "staff": "Staff",
       "banners": "Banners",
       "notifications": "Notifications",
-      "audit": "Audit Logs"
+      "audit": "Audit Logs",
+      "privacyPolicy": "Privacy Policy"
     },
     "general": {
       "title": "System Settings",
@@ -157,6 +158,12 @@
       "timestamp": "Timestamp",
       "newValues": "New Values",
       "oldValues": "Old Values"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Manage the privacy policy content for your mobile app",
+      "titleLabel": "Page Title",
+      "contentLabel": "Content"
     }
   },
   "customers": {

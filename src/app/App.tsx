@@ -150,6 +150,9 @@ const NotificationsPage = lazy(() =>
 const AuditLogsPage = lazy(() =>
   import('@/features/settings/pages/AuditLogsPage').then((m) => ({ default: m.AuditLogsPage }))
 );
+const PrivacyPolicyPage = lazy(() =>
+  import('@/features/settings/pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage }))
+);
 
 // ── Complaints & Special Requests ──
 const ComplaintDetailPage = lazy(() =>
@@ -280,6 +283,7 @@ export function App() {
                 <Route path={ROUTES.SETTINGS_BANNERS} element={<BannersPage />} />
                 <Route path={ROUTES.SETTINGS_NOTIFICATIONS} element={<NotificationsPage />} />
                 <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
+                <Route path={ROUTES.SETTINGS_PRIVACY_POLICY} element={<PrivacyPolicyPage />} />
               </Route>
 
               {/* Reports — requires reports.view */}

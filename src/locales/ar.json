@@ -46,7 +46,8 @@
       "staff": "الموظفين",
       "banners": "اللافتات",
       "notifications": "الإشعارات",
-      "audit": "سجل النشاطات"
+      "audit": "سجل النشاطات",
+      "privacyPolicy": "سياسة الخصوصية"
     },
     "general": {
       "title": "إعدادات النظام",
@@ -157,6 +158,12 @@
       "timestamp": "التاريخ والوقت",
       "newValues": "القيم الجديدة",
       "oldValues": "القيم القديمة"
+    },
+    "privacyPolicy": {
+      "title": "سياسة الخصوصية",
+      "description": "إدارة محتوى سياسة الخصوصية لتطبيق الجوال",
+      "titleLabel": "عنوان الصفحة",
+      "contentLabel": "المحتوى"
     }
   },
   "customers": {
