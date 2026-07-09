@@ -85,9 +85,6 @@ const CreateCampaignPage = lazy(() =>
 const EditCampaignPage = lazy(() =>
   import('@/features/campaigns/pages/EditCampaignPage').then((m) => ({ default: m.EditCampaignPage }))
 );
-const EditCampaignPage = lazy(() =>
-  import('@/features/campaigns/pages/EditCampaignPage').then((m) => ({ default: m.EditCampaignPage }))
-);
 const TripsPage = lazy(() =>
   import('@/features/trips/pages/TripsPage').then((m) => ({ default: m.TripsPage }))
 );
