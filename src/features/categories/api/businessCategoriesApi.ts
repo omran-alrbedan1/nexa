@@ -51,10 +51,10 @@ export function slugify(text: string): string {
 
 export const businessCategoriesApi = {
   list: async (): Promise<{ businessCategories: BusinessCategory[]; meta: any }> => {
-    const response = await apiClient.get<ApiResponse<{ business_categories: BackendBusinessCategory[]; meta: any }>>('/api/v1/admin/business-categories');
+    const response = await apiClient.get<ApiResponse<{ categories: BackendBusinessCategory[]; meta: any }>>('/api/v1/admin/business-categories');
     const data = response.data.data;
     return {
-      businessCategories: data.business_categories.map(mapBackendBusinessCategory),
+      businessCategories: data.categories.map(mapBackendBusinessCategory),
       meta: data.meta,
     };
   },

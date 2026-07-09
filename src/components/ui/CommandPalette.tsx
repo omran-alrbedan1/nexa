@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
-import {
-  LayoutDashboard, ClipboardList, Truck, Warehouse, Users,
-  Map, Megaphone, Package, Settings2, CreditCard, LifeBuoy,
-  BarChart3, FileClock, type LucideIcon, Search, Command, ArrowRight,
-} from 'lucide-react';
+import { DEFAULT_NAV_CONFIG, ICON_MAP } from '@/config/navigation';
+import type { LucideIcon } from 'lucide-react';
+import { Search, Command, ArrowRight } from 'lucide-react';
 
 // ── Page Entries ──
 
@@ -17,26 +14,23 @@ interface PageEntry {
   to: string;
   icon: LucideIcon;
   keywords: string[];
-  roles?: Array<'admin' | 'operations' | 'aggregation'>;
+  roles?: string[];
 }
 
-const ALL_PAGES: PageEntry[] = [
-  { id: 'dashboard', label: 'nav.dashboard', to: ROUTES.DASHBOARD, icon: LayoutDashboard, keywords: ['home', 'main', 'overview'] },
-  { id: 'operations', label: 'nav.operations', to: ROUTES.OPERATIONS, icon: ClipboardList, keywords: ['ops', 'orders', 'special', 'complaints'], roles: ['operations'] },
-  { id: 'orders', label: 'nav.orders', to: ROUTES.ORDERS, icon: ClipboardList, keywords: ['all orders', 'list', 'payments'], roles: ['admin', 'operations'] },
-  { id: 'trips', label: 'nav.trips', to: ROUTES.TRIPS, icon: Truck, keywords: ['delivery', 'routes', 'drivers', 'schedule'], roles: ['admin', 'operations'] },
-  { id: 'warehouse', label: 'nav.warehouse', to: ROUTES.AGGREGATION, icon: Warehouse, keywords: ['storage', 'inventory', 'supply', 'shipping', 'aggregation'], roles: ['admin', 'aggregation'] },
-  { id: 'suppliers', label: 'nav.suppliers', to: ROUTES.SUPPLIERS, icon: Users, keywords: ['vendors', 'providers', 'partners'], roles: ['admin'] },
-  { id: 'regions', label: 'nav.regions', to: ROUTES.REGIONS, icon: Map, keywords: ['zones', 'areas', 'locations', 'clusters', 'slots'], roles: ['admin', 'operations'] },
-  { id: 'campaigns', label: 'nav.campaigns', to: ROUTES.CAMPAIGNS, icon: Megaphone, keywords: ['seasonal', 'promotions', 'marketing'], roles: ['admin', 'operations'] },
-  { id: 'products', label: 'nav.products', to: ROUTES.PRODUCTS, icon: Package, keywords: ['items', 'catalog', 'inventory', 'stock'], roles: ['admin', 'operations'] },
-  { id: 'reports', label: 'nav.reports', to: ROUTES.REPORTS, icon: BarChart3, keywords: ['analytics', 'statistics', 'data', 'charts'], roles: ['admin'] },
-  { id: 'customers', label: 'nav.customers', to: ROUTES.CUSTOMERS, icon: Users, keywords: ['clients', 'users', 'accounts'], roles: ['admin', 'operations'] },
-  { id: 'payments', label: 'nav.payments', to: ROUTES.PAYMENTS, icon: CreditCard, keywords: ['transactions', 'refunds', 'billing'], roles: ['admin'] },
-  { id: 'support', label: 'nav.support', to: ROUTES.SUPPORT_TICKETS, icon: LifeBuoy, keywords: ['tickets', 'help', 'complaints'], roles: ['admin', 'operations'] },
-  { id: 'specialOrders', label: 'nav.specialOrders', to: ROUTES.SPECIAL_ORDERS, icon: FileClock, keywords: ['special', 'requests', 'custom', 'pricing', 'quotes'], roles: ['admin', 'operations'] },
-  { id: 'settings', label: 'nav.settings', to: ROUTES.SETTINGS, icon: Settings2, keywords: ['configuration', 'preferences', 'roles', 'staff', 'banners'], roles: ['admin'] },
-];
+function buildPagesFromNavConfig(): PageEntry[] {
+  const pages: PageEntry[] = [];
+  for (const group of DEFAULT_NAV_CONFIG) {
+    for (const item of group.items) {
+      const Icon = ICON_MAP[item.icon];
+      if (!Icon) continue;
+      const keywords = [item.id.replace(/[-]/g, ' ')];
+      pages.push({ id: item.id, label: item.label, to: item.to, icon: Icon, keywords, roles: item.roles });
+    }
+  }
+  return pages;
+}
+
+const ALL_PAGES = buildPagesFromNavConfig();
 
 // ── Props ──
 

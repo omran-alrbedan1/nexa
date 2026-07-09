@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,38 +10,11 @@ import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalett
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useNavConfigStore } from '@/stores/navConfigStore';
+import { DEFAULT_NAV_CONFIG, ICON_MAP, resolveLabel, getItemTo, type NavGroupConfig, type NavItemConfig } from '@/config/navigation';
 import {
-  LayoutDashboard, ClipboardList, Truck, Warehouse, Users,
-  Map, Megaphone, Package, FolderTree, Menu, Bell, X,
-  LogOut, ChevronRight, Search, Sun, Moon, Settings2,
-  CreditCard, LifeBuoy, BarChart3, FileClock,
+  Menu, Bell, X, LogOut, ChevronRight, ChevronDown, Search, Sun, Moon,
 } from 'lucide-react';
-
-interface NavItem {
-  to: string;
-  label: string;
-  icon: React.ReactNode;
-  roles?: Array<'admin' | 'operations' | 'aggregation'>;
-}
-
-const ALL_NAV_ITEMS: NavItem[] = [
-  { to: ROUTES.DASHBOARD, label: 'nav.dashboard', icon: <LayoutDashboard size={20} /> },
-  { to: ROUTES.OPERATIONS, label: 'nav.operations', icon: <ClipboardList size={20} />, roles: ['operations'] },
-  { to: ROUTES.ORDERS, label: 'nav.orders', icon: <ClipboardList size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.TRIPS, label: 'nav.trips', icon: <Truck size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.AGGREGATION, label: 'nav.warehouse', icon: <Warehouse size={20} />, roles: ['admin', 'aggregation'] },
-  { to: ROUTES.SUPPLIERS, label: 'nav.suppliers', icon: <Users size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.REGIONS, label: 'nav.regions', icon: <Map size={20} />, roles: ['admin'] },
-  { to: ROUTES.CAMPAIGNS, label: 'nav.campaigns', icon: <Megaphone size={20} />, roles: ['admin'] },
-  { to: ROUTES.PRODUCTS, label: 'nav.products', icon: <Package size={20} />, roles: ['admin'] },
-  { to: ROUTES.CATEGORIES, label: 'nav.categories', icon: <FolderTree size={20} />, roles: ['admin'] },
-  { to: ROUTES.REPORTS, label: 'nav.reports', icon: <BarChart3 size={20} />, roles: ['admin'] },
-  { to: ROUTES.SPECIAL_ORDERS, label: 'nav.specialOrders', icon: <FileClock size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.CUSTOMERS, label: 'nav.customers', icon: <Users size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.PAYMENTS, label: 'nav.payments', icon: <CreditCard size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.SUPPORT_TICKETS, label: 'nav.support', icon: <LifeBuoy size={20} />, roles: ['admin', 'operations'] },
-  { to: ROUTES.SETTINGS, label: 'nav.settings', icon: <Settings2 size={20} />, roles: ['admin'] },
-];
 
 export function AppLayout() {
   const { user, logout } = useAuth();
@@ -54,36 +27,126 @@ export function AppLayout() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { open: commandOpen, setOpen: setCommandOpen } = useCommandPalette();
 
+  const customLabels = useNavConfigStore((s) => s.customLabels);
+  const groupOrder = useNavConfigStore((s) => s.groupOrder);
+  const itemOrder = useNavConfigStore((s) => s.itemOrder);
+  const expandedGroups = useNavConfigStore((s) => s.expandedGroups);
+  const toggleExpanded = useNavConfigStore((s) => s.toggleExpanded);
+
   const handleLogout = async () => {
     await logout();
     navigate(ROUTES.LOGIN);
   };
 
-  const navItems = ALL_NAV_ITEMS.filter((item) => {
-    if (!item.roles) return true;
-    if (!user) return false;
-    // Use the pre-computed role (mapped from user_type + permissions in AuthContext)
-    return item.roles.includes(user.role as 'admin' | 'operations' | 'aggregation');
-  });
+  const isItemActive = useCallback((item: NavItemConfig) => {
+    const { path, search } = getItemTo(item);
+    if (location.pathname !== path) return false;
+    if (!search) return true;
+    const params = new URLSearchParams(search);
+    const currentParams = new URLSearchParams(location.search);
+    for (const [key, value] of params) {
+      if (currentParams.get(key) !== value) return false;
+    }
+    return true;
+  }, [location.pathname, location.search]);
 
-  const isActive = (path: string) => {
-    if (path === ROUTES.DASHBOARD) return location.pathname === path;
-    return location.pathname.startsWith(path);
-  };
+  const isGroupActive = useCallback((group: NavGroupConfig) => {
+    return group.items.some((item) => isItemActive(item));
+  }, [isItemActive]);
 
   const closeSidebar = () => setSidebarOpen(false);
 
+  const visibleGroups = groupOrder
+    .map((gid) => DEFAULT_NAV_CONFIG.find((g) => g.id === gid)!)
+    .filter(Boolean)
+    .filter((group) => {
+      if (!group.roles) return true;
+      if (!user) return false;
+      return group.roles.includes(user.role as 'admin' | 'operations' | 'aggregation');
+    })
+    .map((group) => {
+      const orderedItems = itemOrder[group.id] || group.items.map((i) => i.id);
+      const visibleItems = orderedItems
+        .map((iid) => group.items.find((i) => i.id === iid)!)
+        .filter(Boolean)
+        .filter((item) => {
+          if (!item.roles) return true;
+          if (!user) return false;
+          return item.roles.includes(user.role as 'admin' | 'operations' | 'aggregation');
+        });
+      return { group, visibleItems };
+    })
+    .filter(({ visibleItems }) => visibleItems.length > 0);
+
+  const renderGroupItem = (item: NavItemConfig) => {
+    const Icon = ICON_MAP[item.icon];
+    const label = resolveLabel(item.id, item.label, customLabels, t);
+    const active = isItemActive(item);
+    return (
+      <NavLink
+        key={item.id}
+        to={item.to}
+        onClick={closeSidebar}
+        className={cn(
+          'flex items-center gap-3 px-4 py-2.5 rounded-lg font-body font-medium transition-all duration-200',
+          'text-sm',
+          active
+            ? 'bg-brand-primary-light text-brand-primary font-bold'
+            : 'text-text-secondary hover:bg-bg-section-alt hover:text-text-primary'
+        )}
+      >
+        <span className={cn('flex-shrink-0', active ? 'text-brand-primary' : 'text-text-tertiary')}>
+          {Icon ? <Icon size={20} /> : null}
+        </span>
+        <span>{label}</span>
+        {active && <ChevronRight size={16} className="ml-auto text-brand-primary" />}
+      </NavLink>
+    );
+  };
+
+  const renderGroup = (group: NavGroupConfig, visibleItems: NavItemConfig[]) => {
+    const isSingle = visibleItems.length === 1 && group.items.length === 1;
+
+    if (isSingle) {
+      return renderGroupItem(visibleItems[0]);
+    }
+
+    const Icon = ICON_MAP[group.icon];
+    const label = resolveLabel(group.id, group.label, customLabels, t);
+    const isExpanded = expandedGroups.includes(group.id) || isGroupActive(group);
+
+    return (
+      <div key={group.id}>
+        <button
+          onClick={() => toggleExpanded(group.id)}
+          className={cn(
+            'flex items-center gap-3 w-full px-4 py-2.5 rounded-lg font-body font-medium transition-all duration-200 text-sm text-left',
+            isGroupActive(group)
+              ? 'bg-brand-primary-light text-brand-primary font-bold'
+              : 'text-text-secondary hover:bg-bg-section-alt hover:text-text-primary'
+          )}
+        >
+          <span className={cn('flex-shrink-0', isGroupActive(group) ? 'text-brand-primary' : 'text-text-tertiary')}>
+            {Icon ? <Icon size={20} /> : null}
+          </span>
+          <span className="flex-1">{label}</span>
+          {isExpanded ? <ChevronDown size={16} className="text-text-tertiary" /> : <ChevronRight size={16} className="text-text-tertiary" />}
+        </button>
+        {isExpanded && (
+          <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-border-default/40 pl-3">
+            {visibleItems.map((item) => renderGroupItem(item))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-bg-page">
-      {/* ── Sidebar Overlay (Mobile) ── */}
       {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-30 backdrop-blur-sm"
-          onClick={closeSidebar}
-        />
+        <div className="fixed inset-0 bg-black/40 z-30 backdrop-blur-sm" onClick={closeSidebar} />
       )}
 
-      {/* ── Sidebar ── */}
       <aside
         className={cn(
           'fixed md:sticky top-0 start-0 z-40 h-screen flex flex-col',
@@ -95,7 +158,6 @@ export function AppLayout() {
           !isMobile && 'sidebar-open'
         )}
       >
-        {/* Logo / Brand */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-border-default">
           <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center text-white font-display font-bold text-lg shadow-sm">
             N
@@ -115,36 +177,10 @@ export function AppLayout() {
           )}
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto custom-scrollbar py-3 px-3 space-y-0.5">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={closeSidebar}
-              className={cn(
-                'flex items-center gap-3 px-4 py-2.5 rounded-lg font-body font-medium transition-all duration-200',
-                'text-sm',
-                isActive(item.to)
-                  ? 'bg-brand-primary-light text-brand-primary font-bold'
-                  : 'text-text-secondary hover:bg-bg-section-alt hover:text-text-primary'
-              )}
-            >
-              <span className={cn(
-                'flex-shrink-0',
-                isActive(item.to) ? 'text-brand-primary' : 'text-text-tertiary'
-              )}>
-                {item.icon}
-              </span>
-              <span>{t(item.label)}</span>
-              {isActive(item.to) && (
-                <ChevronRight size={16} className="ml-auto text-brand-primary" />
-              )}
-            </NavLink>
-          ))}
+          {visibleGroups.map(({ group, visibleItems }) => renderGroup(group, visibleItems))}
         </nav>
 
-        {/* Footer Actions */}
         <div className="mt-auto border-t border-border-default p-3">
           <button
             onClick={handleLogout}
@@ -156,20 +192,13 @@ export function AppLayout() {
         </div>
       </aside>
 
-      {/* ── Command Palette ── */}
       <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} userRole={user?.role} />
-
-      {/* ── Notifications Panel ── */}
       <NotificationsPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
 
-      {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* ── Top Bar ── */}
         <header className="bg-white border-b border-border-default shadow-sm sticky top-0 z-20 flex-shrink-0">
           <div className="flex items-center justify-between h-header-height px-4 md:px-6">
-            {/* Left Section */}
             <div className="flex items-center gap-3">
-              {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="md:hidden p-2 text-text-secondary hover:bg-gray-100 rounded-lg transition-colors"
@@ -183,7 +212,6 @@ export function AppLayout() {
               </div>
             </div>
 
-            {/* Search - Desktop */}
             <button
               onClick={() => setCommandOpen(true)}
               className="hidden md:flex relative flex-1 max-w-md mx-6 group"
@@ -197,7 +225,6 @@ export function AppLayout() {
               </div>
             </button>
 
-            {/* Right Section */}
             <div className="flex items-center gap-1">
               <CurrencySwitch />
               <LanguageSwitch />
@@ -226,7 +253,6 @@ export function AppLayout() {
             </div>
           </div>
 
-          {/* Mobile Search */}
           <div className="md:hidden px-4 pb-3">
             <button
               onClick={() => setCommandOpen(true)}
@@ -240,7 +266,6 @@ export function AppLayout() {
           </div>
         </header>
 
-        {/* ── Page Content ── */}
         <main className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-4 md:p-6 lg:p-8 max-w-container-max mx-auto w-full">
             <Outlet />

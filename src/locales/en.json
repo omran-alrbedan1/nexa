@@ -48,7 +48,8 @@
       "banners": "Banners",
       "notifications": "Notifications",
       "audit": "Audit Logs",
-      "privacyPolicy": "Privacy Policy"
+      "privacyPolicy": "Privacy Policy",
+      "navigation": "Navigation Menu"
     },
     "general": {
       "title": "System Settings",

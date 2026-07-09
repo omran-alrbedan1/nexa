@@ -91,4 +91,5 @@ export const ROUTES = {
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
   SETTINGS_AUDIT: '/settings/audit',
   SETTINGS_PRIVACY_POLICY: '/settings/privacy-policy',
+  SETTINGS_NAVIGATION: '/settings/navigation',
 } as const;

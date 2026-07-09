@@ -48,7 +48,8 @@
       "banners": "اللافتات",
       "notifications": "الإشعارات",
       "audit": "سجل النشاطات",
-      "privacyPolicy": "سياسة الخصوصية"
+      "privacyPolicy": "سياسة الخصوصية",
+      "navigation": "قائمة التنقل"
     },
     "general": {
       "title": "إعدادات النظام",
