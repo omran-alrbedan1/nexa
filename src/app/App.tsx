@@ -138,6 +138,9 @@ const CustomerDetailPage = lazy(() =>
 const CategoriesPage = lazy(() =>
   import('@/features/categories/pages/CategoriesPage').then((m) => ({ default: m.CategoriesPage }))
 );
+const CategoryFormPage = lazy(() =>
+  import('@/features/categories/pages/CategoryFormPage').then((m) => ({ default: m.CategoryFormPage }))
+);
 
 // ── Settings ──
 const SettingsPage = lazy(() =>
@@ -268,6 +271,8 @@ export function App() {
                 <Route path={ROUTES.CAMPAIGN_CREATE} element={<CreateCampaignPage />} />
                 <Route path={ROUTES.CAMPAIGN_EDIT(':campaignId')} element={<EditCampaignPage />} />
                 <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
+                <Route path={ROUTES.CATEGORIES_CREATE} element={<CategoryFormPage />} />
+                <Route path={ROUTES.CATEGORIES_EDIT(':categoryId')} element={<CategoryFormPage />} />
               </Route>
 
               {/* Trips — requires trips.view or trips.manage */}

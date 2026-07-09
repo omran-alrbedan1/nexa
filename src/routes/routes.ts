@@ -72,6 +72,8 @@ export const ROUTES = {
 
   // Categories
   CATEGORIES: '/categories',
+  CATEGORIES_CREATE: '/categories/create',
+  CATEGORIES_EDIT: (categoryId: number | string) => `/categories/${categoryId}/edit`,
 
   // Reports
   REPORTS: '/reports',
