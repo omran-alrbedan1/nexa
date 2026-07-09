@@ -141,6 +141,9 @@ const CategoriesPage = lazy(() =>
 const CategoryFormPage = lazy(() =>
   import('@/features/categories/pages/CategoryFormPage').then((m) => ({ default: m.CategoryFormPage }))
 );
+const BusinessCategoryFormPage = lazy(() =>
+  import('@/features/categories/pages/BusinessCategoryFormPage').then((m) => ({ default: m.BusinessCategoryFormPage }))
+);
 
 // ── Settings ──
 const SettingsPage = lazy(() =>
@@ -273,6 +276,8 @@ export function App() {
                 <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
                 <Route path={ROUTES.CATEGORIES_CREATE} element={<CategoryFormPage />} />
                 <Route path={ROUTES.CATEGORIES_EDIT(':categoryId')} element={<CategoryFormPage />} />
+                <Route path={ROUTES.BUSINESS_CATEGORIES_CREATE} element={<BusinessCategoryFormPage />} />
+                <Route path={ROUTES.BUSINESS_CATEGORIES_EDIT(':businessCategoryId')} element={<BusinessCategoryFormPage />} />
               </Route>
 
               {/* Trips — requires trips.view or trips.manage */}

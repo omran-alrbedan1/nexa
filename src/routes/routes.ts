@@ -74,6 +74,8 @@ export const ROUTES = {
   CATEGORIES: '/categories',
   CATEGORIES_CREATE: '/categories/create',
   CATEGORIES_EDIT: (categoryId: number | string) => `/categories/${categoryId}/edit`,
+  BUSINESS_CATEGORIES_CREATE: '/categories/business/create',
+  BUSINESS_CATEGORIES_EDIT: (businessCategoryId: number | string) => `/categories/business/${businessCategoryId}/edit`,
 
   // Reports
   REPORTS: '/reports',
