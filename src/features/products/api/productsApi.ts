@@ -11,7 +11,6 @@
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
-import { unwrap } from '@/lib/apiHelpers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { ProductSource } from '@/types/marketplace';
 
@@ -89,12 +88,36 @@ interface BackendProduct {
   category: BackendProductCategory | null;
 }
 
+interface BackendCategory {
+  id: number;
+  name_ar: string;
+  name_en: string | null;
+  image: string | null;
+  sort_order: number;
+  is_active: boolean;
+  products_count: number;
+  parent: { id: number; name_ar: string } | null;
+  children?: BackendCategory[];
+}
+
 interface BackendProductsResponse {
   products: BackendProduct[];
   meta: {
     current_page: number;
     last_page: number;
     total: number;
+  };
+}
+
+// ── Mapping functions ──
+
+function mapBackendCategory(bc: BackendCategory): ProductCategory {
+  return {
+    id: bc.id,
+    name: bc.name_en || bc.name_ar,
+    nameAr: bc.name_ar,
+    parentId: bc.parent?.id ?? null,
+    children: bc.children?.map(mapBackendCategory),
   };
 }
 
@@ -128,11 +151,11 @@ export const productsApi = {
   getPageData: async (): Promise<ProductsPageData> => {
       const [productsRes, categoriesRes] = await Promise.all([
         apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products'),
-        apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories').catch(() => null),
+        apiClient.get<ApiResponse<{ categories: BackendCategory[] }>>('/api/v1/admin/categories').catch(() => null),
       ]);
       const backendData = productsRes.data.data; // { products: [...], meta: {...} }
       const products = backendData.products.map(mapBackendProduct);
-      const categories = categoriesRes ? unwrap(categoriesRes.data) : [];
+      const categories = categoriesRes ? (categoriesRes.data.data?.categories ?? []).map(mapBackendCategory) : [];
       const available = products.filter((p) => p.isAvailable).length;
       const outOfStock = products.filter((p) => p.stockQuantity === 0 && p.isAvailable).length;
       const supplierIds = new Set(products.filter((p) => p.supplierId).map((p) => p.supplierId));
@@ -187,9 +210,7 @@ export const productsApi = {
             formData.append(key, String(value));
           }
         });
-        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData);
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', data);
@@ -208,9 +229,7 @@ export const productsApi = {
             formData.append(key, String(value));
           }
         });
-        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData);
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, data);
@@ -219,8 +238,9 @@ export const productsApi = {
 
   /** Fetch all categories */
   getCategories: async (): Promise<ProductCategory[]> => {
-      const response = await apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories');
-      return unwrap(response.data);
+      const response = await apiClient.get<ApiResponse<{ categories: BackendCategory[] }>>('/api/v1/admin/categories');
+      const data = response.data.data;
+      return (data.categories || []).map(mapBackendCategory);
   },
 
   /** Fetch suppliers list (for dropdown) */

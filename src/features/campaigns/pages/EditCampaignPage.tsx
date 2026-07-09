@@ -8,6 +8,7 @@ import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi, type Campaign } from '../api/campaignsApi';
 import { ArrowLeft, Megaphone, Save, Image as ImageIcon } from 'lucide-react';
+import { extractErrorMessage } from '@/lib/apiHelpers';
 
 export function EditCampaignPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -39,8 +40,8 @@ export function EditCampaignPage() {
           nameAr: c.nameAr,
           description: c.description,
           targetRegion: '1',
-          startDate: c.startDate,
-          endDate: c.endDate,
+          startDate: c.startDate.split('T')[0],
+          endDate: c.endDate.split('T')[0],
           status: c.status,
         });
         setImagePreview(c.bannerUrl);
@@ -85,8 +86,8 @@ export function EditCampaignPage() {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
       addToast('success', 'Campaign updated successfully');
       navigate(ROUTES.CAMPAIGN_DETAIL(id));
-    } catch {
-      addToast('error', 'Failed to update campaign');
+    } catch (err) {
+      addToast('error', extractErrorMessage(err));
     } finally {
       setSaving(false);
     }

@@ -73,17 +73,13 @@ export const categoriesApi = {
 
   create: async (data: { name_ar: string; name_en?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean }): Promise<Category> => {
     const formData = buildFormData(data);
-    const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData);
     return mapBackendCategory(response.data.data);
   },
 
   update: async (id: number, data: { name_ar?: string; name_en?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean }): Promise<Category> => {
     const formData = buildFormData({ _method: 'PUT', ...data, image: data.image ?? undefined });
-    const response = await apiClient.post<ApiResponse<BackendCategory>>(`/api/v1/admin/categories/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await apiClient.post<ApiResponse<BackendCategory>>(`/api/v1/admin/categories/${id}`, formData);
     return mapBackendCategory(response.data.data);
   },
 

@@ -12,7 +12,7 @@
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
-import { mapFromBackend, CAMPAIGN_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
+import { mapFromBackend, mapToBackend, CAMPAIGN_STATUS_BACKEND_TO_FRONTEND, CAMPAIGN_STATUS_FRONTEND_TO_BACKEND } from '@/lib/enumMappers';
 import type { ApiResponse } from '@/types/common';
 
 // ──────────────────────────────────────────────
@@ -187,12 +187,10 @@ export const campaignsApi = {
     if (data.zoneId) formData.append('zone_id', String(data.zoneId));
     if (data.startsAt) formData.append('starts_at', data.startsAt);
     if (data.endsAt) formData.append('ends_at', data.endsAt);
-    if (data.status) formData.append('status', data.status);
+    if (data.status) formData.append('status', mapToBackend(data.status, CAMPAIGN_STATUS_FRONTEND_TO_BACKEND));
     if (data.image instanceof File) formData.append('image', data.image);
 
-    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData);
     return mapBackendCampaign(response.data.data);
   },
 
