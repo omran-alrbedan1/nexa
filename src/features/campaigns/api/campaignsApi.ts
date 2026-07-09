@@ -79,6 +79,7 @@ interface BackendCampaign {
   status: 'draft' | 'scheduled' | 'open' | 'closed' | 'fulfilled' | 'archived';
   created_at: string;
   updated_at: string;
+  image?: string | null;
   // Related data (when loaded via resource):
   zone?: { id: number; name_en: string | null; name_ar: string } | null;
   products_count?: number;
@@ -111,7 +112,7 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
     totalRevenue: 0, // not available from backend yet
     budget: 0, // not available from backend yet
     spentAmount: 0, // not available from backend yet
-    bannerUrl: null,
+    bannerUrl: c.image || null,
     targetRegions: c.zone ? [c.zone.name_en || c.zone.name_ar] : [],
     createdAt: c.created_at,
     updatedAt: c.updated_at,
@@ -164,6 +165,34 @@ export const campaignsApi = {
   /** Get single campaign */
   getCampaign: async (id: number): Promise<Campaign> => {
     const response = await apiClient.get<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`);
+    return mapBackendCampaign(response.data.data);
+  },
+
+  /** Update an existing campaign — backend POST /api/v1/admin/campaigns/{id} (PUT via _method) */
+  updateCampaign: async (id: number, data: {
+    name?: string;
+    nameAr?: string;
+    description?: string;
+    zoneId?: number;
+    startsAt?: string;
+    endsAt?: string;
+    status?: string;
+    image?: File;
+  }): Promise<Campaign> => {
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+    if (data.name) formData.append('name_en', data.name);
+    if (data.nameAr) formData.append('name_ar', data.nameAr);
+    if (data.description !== undefined) formData.append('description', data.description);
+    if (data.zoneId) formData.append('zone_id', String(data.zoneId));
+    if (data.startsAt) formData.append('starts_at', data.startsAt);
+    if (data.endsAt) formData.append('ends_at', data.endsAt);
+    if (data.status) formData.append('status', data.status);
+    if (data.image instanceof File) formData.append('image', data.image);
+
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return mapBackendCampaign(response.data.data);
   },
 

@@ -177,15 +177,57 @@ export const productsApi = {
   },
 
   /** Create a new product */
-  createProduct: async (data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
+  createProduct: async (data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+      if (data.image instanceof File) {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === 'image' && value instanceof File) {
+            formData.append('image', value);
+          } else if (value !== undefined && value !== null && key !== 'image') {
+            formData.append(key, String(value));
+          }
+        });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return mapBackendProduct(response.data.data);
+      }
       const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', data);
       return mapBackendProduct(response.data.data);
   },
 
   /** Update product */
-  updateProduct: async (id: number, data: Partial<DashboardProduct>): Promise<DashboardProduct> => {
+  updateProduct: async (id: number, data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+      if (data.image instanceof File) {
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === 'image' && value instanceof File) {
+            formData.append('image', value);
+          } else if (value !== undefined && value !== null && key !== 'image') {
+            formData.append(key, String(value));
+          }
+        });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return mapBackendProduct(response.data.data);
+      }
       const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, data);
       return mapBackendProduct(response.data.data);
+  },
+
+  /** Fetch all categories */
+  getCategories: async (): Promise<ProductCategory[]> => {
+      const response = await apiClient.get<ApiResponse<ProductCategory[]>>('/api/v1/admin/categories');
+      return unwrap(response.data);
+  },
+
+  /** Fetch suppliers list (for dropdown) */
+  getSuppliersList: async (): Promise<Array<{id: number; name: string}>> => {
+      const response = await apiClient.get<ApiResponse<{suppliers: Array<{id: number; business_name: string}>}>>('/api/v1/admin/suppliers?per_page=100');
+      const data = response.data.data;
+      return (data.suppliers || []).map((s) => ({ id: s.id, name: s.business_name }));
   },
 
   /** Fetch pending-approval products (uses dedicated endpoint) */

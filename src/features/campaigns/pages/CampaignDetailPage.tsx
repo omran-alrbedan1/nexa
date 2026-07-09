@@ -11,7 +11,7 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, Megaphone, CalendarRange, ShoppingCart, TrendingUp,
-  Wallet, MapPin, Tag, Clock, Package,
+  Wallet, MapPin, Tag, Clock, Package, PenLine,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
@@ -124,11 +124,21 @@ export function CampaignDetailPage() {
                   {action.label}
                 </Button>
               ))}
+              <Button variant="secondary" size="sm" leftIcon={<PenLine size={14} />} onClick={() => navigate(ROUTES.CAMPAIGN_EDIT(campaign.id))}>
+                Edit
+              </Button>
             </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
       </div>
+
+      {/* Banner Image */}
+      {campaign.bannerUrl && (
+        <div className="relative overflow-hidden rounded-2xl">
+          <img src={campaign.bannerUrl} alt={campaign.name} className="w-full h-48 md:h-64 object-cover" />
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">

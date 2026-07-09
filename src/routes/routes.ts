@@ -30,6 +30,7 @@ export const ROUTES = {
   CAMPAIGNS: '/campaigns',
   CAMPAIGN_CREATE: '/campaigns/create',
   CAMPAIGN_DETAIL: (campaignId: number | string) => `/campaigns/${campaignId}`,
+  CAMPAIGN_EDIT: (campaignId: number | string) => `/campaigns/${campaignId}/edit`,
 
   // Warehouse / aggregation
   AGGREGATION: '/aggregation',
@@ -68,6 +69,9 @@ export const ROUTES = {
 
   // Support Tickets
   SUPPORT_TICKETS: '/support',
+
+  // Categories
+  CATEGORIES: '/categories',
 
   // Reports
   REPORTS: '/reports',

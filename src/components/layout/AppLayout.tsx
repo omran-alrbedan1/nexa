@@ -12,7 +12,7 @@ import { cn } from '@/utils/cn';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   LayoutDashboard, ClipboardList, Truck, Warehouse, Users,
-  Map, Megaphone, Package, Menu, Bell, X,
+  Map, Megaphone, Package, FolderTree, Menu, Bell, X,
   LogOut, ChevronRight, Search, Sun, Moon, Settings2,
   CreditCard, LifeBuoy, BarChart3, FileClock,
 } from 'lucide-react';
@@ -34,6 +34,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { to: ROUTES.REGIONS, label: 'nav.regions', icon: <Map size={20} />, roles: ['admin'] },
   { to: ROUTES.CAMPAIGNS, label: 'nav.campaigns', icon: <Megaphone size={20} />, roles: ['admin'] },
   { to: ROUTES.PRODUCTS, label: 'nav.products', icon: <Package size={20} />, roles: ['admin'] },
+  { to: ROUTES.CATEGORIES, label: 'nav.categories', icon: <FolderTree size={20} />, roles: ['admin'] },
   { to: ROUTES.REPORTS, label: 'nav.reports', icon: <BarChart3 size={20} />, roles: ['admin'] },
   { to: ROUTES.SPECIAL_ORDERS, label: 'nav.specialOrders', icon: <FileClock size={20} />, roles: ['admin', 'operations'] },
   { to: ROUTES.CUSTOMERS, label: 'nav.customers', icon: <Users size={20} />, roles: ['admin', 'operations'] },

@@ -82,6 +82,12 @@ const CampaignDetailPage = lazy(() =>
 const CreateCampaignPage = lazy(() =>
   import('@/features/campaigns/pages/CreateCampaignPage').then((m) => ({ default: m.CreateCampaignPage }))
 );
+const EditCampaignPage = lazy(() =>
+  import('@/features/campaigns/pages/EditCampaignPage').then((m) => ({ default: m.EditCampaignPage }))
+);
+const EditCampaignPage = lazy(() =>
+  import('@/features/campaigns/pages/EditCampaignPage').then((m) => ({ default: m.EditCampaignPage }))
+);
 const TripsPage = lazy(() =>
   import('@/features/trips/pages/TripsPage').then((m) => ({ default: m.TripsPage }))
 );
@@ -129,6 +135,11 @@ const CustomersPage = lazy(() =>
 );
 const CustomerDetailPage = lazy(() =>
   import('@/features/customers/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage }))
+);
+
+// ── Categories ──
+const CategoriesPage = lazy(() =>
+  import('@/features/categories/pages/CategoriesPage').then((m) => ({ default: m.CategoriesPage }))
 );
 
 // ── Settings ──
@@ -249,7 +260,7 @@ export function App() {
                 <Route path={ROUTES.SUPPLIER_DETAIL(':supplierId')} element={<SupplierDetailPage />} />
               </Route>
 
-              {/* Products & campaigns — requires products.view */}
+              {/* Products & campaigns & categories — requires products.view */}
               <Route element={<ProtectedRoute requiredPermissions={['products.view']} />}>
                 <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
                 <Route path={ROUTES.PRODUCT_CREATE} element={<CreateProductPage />} />
@@ -258,6 +269,8 @@ export function App() {
                 <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
                 <Route path={ROUTES.CAMPAIGN_DETAIL(':campaignId')} element={<CampaignDetailPage />} />
                 <Route path={ROUTES.CAMPAIGN_CREATE} element={<CreateCampaignPage />} />
+                <Route path={ROUTES.CAMPAIGN_EDIT(':campaignId')} element={<EditCampaignPage />} />
+                <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
               </Route>
 
               {/* Trips — requires trips.view or trips.manage */}
