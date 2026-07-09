@@ -179,6 +179,8 @@ function buildProductFormData(data: Record<string, any>): FormData {
     if (value === undefined || value === null) continue;
     if (value instanceof File) {
       fd.append(key, value);
+    } else if (typeof value === 'boolean') {
+      fd.append(key, value ? '1' : '0');
     } else {
       fd.append(key, String(value));
     }

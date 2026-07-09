@@ -85,16 +85,16 @@ export function ReportsPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'orders' && <OrdersReportTab filters={filters} t={t} />}
-      {activeTab === 'revenue' && <RevenueReportTab filters={filters} t={t} />}
-      {activeTab === 'suppliers' && <SuppliersReportTab filters={filters} t={t} />}
+      {activeTab === 'orders' && <OrdersReportTab filters={filters} t={t} formatPrice={formatPrice} />}
+      {activeTab === 'revenue' && <RevenueReportTab filters={filters} t={t} formatPrice={formatPrice} />}
+      {activeTab === 'suppliers' && <SuppliersReportTab filters={filters} t={t} formatPrice={formatPrice} />}
     </div>
   );
 }
 
 // ── Orders Report Tab ──
 
-function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }; t: (key: string) => string }) {
+function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string; to: string }; t: (key: string) => string; formatPrice: (amount: number, showSymbol?: boolean) => string }) {
   const { data, isLoading, isError, error, refetch } = useOrdersReport(filters);
 
   if (isError) {
@@ -220,7 +220,7 @@ function OrdersReportTab({ filters, t }: { filters: { from: string; to: string }
 
 // ── Revenue Report Tab ──
 
-function RevenueReportTab({ filters, t }: { filters: { from: string; to: string }; t: (key: string) => string }) {
+function RevenueReportTab({ filters, t, formatPrice }: { filters: { from: string; to: string }; t: (key: string) => string; formatPrice: (amount: number, showSymbol?: boolean) => string }) {
   const { data, isLoading, isError, error, refetch } = useRevenueReport(filters);
 
   if (isError) {
@@ -311,7 +311,7 @@ function RevenueReportTab({ filters, t }: { filters: { from: string; to: string 
 
 // ── Suppliers Report Tab ──
 
-function SuppliersReportTab({ filters, t }: { filters: { from: string; to: string }; t: (key: string) => string }) {
+function SuppliersReportTab({ filters, t, formatPrice }: { filters: { from: string; to: string }; t: (key: string) => string; formatPrice: (amount: number, showSymbol?: boolean) => string }) {
   const { data, isLoading, isError, error, refetch } = useSuppliersReport(filters);
 
   if (isError) {

@@ -1,5 +1,4 @@
 import { apiClient } from '@/lib/axios';
-import { unwrap } from '@/lib/apiHelpers';
 import type { ApiResponse } from '@/types/common';
 
 export interface Category {
@@ -49,6 +48,8 @@ function buildFormData(data: Record<string, any>): FormData {
     if (value === undefined || value === null) return;
     if (value instanceof File) {
       fd.append(key, value);
+    } else if (typeof value === 'boolean') {
+      fd.append(key, value ? '1' : '0');
     } else {
       fd.append(key, String(value));
     }
@@ -78,7 +79,13 @@ export const categoriesApi = {
   },
 
   update: async (id: number, data: { name_ar?: string; name_en?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean }): Promise<Category> => {
-    const formData = buildFormData({ _method: 'PUT', ...data, image: data.image ?? undefined });
+    const { image, ...rest } = data;
+    const formData = buildFormData({ _method: 'PUT', ...rest });
+    if (image === null) {
+      formData.append('image', '');
+    } else if (image instanceof File) {
+      formData.append('image', image);
+    }
     const response = await apiClient.post<ApiResponse<BackendCategory>>(`/api/v1/admin/categories/${id}`, formData, { headers: { 'Content-Type': undefined } });
     return mapBackendCategory(response.data.data);
   },
