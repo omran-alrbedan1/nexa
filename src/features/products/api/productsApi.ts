@@ -146,6 +146,46 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
   };
 }
 
+// ── Backend field name mapping ──
+// Frontend uses camelCase, backend expects snake_case
+
+const PRODUCT_FIELD_MAP: Record<string, string> = {
+  name: 'name_en',
+  nameAr: 'name_ar',
+  description: 'description',
+  descriptionAr: 'description_ar',
+  price: 'price',
+  unit: 'unit',
+  stockQuantity: 'stock_quantity',
+  categoryId: 'category_id',
+  supplierId: 'supplier_id',
+  source: 'source',
+};
+
+function toBackendFields(data: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined || value === null) continue;
+    const backendKey = PRODUCT_FIELD_MAP[key] || key;
+    if (backendKey === 'image') continue;
+    result[backendKey] = value;
+  }
+  return result;
+}
+
+function buildProductFormData(data: Record<string, any>): FormData {
+  const fd = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined || value === null) continue;
+    if (value instanceof File) {
+      fd.append(key, value);
+    } else {
+      fd.append(key, String(value));
+    }
+  }
+  return fd;
+}
+
 export const productsApi = {
   /** Fetch all products page data (stats + categories + products) */
   getPageData: async (): Promise<ProductsPageData> => {
@@ -201,38 +241,27 @@ export const productsApi = {
 
   /** Create a new product */
   createProduct: async (data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+      const backendData = toBackendFields(data);
       if (data.image instanceof File) {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-          if (key === 'image' && value instanceof File) {
-            formData.append('image', value);
-          } else if (value !== undefined && value !== null && key !== 'image') {
-            formData.append(key, String(value));
-          }
-        });
+        const formData = buildProductFormData(backendData);
+        formData.append('image', data.image);
         const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData);
         return mapBackendProduct(response.data.data);
       }
-      const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', data);
+      const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', backendData);
       return mapBackendProduct(response.data.data);
   },
 
   /** Update product */
   updateProduct: async (id: number, data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+      const backendData = toBackendFields(data);
       if (data.image instanceof File) {
-        const formData = new FormData();
-        formData.append('_method', 'PUT');
-        Object.entries(data).forEach(([key, value]) => {
-          if (key === 'image' && value instanceof File) {
-            formData.append('image', value);
-          } else if (value !== undefined && value !== null && key !== 'image') {
-            formData.append(key, String(value));
-          }
-        });
+        const formData = buildProductFormData({ _method: 'PUT', ...backendData });
+        formData.append('image', data.image);
         const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData);
         return mapBackendProduct(response.data.data);
       }
-      const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, data);
+      const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, backendData);
       return mapBackendProduct(response.data.data);
   },
 
