@@ -245,7 +245,7 @@ export const productsApi = {
       if (data.image instanceof File) {
         const formData = buildProductFormData(backendData);
         formData.append('image', data.image);
-        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData);
+        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, { headers: { 'Content-Type': undefined } });
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', backendData);
@@ -258,7 +258,7 @@ export const productsApi = {
       if (data.image instanceof File) {
         const formData = buildProductFormData({ _method: 'PUT', ...backendData });
         formData.append('image', data.image);
-        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData);
+        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, { headers: { 'Content-Type': undefined } });
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, backendData);

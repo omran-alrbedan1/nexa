@@ -190,7 +190,7 @@ export const campaignsApi = {
     if (data.status) formData.append('status', mapToBackend(data.status, CAMPAIGN_STATUS_FRONTEND_TO_BACKEND));
     if (data.image instanceof File) formData.append('image', data.image);
 
-    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData);
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData, { headers: { 'Content-Type': undefined } });
     return mapBackendCampaign(response.data.data);
   },
 
