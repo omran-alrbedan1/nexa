@@ -434,7 +434,7 @@ export function SpecialOrderDetailPage() {
           </div>
           <div className="max-h-48 overflow-y-auto space-y-1 border border-border-default rounded-lg p-1">
             {suppliers
-              .filter((s) => s.name.toLowerCase().includes(assignSupplierModal.search.toLowerCase()))
+              .filter((s) => (s.name || '').toLowerCase().includes((assignSupplierModal.search || '').toLowerCase()))
               .map((s) => (
                 <div
                   key={s.id}
@@ -448,7 +448,7 @@ export function SpecialOrderDetailPage() {
                   {s.name}
                 </div>
               ))}
-            {suppliers.filter((s) => s.name.toLowerCase().includes(assignSupplierModal.search.toLowerCase())).length === 0 && (
+            {suppliers.filter((s) => (s.name || '').toLowerCase().includes((assignSupplierModal.search || '').toLowerCase())).length === 0 && (
               <p className="text-xs text-text-tertiary text-center py-3">No suppliers found</p>
             )}
           </div>

@@ -257,9 +257,9 @@ export const specialOrdersApi = {
 
     /** Fetch suppliers list (for dropdown) */
   getSuppliers: async (): Promise<SupplierOption[]> => {
-    const response = await apiClient.get<ApiResponse<{suppliers: Array<{id: number; business_name: string}>}>>('/api/v1/admin/suppliers?per_page=100');
+    const response = await apiClient.get<ApiResponse<{suppliers: Array<{id: number; business_name: string | null}>}>>('/api/v1/admin/suppliers?per_page=100');
     const data = response.data.data;
-    return (data.suppliers || []).map((s) => ({ id: s.id, name: s.business_name }));
+    return (data.suppliers || []).map((s) => ({ id: s.id, name: s.business_name || '' }));
   },
 
   /** Create price quote — temporary admin-proxy endpoint until supplier app is ready */
