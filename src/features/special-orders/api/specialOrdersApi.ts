@@ -28,6 +28,21 @@ export interface PriceQuote {
   status: string;
   total: number;
   adminApproved: boolean;
+  items?: PriceQuoteItem[];
+}
+
+export interface PriceQuoteItem {
+  name: string;
+  description: string | null;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  total: number;
+}
+
+export interface SupplierOption {
+  id: number;
+  name: string;
 }
 
 export interface SpecialOrder {
@@ -60,12 +75,22 @@ export interface SpecialOrderSummary {
 
 // ── Backend Raw Types ──
 
+interface BackendPriceQuoteItem {
+  name: string;
+  description: string | null;
+  quantity: number;
+  unit: string;
+  unit_price: string;
+  total: string;
+}
+
 interface BackendPriceQuote {
   id: number;
   quote_number: string;
   status: string;
   total: string;
   admin_approved: boolean;
+  items?: BackendPriceQuoteItem[];
 }
 
 interface BackendItem {
@@ -123,6 +148,17 @@ function mapItem(bi: BackendItem): SpecialOrderItem {
   };
 }
 
+function mapQuoteItem(bqi: BackendPriceQuoteItem): PriceQuoteItem {
+  return {
+    name: bqi.name,
+    description: bqi.description,
+    quantity: bqi.quantity,
+    unit: bqi.unit,
+    unitPrice: parseFloat(bqi.unit_price) || 0,
+    total: parseFloat(bqi.total) || 0,
+  };
+}
+
 function mapQuote(bq: BackendPriceQuote): PriceQuote {
   return {
     id: bq.id,
@@ -130,6 +166,7 @@ function mapQuote(bq: BackendPriceQuote): PriceQuote {
     status: bq.status,
     total: parseFloat(bq.total) || 0,
     adminApproved: bq.admin_approved,
+    items: (bq.items || []).map(mapQuoteItem),
   };
 }
 
@@ -218,10 +255,21 @@ export const specialOrdersApi = {
     await apiClient.post(`/api/v1/admin/special-orders/${id}/convert-to-order`);
   },
 
-  /** Submit price quote — backend stores pricing in notes via PUT /special-orders/{id}/notes */
-  submitPriceQuote: async (id: number, price: number, notes: string): Promise<void> => {
-    const pricingNotes = `Price Quote: ${formatPrice(price)}. ${notes ? notes : ''}`;
-    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes: pricingNotes });
+    /** Fetch suppliers list (for dropdown) */
+  getSuppliers: async (): Promise<SupplierOption[]> => {
+    const response = await apiClient.get<ApiResponse<{suppliers: Array<{id: number; business_name: string}>}>>('/api/v1/admin/suppliers?per_page=100');
+    const data = response.data.data;
+    return (data.suppliers || []).map((s) => ({ id: s.id, name: s.business_name }));
+  },
+
+  /** Create price quote — temporary admin-proxy endpoint until supplier app is ready */
+  createPriceQuote: async (id: number, data: {
+    items: Array<{ name: string; description?: string; quantity: number; unit: string; unit_price: number }>;
+    delivery_fee?: number;
+    valid_until?: string;
+    customer_notes?: string;
+  }): Promise<void> => {
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/price-quotes`, data);
   },
 };
 

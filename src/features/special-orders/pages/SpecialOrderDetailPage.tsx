@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import { useSpecialOrderDetail, useAssignStaff, useAssignSupplier, useApproveSpecialOrder, useRejectSpecialOrder, useUpdateNotes, useConvertToOrder, useSubmitPriceQuote } from '../hooks/useSpecialOrders';
+import { useSpecialOrderDetail, useAssignStaff, useAssignSupplier, useApproveSpecialOrder, useRejectSpecialOrder, useUpdateNotes, useConvertToOrder, useCreatePriceQuote, useSuppliers } from '../hooks/useSpecialOrders';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -53,17 +53,21 @@ export function SpecialOrderDetailPage() {
   const rejectOrder = useRejectSpecialOrder();
   const updateNotes = useUpdateNotes();
   const convertOrder = useConvertToOrder();
-  const submitPriceQuote = useSubmitPriceQuote();
+  const createPriceQuote = useCreatePriceQuote();
+  const { data: suppliers = [] } = useSuppliers();
 
   const [notesModal, setNotesModal] = useState(false);
   const [notesText, setNotesText] = useState('');
   const [priceQuoteModal, setPriceQuoteModal] = useState(false);
-  const [priceAmount, setPriceAmount] = useState('');
   const [priceNotes, setPriceNotes] = useState('');
   const [approveModal, setApproveModal] = useState(false);
   const [rejectModal, setRejectModal] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
   const [assignStaffModal, setAssignStaffModal] = useState<{ open: boolean; userId: string }>({ open: false, userId: '' });
-  const [assignSupplierModal, setAssignSupplierModal] = useState<{ open: boolean; supplierId: string }>({ open: false, supplierId: '' });
+  const [assignSupplierModal, setAssignSupplierModal] = useState<{ open: boolean; search: string }>({ open: false, search: '' });
+  const [selectedSupplier, setSelectedSupplier] = useState<{ id: number; name: string } | null>(null);
+  const [quoteItems, setQuoteItems] = useState<Array<{ name: string; quantity: number; unit: string; unitPrice: string }>>([]);
+  const [deliveryFee, setDeliveryFee] = useState('');
+  const [validUntil, setValidUntil] = useState('');
 
   if (isError) {
     return (
@@ -113,9 +117,11 @@ export function SpecialOrderDetailPage() {
   };
 
   const handleAssignSupplier = () => {
-    const supplierId = parseInt(assignSupplierModal.supplierId);
-    if (supplierId > 0) {
-      assignSupplier.mutate({ id: order.id, supplierId }, { onSuccess: () => setAssignSupplierModal({ open: false, supplierId: '' }) });
+    if (selectedSupplier) {
+      assignSupplier.mutate({ id: order.id, supplierId: selectedSupplier.id }, { onSuccess: () => {
+        setAssignSupplierModal({ open: false, search: '' });
+        setSelectedSupplier(null);
+      }});
     }
   };
 
@@ -194,7 +200,9 @@ export function SpecialOrderDetailPage() {
               {order.status === 'pending_pricing' && (
                 <>
                   <Button variant="primary" size="sm" leftIcon={<BadgePercent size={14} />} onClick={() => {
-                    setPriceAmount(order.priceQuotes.length > 0 ? String(order.priceQuotes[0].total) : '');
+                    setQuoteItems(order.items.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, unitPrice: '' })));
+                    setDeliveryFee('');
+                    setValidUntil('');
                     setPriceNotes('');
                     setPriceQuoteModal(true);
                   }}>
@@ -411,47 +419,91 @@ export function SpecialOrderDetailPage() {
         </div>
       </Modal>
 
-      {/* Assign Supplier Modal */}
-      <Modal open={assignSupplierModal.open} onClose={() => setAssignSupplierModal({ open: false, supplierId: '' })} title={t('specialOrders.detail.assignSupplierTitle')}>
+      {/* Assign Supplier Modal — searchable dropdown */}
+      <Modal open={assignSupplierModal.open} onClose={() => { setAssignSupplierModal({ open: false, search: '' }); setSelectedSupplier(null); }} title={t('specialOrders.detail.assignSupplierTitle')}>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.supplierId')}</label>
-            <input type="number" value={assignSupplierModal.supplierId} onChange={(e) => setAssignSupplierModal({ ...assignSupplierModal, supplierId: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.supplier')}</label>
+            <input
+              type="text"
+              value={assignSupplierModal.search}
+              onChange={(e) => setAssignSupplierModal({ ...assignSupplierModal, search: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              placeholder={t('specialOrders.detail.searchSupplierPlaceholder') || 'Search supplier name...'}
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto space-y-1 border border-border-default rounded-lg p-1">
+            {suppliers
+              .filter((s) => s.name.toLowerCase().includes(assignSupplierModal.search.toLowerCase()))
+              .map((s) => (
+                <div
+                  key={s.id}
+                  onClick={() => setSelectedSupplier(s)}
+                  className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors ${
+                    selectedSupplier?.id === s.id
+                      ? 'bg-brand-primary/10 text-brand-primary font-bold'
+                      : 'hover:bg-bg-section-alt text-text-primary'
+                  }`}
+                >
+                  {s.name}
+                </div>
+              ))}
+            {suppliers.filter((s) => s.name.toLowerCase().includes(assignSupplierModal.search.toLowerCase())).length === 0 && (
+              <p className="text-xs text-text-tertiary text-center py-3">No suppliers found</p>
+            )}
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setAssignSupplierModal({ open: false, supplierId: '' })}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={assignSupplier.isPending} disabled={!assignSupplierModal.supplierId} onClick={handleAssignSupplier}>{t('specialOrders.detail.assign')}</Button>
+            <Button variant="secondary" size="sm" onClick={() => { setAssignSupplierModal({ open: false, search: '' }); setSelectedSupplier(null); }}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={assignSupplier.isPending} disabled={!selectedSupplier} onClick={handleAssignSupplier}>{t('specialOrders.detail.assign')}</Button>
           </div>
         </div>
       </Modal>
 
-      {/* Price Quote Modal */}
+      {/* Price Quote Modal — item-level pricing (temporary admin-proxy until supplier app is ready) */}
       <Modal open={priceQuoteModal} onClose={() => setPriceQuoteModal(false)} title={t('specialOrders.detail.priceQuoteTitle')}>
         <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.priceAmount')}</label>
-            <div className="relative">
-              <input
-                type="number"
-                value={priceAmount}
-                onChange={(e) => setPriceAmount(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary pr-16"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-              />
-
+          <div className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-xl p-3">
+            ⚠️ This is a temporary admin proxy for supplier pricing. Remove once the supplier app is live.
+          </div>
+          <div className="space-y-3">
+            <label className="block text-xs font-bold text-text-secondary font-body">{t('specialOrders.detail.items')}</label>
+            {quoteItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-border-default/60">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-text-primary font-body">{item.name}</p>
+                  <p className="text-xs text-text-tertiary font-body">{item.quantity} {item.unit}</p>
+                </div>
+                <div className="w-28">
+                  <input
+                    type="number"
+                    value={item.unitPrice}
+                    onChange={(e) => {
+                      const updated = [...quoteItems];
+                      updated[idx] = { ...updated[idx], unitPrice: e.target.value };
+                      setQuoteItems(updated);
+                    }}
+                    className="w-full px-2 py-1.5 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary text-right"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.deliveryFee') || 'Delivery fee'}</label>
+              <input type="number" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="0.00" min="0" step="0.01" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.validUntil') || 'Valid until'}</label>
+              <input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
             </div>
           </div>
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.priceQuoteNotes')}</label>
-            <textarea
-              rows={3}
-              value={priceNotes}
-              onChange={(e) => setPriceNotes(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
-              placeholder={t('specialOrders.detail.priceQuoteNotesPlaceholder')}
-            />
+            <textarea rows={2} value={priceNotes} onChange={(e) => setPriceNotes(e.target.value)} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none" placeholder={t('specialOrders.detail.priceQuoteNotesPlaceholder')} />
           </div>
           {order.priceQuotes.length > 0 && (
             <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
@@ -461,11 +513,20 @@ export function SpecialOrderDetailPage() {
           )}
           <div className="flex justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setPriceQuoteModal(false)}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={submitPriceQuote.isPending} disabled={!priceAmount || parseFloat(priceAmount) <= 0} onClick={() => {
-              submitPriceQuote.mutate({
+            <Button variant="primary" size="sm" isLoading={createPriceQuote.isPending} disabled={quoteItems.some((i) => !i.unitPrice || parseFloat(i.unitPrice) <= 0)} onClick={() => {
+              createPriceQuote.mutate({
                 id: order.id,
-                price: parseFloat(priceAmount),
-                notes: priceNotes,
+                data: {
+                  items: quoteItems.map((i) => ({
+                    name: i.name,
+                    quantity: i.quantity,
+                    unit: i.unit,
+                    unit_price: parseFloat(i.unitPrice),
+                  })),
+                  delivery_fee: deliveryFee ? parseFloat(deliveryFee) : undefined,
+                  valid_until: validUntil || undefined,
+                  customer_notes: priceNotes || undefined,
+                },
               });
               setPriceQuoteModal(false);
             }}>

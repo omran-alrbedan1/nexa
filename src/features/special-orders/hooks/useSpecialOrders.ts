@@ -108,6 +108,20 @@ export function useConvertToOrder() {
   });
 }
 
+export function useCreatePriceQuote() {
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Parameters<typeof specialOrdersApi.createPriceQuote>[1] }) =>
+      specialOrdersApi.createPriceQuote(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
+      addToast('success', 'Price quote created and sent to customer');
+    },
+    onError: () => addToast('error', 'Failed to create price quote'),
+  });
+}
+
 export function useSubmitPriceQuote() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
@@ -119,5 +133,13 @@ export function useSubmitPriceQuote() {
       addToast('success', 'Price quote submitted — awaiting customer approval');
     },
     onError: () => addToast('error', 'Failed to submit price quote'),
+  });
+}
+
+export function useSuppliers() {
+  return useQuery({
+    queryKey: ['suppliers', 'dropdown'],
+    queryFn: () => specialOrdersApi.getSuppliers(),
+    staleTime: 60_000,
   });
 }
