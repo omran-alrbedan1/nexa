@@ -79,6 +79,48 @@ export function SpecialOrderDetailPage() {
   const [loadingWarehouses, setLoadingWarehouses] = useState(false);
   const zoneDropdownRef = useRef<HTMLDivElement>(null);
   const warehouseDropdownRef = useRef<HTMLDivElement>(null);
+  const [zoneDropdownOpen, setZoneDropdownOpen] = useState(false);
+  const [warehouseDropdownOpen, setWarehouseDropdownOpen] = useState(false);
+
+  const fetchZones = useCallback(async () => {
+    setLoadingZones(true);
+    try {
+      const res = await apiClient.get<ApiResponse<{ zones: Array<{ id: number; name_ar: string; name_en: string }> }>>('/api/v1/admin/zones?per_page=200');
+      const items = res.data.data.zones.map((z) => ({ id: z.id, name: z.name_ar || z.name_en }));
+      setZonesList(items);
+    } catch {
+      setZonesList([]);
+    } finally {
+      setLoadingZones(false);
+    }
+  }, []);
+
+  const fetchWarehouses = useCallback(async (zoneId: number) => {
+    setLoadingWarehouses(true);
+    setWarehousesList([]);
+    try {
+      const res = await apiClient.get<ApiResponse<{ warehouses: Array<{ id: number; name: string }> }>>(`/api/v1/admin/warehouses?zone_id=${zoneId}&per_page=200`);
+      setWarehousesList(res.data.data.warehouses.map((w) => ({ id: w.id, name: w.name })));
+    } catch {
+      setWarehousesList([]);
+    } finally {
+      setLoadingWarehouses(false);
+    }
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (zoneDropdownRef.current && !zoneDropdownRef.current.contains(e.target as Node)) {
+        setZoneDropdownOpen(false);
+      }
+      if (warehouseDropdownRef.current && !warehouseDropdownRef.current.contains(e.target as Node)) {
+        setWarehouseDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const [quoteItems, setQuoteItems] = useState<Array<{ name: string; quantity: number; unit: string; unitPrice: string }>>([]);
   const [deliveryFee, setDeliveryFee] = useState('');
@@ -148,49 +190,6 @@ export function SpecialOrderDetailPage() {
     setNotesText(order.internalNotes);
     setNotesModal(true);
   };
-
-  const [zoneDropdownOpen, setZoneDropdownOpen] = useState(false);
-  const [warehouseDropdownOpen, setWarehouseDropdownOpen] = useState(false);
-
-  const fetchZones = useCallback(async () => {
-    setLoadingZones(true);
-    try {
-      const res = await apiClient.get<ApiResponse<{ zones: Array<{ id: number; name_ar: string; name_en: string }> }>>('/api/v1/admin/zones?per_page=200');
-      const items = res.data.data.zones.map((z) => ({ id: z.id, name: z.name_ar || z.name_en }));
-      setZonesList(items);
-    } catch {
-      setZonesList([]);
-    } finally {
-      setLoadingZones(false);
-    }
-  }, []);
-
-  const fetchWarehouses = useCallback(async (zoneId: number) => {
-    setLoadingWarehouses(true);
-    setWarehousesList([]);
-    try {
-      const res = await apiClient.get<ApiResponse<{ warehouses: Array<{ id: number; name: string }> }>>(`/api/v1/admin/warehouses?zone_id=${zoneId}&per_page=200`);
-      setWarehousesList(res.data.data.warehouses.map((w) => ({ id: w.id, name: w.name })));
-    } catch {
-      setWarehousesList([]);
-    } finally {
-      setLoadingWarehouses(false);
-    }
-  }, []);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (zoneDropdownRef.current && !zoneDropdownRef.current.contains(e.target as Node)) {
-        setZoneDropdownOpen(false);
-      }
-      if (warehouseDropdownRef.current && !warehouseDropdownRef.current.contains(e.target as Node)) {
-        setWarehouseDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   const filteredZones = zonesList.filter((z) =>
     z.name.toLowerCase().includes(zoneSearch.toLowerCase())
