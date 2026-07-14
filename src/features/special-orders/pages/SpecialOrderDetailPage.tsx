@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
+import { apiClient } from '@/lib/axios';
+import type { ApiResponse } from '@/types/common';
 import {
   ArrowLeft, FileClock, User, Phone, Package, DollarSign,
   CheckCircle2, XCircle, Calendar, MessageSquare,
-  Building2, Pencil, RefreshCw, BadgePercent, MessageCircle, Store, MapPin,
+  Building2, Pencil, RefreshCw, BadgePercent, MessageCircle, Store, MapPin, Search,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
@@ -66,9 +68,17 @@ export function SpecialOrderDetailPage() {
   const [assignSupplierModal, setAssignSupplierModal] = useState<{ open: boolean; search: string }>({ open: false, search: '' });
   const [selectedSupplier, setSelectedSupplier] = useState<{ id: number; name: string } | null>(null);
   const [convertModal, setConvertModal] = useState(false);
-  const [convertWarehouseId, setConvertWarehouseId] = useState('');
-  const [convertZoneId, setConvertZoneId] = useState('');
   const [convertDeliveryFee, setConvertDeliveryFee] = useState('');
+  const [zonesList, setZonesList] = useState<Array<{ id: number; name: string }>>([]);
+  const [warehousesList, setWarehousesList] = useState<Array<{ id: number; name: string }>>([]);
+  const [selectedZone, setSelectedZone] = useState<{ id: number; name: string } | null>(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<{ id: number; name: string } | null>(null);
+  const [zoneSearch, setZoneSearch] = useState('');
+  const [warehouseSearch, setWarehouseSearch] = useState('');
+  const [loadingZones, setLoadingZones] = useState(false);
+  const [loadingWarehouses, setLoadingWarehouses] = useState(false);
+  const zoneDropdownRef = useRef<HTMLDivElement>(null);
+  const warehouseDropdownRef = useRef<HTMLDivElement>(null);
 
   const [quoteItems, setQuoteItems] = useState<Array<{ name: string; quantity: number; unit: string; unitPrice: string }>>([]);
   const [deliveryFee, setDeliveryFee] = useState('');
@@ -139,6 +149,70 @@ export function SpecialOrderDetailPage() {
     setNotesModal(true);
   };
 
+  const [zoneDropdownOpen, setZoneDropdownOpen] = useState(false);
+  const [warehouseDropdownOpen, setWarehouseDropdownOpen] = useState(false);
+
+  const fetchZones = useCallback(async () => {
+    setLoadingZones(true);
+    try {
+      const res = await apiClient.get<ApiResponse<{ zones: Array<{ id: number; name_ar: string; name_en: string }> }>>('/api/v1/admin/zones?per_page=200');
+      const items = res.data.data.zones.map((z) => ({ id: z.id, name: z.name_ar || z.name_en }));
+      setZonesList(items);
+    } catch {
+      setZonesList([]);
+    } finally {
+      setLoadingZones(false);
+    }
+  }, []);
+
+  const fetchWarehouses = useCallback(async (zoneId: number) => {
+    setLoadingWarehouses(true);
+    setWarehousesList([]);
+    try {
+      const res = await apiClient.get<ApiResponse<{ warehouses: Array<{ id: number; name: string }> }>>(`/api/v1/admin/warehouses?zone_id=${zoneId}&per_page=200`);
+      setWarehousesList(res.data.data.warehouses.map((w) => ({ id: w.id, name: w.name })));
+    } catch {
+      setWarehousesList([]);
+    } finally {
+      setLoadingWarehouses(false);
+    }
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (zoneDropdownRef.current && !zoneDropdownRef.current.contains(e.target as Node)) {
+        setZoneDropdownOpen(false);
+      }
+      if (warehouseDropdownRef.current && !warehouseDropdownRef.current.contains(e.target as Node)) {
+        setWarehouseDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const filteredZones = zonesList.filter((z) =>
+    z.name.toLowerCase().includes(zoneSearch.toLowerCase())
+  );
+
+  const filteredWarehouses = warehousesList.filter((w) =>
+    w.name.toLowerCase().includes(warehouseSearch.toLowerCase())
+  );
+
+  const handleOpenConvertModal = () => {
+    const acceptedQuote = order.priceQuotes.find((q) => q.status === 'accepted');
+    setConvertDeliveryFee(acceptedQuote ? String(acceptedQuote.deliveryFee) : '');
+    setSelectedZone(null);
+    setSelectedWarehouse(null);
+    setZoneSearch('');
+    setWarehouseSearch('');
+    setZonesList([]);
+    setWarehousesList([]);
+    setConvertModal(true);
+    fetchZones();
+  };
+
   // Build workflow timeline steps
   const timelineSteps = [
     { status: 'Created', time: order.createdAt, desc: 'Special order request submitted', done: true },
@@ -198,13 +272,7 @@ export function SpecialOrderDetailPage() {
                 </>
               )}
               {order.status === 'approved' && (
-                <Button variant="primary" size="sm" leftIcon={<RefreshCw size={14} />} isLoading={convertOrder.isPending} onClick={() => {
-                  const acceptedQuote = order.priceQuotes.find((q) => q.status === 'accepted');
-                  setConvertDeliveryFee(acceptedQuote ? String(acceptedQuote.deliveryFee) : '');
-                  setConvertWarehouseId('');
-                  setConvertZoneId('');
-                  setConvertModal(true);
-                }}>
+                <Button variant="primary" size="sm" leftIcon={<RefreshCw size={14} />} isLoading={convertOrder.isPending} onClick={handleOpenConvertModal}>
                   {t('specialOrders.detail.convertToOrder')}
                 </Button>
               )}
@@ -614,34 +682,123 @@ export function SpecialOrderDetailPage() {
       {/* Convert to Order Modal */}
       <Modal open={convertModal} onClose={() => setConvertModal(false)} title={t('specialOrders.detail.convertToOrder') || 'Convert to Order'}>
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
-                <Store size={12} className="inline mr-1" />Warehouse ID
-              </label>
-              <input
-                type="number"
-                value={convertWarehouseId}
-                onChange={(e) => setConvertWarehouseId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-                placeholder="Warehouse ID"
-                min="1"
-              />
+          {/* Zone selector */}
+          <div ref={zoneDropdownRef} className="relative">
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
+              <MapPin size={12} className="inline mr-1" />Zone
+            </label>
+            <div
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input cursor-pointer flex items-center justify-between"
+              onClick={() => { setZoneDropdownOpen(!zoneDropdownOpen); setWarehouseDropdownOpen(false); }}
+            >
+              <span className={selectedZone ? 'text-text-primary' : 'text-text-tertiary'}>
+                {selectedZone ? selectedZone.name : loadingZones ? 'Loading zones...' : 'Select zone'}
+              </span>
+              <Search size={14} className="text-text-tertiary" />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
-                <MapPin size={12} className="inline mr-1" />Zone ID
-              </label>
-              <input
-                type="number"
-                value={convertZoneId}
-                onChange={(e) => setConvertZoneId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-                placeholder="Zone ID"
-                min="1"
-              />
-            </div>
+            {zoneDropdownOpen && (
+              <div className="absolute z-50 mt-1 w-full border border-border-default rounded-lg bg-white shadow-lg max-h-56 overflow-hidden flex flex-col">
+                <div className="p-2 border-b border-border-default/50">
+                  <input
+                    type="text"
+                    value={zoneSearch}
+                    onChange={(e) => setZoneSearch(e.target.value)}
+                    className="w-full px-2 py-1.5 text-sm border border-border-default rounded-md bg-bg-input outline-none focus:border-brand-primary"
+                    placeholder="Search zone..."
+                    autoFocus
+                  />
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {loadingZones ? (
+                    <p className="text-xs text-text-tertiary text-center py-4">Loading...</p>
+                  ) : filteredZones.length === 0 ? (
+                    <p className="text-xs text-text-tertiary text-center py-4">No zones found</p>
+                  ) : (
+                    filteredZones.map((z) => (
+                      <div
+                        key={z.id}
+                        onClick={() => {
+                          setSelectedZone(z);
+                          setWarehouseSearch('');
+                          setSelectedWarehouse(null);
+                          setWarehousesList([]);
+                          setZoneDropdownOpen(false);
+                          fetchWarehouses(z.id);
+                        }}
+                        className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
+                          selectedZone?.id === z.id
+                            ? 'bg-brand-primary/10 text-brand-primary font-bold'
+                            : 'hover:bg-bg-section-alt text-text-primary'
+                        }`}
+                      >
+                        {z.name}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Warehouse selector */}
+          <div ref={warehouseDropdownRef} className="relative">
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
+              <Store size={12} className="inline mr-1" />Warehouse
+            </label>
+            <div
+              className={`w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input cursor-pointer flex items-center justify-between ${
+                !selectedZone ? 'opacity-50 pointer-events-none' : ''
+              }`}
+              onClick={() => { if (selectedZone) { setWarehouseDropdownOpen(!warehouseDropdownOpen); setZoneDropdownOpen(false); } }}
+            >
+              <span className={selectedWarehouse ? 'text-text-primary' : 'text-text-tertiary'}>
+                {selectedWarehouse ? selectedWarehouse.name
+                  : !selectedZone ? 'Select a zone first'
+                  : loadingWarehouses ? 'Loading warehouses...'
+                  : 'Select warehouse'}
+              </span>
+              <Search size={14} className="text-text-tertiary" />
+            </div>
+            {warehouseDropdownOpen && selectedZone && (
+              <div className="absolute z-50 mt-1 w-full border border-border-default rounded-lg bg-white shadow-lg max-h-56 overflow-hidden flex flex-col">
+                <div className="p-2 border-b border-border-default/50">
+                  <input
+                    type="text"
+                    value={warehouseSearch}
+                    onChange={(e) => setWarehouseSearch(e.target.value)}
+                    className="w-full px-2 py-1.5 text-sm border border-border-default rounded-md bg-bg-input outline-none focus:border-brand-primary"
+                    placeholder="Search warehouse..."
+                    autoFocus
+                  />
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {loadingWarehouses ? (
+                    <p className="text-xs text-text-tertiary text-center py-4">Loading...</p>
+                  ) : filteredWarehouses.length === 0 ? (
+                    <p className="text-xs text-text-tertiary text-center py-4">No warehouses found</p>
+                  ) : (
+                    filteredWarehouses.map((w) => (
+                      <div
+                        key={w.id}
+                        onClick={() => {
+                          setSelectedWarehouse(w);
+                          setWarehouseDropdownOpen(false);
+                        }}
+                        className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
+                          selectedWarehouse?.id === w.id
+                            ? 'bg-brand-primary/10 text-brand-primary font-bold'
+                            : 'hover:bg-bg-section-alt text-text-primary'
+                        }`}
+                      >
+                        {w.name}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Delivery fee</label>
             <input
@@ -666,14 +823,14 @@ export function SpecialOrderDetailPage() {
           <div className="flex justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setConvertModal(false)}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" isLoading={convertOrder.isPending}
-              disabled={!convertWarehouseId || !convertZoneId}
+              disabled={!selectedZone || !selectedWarehouse}
               onClick={() => {
                 const acceptedQuote = order.priceQuotes.find((q) => q.status === 'accepted');
                 convertOrder.mutate({
                   id: order.id,
                   data: {
-                    warehouse_id: parseInt(convertWarehouseId),
-                    zone_id: parseInt(convertZoneId),
+                    warehouse_id: selectedWarehouse!.id,
+                    zone_id: selectedZone!.id,
                     delivery_fee: convertDeliveryFee ? parseFloat(convertDeliveryFee) : (acceptedQuote?.deliveryFee || undefined),
                   },
                 });
