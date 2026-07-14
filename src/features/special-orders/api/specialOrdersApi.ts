@@ -27,6 +27,12 @@ export interface PriceQuote {
   quoteNumber: string;
   status: string;
   total: number;
+  subtotal: number;
+  deliveryFee: number;
+  validUntil: string | null;
+  customerNotes: string | null;
+  customerResponseNote: string | null;
+  supplier: { id: number; businessName: string } | null;
   adminApproved: boolean;
   items?: PriceQuoteItem[];
 }
@@ -45,6 +51,20 @@ export interface SupplierOption {
   name: string;
 }
 
+export interface Negotiation {
+  id: number;
+  message: string;
+  actorType: string;
+  user: { id: number; fullName: string } | null;
+  createdAt: string;
+}
+
+export interface ConvertOrderData {
+  warehouse_id: number;
+  zone_id: number;
+  delivery_fee?: number;
+}
+
 export interface SpecialOrder {
   id: number;
   referenceNumber: string;
@@ -56,6 +76,7 @@ export interface SpecialOrder {
   assignedSupplier: { id: number; businessName: string; phone: string } | null;
   items: SpecialOrderItem[];
   priceQuotes: PriceQuote[];
+  negotiations: Negotiation[];
   createdAt: string;
   updatedAt: string;
 }
@@ -84,11 +105,25 @@ interface BackendPriceQuoteItem {
   total: string;
 }
 
+interface BackendNegotiation {
+  id: number;
+  message: string;
+  actor_type: string;
+  user: { id: number; full_name: string } | null;
+  created_at: string;
+}
+
 interface BackendPriceQuote {
   id: number;
   quote_number: string;
   status: string;
   total: string;
+  subtotal: string;
+  delivery_fee: string;
+  valid_until: string | null;
+  customer_notes: string | null;
+  customer_response_note: string | null;
+  supplier: { id: number; business_name: string } | null;
   admin_approved: boolean;
   items?: BackendPriceQuoteItem[];
 }
@@ -113,6 +148,7 @@ interface BackendSpecialOrder {
   assigned_supplier: { id: number; business_name: string; user?: { phone: string } } | null;
   items: BackendItem[];
   price_quotes: BackendPriceQuote[];
+  negotiations: BackendNegotiation[];
   created_at: string;
   updated_at: string;
 }
@@ -159,12 +195,28 @@ function mapQuoteItem(bqi: BackendPriceQuoteItem): PriceQuoteItem {
   };
 }
 
+function mapNegotiation(bn: BackendNegotiation): Negotiation {
+  return {
+    id: bn.id,
+    message: bn.message,
+    actorType: bn.actor_type,
+    user: bn.user ? { id: bn.user.id, fullName: bn.user.full_name } : null,
+    createdAt: bn.created_at,
+  };
+}
+
 function mapQuote(bq: BackendPriceQuote): PriceQuote {
   return {
     id: bq.id,
     quoteNumber: bq.quote_number,
     status: bq.status,
     total: parseFloat(bq.total) || 0,
+    subtotal: parseFloat(bq.subtotal) || 0,
+    deliveryFee: parseFloat(bq.delivery_fee) || 0,
+    validUntil: bq.valid_until || null,
+    customerNotes: bq.customer_notes || null,
+    customerResponseNote: bq.customer_response_note || null,
+    supplier: bq.supplier ? { id: bq.supplier.id, businessName: bq.supplier.business_name } : null,
     adminApproved: bq.admin_approved,
     items: (bq.items || []).map(mapQuoteItem),
   };
@@ -182,6 +234,7 @@ function mapDetail(bo: BackendSpecialOrder): SpecialOrder {
     assignedSupplier: bo.assigned_supplier ? { id: bo.assigned_supplier.id, businessName: bo.assigned_supplier.business_name, phone: (bo.assigned_supplier.user?.phone) || '' } : null,
     items: (bo.items || []).map(mapItem),
     priceQuotes: (bo.price_quotes || []).map(mapQuote),
+    negotiations: (bo.negotiations || []).map(mapNegotiation),
     createdAt: bo.created_at,
     updatedAt: bo.updated_at || bo.created_at,
   };
@@ -251,8 +304,8 @@ export const specialOrdersApi = {
   },
 
   /** Convert to regular order */
-  convertToOrder: async (id: number): Promise<void> => {
-    await apiClient.post(`/api/v1/admin/special-orders/${id}/convert-to-order`);
+  convertToOrder: async (id: number, data: ConvertOrderData): Promise<void> => {
+    await apiClient.post(`/api/v1/admin/special-orders/${id}/convert-to-order`, data);
   },
 
     /** Fetch suppliers list (for dropdown) */

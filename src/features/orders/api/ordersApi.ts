@@ -39,6 +39,21 @@ export interface OrderPayment {
   method: string;
 }
 
+export interface OrderSpecialOrderRef {
+  id: number;
+  referenceNumber: string;
+  status: string;
+}
+
+export interface OrderPriceQuoteRef {
+  id: number;
+  quoteNumber: string;
+  status: string;
+  total: number;
+  subtotal: number;
+  deliveryFee: number;
+}
+
 export interface OrderDetail {
   id: number;
   orderNumber: string;
@@ -65,6 +80,8 @@ export interface OrderDetail {
   items: OrderItem[];
   timeline: StatusLog[];
   payments: OrderPayment[];
+  specialOrder: OrderSpecialOrderRef | null;
+  priceQuote: OrderPriceQuoteRef | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -161,6 +178,21 @@ interface BackendDeliveryAddress {
   zone_name: string;
 }
 
+interface BackendSpecialOrderRef {
+  id: number;
+  reference_number: string;
+  status: string;
+}
+
+interface BackendPriceQuoteRef {
+  id: number;
+  quote_number: string;
+  status: string;
+  total: string;
+  subtotal: string;
+  delivery_fee: string;
+}
+
 interface BackendOrder {
   id: number;
   order_number: string;
@@ -183,6 +215,8 @@ interface BackendOrder {
   items?: BackendItem[];
   status_logs?: BackendStatusLog[];
   payments?: BackendPayment[];
+  special_order: BackendSpecialOrderRef | null;
+  price_quote: BackendPriceQuoteRef | null;
 }
 
 interface BackendOrdersResponse {
@@ -258,6 +292,19 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
       status: p.status,
       method: p.method,
     })),
+    specialOrder: bo.special_order ? {
+      id: bo.special_order.id,
+      referenceNumber: bo.special_order.reference_number,
+      status: bo.special_order.status,
+    } : null,
+    priceQuote: bo.price_quote ? {
+      id: bo.price_quote.id,
+      quoteNumber: bo.price_quote.quote_number,
+      status: bo.price_quote.status,
+      total: parseFloat(bo.price_quote.total),
+      subtotal: parseFloat(bo.price_quote.subtotal),
+      deliveryFee: parseFloat(bo.price_quote.delivery_fee),
+    } : null,
     createdAt: bo.created_at,
     updatedAt: bo.updated_at || bo.created_at,
   };

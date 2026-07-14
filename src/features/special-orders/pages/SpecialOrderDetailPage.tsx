@@ -12,7 +12,7 @@ import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, FileClock, User, Phone, Package, DollarSign,
   CheckCircle2, XCircle, Calendar, MessageSquare,
-  Building2, Pencil, RefreshCw, BadgePercent,
+  Building2, Pencil, RefreshCw, BadgePercent, MessageCircle, Store, MapPin,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
@@ -65,6 +65,11 @@ export function SpecialOrderDetailPage() {
   const [assignStaffModal, setAssignStaffModal] = useState<{ open: boolean; userId: string }>({ open: false, userId: '' });
   const [assignSupplierModal, setAssignSupplierModal] = useState<{ open: boolean; search: string }>({ open: false, search: '' });
   const [selectedSupplier, setSelectedSupplier] = useState<{ id: number; name: string } | null>(null);
+  const [convertModal, setConvertModal] = useState(false);
+  const [convertWarehouseId, setConvertWarehouseId] = useState('');
+  const [convertZoneId, setConvertZoneId] = useState('');
+  const [convertDeliveryFee, setConvertDeliveryFee] = useState('');
+
   const [quoteItems, setQuoteItems] = useState<Array<{ name: string; quantity: number; unit: string; unitPrice: string }>>([]);
   const [deliveryFee, setDeliveryFee] = useState('');
   const [validUntil, setValidUntil] = useState('');
@@ -193,7 +198,13 @@ export function SpecialOrderDetailPage() {
                 </>
               )}
               {order.status === 'approved' && (
-                <Button variant="primary" size="sm" leftIcon={<RefreshCw size={14} />} isLoading={convertOrder.isPending} onClick={() => convertOrder.mutate(order.id)}>
+                <Button variant="primary" size="sm" leftIcon={<RefreshCw size={14} />} isLoading={convertOrder.isPending} onClick={() => {
+                  const acceptedQuote = order.priceQuotes.find((q) => q.status === 'accepted');
+                  setConvertDeliveryFee(acceptedQuote ? String(acceptedQuote.deliveryFee) : '');
+                  setConvertWarehouseId('');
+                  setConvertZoneId('');
+                  setConvertModal(true);
+                }}>
                   {t('specialOrders.detail.convertToOrder')}
                 </Button>
               )}
@@ -269,17 +280,81 @@ export function SpecialOrderDetailPage() {
                 <DollarSign size={16} className="text-amber-600" />
                 <h3 className="text-sm font-bold text-text-primary font-display">{t('specialOrders.detail.priceQuotes')}</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {order.priceQuotes.map((quote) => (
-                  <div key={quote.id} className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-text-primary font-body">{quote.quoteNumber}</span>
-                      <Badge variant={quote.status === 'accepted' ? 'green' : quote.status === 'rejected' ? 'red' : 'yellow'} size="sm">{quote.status}</Badge>
+                  <div key={quote.id} className="p-3 rounded-xl bg-bg-section-alt border border-border-default/60">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-text-primary font-body">{quote.quoteNumber}</span>
+                        <Badge variant={quote.status === 'accepted' ? 'green' : quote.status === 'rejected' ? 'red' : quote.status === 'superseded' ? 'gray' : 'yellow'} size="sm">
+                          {quote.status === 'accepted' ? 'Accepted' : quote.status === 'rejected' ? 'Rejected' : quote.status === 'superseded' ? 'Superseded' : quote.status === 'sent' ? 'Sent' : 'Draft'}
+                        </Badge>
+                      </div>
+                      <span className="text-sm font-extrabold text-brand-accent">{formatPrice(quote.total)}</span>
                     </div>
-                    <span className="text-sm font-extrabold text-brand-accent">{formatPrice(quote.total)}</span>
+                    {quote.supplier && (
+                      <p className="text-xs text-text-tertiary font-body">
+                        <Store size={11} className="inline mr-1" />
+                        {quote.supplier.businessName}
+                      </p>
+                    )}
+                    {quote.items && quote.items.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {quote.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs text-text-secondary font-body">
+                            <span>{item.name} × {item.quantity} {item.unit}</span>
+                            <span>{formatPrice(item.total)}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between text-xs font-bold text-text-primary pt-1 border-t border-border-default/50 mt-1">
+                          <span>Subtotal</span>
+                          <span>{formatPrice(quote.subtotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs text-text-secondary">
+                          <span>Delivery fee</span>
+                          <span>{formatPrice(quote.deliveryFee)}</span>
+                        </div>
+                      </div>
+                    )}
+                    {quote.customerResponseNote && (
+                      <p className="mt-2 text-xs text-red-600 bg-red-50 rounded-lg p-2 font-body">
+                        Customer response: {quote.customerResponseNote}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
+            </Card>
+          )}
+
+          {/* Negotiations */}
+          {order.negotiations.length > 0 && (
+            <Card padding="lg">
+              <div className="flex items-center gap-2 mb-3">
+                <MessageCircle size={16} className="text-blue-600" />
+                <h3 className="text-sm font-bold text-text-primary font-display">Negotiations</h3>
+              </div>
+              <div className="space-y-3">
+                {order.negotiations.map((n) => (
+                  <div key={n.id} className="flex gap-3 p-3 rounded-xl bg-blue-50/70 border border-blue-100">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                      <MessageSquare size={14} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-bold text-text-primary font-body">
+                          {n.actorType === 'customer' ? 'Customer' : n.user?.fullName || 'Staff'}
+                        </span>
+                        <span className="text-text-tertiary">{new Date(n.createdAt).toLocaleString()}</span>
+                      </div>
+                      <p className="text-sm text-text-primary font-body mt-1">{n.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-text-tertiary mt-3 font-body">
+                To respond, create a new price quote with updated pricing.
+              </p>
             </Card>
           )}
 
@@ -531,6 +606,80 @@ export function SpecialOrderDetailPage() {
               setPriceQuoteModal(false);
             }}>
               {t('specialOrders.detail.submitQuote')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Convert to Order Modal */}
+      <Modal open={convertModal} onClose={() => setConvertModal(false)} title={t('specialOrders.detail.convertToOrder') || 'Convert to Order'}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
+                <Store size={12} className="inline mr-1" />Warehouse ID
+              </label>
+              <input
+                type="number"
+                value={convertWarehouseId}
+                onChange={(e) => setConvertWarehouseId(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                placeholder="Warehouse ID"
+                min="1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
+                <MapPin size={12} className="inline mr-1" />Zone ID
+              </label>
+              <input
+                type="number"
+                value={convertZoneId}
+                onChange={(e) => setConvertZoneId(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                placeholder="Zone ID"
+                min="1"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Delivery fee</label>
+            <input
+              type="number"
+              value={convertDeliveryFee}
+              onChange={(e) => setConvertDeliveryFee(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          {order.priceQuotes.length > 0 && (
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+              <RefreshCw size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-green-700 font-body">
+                <p className="font-bold">Prices will auto-populate from the accepted quote.</p>
+                <p className="mt-1">Subtotal, total, and delivery fee will be taken from the accepted price quote automatically.</p>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setConvertModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={convertOrder.isPending}
+              disabled={!convertWarehouseId || !convertZoneId}
+              onClick={() => {
+                const acceptedQuote = order.priceQuotes.find((q) => q.status === 'accepted');
+                convertOrder.mutate({
+                  id: order.id,
+                  data: {
+                    warehouse_id: parseInt(convertWarehouseId),
+                    zone_id: parseInt(convertZoneId),
+                    delivery_fee: convertDeliveryFee ? parseFloat(convertDeliveryFee) : (acceptedQuote?.deliveryFee || undefined),
+                  },
+                });
+                setConvertModal(false);
+              }}>
+              {t('specialOrders.detail.convertToOrder') || 'Convert'}
             </Button>
           </div>
         </div>

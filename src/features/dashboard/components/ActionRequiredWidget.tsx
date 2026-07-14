@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useToastStore } from '@/stores/toastStore';
-import { AlertTriangle, AlertCircle, Clock, Truck, UserX, Package } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Clock, Truck, UserX, Package, MessageCircle } from 'lucide-react';
 import type { ActionRequiredItem } from '../api/dashboardApi';
 
 const ICON_MAP: Record<ActionRequiredItem['type'], React.ReactNode> = {
   new_special: <AlertCircle size={18} />,
   pending_pricing: <Clock size={18} />,
   pending_customer: <Clock size={18} />,
+  negotiation_reply: <MessageCircle size={18} />,
   overdue_supply: <AlertTriangle size={18} />,
   ready_no_trip: <Package size={18} />,
   trip_no_driver: <UserX size={18} />,
@@ -20,6 +21,7 @@ const VARIANT_MAP: Record<ActionRequiredItem['type'], 'red' | 'yellow' | 'teal' 
   new_special: 'yellow',
   pending_pricing: 'yellow',
   pending_customer: 'teal',
+  negotiation_reply: 'purple',
   overdue_supply: 'red',
   ready_no_trip: 'purple',
   trip_no_driver: 'red',

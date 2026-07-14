@@ -99,7 +99,8 @@ export function useConvertToOrder() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (id: number) => specialOrdersApi.convertToOrder(id),
+    mutationFn: ({ id, data }: { id: number; data: Parameters<typeof specialOrdersApi.convertToOrder>[1] }) =>
+      specialOrdersApi.convertToOrder(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
       addToast('success', 'Converted to order');

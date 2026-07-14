@@ -12,7 +12,7 @@ import { useToastStore } from '@/stores/toastStore';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
   CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
-  CalendarDays, Building2, ArrowRightLeft,
+  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock,
 } from 'lucide-react';
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
@@ -320,6 +320,46 @@ export function OrderDetailPage() {
           </div>
         )}
       </Card>
+
+      {/* Quote History — for orders converted from special orders */}
+      {order.orderType === 'special' && order.priceQuote && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-3">
+            <DollarSign size={16} className="text-amber-600" />
+            <h3 className="text-sm font-bold text-text-primary font-display">Quote History</h3>
+          </div>
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-100 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileClock size={16} className="text-amber-600" />
+                <span className="text-sm font-bold text-text-primary">{order.priceQuote.quoteNumber}</span>
+                <Badge variant={order.priceQuote.status === 'accepted' ? 'green' : order.priceQuote.status === 'rejected' ? 'red' : 'teal'} size="sm">
+                  {order.priceQuote.status}
+                </Badge>
+              </div>
+            </div>
+            {order.specialOrder && (
+              <p className="text-xs text-text-tertiary font-body">
+                Special Order: {order.specialOrder.referenceNumber} ({order.specialOrder.status})
+              </p>
+            )}
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-xs text-text-tertiary font-body">Subtotal</p>
+                <p className="font-bold text-text-primary">{formatPrice(order.priceQuote.subtotal)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-text-tertiary font-body">Delivery Fee</p>
+                <p className="font-bold text-text-primary">{formatPrice(order.priceQuote.deliveryFee)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-text-tertiary font-body">Total</p>
+                <p className="font-extrabold text-brand-accent">{formatPrice(order.priceQuote.total)}</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Timeline */}
       {order.timeline.length > 0 && (

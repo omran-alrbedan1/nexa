@@ -22,6 +22,7 @@ export interface DashboardOrders {
 export interface DashboardActionRequired {
   special_orders_pending_admin: number;
   special_orders_pending_pricing: number;
+  special_orders_negotiating: number;
   orders_pending_customer: number;
   orders_in_supply_delayed: number;
   orders_ready_without_trip: number;
@@ -92,7 +93,7 @@ export interface DriverStatus {
 }
 
 export interface ActionRequiredItem {
-  type: 'new_special' | 'pending_pricing' | 'pending_customer' | 'overdue_supply' | 'ready_no_trip' | 'trip_no_driver' | 'failed_delivery';
+  type: 'new_special' | 'pending_pricing' | 'pending_customer' | 'negotiation_reply' | 'overdue_supply' | 'ready_no_trip' | 'trip_no_driver' | 'failed_delivery';
   label: string;
   count: number;
   link?: string;
@@ -203,6 +204,7 @@ function buildActionRequired(ar: DashboardActionRequired): ActionRequiredItem[] 
     { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
     { type: 'pending_pricing', label: 'Orders Awaiting Pricing', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
     { type: 'pending_customer', label: 'Awaiting Customer Approval', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
+    { type: 'negotiation_reply', label: 'Negotiations — Needs New Quote', count: ar.special_orders_negotiating, link: '/special-orders?status=pending_pricing' },
     { type: 'overdue_supply', label: 'Overdue Supply (Past SLA)', count: ar.orders_in_supply_delayed, link: '/orders?status=pending_supply' },
     { type: 'ready_no_trip', label: 'Ready to Ship — No Trip Assigned', count: ar.orders_ready_without_trip, link: '/orders?status=ready_to_ship' },
     { type: 'trip_no_driver', label: 'Trips Without Driver', count: ar.trips_without_driver, link: '/trips?status=scheduled' },
