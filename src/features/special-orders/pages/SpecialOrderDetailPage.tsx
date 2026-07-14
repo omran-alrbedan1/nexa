@@ -17,7 +17,7 @@ import {
   Building2, Pencil, RefreshCw, BadgePercent, MessageCircle, Store, MapPin, Search,
 } from 'lucide-react';
 
-const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
+const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal' | 'gray'> = {
   pending_admin: 'purple',
   pending_pricing: 'yellow',
   pending_customer: 'teal',
@@ -25,6 +25,7 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal
   approved: 'green',
   rejected: 'red',
   cancelled: 'red',
+  converted: 'gray',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -35,6 +36,7 @@ const STATUS_LABELS: Record<string, string> = {
   approved: 'Approved',
   rejected: 'Rejected',
   cancelled: 'Cancelled',
+  converted: 'Converted',
 };
 
 function cn(...classes: (string | false | undefined | null)[]) {
@@ -217,7 +219,8 @@ export function SpecialOrderDetailPage() {
     { status: 'Created', time: order.createdAt, desc: 'Special order request submitted', done: true },
     ...(order.status !== 'pending_admin' ? [{ status: 'Assigned', time: order.updatedAt, desc: order.assignedSupplier ? `Assigned to ${order.assignedSupplier.businessName}` : 'Staff assigned', done: true }] : []),
     ...(order.priceQuotes.length > 0 ? [{ status: 'Priced', time: order.updatedAt, desc: `${formatPrice(order.priceQuotes[0].total)} quote submitted`, done: true }] : []),
-    ...(order.status === 'approved' ? [{ status: 'Approved', time: order.updatedAt, desc: 'Order approved', done: true }] : []),
+    ...(order.status === 'approved' || order.status === 'converted' ? [{ status: 'Approved', time: order.updatedAt, desc: 'Order approved', done: true }] : []),
+    ...(order.status === 'converted' ? [{ status: 'Converted', time: order.updatedAt, desc: 'Converted to regular order', done: true }] : []),
     ...(order.status === 'rejected' ? [{ status: 'Rejected', time: order.updatedAt, desc: order.rejectionReason || 'Rejected', done: true }] : []),
   ];
 

@@ -11,7 +11,8 @@ export type SpecialOrderStatus =
   | 'priced'
   | 'approved'
   | 'rejected'
-  | 'cancelled';
+  | 'cancelled'
+  | 'converted';
 
 export interface SpecialOrderItem {
   id: number;
@@ -169,6 +170,7 @@ function mapStatus(status: string): SpecialOrderStatus {
     approved: 'approved',
     rejected: 'rejected',
     cancelled: 'cancelled',
+    converted: 'converted',
   };
   return map[status] || 'pending_admin';
 }
