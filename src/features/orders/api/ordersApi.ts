@@ -131,6 +131,8 @@ export interface OrderListParams {
   search?: string;
   page?: number;
   perPage?: number;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 // ── Backend Raw Types ──
@@ -325,6 +327,8 @@ export const ordersApi = {
     if (params?.search) queryParams.set('search', params.search);
     if (params?.perPage) queryParams.set('per_page', String(params.perPage));
     if (params?.page) queryParams.set('page', String(params.page));
+    if (params?.dateFrom) queryParams.set('from_date', params.dateFrom);
+    if (params?.dateTo) queryParams.set('to_date', params.dateTo);
     const qs = queryParams.toString();
     const response = await apiClient.get<ApiResponse<BackendOrdersResponse>>(`/api/v1/admin/orders${qs ? '?' + qs : ''}`);
     const backendData = unwrap(response.data);

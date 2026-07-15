@@ -69,6 +69,7 @@ export function OrdersPage() {
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const updateStatus = useUpdateOrderStatus();
   const formatPrice = useFormatPrice();
 
@@ -77,11 +78,12 @@ export function OrdersPage() {
     status: statusFilter || undefined,
     type: typeFilter || undefined,
     page: currentPage,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
   });
 
   const orders = data?.orders ?? [];
   const pagination = data?.pagination;
-  const [dateTo, setDateTo] = useState('');
 
   const handleSearchChange = (value: string) => {
     setSearch(value);

@@ -71,7 +71,7 @@ export function PaymentsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
+  const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
   if (isError) {
     return (

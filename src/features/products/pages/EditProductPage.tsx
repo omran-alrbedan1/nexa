@@ -9,6 +9,7 @@ import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
+import { extractErrorMessage } from '@/lib/apiHelpers';
 
 export function EditProductPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -73,8 +74,8 @@ export function EditProductPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price) {
-      addToast('error', 'Product name and price are required');
+    if (!form.name || !form.nameAr || !form.price) {
+      addToast('error', 'Product name (EN & AR) and price are required');
       return;
     }
     setSaving(true);
@@ -91,8 +92,8 @@ export function EditProductPage() {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       addToast('success', 'Product updated successfully');
       navigate(ROUTES.PRODUCT_DETAIL(id));
-    } catch {
-      addToast('error', 'Failed to update product');
+    } catch (error) {
+      addToast('error', extractErrorMessage(error));
     } finally {
       setSaving(false);
     }

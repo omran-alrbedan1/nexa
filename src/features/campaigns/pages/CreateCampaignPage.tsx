@@ -8,6 +8,7 @@ import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi } from '../api/campaignsApi';
 import { categoriesApi, type Category } from '@/features/categories/api/categoriesApi';
 import { ArrowLeft, Megaphone, Save, Plus, X, Package, Tag, Clock } from 'lucide-react';
+import { extractErrorMessage } from '@/lib/apiHelpers';
 
 interface CampaignFormItem {
   key: number;
@@ -103,8 +104,8 @@ export function CreateCampaignPage() {
       addToast('success', 'Campaign created successfully');
       navigate(ROUTES.CAMPAIGNS);
     },
-    onError: () => {
-      addToast('error', 'Failed to create campaign');
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 
