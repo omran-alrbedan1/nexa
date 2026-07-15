@@ -167,6 +167,12 @@ const AuditLogsPage = lazy(() =>
 const PrivacyPolicyPage = lazy(() =>
   import('@/features/settings/pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage }))
 );
+const FaqSettingsPage = lazy(() =>
+  import('@/features/settings/pages/FaqSettingsPage').then((m) => ({ default: m.FaqSettingsPage }))
+);
+const AboutNexaPage = lazy(() =>
+  import('@/features/settings/pages/AboutNexaPage').then((m) => ({ default: m.AboutNexaPage }))
+);
 const SettingsNavigationPage = lazy(() =>
   import('@/features/settings/pages/SettingsNavigationPage').then((m) => ({ default: m.SettingsNavigationPage }))
 );
@@ -308,6 +314,8 @@ export function App() {
                 <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
                 <Route path={ROUTES.SETTINGS_PRIVACY_POLICY} element={<PrivacyPolicyPage />} />
                 <Route path={ROUTES.SETTINGS_NAVIGATION} element={<SettingsNavigationPage />} />
+                <Route path={ROUTES.SETTINGS_FAQ} element={<FaqSettingsPage />} />
+                <Route path={ROUTES.SETTINGS_ABOUT_NEXA} element={<AboutNexaPage />} />
               </Route>
 
               {/* Reports — requires reports.view */}

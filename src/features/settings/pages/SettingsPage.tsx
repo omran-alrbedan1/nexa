@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { useSettings, useBulkUpdateSettings } from '../hooks/useSettings';
 import { useCurrencyStore, type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
 import { useToastStore } from '@/stores/toastStore';
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, ClipboardList, Save, DollarSign, FileText, Menu } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, ClipboardList, Save, DollarSign, FileText, Menu, HelpCircle, Info } from 'lucide-react';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -16,6 +16,8 @@ const SETTINGS_TABS = [
   { key: 'banners', label: 'settings.tabs.banners', icon: Image, route: ROUTES.SETTINGS_BANNERS },
   { key: 'notifications', label: 'settings.tabs.notifications', icon: Bell, route: ROUTES.SETTINGS_NOTIFICATIONS },
   { key: 'audit', label: 'settings.tabs.audit', icon: ClipboardList, route: ROUTES.SETTINGS_AUDIT },
+  { key: 'faq', label: 'settings.tabs.faq', icon: HelpCircle, route: ROUTES.SETTINGS_FAQ },
+  { key: 'about-nexa', label: 'settings.tabs.aboutNexa', icon: Info, route: ROUTES.SETTINGS_ABOUT_NEXA },
   { key: 'privacy-policy', label: 'settings.tabs.privacyPolicy', icon: FileText, route: ROUTES.SETTINGS_PRIVACY_POLICY },
   { key: 'navigation', label: 'settings.tabs.navigation', icon: Menu, route: ROUTES.SETTINGS_NAVIGATION },
 ];

@@ -92,4 +92,6 @@ export const ROUTES = {
   SETTINGS_AUDIT: '/settings/audit',
   SETTINGS_PRIVACY_POLICY: '/settings/privacy-policy',
   SETTINGS_NAVIGATION: '/settings/navigation',
+  SETTINGS_FAQ: '/settings/faq',
+  SETTINGS_ABOUT_NEXA: '/settings/about-nexa',
 } as const;
