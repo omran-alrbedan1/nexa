@@ -1136,7 +1136,18 @@
       "updated": "Обновлена",
       "activate": "Активировать",
       "endCampaign": "Завершить кампанию",
-      "cancel": "Отменить"
+      "cancel": "Отменить",
+      "stockType": "Тип запасов",
+      "limited": "Ограничено",
+      "unlimited": "Без ограничений",
+      "sold": "Продано",
+      "totalStock": "Всего запасов",
+      "stockProgress": "Прогресс запасов",
+      "remaining": "Осталось",
+      "reserved": "Зарезервировано",
+      "orderingCloses": "Закрытие заказов",
+      "deliveryLeadTime": "Срок доставки",
+      "subtitle": "Подзаголовок"
     }
   },
   "notifications": {

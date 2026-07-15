@@ -1136,7 +1136,18 @@
       "updated": "עודכן",
       "activate": "הפעל",
       "endCampaign": "סיים קמפיין",
-      "cancel": "בטל"
+      "cancel": "בטל",
+      "stockType": "סוג מלאי",
+      "limited": "מוגבל",
+      "unlimited": "ללא הגבלה",
+      "sold": "נמכר",
+      "totalStock": "סה\"כ מלאי",
+      "stockProgress": "התקדמות המלאי",
+      "remaining": "נותר",
+      "reserved": "שמור",
+      "orderingCloses": "סגירת הזמנות",
+      "deliveryLeadTime": "זמן אספקה",
+      "subtitle": "כותרת משנה"
     }
   },
   "notifications": {

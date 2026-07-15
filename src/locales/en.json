@@ -1145,7 +1145,18 @@
       "updated": "Updated",
       "activate": "Activate",
       "endCampaign": "End Campaign",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "stockType": "Stock Type",
+      "limited": "Limited",
+      "unlimited": "Unlimited",
+      "sold": "Sold",
+      "totalStock": "Total Stock",
+      "stockProgress": "Stock Progress",
+      "remaining": "Remaining",
+      "reserved": "Reserved",
+      "orderingCloses": "Ordering Closes",
+      "deliveryLeadTime": "Delivery Lead Time",
+      "subtitle": "Subtitle"
     }
   },
   "notifications": {

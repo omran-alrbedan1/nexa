@@ -36,11 +36,14 @@ export function CampaignDetailPage() {
     retry: 1,
   });
 
+  const stockUnit = campaign?.stockUnit || '';
   const STAT_CONFIG = [
     { key: 'totalOrders', label: t('campaigns.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const, suffix: '' },
     { key: 'isStockLimited', label: t('campaigns.detail.stockType'), icon: Package, variant: 'success' as const, suffix: '', formatStockLimited: true },
-    { key: 'stockSoldQuantity', label: t('campaigns.detail.sold'), icon: TrendingUp, variant: 'coral' as const, suffix: ` ${campaign?.stockUnit || ''}` },
-    { key: 'stockTotalQuantity', label: t('campaigns.detail.totalStock'), icon: Package, variant: 'warning' as const, suffix: ` ${campaign?.stockUnit || ''}` },
+    ...(campaign?.isStockLimited ? [
+      { key: 'stockSoldQuantity' as const, label: t('campaigns.detail.sold'), icon: TrendingUp, variant: 'coral' as const, suffix: ` ${stockUnit}` },
+      { key: 'stockTotalQuantity' as const, label: t('campaigns.detail.totalStock'), icon: Package, variant: 'warning' as const, suffix: ` ${stockUnit}` },
+    ] : []),
   ];
 
   if (isError) {
@@ -84,6 +87,8 @@ export function CampaignDetailPage() {
 
   const formatValue = (key: string) => {
     if (key === 'isStockLimited') return campaign.isStockLimited ? t('campaigns.detail.limited') : t('campaigns.detail.unlimited');
+    if (key === 'stockTotalQuantity') return campaign.stockTotalQuantity?.toLocaleString() ?? '—';
+    if (key === 'stockSoldQuantity') return campaign.stockSoldQuantity.toLocaleString();
     const val = campaign[key as keyof Campaign];
     if (typeof val === 'number') return val.toLocaleString();
     return val ?? '—';
@@ -104,14 +109,19 @@ export function CampaignDetailPage() {
             <div className="w-14 h-14 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm">
               <Megaphone size={28} className="text-brand-accent" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{campaign.name}</h1>
-                <span className="text-sm text-text-tertiary">{campaign.nameAr}</span>
-                <Badge variant={STATUS_BADGE[campaign.status]} size="sm">{campaign.status}</Badge>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{campaign.name}</h1>
+                  <span className="text-sm text-text-tertiary">{campaign.nameAr}</span>
+                  <Badge variant={STATUS_BADGE[campaign.status]} size="sm">{campaign.status}</Badge>
+                </div>
+                {(campaign.subtitleAr || campaign.subtitleEn) && (
+                  <p className="text-sm text-text-secondary font-body mt-1 italic">
+                    {campaign.subtitleEn || campaign.subtitleAr}
+                  </p>
+                )}
+                <p className="text-sm text-text-secondary font-body mt-1 line-clamp-2">{campaign.description}</p>
               </div>
-              <p className="text-sm text-text-secondary font-body mt-1 line-clamp-2">{campaign.description}</p>
-            </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {getActions(campaign.status).map((action) => (
                 <Button

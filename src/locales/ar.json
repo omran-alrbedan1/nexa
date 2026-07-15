@@ -1145,7 +1145,18 @@
       "updated": "محدثة",
       "activate": "تفعيل",
       "endCampaign": "إنهاء الحملة",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "stockType": "نوع المخزون",
+      "limited": "محدود",
+      "unlimited": "غير محدود",
+      "sold": "تم البيع",
+      "totalStock": "إجمالي المخزون",
+      "stockProgress": "تقدم المخزون",
+      "remaining": "المتبقي",
+      "reserved": "محجوز",
+      "orderingCloses": "إغلاق الطلبات",
+      "deliveryLeadTime": "مدة التوصيل",
+      "subtitle": "العنوان الفرعي"
     }
   },
   "notifications": {
