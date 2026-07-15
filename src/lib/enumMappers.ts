@@ -130,7 +130,7 @@ export const CAMPAIGN_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
   scheduled: 'scheduled',
   open: 'active',
   closed: 'ended',
-  fulfilled: 'ended',
+  fulfilled: 'fulfilled',
   archived: 'ended',
 };
 

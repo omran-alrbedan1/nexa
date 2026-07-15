@@ -9,13 +9,12 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
-import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import { Megaphone, PlayCircle, CalendarClock, FileEdit, ShoppingCart, TrendingUp, Filter, Plus, CalendarRange } from 'lucide-react';
 import type { CampaignStatus } from '../api/campaignsApi';
 
 const STATUS_BADGE: Record<CampaignStatus, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
-  active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', cancelled: 'red',
+  active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', fulfilled: 'green', cancelled: 'red',
 };
 
 
@@ -25,7 +24,6 @@ export function CampaignsPage() {
   const { t } = useTranslation();
   const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
-  const formatPrice = useFormatPrice();
 
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
 
@@ -134,6 +132,7 @@ export function CampaignsPage() {
               <option value="scheduled">{t('campaigns.list.scheduled')}</option>
               <option value="draft">{t('campaigns.list.draft')}</option>
               <option value="ended">{t('campaigns.list.ended')}</option>
+              <option value="fulfilled">{t('campaigns.list.fulfilled')}</option>
               <option value="cancelled">{t('campaigns.list.cancelled')}</option>
             </select>
           </div>
@@ -164,18 +163,11 @@ export function CampaignsPage() {
               >
                 <p className="text-xs text-text-secondary font-body line-clamp-1">{camp.description}</p>
                 <div className="flex items-center gap-4 mt-1.5 text-xs text-text-tertiary font-body flex-wrap">
-                  <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span><span>{t('campaigns.list.products', { count: camp.products.length })}</span>
+                  <span className="flex items-center gap-1"><CalendarRange size={12} />{new Date(camp.startDate).toLocaleDateString()} → {new Date(camp.endDate).toLocaleDateString()}</span>
                   <span>{t('campaigns.list.orders', { count: camp.totalOrders })}</span>
-                  <span className="font-bold text-brand-primary">{formatPrice(camp.totalRevenue)}</span>
-                  <span>{t('campaigns.list.budget', { spent: camp.spentAmount.toLocaleString(), total: camp.budget.toLocaleString() })}</span>
-                </div>
-                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                  {camp.products.map((p) => (
-                    <div key={p.id} className="text-xs bg-bg-section-alt px-2.5 py-1 rounded-lg border border-border-default font-body truncate max-w-full">
-                      {p.productName} — <span className="font-bold text-brand-accent">{formatPrice(p.campaignPrice)}</span>
-                      <span className="text-text-tertiary line-through ml-1">{formatPrice(p.regularPrice)}</span>
-                    </div>
-                  ))}
+                  {camp.isStockLimited && camp.stockTotalQuantity !== null && (
+                    <span>{camp.stockSoldQuantity}/{camp.stockTotalQuantity} {camp.stockUnit}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5">
                   {camp.targetRegions.map((r) => <Badge key={r} variant="purple" size="sm">{r}</Badge>)}

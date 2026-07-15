@@ -7,15 +7,14 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, Megaphone, CalendarRange, ShoppingCart, TrendingUp,
-  Wallet, MapPin, Tag, Clock, Package, PenLine,
+  MapPin, Tag, Clock, Package, PenLine,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
-  active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', cancelled: 'red',
+  active: 'green', scheduled: 'teal', draft: 'yellow', ended: 'purple', fulfilled: 'green', cancelled: 'red',
 };
 
 function cn(...classes: (string | false | undefined | null)[]) {
@@ -27,7 +26,6 @@ export function CampaignDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(campaignId || '0', 10);
   const { t } = useTranslation();
-  const formatPrice = useFormatPrice();
   const campaignAction = useCampaignAction();
 
   const { data: campaign, isLoading, isError, error, refetch } = useQuery<Campaign>({
@@ -40,9 +38,9 @@ export function CampaignDetailPage() {
 
   const STAT_CONFIG = [
     { key: 'totalOrders', label: t('campaigns.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const, suffix: '' },
-    { key: 'totalRevenue', label: t('campaigns.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '', prefix: '' },
-    { key: 'budget', label: t('campaigns.detail.budget'), icon: Wallet, variant: 'coral' as const, suffix: '' },
-    { key: 'spentAmount', label: t('campaigns.detail.spent'), icon: Wallet, variant: 'warning' as const, suffix: '' },
+    { key: 'isStockLimited', label: t('campaigns.detail.stockType'), icon: Package, variant: 'success' as const, suffix: '', formatStockLimited: true },
+    { key: 'stockSoldQuantity', label: t('campaigns.detail.sold'), icon: TrendingUp, variant: 'coral' as const, suffix: ` ${campaign?.stockUnit || ''}` },
+    { key: 'stockTotalQuantity', label: t('campaigns.detail.totalStock'), icon: Package, variant: 'warning' as const, suffix: ` ${campaign?.stockUnit || ''}` },
   ];
 
   if (isError) {
@@ -80,12 +78,14 @@ export function CampaignDetailPage() {
     return actions;
   };
 
+  const catName = (item: { categoryId: number }) => {
+    return item.categoryId ? `Cat #${item.categoryId}` : '—';
+  };
+
   const formatValue = (key: string) => {
+    if (key === 'isStockLimited') return campaign.isStockLimited ? t('campaigns.detail.limited') : t('campaigns.detail.unlimited');
     const val = campaign[key as keyof Campaign];
-    if (typeof val === 'number') {
-      if (['totalRevenue', 'budget', 'spentAmount'].includes(key)) return val.toLocaleString();
-      return val.toLocaleString();
-    }
+    if (typeof val === 'number') return val.toLocaleString();
     return val ?? '—';
   };
 
@@ -144,15 +144,18 @@ export function CampaignDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
-          const val = campaign[s.key as keyof Campaign];
+          const val = s.key === 'isStockLimited' ? campaign.isStockLimited : campaign[s.key as keyof Campaign];
           return (
             <Card key={s.key} padding="md" hover>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{s.label}</p>
                   <p className="text-2xl font-extrabold text-text-primary font-display mt-1">
-                    {typeof val === 'number' ? formatValue(s.key) : val ?? '—'}
-                    {s.suffix}
+                    {s.formatStockLimited
+                      ? (campaign.isStockLimited ? t('campaigns.detail.limited') : t('campaigns.detail.unlimited'))
+                      : formatValue(s.key)
+                    }
+                    {!s.formatStockLimited && s.suffix}
                   </p>
                 </div>
                 <div className={cn(
@@ -169,6 +172,34 @@ export function CampaignDetailPage() {
           );
         })}
       </div>
+
+      {/* Stock Progress Bar */}
+      {campaign.isStockLimited && campaign.stockTotalQuantity && campaign.stockTotalQuantity > 0 && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-3">
+            <Package size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.stockProgress')}</h3>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-text-secondary font-body">{t('campaigns.detail.remaining')}</span>
+              <span className="font-bold text-text-primary font-body">
+                {(campaign.stockTotalQuantity - campaign.stockSoldQuantity - (campaign.stockReservedQuantity || 0)).toLocaleString()} / {campaign.stockTotalQuantity.toLocaleString()} {campaign.stockUnit}
+              </span>
+            </div>
+            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-brand-accent to-brand-primary transition-all"
+                style={{ width: `${Math.min(100, ((campaign.stockSoldQuantity + (campaign.stockReservedQuantity || 0)) / campaign.stockTotalQuantity) * 100)}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs text-text-tertiary">
+              <span>{t('campaigns.detail.sold')}: {campaign.stockSoldQuantity.toLocaleString()}</span>
+              <span>{t('campaigns.detail.reserved')}: {(campaign.stockReservedQuantity || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Two-column info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -187,6 +218,12 @@ export function CampaignDetailPage() {
               <span className="text-text-secondary flex items-center gap-2"><CalendarRange size={12} /> {t('campaigns.detail.endDate')}</span>
               <span className="font-bold text-text-primary">{new Date(campaign.endDate).toLocaleDateString()}</span>
             </div>
+            {campaign.orderingClosesAt && (
+              <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
+                <span className="text-text-secondary flex items-center gap-2"><Clock size={12} /> {t('campaigns.detail.orderingCloses')}</span>
+                <span className="font-bold text-text-primary">{new Date(campaign.orderingClosesAt).toLocaleDateString()}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
               <span className="text-text-secondary flex items-center gap-2"><Clock size={12} /> {t('campaigns.detail.duration')}</span>
               <span className="font-bold text-text-primary">
@@ -197,12 +234,14 @@ export function CampaignDetailPage() {
               <span className="text-text-secondary flex items-center gap-2"><ShoppingCart size={12} /> {t('campaigns.detail.orders')}</span>
               <span className="font-bold text-text-primary">{campaign.totalOrders}</span>
             </div>
-            <div className="flex items-center justify-between py-2 text-sm font-body">
-              <span className="text-text-secondary flex items-center gap-2"><Wallet size={12} /> {t('campaigns.detail.budgetUtilization')}</span>
-              <span className="font-bold text-text-primary">
-                {campaign.budget > 0 ? `${Math.round((campaign.spentAmount / campaign.budget) * 100)}%` : '—'}
-              </span>
-            </div>
+            {campaign.deliveryLeadTimeMinDays !== null && (
+              <div className="flex items-center justify-between py-2 text-sm font-body">
+                <span className="text-text-secondary flex items-center gap-2"><Package size={12} /> {t('campaigns.detail.deliveryLeadTime')}</span>
+                <span className="font-bold text-text-primary">
+                  {campaign.deliveryLeadTimeMinDays}–{campaign.deliveryLeadTimeMaxDays} {t('campaigns.detail.days')}
+                </span>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -221,49 +260,84 @@ export function CampaignDetailPage() {
           )}
 
           <div className="mt-6">
+            {campaign.subtitleAr && (
+              <div className="mb-3">
+                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('campaigns.detail.subtitle')} (AR)</h4>
+                <p className="text-sm text-text-primary font-body" dir="rtl">{campaign.subtitleAr}</p>
+              </div>
+            )}
+            {campaign.subtitleEn && (
+              <div className="mb-3">
+                <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1">{t('campaigns.detail.subtitle')} (EN)</h4>
+                <p className="text-sm text-text-primary font-body">{campaign.subtitleEn}</p>
+              </div>
+            )}
             <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-3">{t('campaigns.detail.description')}</h4>
             <p className="text-sm text-text-primary font-body">{campaign.description || t('campaigns.detail.noDescription')}</p>
-            {campaign.descriptionAr && (
-              <p className="text-sm text-text-secondary font-body mt-2 text-right" dir="rtl">{campaign.descriptionAr}</p>
+            {campaign.descriptionEn && (
+              <p className="text-sm text-text-secondary font-body mt-2">{campaign.descriptionEn}</p>
             )}
           </div>
         </Card>
       </div>
 
-      {/* Campaign Products */}
+      {/* Campaign Items */}
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Package size={16} className="text-brand-accent" />
           <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.campaignProducts')}</h3>
-          <span className="text-xs text-text-tertiary">{t('campaigns.detail.itemsCount', { count: campaign.products.length })}</span>
+          <span className="text-xs text-text-tertiary">{t('campaigns.detail.itemsCount', { count: campaign.items.length })}</span>
         </div>
-        {campaign.products.length === 0 ? (
+        {campaign.items.length === 0 ? (
           <p className="text-sm text-text-secondary font-body">{t('campaigns.detail.noProducts')}</p>
         ) : (
-          <div className="space-y-2">
-            {campaign.products.map((p) => (
-              <div key={p.id} className="flex items-center justify-between py-3 px-4 rounded-xl border border-border-default/60">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Package size={14} className="text-text-tertiary flex-shrink-0" />
-                    <span className="text-sm font-bold text-text-primary font-body">{p.productName}</span>
-                    <span className="text-xs text-text-tertiary">{p.productNameAr}</span>
-                  </div>
-                  <p className="text-xs text-text-secondary font-body mt-1 ml-6">
-                    {p.unit} · Qty: {p.quantity} · Regular: <span className="line-through text-text-tertiary">{formatPrice(p.regularPrice)}</span>
-                  </p>
-                </div>
-                <div className="text-right flex-shrink-0 ml-4">
-                  <p className="text-lg font-extrabold text-brand-accent font-display">{formatPrice(p.campaignPrice)}</p>
-                  <p className="text-xs text-green-600 font-bold">
-                    {t('campaigns.detail.percentOff', { percent: Math.round((1 - p.campaignPrice / p.regularPrice) * 100) })}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-default/60 text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  <th className="text-left py-2 pr-4 font-body">Name (AR)</th>
+                  <th className="text-left py-2 pr-4 font-body">Name (EN)</th>
+                  <th className="text-left py-2 pr-4 font-body">Category</th>
+                  <th className="text-left py-2 pr-4 font-body">Unit</th>
+                  <th className="text-right py-2 pr-4 font-body">Price</th>
+                  <th className="text-right py-2 font-body">Stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaign.items.map((item) => (
+                  <tr key={item.id} className="border-b border-border-default/30">
+                    <td className="py-3 pr-4 font-bold text-text-primary font-body">{item.nameAr}</td>
+                    <td className="py-3 pr-4 text-text-secondary font-body">{item.nameEn || '—'}</td>
+                    <td className="py-3 pr-4 text-text-secondary font-body">{catName(item)}</td>
+                    <td className="py-3 pr-4 text-text-secondary font-body">{item.unit}</td>
+                    <td className="py-3 pr-4 text-right font-bold text-text-primary font-body">{item.price.toLocaleString()}</td>
+                    <td className="py-3 text-right text-text-secondary font-body">{item.stockQuantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </Card>
+
+      {/* Assigned Supplier */}
+      {campaign.assignedSupplier && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Package size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">Assigned Supplier</h3>
+          </div>
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-border-default/60">
+            <div className="w-10 h-10 rounded-full bg-brand-accent-light flex items-center justify-center">
+              <Package size={18} className="text-brand-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-text-primary font-body">{campaign.assignedSupplier.businessName}</p>
+              <p className="text-xs text-text-tertiary font-body">ID: {campaign.assignedSupplier.id}</p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Timeline / History */}
       <Card padding="lg">

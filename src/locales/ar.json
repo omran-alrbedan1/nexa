@@ -1104,6 +1104,7 @@
       "scheduled": "مجدول",
       "draft": "مسودة",
       "ended": "منتهية",
+      "fulfilled": "مكتملة",
       "cancelled": "ملغية",
       "noCampaigns": "لا توجد حملات",
       "noFilterMatch": "لا توجد حملات تطابق الفلتر",

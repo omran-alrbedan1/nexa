@@ -1,14 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi, type Campaign } from '../api/campaignsApi';
-import { ArrowLeft, Megaphone, Save, Image as ImageIcon } from 'lucide-react';
+import { categoriesApi, type Category } from '@/features/categories/api/categoriesApi';
+import { ArrowLeft, Megaphone, Save, Image as ImageIcon, Plus, X, Package } from 'lucide-react';
 import { extractErrorMessage } from '@/lib/apiHelpers';
+
+interface EditCampaignFormItem {
+  key: number;
+  nameAr: string;
+  nameEn: string;
+  description: string;
+  categoryId: string;
+  unit: string;
+  price: string;
+  stockQuantity: string;
+}
 
 export function EditCampaignPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -18,13 +30,32 @@ export function EditCampaignPage() {
   const id = parseInt(campaignId || '0', 10);
 
   const [form, setForm] = useState({
-    name: '', nameAr: '', description: '', targetRegion: '1',
-    startDate: '', endDate: '', status: 'draft',
+    name: '', nameAr: '', subtitleAr: '', subtitleEn: '',
+    description: '', descriptionEn: '', targetRegion: '1',
+    startDate: '', endDate: '', orderingClosesAt: '',
+    deliveryLeadTimeMinDays: '', deliveryLeadTimeMaxDays: '',
+    isStockLimited: false, stockTotalQuantity: '', stockReservedQuantity: '',
+    stockSoldQuantity: '0', stockLowStockThreshold: '', stockUnit: 'item',
+    status: 'draft',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [items, setItems] = useState<EditCampaignFormItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const nextKey = useRef(0);
+
+  const { data: catData } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => categoriesApi.list(),
+  });
+  const categories: Category[] = catData?.categories ?? [];
+
+  const { data: zones } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => campaignsApi.getZones(),
+  });
+
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -38,13 +69,36 @@ export function EditCampaignPage() {
         setForm({
           name: c.name,
           nameAr: c.nameAr,
+          subtitleAr: c.subtitleAr || '',
+          subtitleEn: c.subtitleEn || '',
           description: c.description,
-          targetRegion: '1',
+          descriptionEn: c.descriptionEn || '',
+          targetRegion: String(c.zoneId),
           startDate: c.startDate.split('T')[0],
           endDate: c.endDate.split('T')[0],
+          orderingClosesAt: c.orderingClosesAt ? c.orderingClosesAt.replace('Z', '').slice(0, 16) : '',
+          deliveryLeadTimeMinDays: c.deliveryLeadTimeMinDays !== null ? String(c.deliveryLeadTimeMinDays) : '',
+          deliveryLeadTimeMaxDays: c.deliveryLeadTimeMaxDays !== null ? String(c.deliveryLeadTimeMaxDays) : '',
+          isStockLimited: c.isStockLimited,
+          stockTotalQuantity: c.stockTotalQuantity !== null ? String(c.stockTotalQuantity) : '',
+          stockReservedQuantity: c.stockReservedQuantity !== null ? String(c.stockReservedQuantity) : '',
+          stockSoldQuantity: String(c.stockSoldQuantity),
+          stockLowStockThreshold: c.stockLowStockThreshold !== null ? String(c.stockLowStockThreshold) : '',
+          stockUnit: c.stockUnit || 'item',
           status: c.status,
         });
         setImagePreview(c.bannerUrl);
+        const mappedItems = (c.items || []).map((ci, idx) => ({
+          key: ++nextKey.current,
+          nameAr: ci.nameAr,
+          nameEn: ci.nameEn ?? '',
+          description: ci.description ?? '',
+          categoryId: String(ci.categoryId),
+          unit: ci.unit,
+          price: String(ci.price),
+          stockQuantity: String(ci.stockQuantity),
+        }));
+        setItems(mappedItems);
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : 'Failed to load campaign');
@@ -66,6 +120,22 @@ export function EditCampaignPage() {
     }
   };
 
+  const addItem = () => {
+    const key = ++nextKey.current;
+    setItems((prev) => [...prev, {
+      key, nameAr: '', nameEn: '', description: '',
+      categoryId: '', unit: '', price: '', stockQuantity: '',
+    }]);
+  };
+
+  const removeItem = (key: number) => {
+    setItems((prev) => prev.filter((i) => i.key !== key));
+  };
+
+  const updateItem = (key: number, field: string, value: string) => {
+    setItems((prev) => prev.map((i) => i.key === key ? { ...i, [field]: value } : i));
+  };
+
   const handleSubmit = async () => {
     if (!form.name || !form.startDate || !form.endDate) {
       addToast('error', 'Campaign name, start date, and end date are required');
@@ -76,12 +146,33 @@ export function EditCampaignPage() {
       await campaignsApi.updateCampaign(id, {
         name: form.name,
         nameAr: form.nameAr || undefined,
+        subtitleAr: form.subtitleAr || undefined,
+        subtitleEn: form.subtitleEn || undefined,
         description: form.description || undefined,
+        descriptionEn: form.descriptionEn || undefined,
         zoneId: parseInt(form.targetRegion, 10),
         startsAt: form.startDate,
         endsAt: form.endDate,
+        orderingClosesAt: form.orderingClosesAt || undefined,
+        deliveryLeadTimeMinDays: form.deliveryLeadTimeMinDays ? parseInt(form.deliveryLeadTimeMinDays, 10) : undefined,
+        deliveryLeadTimeMaxDays: form.deliveryLeadTimeMaxDays ? parseInt(form.deliveryLeadTimeMaxDays, 10) : undefined,
+        isStockLimited: form.isStockLimited,
+        stockTotalQuantity: form.isStockLimited && form.stockTotalQuantity ? parseInt(form.stockTotalQuantity, 10) : undefined,
+        stockReservedQuantity: form.isStockLimited && form.stockReservedQuantity ? parseInt(form.stockReservedQuantity, 10) : undefined,
+        stockSoldQuantity: form.isStockLimited && form.stockSoldQuantity ? parseInt(form.stockSoldQuantity, 10) : 0,
+        stockLowStockThreshold: form.isStockLimited && form.stockLowStockThreshold ? parseInt(form.stockLowStockThreshold, 10) : undefined,
+        stockUnit: form.stockUnit || 'item',
         status: form.status,
         image: imageFile || undefined,
+        items: items.map((item) => ({
+          nameAr: item.nameAr,
+          nameEn: item.nameEn || undefined,
+          description: item.description || undefined,
+          categoryId: parseInt(item.categoryId, 10),
+          unit: item.unit,
+          price: parseFloat(item.price),
+          stockQuantity: item.stockQuantity ? parseFloat(item.stockQuantity) : undefined,
+        })),
       });
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
       addToast('success', 'Campaign updated successfully');
@@ -153,24 +244,34 @@ export function EditCampaignPage() {
               <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="مهرجان الفواكه الصيفية" dir="rtl" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Description</label>
-              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="Campaign description..." />
+              <label className="block text-xs font-bold text-text-secondary mb-1">Subtitle (AR)</label>
+              <input value={form.subtitleAr} onChange={(e) => handleChange('subtitleAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="عروض الصيف" dir="rtl" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Target Region</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Subtitle (EN)</label>
+              <input value={form.subtitleEn} onChange={(e) => handleChange('subtitleEn', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="Summer deals" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Description</label>
+              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={2} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="Campaign description..." />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Description (EN)</label>
+              <textarea value={form.descriptionEn} onChange={(e) => handleChange('descriptionEn', e.target.value)} rows={2} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="English description..." />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Target Zone</label>
               <select value={form.targetRegion} onChange={(e) => handleChange('targetRegion', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="1">Riyadh North</option>
-                <option value="2">Riyadh South</option>
-                <option value="3">Jeddah Central</option>
-                <option value="4">Dammam East</option>
-                <option value="5">Mecca North</option>
+                {(zones || []).map((z) => (
+                  <option key={z.id} value={z.id}>{z.name_en || z.name_ar}</option>
+                ))}
               </select>
             </div>
           </div>
         </Card>
 
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-4">Schedule</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-4">Schedule &amp; Delivery</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">Start Date *</label>
@@ -179,6 +280,20 @@ export function EditCampaignPage() {
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">End Date *</label>
               <input type="date" value={form.endDate} onChange={(e) => handleChange('endDate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1">Ordering Closes At</label>
+              <input type="datetime-local" value={form.orderingClosesAt} onChange={(e) => handleChange('orderingClosesAt', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Lead Time (Min Days)</label>
+                <input type="number" min="0" value={form.deliveryLeadTimeMinDays} onChange={(e) => handleChange('deliveryLeadTimeMinDays', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="1" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Lead Time (Max Days)</label>
+                <input type="number" min="0" value={form.deliveryLeadTimeMaxDays} onChange={(e) => handleChange('deliveryLeadTimeMaxDays', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="3" />
+              </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">Status</label>
@@ -215,6 +330,105 @@ export function EditCampaignPage() {
             </Button>
           )}
         </div>
+      </Card>
+
+      {/* Stock Management */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-4">
+          <Package size={16} className="text-brand-accent" />
+          <h3 className="text-sm font-bold text-text-primary font-display">Stock Management</h3>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={form.isStockLimited} onChange={(e) => setForm((prev) => ({ ...prev, isStockLimited: e.target.checked }))} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
+              <span className="text-sm font-body text-text-primary">Limit stock</span>
+            </label>
+          </div>
+          {form.isStockLimited && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Total Quantity *</label>
+                <input type="number" min="0" value={form.stockTotalQuantity} onChange={(e) => handleChange('stockTotalQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="1000" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Reserved</label>
+                <input type="number" min="0" value={form.stockReservedQuantity} onChange={(e) => handleChange('stockReservedQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Already Sold</label>
+                <input type="number" min="0" value={form.stockSoldQuantity} onChange={(e) => handleChange('stockSoldQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Low Stock Threshold</label>
+                <input type="number" min="0" value={form.stockLowStockThreshold} onChange={(e) => handleChange('stockLowStockThreshold', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="100" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Stock Unit</label>
+                <input value={form.stockUnit} onChange={(e) => handleChange('stockUnit', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="kg, box, item" />
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Campaign Items */}
+      <Card padding="lg">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-text-primary font-display">Campaign Items</h3>
+          <Button variant="secondary" size="sm" leftIcon={<Plus size={14} />} onClick={addItem}>Add Item</Button>
+        </div>
+        {items.length === 0 ? (
+          <p className="text-sm text-text-tertiary font-body">No items added yet. Click "Add Item" to define items suppliers can bid on.</p>
+        ) : (
+          <div className="space-y-4">
+            {items.map((item) => (
+              <div key={item.key} className="p-4 rounded-xl border border-border-default/60 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Item #{items.indexOf(item) + 1}</span>
+                  <button onClick={() => removeItem(item.key)} className="p-1 rounded-lg hover:bg-red-50 text-text-tertiary hover:text-red-500 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Name (AR) *</label>
+                    <input value={item.nameAr} onChange={(e) => updateItem(item.key, 'nameAr', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="اسم المنتج" dir="rtl" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Name (EN)</label>
+                    <input value={item.nameEn} onChange={(e) => updateItem(item.key, 'nameEn', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="Product name" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Category *</label>
+                    <select value={item.categoryId} onChange={(e) => updateItem(item.key, 'categoryId', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary">
+                      <option value="">Select category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.nameEn || cat.nameAr}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Unit *</label>
+                    <input value={item.unit} onChange={(e) => updateItem(item.key, 'unit', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="kg, box, etc." />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Price *</label>
+                    <input type="number" step="0.01" min="0" value={item.price} onChange={(e) => updateItem(item.key, 'price', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="0.00" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Stock Qty</label>
+                    <input type="number" min="0" value={item.stockQuantity} onChange={(e) => updateItem(item.key, 'stockQuantity', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="0" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-text-secondary mb-1">Description</label>
+                    <input value={item.description} onChange={(e) => updateItem(item.key, 'description', e.target.value)} className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded text-xs outline-none focus:border-brand-primary" placeholder="Item description (optional)" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <div className="flex items-center gap-3">

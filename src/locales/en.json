@@ -1104,6 +1104,7 @@
       "scheduled": "Scheduled",
       "draft": "Draft",
       "ended": "Ended",
+      "fulfilled": "Fulfilled",
       "cancelled": "Cancelled",
       "noCampaigns": "No campaigns",
       "noFilterMatch": "No campaigns match the filter",
