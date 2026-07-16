@@ -10,8 +10,10 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
-import { LifeBuoy, Search, Filter, UserCheck, Clock } from 'lucide-react';
+import { LifeBuoy, Search, Filter, UserCheck, Clock, ArrowRight } from 'lucide-react';
 import type { ApiResponse } from '@/types/common';
+import { ROUTES } from '@/routes/routes';
+import { useNavigate } from 'react-router-dom';
 
 const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'green'> = {
   urgent: 'red', high: 'red', medium: 'yellow', low: 'green',
@@ -23,6 +25,7 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple'> = {
 
 export function SupportTicketsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
@@ -133,6 +136,9 @@ export function SupportTicketsPage() {
                     <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
                   </>}
                   actions={<>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPORT_TICKET_DETAIL(ticket.id)); }}>
+                      <ArrowRight size={12} className="mr-1" /> View
+                    </Button>
                     {!ticket.assignee && (
                       <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setAssignModal({ open: true, ticketId: ticket.id, staffId: '' }); }}>
                         <UserCheck size={12} className="mr-1" /> {t('support.assign')}

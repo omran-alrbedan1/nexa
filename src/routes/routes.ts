@@ -69,6 +69,7 @@ export const ROUTES = {
 
   // Support Tickets
   SUPPORT_TICKETS: '/support',
+  SUPPORT_TICKET_DETAIL: (ticketId: number | string) => `/support/${ticketId}`,
 
   // Categories
   CATEGORIES: '/categories',

@@ -117,6 +117,9 @@ const PaymentsPage = lazy(() =>
 const SupportTicketsPage = lazy(() =>
   import('@/features/support/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage }))
 );
+const SupportTicketDetailPage = lazy(() =>
+  import('@/features/support/pages/SupportTicketDetailPage').then((m) => ({ default: m.SupportTicketDetailPage }))
+);
 
 // ── Special Orders ──
 const SpecialOrdersPage = lazy(() =>
@@ -260,6 +263,7 @@ export function App() {
                 <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
                 <Route path={ROUTES.PAYMENT_DETAIL(':paymentId')} element={<PaymentsPage />} />
                 <Route path={ROUTES.SUPPORT_TICKETS} element={<SupportTicketsPage />} />
+                <Route path={ROUTES.SUPPORT_TICKET_DETAIL(':ticketId')} element={<SupportTicketDetailPage />} />
                 <Route path={ROUTES.SPECIAL_ORDERS} element={<SpecialOrdersPage />} />
                 <Route path={ROUTES.SPECIAL_ORDER_DETAIL(':requestId')} element={<SpecialOrderDetailPage />} />
               </Route>
