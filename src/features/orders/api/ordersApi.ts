@@ -82,6 +82,7 @@ export interface OrderDetail {
   payments: OrderPayment[];
   specialOrder: OrderSpecialOrderRef | null;
   priceQuote: OrderPriceQuoteRef | null;
+  trip: { id: number; driverLocation?: { latitude: number; longitude: number; updatedAt: string } | null } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -307,6 +308,18 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
       subtotal: parseFloat(bo.price_quote.subtotal),
       deliveryFee: parseFloat(bo.price_quote.delivery_fee),
     } : null,
+    trip: (bo as Record<string, unknown>).trip
+      ? {
+          id: ((bo as Record<string, unknown>).trip as Record<string, unknown>).id as number,
+          driverLocation: ((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location
+            ? {
+                latitude: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).latitude as number,
+                longitude: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).longitude as number,
+                updatedAt: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).updated_at as string,
+              }
+            : null,
+        }
+      : null,
     createdAt: bo.created_at,
     updatedAt: bo.updated_at || bo.created_at,
   };

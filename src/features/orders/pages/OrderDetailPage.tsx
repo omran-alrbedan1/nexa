@@ -9,10 +9,13 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
+import { useDeliveryStage } from '@/hooks/useDeliveryStage';
+import DriverTrackingMap from '../components/DriverTrackingMap';
+import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
   CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
-  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock,
+  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock, Navigation,
 } from 'lucide-react';
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
@@ -81,6 +84,7 @@ export function OrderDetailPage() {
   const transferOrder = useTransferOrder();
   const addToast = useToastStore((s) => s.addToast);
   const formatPrice = useFormatPrice();
+  void useDeliveryStage(id);
   const [cancelModal, setCancelModal] = useState(false);
   const [rescheduleModal, setRescheduleModal] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -357,6 +361,34 @@ export function OrderDetailPage() {
                 <p className="font-extrabold text-brand-accent">{formatPrice(order.priceQuote.total)}</p>
               </div>
             </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Driver Tracking — shown when order is out for delivery */}
+      {(order.status === 'out_for_delivery' || order.trip?.driverLocation) && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Navigation size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">Driver Tracking</h3>
+          </div>
+          <div className="space-y-4">
+            <DeliveryStageIndicator orderId={id} currentStatus={order.status} />
+            <DriverTrackingMap
+              orderId={id}
+              initialLocation={
+                order.trip?.driverLocation
+                  ? {
+                      tripId: order.trip.id,
+                      latitude: order.trip.driverLocation.latitude,
+                      longitude: order.trip.driverLocation.longitude,
+                      heading: null,
+                      speed: null,
+                      recordedAt: order.trip.driverLocation.updatedAt,
+                    }
+                  : null
+              }
+            />
           </div>
         </Card>
       )}
