@@ -1205,6 +1205,7 @@
     "active": "نشط",
     "inactive": "غير نشط",
     "activate": "تفعيل",
-    "deactivate": "تعطيل"
+    "deactivate": "تعطيل",
+    "back": "رجوع"
   }
 }

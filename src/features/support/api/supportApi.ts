@@ -48,26 +48,26 @@ interface SupportListResponse {
 export const supportApi = {
   list: async (params?: Record<string, string>): Promise<SupportListResponse> => {
     const res = await apiClient.get<ApiResponse<SupportListResponse>>('/api/v1/admin/support-tickets', { params });
-    return unwrap(res);
+    return unwrap(res.data);
   },
 
   get: async (id: number): Promise<SupportTicketDetail> => {
     const res = await apiClient.get<ApiResponse<SupportTicketDetail>>(`/api/v1/admin/support-tickets/${id}`);
-    return unwrap(res);
+    return unwrap(res.data);
   },
 
   sendMessage: async (ticketId: number, data: { message?: string; is_internal?: boolean }): Promise<SupportTicketDetail> => {
     const res = await apiClient.post<ApiResponse<SupportTicketDetail>>(`/api/v1/admin/support-tickets/${ticketId}/messages`, data);
-    return unwrap(res);
+    return unwrap(res.data);
   },
 
   updateStatus: async (ticketId: number, status: string): Promise<SupportTicketDetail> => {
     const res = await apiClient.put<ApiResponse<SupportTicketDetail>>(`/api/v1/admin/support-tickets/${ticketId}/status`, { status });
-    return unwrap(res);
+    return unwrap(res.data);
   },
 
   assign: async (ticketId: number, staffId: number): Promise<SupportTicketDetail> => {
     const res = await apiClient.post<ApiResponse<SupportTicketDetail>>(`/api/v1/admin/support-tickets/${ticketId}/assign`, { staff_id: staffId });
-    return unwrap(res);
+    return unwrap(res.data);
   },
 };
