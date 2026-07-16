@@ -1,12 +1,15 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import echo from '@/lib/echo'
+import { getEcho } from '@/lib/echo'
 
 export function useSupportRealtime(ticketId: number) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!ticketId) return
+
+    const echo = getEcho()
+    if (!echo) return
 
     const channel = echo.private(`customer.support-ticket.${ticketId}`)
 

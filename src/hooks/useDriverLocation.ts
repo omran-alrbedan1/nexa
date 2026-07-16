@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import echo from '@/lib/echo'
+import { getEcho } from '@/lib/echo'
 
 export interface DriverLocation {
   tripId: number
@@ -18,6 +18,9 @@ export function useDriverLocation(
 
   useEffect(() => {
     if (!orderId) return
+
+    const echo = getEcho()
+    if (!echo) return
 
     const channel = echo.private(`order.tracking.${orderId}`)
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import echo from '@/lib/echo'
+import { getEcho } from '@/lib/echo'
 
 export type DeliveryStage = 'out_for_delivery' | 'delivered' | 'failed'
 
@@ -17,6 +17,9 @@ export function useDeliveryStage(orderId: number) {
 
   useEffect(() => {
     if (!orderId) return
+
+    const echo = getEcho()
+    if (!echo) return
 
     const channel = echo.private(`order.tracking.${orderId}`)
 
