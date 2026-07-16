@@ -101,7 +101,7 @@ export function ComplaintDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-xl font-extrabold text-text-primary font-display">{complaint.ticketNumber}</h1>
                 <Badge variant={PRIORITY_BADGE[complaint.priority] || 'teal'} size="sm">{complaint.priority}</Badge>
-                <Badge variant={STATUS_BADGE[complaint.status] || 'yellow'} size="sm">{complaint.status.replace('_', ' ')}</Badge>
+                <Badge variant={STATUS_BADGE[complaint.status] || 'yellow'} size="sm">{(complaint.status ?? 'unknown').replace('_', ' ')}</Badge>
               </div>
               <h2 className="text-base font-bold text-text-primary font-body mt-1">{complaint.subject}</h2>
             </div>

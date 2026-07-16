@@ -280,7 +280,7 @@ export function SupplierDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{supplier.name}</h1>
                 <span className="text-sm text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
-                <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{supplier.status.replace('_', ' ')}</Badge>
+                <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{(supplier.status ?? 'unknown').replace('_', ' ')}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {supplier.email} · {supplier.phone}

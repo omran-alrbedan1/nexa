@@ -115,7 +115,7 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                               : 'bg-gray-50 text-gray-600'
                       }`}
                     >
-                      {complaint.status.replace('_', ' ')}
+                      {(complaint.status ?? 'unknown').replace('_', ' ')}
                     </span>
                   </div>
                   <p className="text-sm text-gray-800 mt-1 font-medium">{complaint.subject}</p>

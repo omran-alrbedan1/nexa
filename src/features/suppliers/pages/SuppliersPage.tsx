@@ -167,7 +167,7 @@ export function SuppliersPage() {
                 title={<span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>}
                 badges={<>
                   <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
-                  <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || supplier.status.replace('_', ' ')}</Badge>
+                  <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || (supplier.status ?? 'unknown').replace('_', ' ')}</Badge>
                 </>}
                 actions={<>
                   {supplier.status === 'pending_approval' && (
