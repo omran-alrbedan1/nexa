@@ -9,7 +9,6 @@ export function useTicketDetail(id: number) {
     queryKey: ['support-ticket', id],
     queryFn: () => supportApi.get(id),
     enabled: id > 0,
-    refetchInterval: 15_000,
   });
 }
 

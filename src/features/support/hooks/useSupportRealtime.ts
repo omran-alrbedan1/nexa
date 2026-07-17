@@ -17,10 +17,16 @@ export function useSupportRealtime(ticketId: number) {
       queryClient.invalidateQueries({ queryKey: ['support-ticket', ticketId] })
     }
 
+    const handleTicketUpdated = () => {
+      queryClient.invalidateQueries({ queryKey: ['support-ticket', ticketId] })
+    }
+
     channel.listen('.support.message.created', handleMessageCreated)
+    channel.listen('.support.ticket.updated', handleTicketUpdated)
 
     return () => {
       channel.stopListening('.support.message.created')
+      channel.stopListening('.support.ticket.updated')
       echo.leave(`customer.support-ticket.${ticketId}`)
     }
   }, [ticketId, queryClient])
