@@ -31,6 +31,16 @@ export interface TripOrder {
   status: string;
 }
 
+export interface TripOrderDetail {
+  id: number;
+  orderId: number;
+  orderNumber: string;
+  status: string;
+  deliveryStatus: string;
+  customerName: string | null;
+  total: number | null;
+}
+
 export interface DashboardTrip {
   id: number;
   tripNumber: string;
@@ -50,6 +60,7 @@ export interface DashboardTrip {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  tripOrders: TripOrderDetail[];
 }
 
 export interface TripsPageData {
@@ -92,7 +103,18 @@ interface BackendTrip {
   warehouse?: { id: number; name: string; code?: string } | null;
   driver?: { id: number; full_name: string; phone?: string } | null;
   zones?: { id: number; name: string }[];
-  trip_orders?: { id: number; order_id: number; delivery_status: string }[];
+  trip_orders?: {
+    id: number;
+    sequence: number;
+    delivery_status: string;
+    order: {
+      id: number;
+      order_number: string;
+      status: string;
+      total: number | null;
+      customer: { id: number; full_name: string } | null;
+    } | null;
+  }[];
   trip_orders_count?: number;
   created_at: string;
   updated_at: string;
@@ -117,6 +139,18 @@ interface BackendAvailableDriver {
 // ── Mapping ──
 
 function mapBackendTrip(bt: BackendTrip): DashboardTrip {
+  const tripOrders: TripOrderDetail[] = (bt.trip_orders || []).map((to) => ({
+    id: to.id,
+    orderId: to.order?.id ?? 0,
+    orderNumber: to.order?.order_number ?? '',
+    status: to.order?.status ?? '',
+    deliveryStatus: to.delivery_status,
+    customerName: to.order?.customer?.full_name ?? null,
+    total: to.order?.total ?? null,
+  }));
+  const completed = tripOrders.filter((o) => o.deliveryStatus === 'delivered').length;
+  const failed = tripOrders.filter((o) => o.deliveryStatus === 'failed').length;
+
   return {
     id: bt.id,
     tripNumber: bt.trip_number,
@@ -127,15 +161,16 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     status: mapFromBackend(bt.status, TRIP_STATUS_BACKEND_TO_FRONTEND) as TripStatus,
     scheduledDate: bt.planned_date,
     timeSlot: bt.departure_time ? `${bt.departure_time}-${bt.expected_arrival || ''}` : '',
-    orderCount: bt.trip_orders_count || 0,
-    totalValue: 0,
-    completedOrders: 0,
-    failedOrders: 0,
+    orderCount: tripOrders.length,
+    totalValue: tripOrders.reduce((s, o) => s + (o.total ?? 0), 0),
+    completedOrders: completed,
+    failedOrders: failed,
     startedAt: bt.started_at,
     completedAt: bt.completed_at || bt.cancelled_at,
     notes: bt.cancellation_reason,
     createdAt: bt.created_at,
     updatedAt: bt.updated_at,
+    tripOrders,
   };
 }
 

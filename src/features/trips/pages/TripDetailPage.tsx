@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { tripsApi, type DashboardTrip } from '../api/tripsApi';
 import { useAssignDriver, useStartTrip, useCompleteTrip, tripKeys } from '../hooks/useTrips';
+import { deliveryMonitorApi } from '@/features/delivery-monitor/api/deliveryMonitorApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -11,9 +12,10 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
+import { useToastStore } from '@/stores/toastStore';
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
-  CheckCircle2, ShoppingCart, Warehouse,
+  CheckCircle2, ShoppingCart, Warehouse, Send, ChevronDown, ChevronRight,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
@@ -37,9 +39,70 @@ export function TripDetailPage() {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
 
+  const queryClient = useQueryClient();
+  const addToast = useToastStore((s) => s.addToast);
+
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
   const completeTrip = useCompleteTrip();
+
+  const [simOpen, setSimOpen] = useState(false);
+  const [simLat, setSimLat] = useState('24.713552');
+  const [simLng, setSimLng] = useState('46.675297');
+  const [simLoading, setSimLoading] = useState<string | null>(null);
+  const [lastSent, setLastSent] = useState<string | null>(null);
+  const locationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const doSimAction = async (key: string, fn: () => Promise<unknown>) => {
+    setSimLoading(key);
+    try {
+      await fn();
+      queryClient.invalidateQueries({ queryKey: [...tripKeys.all, 'detail', id] });
+      if (key === 'location') {
+        setLastSent(new Date().toLocaleTimeString());
+      }
+    } catch {
+      addToast('error', 'Simulation action failed');
+    } finally {
+      setSimLoading(null);
+    }
+  };
+
+  const sendLocation = () => {
+    const lat = parseFloat(simLat);
+    const lng = parseFloat(simLng);
+    if (isNaN(lat) || isNaN(lng)) {
+      addToast('error', 'Invalid coordinates');
+      return;
+    }
+    doSimAction('location', () => deliveryMonitorApi.simulateLocation(id, { latitude: lat, longitude: lng }));
+  };
+
+  const simulateStartTrip = () => doSimAction('start-trip', () => deliveryMonitorApi.startTrip(id));
+  const simulateStartDelivery = (orderId: number) => doSimAction(`start-${orderId}`, () => deliveryMonitorApi.startDelivery(orderId));
+  const simulateDeliver = (orderId: number) => doSimAction(`deliver-${orderId}`, () => deliveryMonitorApi.deliver(orderId));
+  const simulateFail = (orderId: number) => doSimAction(`fail-${orderId}`, () => deliveryMonitorApi.fail(orderId));
+
+  const sendLocationContinuously = () => {
+    if (locationTimerRef.current) return;
+    sendLocation();
+    locationTimerRef.current = setInterval(sendLocation, 3000);
+    addToast('info', 'Sending location every 3s. Click again to stop.');
+  };
+
+  const stopContinuousLocation = () => {
+    if (locationTimerRef.current) {
+      clearInterval(locationTimerRef.current);
+      locationTimerRef.current = null;
+      addToast('info', 'Continuous location stopped.');
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (locationTimerRef.current) clearInterval(locationTimerRef.current);
+    };
+  }, []);
 
   const { data: trip, isLoading, isError, error, refetch } = useQuery<DashboardTrip>({
     queryKey: [...tripKeys.all, 'detail', id],
@@ -245,6 +308,147 @@ export function TripDetailPage() {
           <p className="text-sm text-text-secondary font-body">{trip.notes}</p>
         </Card>
       )}
+
+      {/* Simulate Driver */}
+      <Card padding="none" className="overflow-hidden">
+        <button
+          onClick={() => setSimOpen(!simOpen)}
+          className="w-full flex items-center justify-between p-4 hover:bg-bg-section-alt transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Navigation size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">Simulate Driver</h3>
+            {lastSent && (
+              <span className="text-[10px] text-green-600 font-medium">Last sent: {lastSent}</span>
+            )}
+          </div>
+          {simOpen ? <ChevronDown size={16} className="text-text-tertiary" /> : <ChevronRight size={16} className="text-text-tertiary" />}
+        </button>
+
+        {simOpen && (
+          <div className="px-4 pb-4 space-y-4 border-t border-border-default/60 pt-4">
+            {/* Location Simulator */}
+            <div className="bg-bg-section-alt p-3 rounded-xl space-y-2">
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Location Simulator</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={simLat}
+                  onChange={(e) => setSimLat(e.target.value)}
+                  placeholder="Latitude"
+                  className="w-full px-2 py-1.5 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                />
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={simLng}
+                  onChange={(e) => setSimLng(e.target.value)}
+                  placeholder="Longitude"
+                  className="w-full px-2 py-1.5 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="accent"
+                  size="sm"
+                  isLoading={simLoading === 'location'}
+                  onClick={sendLocation}
+                  leftIcon={<Send size={12} />}
+                >
+                  Send Location
+                </Button>
+                <Button
+                  variant={locationTimerRef.current ? 'danger' : 'secondary'}
+                  size="sm"
+                  onClick={locationTimerRef.current ? stopContinuousLocation : sendLocationContinuously}
+                >
+                  {locationTimerRef.current ? 'Stop Continuous' : 'Continuous'}
+                </Button>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-text-secondary">
+                <MapPin size={10} />
+                <span>Broadcasts to <code className="font-mono bg-gray-100 px-1 rounded">order.tracking.*</code> channels via <code className="font-mono bg-gray-100 px-1 rounded">.location.updated</code></span>
+              </div>
+            </div>
+
+            {/* Start Trip */}
+            {['assigned', 'accepted', 'scheduled'].includes(trip.status) && (
+              <Button
+                variant="primary"
+                size="sm"
+                isLoading={simLoading === 'start-trip'}
+                onClick={simulateStartTrip}
+                leftIcon={<Navigation size={12} />}
+              >
+                Start Trip
+              </Button>
+            )}
+
+            {/* Order Actions */}
+            {trip.tripOrders.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Orders</p>
+                {trip.tripOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-border-default/60"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-text-primary truncate">{order.orderNumber}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-text-secondary truncate">{order.customerName || '—'}</p>
+                        <Badge
+                          variant={
+                            order.deliveryStatus === 'delivered' ? 'green'
+                            : order.deliveryStatus === 'failed' ? 'red'
+                            : 'yellow'
+                          }
+                          size="sm"
+                        >
+                          {order.deliveryStatus.replace(/_/g, ' ')}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      {order.deliveryStatus === 'pending' && trip.status === 'in_progress' && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          isLoading={simLoading === `start-${order.id}`}
+                          onClick={() => simulateStartDelivery(order.orderId)}
+                        >
+                          Start Delivery
+                        </Button>
+                      )}
+                      {order.deliveryStatus === 'out_for_delivery' && (
+                        <>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            isLoading={simLoading === `deliver-${order.id}`}
+                            onClick={() => simulateDeliver(order.orderId)}
+                          >
+                            Deliver
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            isLoading={simLoading === `fail-${order.id}`}
+                            onClick={() => simulateFail(order.orderId)}
+                          >
+                            Fail
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
 
       {/* Assign Driver Modal */}
       <Modal open={assignModal.open} onClose={() => setAssignModal({ ...assignModal, open: false })} title={t('trips.detail.assignModalTitle', { trip: trip.tripNumber })}>
