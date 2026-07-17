@@ -30,6 +30,7 @@ function MessageBubble({ message, currentUserId }: { message: SupportTicketMessa
   const isInternal = message.is_internal;
   const isOwn = !isInternal && message.user?.id === currentUserId;
   const isOther = !isInternal && message.user?.id !== currentUserId;
+  const attachments = message.attachments || [];
 
   return (
     <div className={`flex ${isInternal || isOther ? 'justify-start' : 'justify-end'}`}>
@@ -51,7 +52,12 @@ function MessageBubble({ message, currentUserId }: { message: SupportTicketMessa
           </div>
         )}
         {message.message && <p className="whitespace-pre-wrap">{message.message}</p>}
-        {!message.message && !isInternal && (
+        {attachments.map((a) => (
+          a.mime_type?.startsWith('image/')
+            ? <img key={a.id} src={a.url} alt={a.original_name} className="max-w-full rounded-lg mt-2 cursor-pointer" onClick={() => window.open(a.url, '_blank')} loading="lazy" />
+            : <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer" className="block mt-1 underline text-sm">{a.original_name}</a>
+        ))}
+        {!message.message && attachments.length === 0 && !isInternal && (
           <p className="italic opacity-80">[Attachment only]</p>
         )}
         <div className={`flex items-center gap-2 mt-1.5 ${isInternal ? 'text-amber-600' : isOther ? 'text-gray-500' : 'text-white/70'}`}>

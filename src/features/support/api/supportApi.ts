@@ -8,11 +8,22 @@ export interface SupportTicketUser {
   phone?: string;
 }
 
+export interface SupportTicketAttachment {
+  id: number;
+  original_name: string;
+  mime_type: string;
+  size_bytes: number;
+  url: string;
+  width: number | null;
+  height: number | null;
+}
+
 export interface SupportTicketMessage {
   id: number;
   message: string | null;
   is_internal: boolean;
   user: SupportTicketUser | null;
+  attachments?: SupportTicketAttachment[];
   created_at: string;
 }
 
