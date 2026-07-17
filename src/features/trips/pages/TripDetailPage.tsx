@@ -13,6 +13,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useToastStore } from '@/stores/toastStore';
+import { extractErrorMessage } from '@/lib/apiHelpers';
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
   CheckCircle2, ShoppingCart, Warehouse, Send, ChevronDown, ChevronRight,
@@ -61,8 +62,8 @@ export function TripDetailPage() {
       if (key === 'location') {
         setLastSent(new Date().toLocaleTimeString());
       }
-    } catch {
-      addToast('error', 'Simulation action failed');
+    } catch (err: unknown) {
+      addToast('error', extractErrorMessage(err));
     } finally {
       setSimLoading(null);
     }
