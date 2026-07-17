@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTicketDetail, useSendMessage, useUpdateTicketStatus } from '../hooks/useSupportTicket';
 import { useSupportRealtime } from '../hooks/useSupportRealtime';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -25,18 +26,21 @@ const NEXT_STATUS: Record<string, { label: string; status: string; icon: React.R
   resolved: { label: 'Close', status: 'closed', icon: <XCircle size={14} /> },
 };
 
-function MessageBubble({ message }: { message: SupportTicketMessage }) {
+function MessageBubble({ message, currentUserId }: { message: SupportTicketMessage; currentUserId?: number }) {
   const isInternal = message.is_internal;
-  const isAdmin = message.user?.id !== undefined;
+  const isOwn = !isInternal && message.user?.id === currentUserId;
+  const isOther = !isInternal && message.user?.id !== currentUserId;
 
   return (
-    <div className={`flex ${isInternal ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex ${isInternal || isOther ? 'justify-start' : 'justify-end'}`}>
       <div
         className={`
           max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed
           ${isInternal
             ? 'bg-amber-50 border border-amber-200 text-amber-900 rounded-tl-sm'
-            : 'bg-brand-primary text-white rounded-tr-sm'
+            : isOther
+              ? 'bg-gray-100 border border-gray-200 text-gray-800 rounded-tl-sm'
+              : 'bg-brand-primary text-white rounded-tr-sm'
           }
         `}
       >
@@ -50,7 +54,7 @@ function MessageBubble({ message }: { message: SupportTicketMessage }) {
         {!message.message && !isInternal && (
           <p className="italic opacity-80">[Attachment only]</p>
         )}
-        <div className={`flex items-center gap-2 mt-1.5 ${isInternal ? 'text-amber-600' : 'text-white/70'}`}>
+        <div className={`flex items-center gap-2 mt-1.5 ${isInternal ? 'text-amber-600' : isOther ? 'text-gray-500' : 'text-white/70'}`}>
           {message.user && (
             <span className="text-[10px] font-medium">{message.user.full_name}</span>
           )}
@@ -67,6 +71,7 @@ export function SupportTicketDetailPage() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const id = parseInt(ticketId || '0', 10);
   const [messageText, setMessageText] = useState('');
   const [isInternal, setIsInternal] = useState(false);
@@ -78,9 +83,14 @@ export function SupportTicketDetailPage() {
   const statusMutation = useUpdateTicketStatus(id);
   useSupportRealtime(id);
 
+  const messages = useMemo(() => {
+    const msgs = ticket?.messages || [];
+    return [...msgs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  }, [ticket?.messages]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [ticket?.messages]);
+  }, [messages]);
 
   const handleSend = () => {
     const text = messageText.trim();
@@ -132,12 +142,11 @@ export function SupportTicketDetailPage() {
   if (!ticket) return null;
 
   const nextAction = NEXT_STATUS[ticket.status];
-  const messages = ticket.messages || [];
 
   return (
-    <div className="space-y-5 animate-fade-up max-w-5xl mx-auto">
+    <div className="flex flex-col space-y-5 animate-fade-up max-w-5xl mx-auto min-h-0" style={{ minHeight: 'calc(100vh - 64px - 48px)' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.SUPPORT_TICKETS)}>
             <ArrowLeft size={16} className="mr-1.5" /> {t('common.back')}
@@ -166,7 +175,7 @@ export function SupportTicketDetailPage() {
       </div>
 
       {/* Ticket Info */}
-      <Card padding="md">
+      <Card padding="md" className="flex-shrink-0">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">Customer</p>
@@ -197,9 +206,9 @@ export function SupportTicketDetailPage() {
       </Card>
 
       {/* Chat area */}
-      <Card padding="none" className="overflow-hidden flex flex-col" style={{ minHeight: '500px' }}>
+      <Card padding="none" className="flex-1 min-h-0 overflow-hidden flex flex-col">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ maxHeight: '420px' }}>
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {messages.length === 0 ? (
             <EmptyState
               title="No messages yet"
@@ -207,14 +216,14 @@ export function SupportTicketDetailPage() {
             />
           ) : (
             messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble key={msg.id} message={msg} currentUserId={user?.id} />
             ))
           )}
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input bar */}
-        <div className="border-t border-border-default/60 p-4 bg-white">
+        <div className="border-t border-border-default/60 p-4 bg-white flex-shrink-0">
           <div className="flex items-start gap-2">
             <button
               type="button"
