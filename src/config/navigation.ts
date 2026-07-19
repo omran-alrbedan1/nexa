@@ -100,6 +100,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
     items: [
       { id: 'customers', label: 'nav.customers', icon: 'Users', type: 'item', to: ROUTES.CUSTOMERS, roles: ['admin', 'operations'] },
       { id: 'suppliers', label: 'nav.suppliers', icon: 'Users', type: 'item', to: ROUTES.SUPPLIERS, roles: ['admin', 'operations'] },
+      { id: 'drivers', label: 'nav.drivers', icon: 'Truck', type: 'item', to: ROUTES.DRIVERS, roles: ['admin', 'operations'] },
       { id: 'regions', label: 'nav.regions', icon: 'Map', type: 'item', to: ROUTES.REGIONS, roles: ['admin'] },
       { id: 'delivery-slots', label: 'nav.deliverySlots', icon: 'Clock', type: 'item', to: ROUTES.DELIVERY_SLOTS, roles: ['admin', 'operations'] },
     ],

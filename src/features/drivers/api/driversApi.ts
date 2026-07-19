@@ -16,6 +16,8 @@ import type { ApiResponse } from '@/types/common';
 
 // ── Domain Types ──
 
+export type DriverApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface Driver {
   id: number;
   name: string;
@@ -25,7 +27,7 @@ export interface Driver {
   vehiclePlate: string;
   licenseNumber: string;
   applicationNumber: string;
-  approvalStatus: string;
+  approvalStatus: DriverApprovalStatus;
   zoneName: string;
   isAvailable: boolean;
   totalTrips: number;
@@ -41,6 +43,7 @@ export interface DriversPageData {
     available: number;
     onTrip: number;
     inactive: number;
+    pendingApproval: number;
   };
   drivers: Driver[];
 }
@@ -112,6 +115,12 @@ interface BackendDriversResponse {
 
 // ── Mapping ──
 
+function mapApprovalStatus(raw: string): DriverApprovalStatus {
+  if (raw === 'approved') return 'approved';
+  if (raw === 'rejected') return 'rejected';
+  return 'pending';
+}
+
 function mapBackendDriver(d: BackendDriver): Driver {
   return {
     id: d.id,
@@ -122,7 +131,7 @@ function mapBackendDriver(d: BackendDriver): Driver {
     vehiclePlate: d.vehicle_plate || '',
     licenseNumber: d.license_number || '',
     applicationNumber: d.application_number || '',
-    approvalStatus: d.approval_status || 'pending',
+    approvalStatus: mapApprovalStatus(d.approval_status),
     zoneName: d.zone?.name || '',
     isAvailable: d.is_available ?? false,
     totalTrips: 0,
@@ -140,9 +149,11 @@ export const driversApi = {
     return mapBackendDriver(response.data.data);
   },
 
-  /** Fetch all drivers */
-  getPageData: async (): Promise<DriversPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers');
+  /** Fetch all drivers (optional approval_status filter) */
+  getPageData: async (filters?: { approval_status?: DriverApprovalStatus }): Promise<DriversPageData> => {
+    const params: Record<string, string> = {};
+    if (filters?.approval_status) params.approval_status = filters.approval_status;
+    const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers', { params });
     const backendData = response.data.data;
     const drivers = backendData.drivers.map(mapBackendDriver);
     return {
@@ -151,6 +162,7 @@ export const driversApi = {
         available: drivers.filter((d) => d.isAvailable).length,
         onTrip: drivers.filter((d) => !d.isAvailable).length,
         inactive: 0,
+        pendingApproval: drivers.filter((d) => d.approvalStatus === 'pending').length,
       },
       drivers,
     };

@@ -912,7 +912,8 @@
       "totalDrivers": "إجمالي السائقين",
       "available": "متاح",
       "onTrip": "في رحلة",
-      "inactive": "غير نشط"
+      "inactive": "غير نشط",
+      "pendingApproval": "بانتظار الاعتماد"
     },
     "pendingApproval": {
       "title": "بانتظار الاعتماد",
@@ -934,7 +935,18 @@
       "setUnavailable": "تعيين غير متاح",
       "setAvailable": "تعيين متاح",
       "trips": "{{count}} رحلة",
-      "ordersDelivered": "{{count}} طلب تم توصيله"
+      "ordersDelivered": "{{count}} طلب تم توصيله",
+      "allStatuses": "جميع الحالات",
+      "pending": "قيد الانتظار",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "view": "عرض"
+    },
+    "reject": {
+      "title": "رفض {{name}}",
+      "description": "أدخل سبب رفض هذا السائق. سيتم إخطاره وسيتم حظر حسابه.",
+      "placeholder": "سبب الرفض...",
+      "confirm": "تأكيد الرفض"
     },
     "detail": {
       "back": "العودة إلى السائقين",

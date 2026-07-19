@@ -912,7 +912,8 @@
       "totalDrivers": "Total Drivers",
       "available": "Available",
       "onTrip": "On Trip",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "pendingApproval": "Pending Approval"
     },
     "pendingApproval": {
       "title": "Pending Approval",
@@ -934,7 +935,18 @@
       "setUnavailable": "Set Unavailable",
       "setAvailable": "Set Available",
       "trips": "{{count}} trips",
-      "ordersDelivered": "{{count}} orders delivered"
+      "ordersDelivered": "{{count}} orders delivered",
+      "allStatuses": "All Statuses",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "view": "View"
+    },
+    "reject": {
+      "title": "Reject {{name}}",
+      "description": "Enter the reason for rejecting this driver. They will be notified and their account will be blocked.",
+      "placeholder": "Reason for rejection...",
+      "confirm": "Confirm Reject"
     },
     "detail": {
       "back": "Back to Drivers",

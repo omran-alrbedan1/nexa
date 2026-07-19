@@ -900,10 +900,11 @@
     "title": "נהגים",
     "description": "ניהול פרופילי נהגים, רכבים וזמינות",
     "stats": {
-      "totalDrivers": "סך הנהגים",
-      "available": "זמינים",
+      "totalDrivers": "סה\"כ נהגים",
+      "available": "זמין",
       "onTrip": "בנסיעה",
-      "inactive": "לא פעילים"
+      "inactive": "לא פעיל",
+      "pendingApproval": "ממתין לאישור"
     },
     "pendingApproval": {
       "title": "ממתין לאישור",
@@ -925,7 +926,18 @@
       "setUnavailable": "סמן כלא זמין",
       "setAvailable": "סמן כזמין",
       "trips": "{{count}} נסיעות",
-      "ordersDelivered": "{{count}} הזמנות נמסרו"
+      "ordersDelivered": "{{count}} הזמנות נמסרו",
+      "allStatuses": "כל הסטטוסים",
+      "pending": "ממתין",
+      "approved": "מאושר",
+      "rejected": "נדחה",
+      "view": "צפה"
+    },
+    "reject": {
+      "title": "דחה את {{name}}",
+      "description": "הזן את הסיבה לדחיית נהג זה. הוא יקבל הודעה וחשבונו ייחסם.",
+      "placeholder": "סיבת הדחייה...",
+      "confirm": "אשר דחייה"
     },
     "detail": {
       "back": "חזרה לנהגים",
