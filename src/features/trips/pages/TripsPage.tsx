@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTripsPage, useAssignDriver, useStartTrip, useCompleteTrip } from '../hooks/useTrips';
+import { useQuery } from '@tanstack/react-query';
+import { useTripsPage, useAssignDriver, useStartTrip, useCompleteTrip, tripKeys } from '../hooks/useTrips';
+import { tripsApi } from '../api/tripsApi';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -39,6 +41,11 @@ export function TripsPage() {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useTripsPage();
+  const { data: driversData } = useQuery({
+    queryKey: [...tripKeys.all, 'available-drivers'],
+    queryFn: () => tripsApi.getAvailableDrivers(),
+    staleTime: 30_000,
+  });
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
   const completeTrip = useCompleteTrip();
@@ -64,7 +71,7 @@ export function TripsPage() {
   const displayTrips = scheduleView
     ? [...trips].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
     : trips;
-  const availableDrivers = data?.availableDrivers ?? [];
+  const availableDrivers = driversData ?? [];
 
   const getActions = (trip: DashboardTrip) => {
     const actions: Array<{ label: string; onClick: () => void; variant: 'primary' | 'danger' | 'secondary'; icon?: React.ReactNode }> = [];
