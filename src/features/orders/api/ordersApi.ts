@@ -10,7 +10,7 @@
 
 import { apiClient } from '@/lib/axios';
 import { unwrap } from '@/lib/apiHelpers';
-import { mapFromBackend, mapPaymentMethod, ORDER_STATUS_BACKEND_TO_FRONTEND, ORDER_TYPE_BACKEND_TO_FRONTEND, PAYMENT_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
+import { mapFromBackend, mapPaymentMethod, ORDER_STATUS_BACKEND_TO_FRONTEND, ORDER_STATUS_FRONTEND_TO_BACKEND, ORDER_TYPE_BACKEND_TO_FRONTEND, PAYMENT_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/types/marketplace';
 
@@ -335,7 +335,7 @@ export const ordersApi = {
   /** Fetch paginated orders list */
   getOrders: async (params?: OrderListParams): Promise<OrdersPageData> => {
     const queryParams = new URLSearchParams();
-    if (params?.status) queryParams.set('status', params.status.toUpperCase());
+    if (params?.status) queryParams.set('status', ORDER_STATUS_FRONTEND_TO_BACKEND[params.status] ?? params.status.toUpperCase());
     if (params?.type) queryParams.set('order_type', params.type.toUpperCase());
     if (params?.search) queryParams.set('search', params.search);
     if (params?.perPage) queryParams.set('per_page', String(params.perPage));
@@ -375,7 +375,7 @@ export const ordersApi = {
 
   /** Update order status */
   updateOrderStatus: async (orderId: number, newStatus: OrderStatus): Promise<OrderDetail> => {
-    const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus.toUpperCase() });
+    const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: ORDER_STATUS_FRONTEND_TO_BACKEND[newStatus] ?? newStatus.toUpperCase() });
     return mapBackendOrderToDetail(unwrap(response.data));
   },
 

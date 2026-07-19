@@ -14,6 +14,7 @@
 
 import { apiClient } from '@/lib/axios';
 import { unwrap } from '@/lib/apiHelpers';
+import { ORDER_STATUS_FRONTEND_TO_BACKEND } from '@/lib/enumMappers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
 import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/types/marketplace';
 import { formatPrice } from '@/utils/currency';
@@ -319,7 +320,7 @@ export const operationsApi = {
   getOrders: async (params?: OrderListParams): Promise<PaginatedResponse<OperationsOrder>> => {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.status) queryParams.set('status', params.status);
+      if (params?.status) queryParams.set('status', ORDER_STATUS_FRONTEND_TO_BACKEND[params.status] ?? params.status.toUpperCase());
       if (params?.perPage) queryParams.set('per_page', String(params.perPage));
       if (params?.page) queryParams.set('page', String(params.page));
       const qs = queryParams.toString();
@@ -380,7 +381,7 @@ export const operationsApi = {
   /** Update order status (connects to real backend) */
   updateOrderStatus: async (orderId: number, newStatus: OrderStatus): Promise<OperationsOrder> => {
     try {
-      const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus.toUpperCase() });
+      const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, { status: ORDER_STATUS_FRONTEND_TO_BACKEND[newStatus] ?? newStatus.toUpperCase() });
       return mapBackendOrder(response.data.data);
     } catch {
       throw new Error('Failed to update order status');

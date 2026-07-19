@@ -40,7 +40,9 @@ export const ORDER_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
 export const ORDER_STATUS_FRONTEND_TO_BACKEND: Record<string, string> = {};
 
 for (const [backend, frontend] of Object.entries(ORDER_STATUS_BACKEND_TO_FRONTEND)) {
-  ORDER_STATUS_FRONTEND_TO_BACKEND[frontend] = backend;
+  if (!(frontend in ORDER_STATUS_FRONTEND_TO_BACKEND)) {
+    ORDER_STATUS_FRONTEND_TO_BACKEND[frontend] = backend;
+  }
 }
 
 // ──────────────────────────────────────────────
