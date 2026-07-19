@@ -62,6 +62,7 @@ export function useConfirmWarehouseReceipt() {
     mutationFn: (orderId: number) => ordersApi.confirmWarehouseReceipt(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['aggregation'] });
       addToast('success', 'Warehouse receipt confirmed');
     },
     onError: (error) => {
