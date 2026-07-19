@@ -130,6 +130,9 @@ export function OrderDetailPage() {
     if (o.status === 'confirmed') {
       actions.push({ label: t('orders.detail.markPaid'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'paid' }), variant: 'primary', icon: <DollarSign size={14} /> });
     }
+    if (o.status === 'paid') {
+      actions.push({ label: t('orders.detail.markInSupply'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'pending_supply' }), variant: 'primary', icon: <Package size={14} /> });
+    }
     if (o.status === 'pending_supply') {
       actions.push({ label: t('orders.detail.confirmReceipt'), onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
     }

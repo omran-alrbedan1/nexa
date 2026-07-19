@@ -121,6 +121,9 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
       case 'confirmed':
         actions.push({ label: t('operations.orderManagement.markPaid'), status: 'paid', variant: 'primary' });
         break;
+      case 'paid':
+        actions.push({ label: t('operations.orderManagement.markInSupply'), status: 'pending_supply', variant: 'primary' });
+        break;
       case 'failed_delivery':
         actions.push({ label: t('operations.orderManagement.retryDelivery'), status: 'out_for_delivery', variant: 'primary' });
         actions.push({ label: t('operations.orderManagement.cancel'), status: 'cancelled', variant: 'danger' });
