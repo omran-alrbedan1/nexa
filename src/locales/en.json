@@ -1212,10 +1212,11 @@
       "cutoff": "Cutoff Time",
       "maxCapacity": "Max Capacity",
       "deliveryFee": "Delivery Fee",
+      "warehouse": "Warehouse",
+      "zone": "Zone",
       "create": "Create Slot"
-    }
-  },
-  "common": {
+    },
+    "common": {
     "loading": "Loading...",
     "error": "Error",
     "retry": "Retry",
@@ -1239,6 +1240,7 @@
     "inactive": "Inactive",
     "activate": "Activate",
     "deactivate": "Deactivate",
-    "back": "Back"
+    "back": "Back",
+    "select": "Select"
   }
 }

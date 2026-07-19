@@ -1188,10 +1188,11 @@
       "cutoff": "זמן סגירה",
       "maxCapacity": "קיבולת מקסימלית",
       "deliveryFee": "דמי משלוח",
+      "warehouse": "מחסן",
+      "zone": "אזור",
       "create": "צור משבצת"
-    }
-  },
-  "common": {
+    },
+    "common": {
     "loading": "טוען...",
     "error": "שגיאה",
     "retry": "נסה שוב",
@@ -1214,6 +1215,7 @@
     "active": "פעיל",
     "inactive": "לא פעיל",
     "activate": "הפעל",
-    "deactivate": "בטל הפעלה"
+    "deactivate": "בטל הפעלה",
+    "select": "בחר"
   }
 }

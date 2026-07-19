@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { useWarehouses, useZones } from '../hooks/useDeliverySlots';
 import type { DeliverySlot } from '../api/deliverySlotsApi';
 
 interface DeliverySlotFormProps {
   open: boolean;
   onClose: () => void;
   onSave: (data: {
+    warehouse_id: number;
     zone_id: number;
     trip_date: string;
     departure_time: string;
@@ -20,7 +22,8 @@ interface DeliverySlotFormProps {
 }
 
 const defaultForm = {
-  zone_id: 1,
+  warehouse_id: 0,
+  zone_id: 0,
   trip_date: '',
   departure_time: '',
   cutoff_time: '23:59',
@@ -30,12 +33,15 @@ const defaultForm = {
 
 export function DeliverySlotForm({ open, onClose, onSave, isSaving, editSlot }: DeliverySlotFormProps) {
   const { t } = useTranslation();
+  const { data: warehouses = [] } = useWarehouses();
+  const { data: zones = [] } = useZones();
   const [form, setForm] = useState(defaultForm);
 
   useEffect(() => {
     if (editSlot) {
       setForm({
-        zone_id: editSlot.zone?.id || 1,
+        warehouse_id: editSlot.warehouse?.id || (warehouses.length > 0 ? warehouses[0].id : 0),
+        zone_id: editSlot.zone?.id || (zones.length > 0 ? zones[0].id : 0),
         trip_date: editSlot.trip_date,
         departure_time: editSlot.departure_time,
         cutoff_time: editSlot.cutoff_time || '23:59',
@@ -43,9 +49,17 @@ export function DeliverySlotForm({ open, onClose, onSave, isSaving, editSlot }: 
         delivery_fee: editSlot.delivery_fee,
       });
     } else {
-      setForm(defaultForm);
+      setForm({
+        warehouse_id: warehouses.length > 0 ? warehouses[0].id : 0,
+        zone_id: zones.length > 0 ? zones[0].id : 0,
+        trip_date: '',
+        departure_time: '',
+        cutoff_time: '23:59',
+        max_capacity: 50,
+        delivery_fee: 0,
+      });
     }
-  }, [editSlot, open]);
+  }, [editSlot, open, warehouses, zones]);
 
   return (
     <Modal
@@ -54,6 +68,34 @@ export function DeliverySlotForm({ open, onClose, onSave, isSaving, editSlot }: 
       title={editSlot ? t('deliverySlots.form.editTitle') : t('deliverySlots.form.createTitle')}
     >
       <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('deliverySlots.form.warehouse')}</label>
+            <select
+              value={form.warehouse_id}
+              onChange={(e) => setForm({ ...form, warehouse_id: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+            >
+              <option value={0} disabled>{t('common.select')}</option>
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('deliverySlots.form.zone')}</label>
+            <select
+              value={form.zone_id}
+              onChange={(e) => setForm({ ...form, zone_id: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+            >
+              <option value={0} disabled>{t('common.select')}</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.id}>{z.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div>
           <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('deliverySlots.form.date')}</label>
           <input

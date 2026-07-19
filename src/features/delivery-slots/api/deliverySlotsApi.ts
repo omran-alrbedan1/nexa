@@ -48,7 +48,29 @@ function mapBackendSlot(s: BackendDeliverySlot): DeliverySlot {
   };
 }
 
+export interface WarehouseOption {
+  id: number;
+  name: string;
+}
+
+export interface ZoneOption {
+  id: number;
+  name: string;
+}
+
 export const deliverySlotsApi = {
+  getWarehouses: async (): Promise<WarehouseOption[]> => {
+    const response = await apiClient.get<ApiResponse<{ warehouses: { id: number; name: string }[]; meta: Record<string, unknown> }>>('/api/v1/admin/warehouses', { params: { per_page: 200 } });
+    return (response.data.data?.warehouses || []).map((w) => ({ id: w.id, name: w.name }));
+  },
+
+  getZones: async (): Promise<ZoneOption[]> => {
+    const response = await apiClient.get<ApiResponse<{ zones: { id: number; name_ar: string; name_en?: string | null; is_active: boolean }[]; meta: Record<string, unknown> }>>('/api/v1/admin/zones', { params: { per_page: 200 } });
+    return (response.data.data?.zones || [])
+      .filter((z) => z.is_active)
+      .map((z) => ({ id: z.id, name: z.name_ar || z.name_en || '' }));
+  },
+
   getPageData: async (): Promise<DeliverySlotsPageData> => {
     const response = await apiClient.get<ApiResponse<{ delivery_slots: BackendDeliverySlot[]; meta: Record<string, unknown> }>>('/api/v1/admin/delivery-slots');
     const backendData = response.data.data;

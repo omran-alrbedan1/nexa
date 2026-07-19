@@ -1,11 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
-import { deliverySlotsApi, type DeliverySlotsPageData } from '../api/deliverySlotsApi';
+import { deliverySlotsApi, type DeliverySlotsPageData, type WarehouseOption, type ZoneOption } from '../api/deliverySlotsApi';
 
 export const deliverySlotKeys = {
   all: ['delivery-slots'] as const,
   pageData: () => [...deliverySlotKeys.all, 'page-data'] as const,
+  warehouses: () => [...deliverySlotKeys.all, 'warehouses'] as const,
+  zones: () => [...deliverySlotKeys.all, 'zones'] as const,
 };
+
+export function useWarehouses() {
+  return useQuery<WarehouseOption[]>({
+    queryKey: deliverySlotKeys.warehouses(),
+    queryFn: () => deliverySlotsApi.getWarehouses(),
+    staleTime: 60_000,
+  });
+}
+
+export function useZones() {
+  return useQuery<ZoneOption[]>({
+    queryKey: deliverySlotKeys.zones(),
+    queryFn: () => deliverySlotsApi.getZones(),
+    staleTime: 60_000,
+  });
+}
 
 export function useDeliverySlotsPage() {
   return useQuery<DeliverySlotsPageData>({
