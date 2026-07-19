@@ -1191,8 +1191,9 @@
       "warehouse": "מחסן",
       "zone": "אזור",
       "create": "צור משבצת"
-    },
-    "common": {
+    }
+  },
+  "common": {
     "loading": "טוען...",
     "error": "שגיאה",
     "retry": "נסה שוב",

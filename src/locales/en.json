@@ -1215,8 +1215,9 @@
       "warehouse": "Warehouse",
       "zone": "Zone",
       "create": "Create Slot"
-    },
-    "common": {
+    }
+  },
+  "common": {
     "loading": "Loading...",
     "error": "Error",
     "retry": "Retry",
