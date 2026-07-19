@@ -221,8 +221,8 @@ export function OrderDetailPage() {
         <OrderInfoCard icon={<CreditCard size={16} />} label={t('orders.detail.payment')}>
           <p className="text-lg font-extrabold text-text-primary font-display">{formatPrice(order.total)}</p>
           <div className="flex items-center gap-2 text-xs text-text-secondary mt-0.5">
-            <span>{t('orders.detail.subtotal')}: {order.subtotal.toFixed(2)}</span>
-            <span>{t('orders.detail.deliveryFee')}: {order.deliveryFee.toFixed(2)}</span>
+            <span>{t('orders.detail.subtotal')}: {formatPrice(order.subtotal)}</span>
+            <span>{t('orders.detail.deliveryFee')}: {formatPrice(order.deliveryFee)}</span>
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{order.paymentStatus}</Badge>

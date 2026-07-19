@@ -76,6 +76,7 @@ interface BackendProduct {
   id: number;
   sku: string;
   name_ar: string;
+  name_en?: string | null;
   price: string;
   unit: string;
   stock_quantity: number;
@@ -126,7 +127,7 @@ function mapBackendCategory(bc: BackendCategory): ProductCategory {
 function mapBackendProduct(bp: BackendProduct): DashboardProduct {
   return {
     id: bp.id,
-    name: bp.name_ar, // backend has only Arabic name, use it for both
+    name: bp.name_en || bp.name_ar,
     nameAr: bp.name_ar,
     description: '', // not available from backend
     descriptionAr: '', // not available from backend

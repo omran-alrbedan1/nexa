@@ -37,6 +37,7 @@
     "reports": "Reports",
     "specialOrders": "Special Orders",
     "driverMonitor": "Driver Monitor",
+    "deliverySlots": "Delivery Slots",
     "settings": "Settings"
   },
   "settings": {
@@ -297,11 +298,11 @@
     },
     "pendingApprovals": {
       "title": "Pending Approvals",
-      "subtitle": "Special requests needing pricing",
+      "subtitle": "Suppliers & products needing approval",
       "noPending": "No pending approvals",
-      "allResolved": "All special requests are resolved",
-      "pendingPricing": "Pending Pricing",
-      "setPrice": "Set Price"
+      "allResolved": "All approvals are resolved",
+      "pendingPricing": "Pending Approval",
+      "setPrice": "Review"
     },
     "drivers": {
       "title": "Drivers",
@@ -1181,6 +1182,38 @@
     "markAllRead": "Mark all as read",
     "footerCount": "{{count}} notification(s)",
     "noNew": "No new notifications"
+  },
+  "deliverySlots": {
+    "title": "Delivery Slots",
+    "description": "Manage delivery time slots for all zones and warehouses",
+    "addSlot": "Add Slot",
+    "stats": {
+      "total": "Total Slots",
+      "active": "Active",
+      "today": "Today",
+      "capacity": "Total Capacity",
+      "booked": "Booked",
+      "remaining": "Remaining"
+    },
+    "list": {
+      "title": "Delivery Slots",
+      "subtitle": "{{count}} slot(s) available",
+      "empty": "No delivery slots yet",
+      "emptyDesc": "Create your first delivery slot to enable customers to place orders",
+      "capacity": "Cap: {{count}}",
+      "booked": "Booked: {{count}}",
+      "remaining": "Remaining: {{count}}"
+    },
+    "form": {
+      "createTitle": "Create Delivery Slot",
+      "editTitle": "Edit Delivery Slot",
+      "date": "Date",
+      "departure": "Departure Time",
+      "cutoff": "Cutoff Time",
+      "maxCapacity": "Max Capacity",
+      "deliveryFee": "Delivery Fee",
+      "create": "Create Slot"
+    }
   },
   "common": {
     "loading": "Loading...",

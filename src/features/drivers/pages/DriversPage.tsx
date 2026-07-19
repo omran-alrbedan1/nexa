@@ -204,11 +204,11 @@ export function DriversPage() {
                   <span>{VEHICLE_ICONS[driver.vehicleType] || '🚗'} {driver.vehicleType} · {driver.vehiclePlate}</span>
                   <span className="flex items-center gap-1"><MapPin size={10} />{driver.zoneName}</span>
                   <span className="flex items-center gap-1"><Phone size={10} />{driver.phone}</span>
-                  <span className="flex items-center gap-1"><Star size={10} className="text-amber-500" />{driver.rating.toFixed(1)}</span>
+                  <span className="flex items-center gap-1"><Star size={10} className="text-amber-500" />{driver.rating ? driver.rating.toFixed(1) : '—'}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
-                  <span>{t('drivers.list.trips', { count: driver.totalTrips })}</span>
-                  <span>{t('drivers.list.ordersDelivered', { count: driver.totalOrders })}</span>
+                  <span>{driver.totalTrips ? t('drivers.list.trips', { count: driver.totalTrips }) : t('drivers.list.trips', { count: '—' })}</span>
+                  <span>{driver.totalOrders ? t('drivers.list.ordersDelivered', { count: driver.totalOrders }) : t('drivers.list.ordersDelivered', { count: '—' })}</span>
                 </div>
               </ListItem>
             ))}

@@ -37,6 +37,7 @@
     "reports": "التقارير",
     "specialOrders": "الطلبات الخاصة",
     "driverMonitor": "مراقبة السائقين",
+    "deliverySlots": "مواعيد التوصيل",
     "settings": "الإعدادات"
   },
   "settings": {
@@ -297,11 +298,11 @@
     },
     "pendingApprovals": {
       "title": "الموافقات المعلقة",
-      "subtitle": "طلبات خاصة تحتاج تسعير",
+      "subtitle": "الموردين والمنتجات التي تحتاج موافقة",
       "noPending": "لا توجد موافقات معلقة",
-      "allResolved": "تم حل جميع الطلبات الخاصة",
-      "pendingPricing": "بانتظار التسعير",
-      "setPrice": "تحديد السعر"
+      "allResolved": "تم حل جميع الموافقات",
+      "pendingPricing": "بانتظار الموافقة",
+      "setPrice": "مراجعة"
     },
     "drivers": {
       "title": "السائقون",
@@ -1181,6 +1182,38 @@
     "markAllRead": "تحديد الكل كمقروء",
     "footerCount": "{{count}} إشعار",
     "noNew": "لا توجد إشعارات جديدة"
+  },
+  "deliverySlots": {
+    "title": "مواعيد التوصيل",
+    "description": "إدارة مواعيد التوصيل لجميع المناطق والمستودعات",
+    "addSlot": "إضافة موعد",
+    "stats": {
+      "total": "إجمالي المواعيد",
+      "active": "النشط",
+      "today": "اليوم",
+      "capacity": "السعة الإجمالية",
+      "booked": "محجوز",
+      "remaining": "المتبقي"
+    },
+    "list": {
+      "title": "مواعيد التوصيل",
+      "subtitle": "{{count}} موعد متاح",
+      "empty": "لا توجد مواعيد توصيل بعد",
+      "emptyDesc": "أنشئ أول موعد توصيل لتمكين العملاء من تقديم الطلبات",
+      "capacity": "السعة: {{count}}",
+      "booked": "محجوز: {{count}}",
+      "remaining": "المتبقي: {{count}}"
+    },
+    "form": {
+      "createTitle": "إنشاء موعد توصيل",
+      "editTitle": "تعديل موعد التوصيل",
+      "date": "التاريخ",
+      "departure": "وقت الانطلاق",
+      "cutoff": "آخر موعد للاستلام",
+      "maxCapacity": "السعة القصوى",
+      "deliveryFee": "رسوم التوصيل",
+      "create": "إنشاء الموعد"
+    }
   },
   "common": {
     "loading": "جاري التحميل...",

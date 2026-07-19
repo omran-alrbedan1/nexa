@@ -4,6 +4,7 @@ import { ordersApi } from '@/features/orders/api/ordersApi';
 import { suppliersApi } from '@/features/suppliers/api/suppliersApi';
 import { driversApi } from '@/features/drivers/api/driversApi';
 import { regionsApi } from '@/features/regions/api/regionsApi';
+import { productsApi } from '@/features/products/api/productsApi';
 
 // ──────────────────────────────────────────────
 // Backend Raw Response Types
@@ -200,16 +201,17 @@ export interface DashboardWidgetsExpanded {
 // ── Helper: build frontend types from backend data ──
 
 function buildActionRequired(ar: DashboardActionRequired): ActionRequiredItem[] {
-  return [
-    { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
-    { type: 'pending_pricing', label: 'Orders Awaiting Pricing', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
-    { type: 'pending_customer', label: 'Awaiting Customer Approval', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
-    { type: 'negotiation_reply', label: 'Negotiations — Needs New Quote', count: ar.special_orders_negotiating, link: '/special-orders?status=pending_pricing' },
+  const all: ActionRequiredItem[] = [
     { type: 'overdue_supply', label: 'Overdue Supply (Past SLA)', count: ar.orders_in_supply_delayed, link: '/orders?status=pending_supply' },
+    { type: 'failed_delivery', label: 'Failed Delivery — Needs Follow-up', count: ar.delivery_failed_open, link: '/orders?status=failed_delivery' },
     { type: 'ready_no_trip', label: 'Ready to Ship — No Trip Assigned', count: ar.orders_ready_without_trip, link: '/orders?status=ready_to_ship' },
     { type: 'trip_no_driver', label: 'Trips Without Driver', count: ar.trips_without_driver, link: '/trips?status=scheduled' },
-    { type: 'failed_delivery', label: 'Failed Delivery — Needs Follow-up', count: ar.delivery_failed_open, link: '/orders?status=failed_delivery' },
+    { type: 'pending_pricing', label: 'Special Orders — Needs Pricing', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
+    { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
+    { type: 'pending_customer', label: 'Awaiting Customer Approval', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
+    { type: 'negotiation_reply', label: 'Negotiations — Needs New Quote', count: ar.special_orders_negotiating, link: '/special-orders?status=pending_pricing' },
   ];
+  return all.filter((item) => item.count > 0).slice(0, 5);
 }
 
 function buildPipeline(pl: DashboardPipeline): PipelineStage[] {
@@ -233,16 +235,21 @@ function buildTripSummary(tt: DashboardTripsToday): TripSummary {
 
 function buildStatsFromBackend(backend: DashboardBackendResponse): DashboardWidgetsExpanded['stats'] {
   const activeOps = backend.pipeline.in_supply + backend.pipeline.in_aggregation + backend.pipeline.ready_to_ship + backend.pipeline.out_for_delivery;
+  const dailyAvg = backend.orders.today > 0 ? backend.revenue / Math.max(backend.orders.today, 1) : 0;
   return {
     totalOrders: backend.orders.today,
     activeOrders: activeOps,
     deliveredToday: backend.pipeline.delivered_today,
     pendingDeliveries: backend.pipeline.out_for_delivery,
     revenueToday: backend.revenue,
-    revenueThisMonth: backend.orders.month > 0 ? Math.round(backend.revenue * 30) : Math.round(backend.revenue * 30),
-    activeDrivers: 0, // not yet available from backend endpoint
+    revenueThisMonth: dailyAvg * backend.orders.month,
+    activeDrivers: 0,
     pendingSpecialRequests: backend.action_required.special_orders_pending_admin + backend.action_required.special_orders_pending_pricing,
-    ordersByStatus: {},
+    ordersByStatus: {
+      new: backend.orders.today - backend.pipeline.delivered_today - (backend.action_required.delivery_failed_open + backend.pipeline.out_for_delivery + backend.pipeline.in_aggregation + backend.pipeline.in_supply + backend.pipeline.ready_to_ship),
+      delivered: backend.pipeline.delivered_today,
+      failed: backend.action_required.delivery_failed_open,
+    },
     ordersByType: backend.orders.by_type,
   };
 }
@@ -263,62 +270,85 @@ async function fetchRecentOrders(): Promise<RecentOrder[]> {
 }
 
 async function fetchPendingApprovals(): Promise<PendingApproval[]> {
-  const pendingSuppliers = await suppliersApi.getPendingApprovals();
-  if (pendingSuppliers.length === 0) return [];
-  return pendingSuppliers.map((s) => ({
-    id: s.id,
-    orderNumber: `SPL-${s.id}`,
-    customerName: s.name,
-    requestDetails: s.notes || `New supplier pending approval`,
-    createdAt: s.createdAt,
-  }));
+  const [pendingSuppliers, pendingProducts] = await Promise.all([
+    suppliersApi.getPendingApprovals().catch(() => [] as any[]),
+    productsApi.getPendingApprovals().catch(() => [] as any[]),
+  ]);
+  const items: PendingApproval[] = [];
+  for (const s of (pendingSuppliers || []).slice(0, 3)) {
+    items.push({
+      id: s.id,
+      orderNumber: `SUP-${s.id}`,
+      customerName: s.name,
+      requestDetails: 'Supplier pending approval',
+      createdAt: s.createdAt,
+    });
+  }
+  for (const p of (pendingProducts || []).slice(0, 3)) {
+    items.push({
+      id: p.id,
+      orderNumber: `PROD-${p.id}`,
+      customerName: p.name,
+      requestDetails: 'Product pending approval',
+      createdAt: p.createdAt,
+    });
+  }
+  return items.slice(0, 5);
 }
 
 async function fetchTopSuppliers(): Promise<TopSupplier[]> {
-  const result = await suppliersApi.getPageData();
-  return result.suppliers
-    .filter((s) => s.totalOrders > 0)
-    .sort((a, b) => b.totalOrders - a.totalOrders)
-    .slice(0, 5)
-    .map((s) => ({
-      id: s.id,
-      name: s.name,
-      orderCount: s.totalOrders,
-      acceptanceRate: s.acceptanceRate,
-    }));
+  try {
+    const result = await suppliersApi.getPageData();
+    return result.suppliers
+      .filter((s) => s.acceptanceRate > 0 || s.rating > 0)
+      .slice(0, 5)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        orderCount: 0,
+        acceptanceRate: s.acceptanceRate,
+      }));
+  } catch {
+    return [];
+  }
 }
 
 async function fetchTopAreas(): Promise<TopArea[]> {
-  const result = await regionsApi.getPageData();
-  return result.regions
-    .filter((r) => r.totalOrders > 0)
-    .sort((a, b) => b.totalOrders - a.totalOrders)
-    .slice(0, 5)
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      orderCount: r.totalOrders,
-      totalRevenue: r.totalRevenue,
-    }));
+  try {
+    const result = await regionsApi.getPageData();
+    return result.regions
+      .filter((r) => r.isActive)
+      .slice(0, 5)
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        orderCount: 0,
+        totalRevenue: 0,
+      }));
+  } catch {
+    return [];
+  }
 }
 
 async function fetchDriverActivity(): Promise<DriverStatus[]> {
-  const result = await driversApi.getPageData();
-  return result.drivers.map((d) => {
-    let status: DriverStatus['status'] = 'offline';
-    if (d.isAvailable) {
-      status = 'available';
-    } else if (d.totalTrips > 0) {
-      status = 'on_trip';
-    }
-    return {
-      id: d.id,
-      name: d.name,
-      status,
-      completedToday: d.totalOrders,
-      regionName: d.zoneName,
-    };
-  });
+  try {
+    const result = await driversApi.getPageData();
+    return result.drivers.slice(0, 10).map((d) => {
+      let status: DriverStatus['status'] = 'offline';
+      if (d.isAvailable) {
+        status = 'available';
+      }
+      return {
+        id: d.id,
+        name: d.name,
+        status,
+        completedToday: 0,
+        regionName: d.zoneName,
+      };
+    });
+  } catch {
+    return [];
+  }
 }
 
 // ── Transform backend response to frontend shape ──
@@ -380,6 +410,7 @@ export const dashboardApi = {
     result.driverActivity = driverActivityData;
     result.topSuppliers = topSuppliersData;
     result.topAreas = topAreasData;
+    result.stats.activeDrivers = driverActivityData.filter((d) => d.status === 'available' || d.status === 'on_trip').length;
     return result;
   },
 };

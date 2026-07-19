@@ -2,6 +2,7 @@ import {
   LayoutDashboard, ClipboardList, Truck, Warehouse,
   Users, Map, Megaphone, Package, FolderTree, Settings2,
   CreditCard, LifeBuoy, BarChart3, FileClock, Building2,
+  Clock,
   type LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
@@ -37,6 +38,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Package,
   FolderTree,
   Building2,
+  Clock,
   Settings2,
   CreditCard,
   LifeBuoy,
@@ -99,6 +101,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
       { id: 'customers', label: 'nav.customers', icon: 'Users', type: 'item', to: ROUTES.CUSTOMERS, roles: ['admin', 'operations'] },
       { id: 'suppliers', label: 'nav.suppliers', icon: 'Users', type: 'item', to: ROUTES.SUPPLIERS, roles: ['admin', 'operations'] },
       { id: 'regions', label: 'nav.regions', icon: 'Map', type: 'item', to: ROUTES.REGIONS, roles: ['admin'] },
+      { id: 'delivery-slots', label: 'nav.deliverySlots', icon: 'Clock', type: 'item', to: ROUTES.DELIVERY_SLOTS, roles: ['admin', 'operations'] },
     ],
   },
   {

@@ -14,8 +14,12 @@ interface PendingApprovalsWidgetProps {
 export function PendingApprovalsWidget({ approvals, isLoading }: PendingApprovalsWidgetProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const handleSetPrice = () => {
-    navigate(ROUTES.OPERATIONS);
+  const handleReview = (approval: PendingApproval) => {
+    if (approval.orderNumber.startsWith('SUP-')) {
+      navigate(ROUTES.SUPPLIERS);
+    } else {
+      navigate(ROUTES.PRODUCTS);
+    }
   };
 
   return (
@@ -65,7 +69,7 @@ export function PendingApprovalsWidget({ approvals, isLoading }: PendingApproval
                 <span className="text-xs font-mono text-text-tertiary">{approval.orderNumber}</span>
                 <button
                   className="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-brand-accent-dark transition-colors font-body"
-                  onClick={() => handleSetPrice(approval)}
+                  onClick={() => handleReview(approval)}
                 >
                   {t('dashboard.pendingApprovals.setPrice')} <ExternalLink size={12} />
                 </button>

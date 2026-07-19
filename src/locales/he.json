@@ -289,11 +289,11 @@
     },
     "pendingApprovals": {
       "title": "אישורים ממתינים",
-      "subtitle": "בקשות מיוחדות שצריכות תמחור",
+      "subtitle": "ספקים ומוצרים שצריכים אישור",
       "noPending": "אין אישורים ממתינים",
-      "allResolved": "כל הבקשות המיוחדות נפתרו",
-      "pendingPricing": "ממתין לתמחור",
-      "setPrice": "קבע מחיר"
+      "allResolved": "כל האישורים טופלו",
+      "pendingPricing": "ממתין לאישור",
+      "setPrice": "סקירה"
     },
     "drivers": {
       "title": "נהגים",
@@ -1158,6 +1158,38 @@
     "markAllRead": "סמן הכל כנקרא",
     "footerCount": "{{count}} התראה(ות)",
     "noNew": "אין התראות חדשות"
+  },
+  "deliverySlots": {
+    "title": "משבצות משלוח",
+    "description": "ניהול משבצות זמן למשלוח עבור כל האזורים והמחסנים",
+    "addSlot": "הוסף משבצת",
+    "stats": {
+      "total": "סה\"כ משבצות",
+      "active": "פעילות",
+      "today": "היום",
+      "capacity": "קיבולת כוללת",
+      "booked": "מוזמנות",
+      "remaining": "נותרו"
+    },
+    "list": {
+      "title": "משבצות משלוח",
+      "subtitle": "{{count}} משבצות זמינות",
+      "empty": "אין עדיין משבצות משלוח",
+      "emptyDesc": "צור משבצת משלוח ראשונה כדי לאפשר ללקוחות להזמין",
+      "capacity": "קיב: {{count}}",
+      "booked": "הוזמ: {{count}}",
+      "remaining": "נותרו: {{count}}"
+    },
+    "form": {
+      "createTitle": "צור משבצת משלוח",
+      "editTitle": "ערוך משבצת משלוח",
+      "date": "תאריך",
+      "departure": "שעת יציאה",
+      "cutoff": "זמן סגירה",
+      "maxCapacity": "קיבולת מקסימלית",
+      "deliveryFee": "דמי משלוח",
+      "create": "צור משבצת"
+    }
   },
   "common": {
     "loading": "טוען...",

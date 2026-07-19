@@ -23,6 +23,9 @@ export interface Driver {
   email: string;
   vehicleType: string;
   vehiclePlate: string;
+  licenseNumber: string;
+  applicationNumber: string;
+  approvalStatus: string;
   zoneName: string;
   isAvailable: boolean;
   totalTrips: number;
@@ -42,22 +45,64 @@ export interface DriversPageData {
   drivers: Driver[];
 }
 
-// ── Backend Raw Types (matching driver_profiles table) ──
+// ── Backend Raw Types (matching DriverResource from backend) ──
+
+interface BackendDriverDocument {
+  id: number;
+  type: string;
+  file_path: string | null;
+  status: string;
+  uploaded_at: string;
+}
+
+interface BackendDriverUser {
+  id: number;
+  full_name: string;
+  phone: string;
+  email: string;
+  status: string;
+  avatar: string | null;
+  documents?: BackendDriverDocument[];
+}
+
+interface BackendDriverZone {
+  id: number;
+  name: string;
+}
+
+interface BackendDriverTimelineEntry {
+  code: string;
+  label: string;
+  status: string;
+  occurred_at: string | null;
+}
 
 interface BackendDriver {
   id: number;
-  user_id: number;
+  application_number: string | null;
+  license_number: string | null;
   vehicle_type: string;
   vehicle_plate: string;
-  delivery_zone_id: number;
   is_available: boolean;
-  total_trips: number;
-  total_orders: number;
-  rating: number;
-  user?: { id: number; full_name: string; phone: string; email: string; status: string } | null;
-  delivery_zone?: { id: number; name: string } | null;
-  created_at: string;
-  updated_at: string;
+  approval_status: string;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  birthdate: string | null;
+  iban_display: string | null;
+  country_code: string | null;
+  city_id: number | null;
+  service_region_id: number | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  submitted_at: string | null;
+  review_min_hours: number | null;
+  review_max_hours: number | null;
+  user?: BackendDriverUser | null;
+  zone?: BackendDriverZone | null;
+  timeline?: BackendDriverTimelineEntry[];
+  created_at: string | null;
 }
 
 interface BackendDriversResponse {
@@ -73,15 +118,18 @@ function mapBackendDriver(d: BackendDriver): Driver {
     name: d.user?.full_name || 'Unknown',
     phone: d.user?.phone || '',
     email: d.user?.email || '',
-    vehicleType: d.vehicle_type,
-    vehiclePlate: d.vehicle_plate,
-    zoneName: d.delivery_zone?.name || '',
-    isAvailable: d.is_available,
-    totalTrips: d.total_trips || 0,
-    totalOrders: d.total_orders || 0,
-    rating: d.rating || 0,
-    createdAt: d.created_at,
-    updatedAt: d.updated_at,
+    vehicleType: d.vehicle_type || '',
+    vehiclePlate: d.vehicle_plate || '',
+    licenseNumber: d.license_number || '',
+    applicationNumber: d.application_number || '',
+    approvalStatus: d.approval_status || 'pending',
+    zoneName: d.zone?.name || '',
+    isAvailable: d.is_available ?? false,
+    totalTrips: 0,
+    totalOrders: 0,
+    rating: 0,
+    createdAt: d.created_at || new Date().toISOString(),
+    updatedAt: d.created_at || new Date().toISOString(),
   };
 }
 

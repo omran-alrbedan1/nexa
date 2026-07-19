@@ -79,6 +79,14 @@ interface BackendSupplier {
   id: number;
   business_name: string;
   address: string;
+  cover_image: string | null;
+  long_description: string | null;
+  short_description: string | null;
+  minimum_order_amount: number | null;
+  delivery_time_min: number | null;
+  delivery_time_max: number | null;
+  opening_hours: string | null;
+  is_open_now: boolean | null;
   created_at: string;
   approval_status: 'approved' | 'pending' | 'rejected';
   acceptance_rate: number;
@@ -145,20 +153,20 @@ function mapBackendProductToDashboard(bp: BackendSupplierProduct): DashboardProd
 function mapBackendSupplier(bs: BackendSupplier): Supplier {
   return {
     id: bs.id,
-    name: bs.business_name, // business_name is stored in Arabic for Saudi users
-    nameAr: bs.business_name, // use as Arabic name (business names are in Arabic)
+    name: bs.business_name,
+    nameAr: bs.business_name,
     email: bs.user?.email || '',
     phone: bs.user?.phone || '',
-    commercialRegister: '', // not available from backend
-    taxNumber: '', // not available from backend
+    commercialRegister: '',
+    taxNumber: '',
     status: mapSupplierApprovalStatus(bs.approval_status) as SupplierStatus,
-    paymentTerms: 'net_30', // default — not available from backend
-    commissionRate: 10, // default — not available from backend
+    paymentTerms: 'net_30',
+    commissionRate: 10,
     rating: Number(bs.rating_avg ?? 0),
-    totalOrders: Number(bs.products_count),
-    totalRevenue: 0, // not available from backend
+    totalOrders: 0,
+    totalRevenue: 0,
     acceptanceRate: Number(bs.acceptance_rate),
-    categories: [], // not available from backend
+    categories: [],
     regions: bs.zone ? [bs.zone.name] : [],
     contactPerson: bs.user?.full_name || '',
     contactPhone: bs.user?.phone || '',

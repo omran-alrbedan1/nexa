@@ -102,7 +102,7 @@ export function DriverDetailPage() {
             <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><Route size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('drivers.detail.totalTrips')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{driver.totalTrips}</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{driver.totalTrips || '—'}</p>
             </div>
           </div>
         </Card>
@@ -111,7 +111,7 @@ export function DriverDetailPage() {
             <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><Package size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('drivers.detail.ordersDelivered')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{driver.totalOrders}</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{driver.totalOrders || '—'}</p>
             </div>
           </div>
         </Card>
@@ -182,7 +182,7 @@ export function DriverDetailPage() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.licenseNumber')}</span>
-              <span className="font-bold text-text-primary">—</span>
+              <span className="font-bold text-text-primary">{driver.licenseNumber || '—'}</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.revenue')}</span>
