@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeliverySlots, useCreateDeliverySlot, useUpdateDeliverySlot } from '../hooks/useRegions';
+import { useWarehouses, useZones } from '@/features/delivery-slots/hooks/useDeliverySlots';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -16,28 +17,35 @@ interface DeliverySlotsSectionProps {
 export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
-  const { data: slots, isLoading } = useDeliverySlots();
+  const { data: slots, isLoading } = useDeliverySlots(zoneId);
   const createSlot = useCreateDeliverySlot();
   const updateSlot = useUpdateDeliverySlot();
-
-  const zoneSlots = (slots || []).filter((s: any) => s.zone?.id === zoneId || s.zone_id === zoneId);
+  const { data: warehouses = [] } = useWarehouses();
+  const { data: zones = [] } = useZones();
 
   const [createModal, setCreateModal] = useState(false);
   const [form, setForm] = useState({
+    warehouse_id: 0,
+    zone_id: 0,
     trip_date: '',
     departure_time: '',
-    cutoff_time: '',
+    cutoff_time: '23:59',
     max_capacity: 50,
     delivery_fee: 0,
   });
 
-  const openCreate = () => {
-    setForm({ trip_date: '', departure_time: '', cutoff_time: '', max_capacity: 50, delivery_fee: 0 });
-    setCreateModal(true);
-  };
+  useEffect(() => {
+    if (warehouses.length > 0 && zones.length > 0) {
+      setForm((prev) => ({
+        ...prev,
+        warehouse_id: warehouses[0].id,
+        zone_id: zones[0].id,
+      }));
+    }
+  }, [warehouses, zones]);
 
   const handleCreate = () => {
-    createSlot.mutate({ zone_id: zoneId, ...form }, {
+    createSlot.mutate(form, {
       onSuccess: () => setCreateModal(false),
     });
   };
@@ -50,6 +58,8 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
     return <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />;
   }
 
+  const zoneSlots = slots || [];
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -58,7 +68,7 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
           <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.slots.title')}</h3>
           <span className="text-xs text-text-tertiary">({zoneSlots.length})</span>
         </div>
-        <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>
+        <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setCreateModal(true)}>
           {t('regions.slots.addSlot')}
         </Button>
       </div>
@@ -85,6 +95,7 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
                     <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1">
                       <span className="flex items-center gap-1"><Truck size={12} /> {t('regions.slots.capacity', { count: slot.max_capacity })}</span>
                       <span className="flex items-center gap-1"><Users size={12} /> {t('regions.slots.booked', { count: slot.booked_count || 0 })}</span>
+                      {slot.warehouse && <span>{slot.warehouse.name}</span>}
                       <span>{formatPrice(slot.delivery_fee)}</span>
                     </div>
                   </div>
@@ -106,6 +117,34 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
       {/* Create Slot Modal */}
       <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('regions.slots.createTitle')}>
         <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.slots.warehouse')}</label>
+              <select
+                value={form.warehouse_id}
+                onChange={(e) => setForm({ ...form, warehouse_id: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              >
+                <option value={0} disabled>{t('common.select')}</option>
+                {warehouses.map((w: any) => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.slots.zone')}</label>
+              <select
+                value={form.zone_id}
+                onChange={(e) => setForm({ ...form, zone_id: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              >
+                <option value={0} disabled>{t('common.select')}</option>
+                {zones.map((z: any) => (
+                  <option key={z.id} value={z.id}>{z.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.slots.date')}</label>
             <input type="date" value={form.trip_date} onChange={(e) => setForm({ ...form, trip_date: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
@@ -123,11 +162,11 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.slots.maxCapacity')}</label>
-              <input type="number" value={form.max_capacity} onChange={(e) => setForm({ ...form, max_capacity: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+              <input type="number" min={1} value={form.max_capacity} onChange={(e) => setForm({ ...form, max_capacity: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.slots.deliveryFee')}</label>
-              <input type="number" value={form.delivery_fee} onChange={(e) => setForm({ ...form, delivery_fee: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+              <input type="number" min={0} step={0.5} value={form.delivery_fee} onChange={(e) => setForm({ ...form, delivery_fee: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
             </div>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">

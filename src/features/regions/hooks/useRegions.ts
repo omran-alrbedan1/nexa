@@ -130,11 +130,20 @@ export function useDeleteCluster() {
 
 // ── Delivery Slots ──
 
-export function useDeliverySlots() {
+export function useDeliverySlots(zoneId?: number) {
   return useQuery({
-    queryKey: [...regionKeys.all, 'delivery-slots'],
-    queryFn: () => regionsApi.getDeliverySlots(),
+    queryKey: [...regionKeys.all, 'delivery-slots', zoneId],
+    queryFn: () => regionsApi.getDeliverySlots(zoneId),
     staleTime: 30_000,
+  });
+}
+
+export function useDeliverySlotsForZone(zoneId: number) {
+  return useQuery({
+    queryKey: [...regionKeys.all, 'delivery-slots', 'zone', zoneId],
+    queryFn: () => regionsApi.getDeliverySlots(zoneId),
+    staleTime: 30_000,
+    enabled: zoneId > 0,
   });
 }
 
@@ -142,7 +151,7 @@ export function useCreateDeliverySlot() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: { zone_id: number; trip_date: string; departure_time: string; cutoff_time: string; max_capacity: number; delivery_fee: number }) =>
+    mutationFn: (data: { warehouse_id: number; zone_id: number; trip_date: string; departure_time: string; cutoff_time: string; max_capacity: number; delivery_fee: number }) =>
       regionsApi.createDeliverySlot(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'delivery-slots'] });

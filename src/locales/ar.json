@@ -800,6 +800,8 @@
       "cutoff": "وقت الإغلاق",
       "maxCapacity": "السعة القصوى",
       "deliveryFee": "رسوم التوصيل",
+      "warehouse": "المستودع",
+      "zone": "المنطقة",
       "create": "إنشاء فترة"
     },
     "workingDays": {
@@ -845,7 +847,10 @@
       "inactiveClusters": "غير نشط",
       "updateFee": "تحديث الرسوم",
       "deactivate": "تعطيل",
-      "activate": "تفعيل"
+      "activate": "تفعيل",
+      "edit": "تعديل",
+      "zoneInfo": "معلومات المنطقة",
+      "activeSlotsCount": "الفترات النشطة"
     }
   },
   "trips": {

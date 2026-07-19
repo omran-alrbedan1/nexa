@@ -792,6 +792,8 @@
       "cutoff": "Время отсечки",
       "maxCapacity": "Макс. вместимость",
       "deliveryFee": "Плата за доставку",
+      "warehouse": "Склад",
+      "zone": "Зона",
       "create": "Создать слот"
     },
     "workingDays": {
@@ -837,7 +839,10 @@
       "inactiveClusters": "Неактивные",
       "updateFee": "Обновить плату",
       "deactivate": "Деактивировать",
-      "activate": "Активировать"
+      "activate": "Активировать",
+      "edit": "Редактировать",
+      "zoneInfo": "Информация о зоне",
+      "activeSlotsCount": "Активные слоты"
     }
   },
   "trips": {

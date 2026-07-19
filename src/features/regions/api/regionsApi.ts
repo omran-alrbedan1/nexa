@@ -184,12 +184,14 @@ export const regionsApi = {
 
   // ── Delivery Slots ──
 
-  getDeliverySlots: async (): Promise<BackendDeliverySlot[]> => {
-    const response = await apiClient.get<ApiResponse<{ delivery_slots: BackendDeliverySlot[]; meta: Record<string, unknown> }>>('/api/v1/admin/delivery-slots');
+  getDeliverySlots: async (zoneId?: number): Promise<BackendDeliverySlot[]> => {
+    const params: Record<string, string | number> = {};
+    if (zoneId) params.zone_id = zoneId;
+    const response = await apiClient.get<ApiResponse<{ delivery_slots: BackendDeliverySlot[]; meta: Record<string, unknown> }>>('/api/v1/admin/delivery-slots', { params });
     return response.data.data?.delivery_slots || [];
   },
 
-  createDeliverySlot: async (data: { zone_id: number; trip_date: string; departure_time: string; cutoff_time: string; max_capacity: number; delivery_fee: number }): Promise<Record<string, unknown>> => {
+  createDeliverySlot: async (data: { warehouse_id: number; zone_id: number; trip_date: string; departure_time: string; cutoff_time: string; max_capacity: number; delivery_fee: number }): Promise<Record<string, unknown>> => {
     const response = await apiClient.post('/api/v1/admin/delivery-slots', data);
     return response.data;
   },

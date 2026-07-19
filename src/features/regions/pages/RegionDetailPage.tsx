@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { regionsApi, type Region } from '../api/regionsApi';
-import { useToggleRegionActive, useUpdateDeliveryFee, useUpdateZone } from '../hooks/useRegions';
+import { useToggleRegionActive, useUpdateDeliveryFee, useUpdateZone, useDeliverySlotsForZone } from '../hooks/useRegions';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -48,6 +48,8 @@ export function RegionDetailPage() {
     staleTime: 30_000,
     retry: 1,
   });
+
+  const { data: zoneSlots } = useDeliverySlotsForZone(id);
 
   const [feeModal, setFeeModal] = useState<{ open: boolean; fee: string }>({ open: false, fee: '' });
   const [zoneEditModal, setZoneEditModal] = useState(false);
@@ -177,66 +179,22 @@ export function RegionDetailPage() {
 
       {/* Tab Content */}
       {activeTab === 'overview' && (
-        <>
-          {/* Stat cards remain */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            <Card padding="md" hover>
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><DollarSign size={16} /></div>
-                <div>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.deliveryFee')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.deliveryFee)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card padding="md" hover>
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-lg bg-amber-50 text-amber-600"><CheckCircle2 size={16} /></div>
-                <div>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.minOrder')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{formatPrice(region.minimumOrder)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card padding="md" hover>
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-lg bg-green-50 text-green-600"><Zap size={16} /></div>
-                <div>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.freeDelivery')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{region.freeDeliveryThreshold ? `${formatPrice(region.freeDeliveryThreshold)}` : '—'}</p>
-                </div>
-              </div>
-            </Card>
-            <Card padding="md" hover>
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-lg bg-brand-accent-light text-brand-accent"><ShoppingCart size={16} /></div>
-                <div>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('regions.detail.orders')}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display">{region.totalOrders}</p>
-                  <p className="text-xs text-text-tertiary">{formatPrice(region.totalRevenue)}</p>
-                </div>
-              </div>
-            </Card>
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Settings2 size={16} className="text-purple-600" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.detail.zoneInfo')}</h3>
           </div>
-
-          {/* Summary Info */}
-          <Card padding="lg">
-            <div className="flex items-center gap-2 mb-4">
-              <Settings2 size={16} className="text-purple-600" />
-              <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.detail.zoneInfo')}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-body">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
+              <span className="text-text-secondary">{t('regions.detail.clusters')}</span>
+              <span className="font-bold text-text-primary">{region.clusters.length}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-body">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
-                <span className="text-text-secondary">{t('regions.detail.clusters')}</span>
-                <span className="font-bold text-text-primary">{region.clusters.length}</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
-                <span className="text-text-secondary">{t('regions.detail.activeSlotsCount')}</span>
-                <span className="font-bold text-text-primary">{region.timeSlots.filter((ts) => ts.isActive).length}</span>
-              </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
+              <span className="text-text-secondary">{t('regions.detail.activeSlotsCount')}</span>
+              <span className="font-bold text-text-primary">{zoneSlots?.filter((s: any) => s.is_available).length ?? '—'}</span>
             </div>
-          </Card>
-        </>
+          </div>
+        </Card>
       )}
 
       {activeTab === 'clusters' && (

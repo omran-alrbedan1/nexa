@@ -791,6 +791,8 @@
       "cutoff": "שעת סגר",
       "maxCapacity": "קיבולת מירבית",
       "deliveryFee": "דמי משלוח",
+      "warehouse": "מחסן",
+      "zone": "אזור",
       "create": "צור משבצת"
     },
     "workingDays": {
@@ -836,7 +838,10 @@
       "inactiveClusters": "לא פעילים",
       "updateFee": "עדכן עמלה",
       "deactivate": "בטל הפעלה",
-      "activate": "הפעל"
+      "activate": "הפעל",
+      "edit": "ערוך",
+      "zoneInfo": "מידע על האזור",
+      "activeSlotsCount": "משבצות פעילות"
     }
   },
   "trips": {
