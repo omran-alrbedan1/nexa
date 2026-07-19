@@ -128,6 +128,9 @@ export function OrderDetailPage() {
       actions.push({ label: t('orders.detail.confirmOrder'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'confirmed' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
     }
     if (o.status === 'confirmed') {
+      actions.push({ label: t('orders.detail.markPaid'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'paid' }), variant: 'primary', icon: <DollarSign size={14} /> });
+    }
+    if (o.status === 'pending_supply') {
       actions.push({ label: t('orders.detail.confirmReceipt'), onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
     }
     if (!['delivered', 'cancelled', 'refunded'].includes(o.status)) {
