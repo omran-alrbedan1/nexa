@@ -22,8 +22,10 @@ export function useAssignDriver() {
   return useMutation({
     mutationFn: ({ tripId, driverId }: { tripId: number; driverId: number }) =>
       tripsApi.assignDriver(tripId, driverId),
-    onSuccess: () => {
+    onSuccess: (_data, { tripId }) => {
       queryClient.invalidateQueries({ queryKey: tripKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: [...tripKeys.all, 'detail', tripId] });
+      queryClient.invalidateQueries({ queryKey: [...tripKeys.all, 'available-drivers'] });
       addToast('success', 'Driver assigned to trip');
     },
     onError: () => addToast('error', 'Failed to assign driver'),
@@ -35,8 +37,9 @@ export function useStartTrip() {
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (tripId: number) => tripsApi.startTrip(tripId),
-    onSuccess: () => {
+    onSuccess: (_data, tripId) => {
       queryClient.invalidateQueries({ queryKey: tripKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: [...tripKeys.all, 'detail', tripId] });
       addToast('success', 'Trip started');
     },
     onError: () => addToast('error', 'Failed to start trip'),
@@ -48,8 +51,9 @@ export function useCompleteTrip() {
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (tripId: number) => tripsApi.completeTrip(tripId),
-    onSuccess: () => {
+    onSuccess: (_data, tripId) => {
       queryClient.invalidateQueries({ queryKey: tripKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: [...tripKeys.all, 'detail', tripId] });
       addToast('success', 'Trip completed');
     },
     onError: () => addToast('error', 'Failed to complete trip'),
