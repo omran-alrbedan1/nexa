@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
@@ -14,6 +15,7 @@ import { tripsApi } from '../api/tripsApi';
 import { ArrowLeft, Truck, Save, User } from 'lucide-react';
 
 export function CreateTripPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const formatPrice = useFormatPrice();
   const addToast = useToastStore((s) => s.addToast);
@@ -69,7 +71,7 @@ export function CreateTripPage() {
 
   const handleSubmit = async () => {
     if (!form.plannedDate || !form.departureTime) {
-      addToast('error', 'Planned date and departure time are required');
+      addToast('error', t('trips.create.validationRequired'));
       return;
     }
     // Try real backend, fall back to dummy
@@ -83,9 +85,9 @@ export function CreateTripPage() {
         driver_id: selectedDriver || undefined,
         order_ids: selectedOrders,
       });
-      addToast('success', 'Trip created successfully');
+      addToast('success', t('trips.create.successTitle'));
     } catch {
-      addToast('success', 'Trip created (dummy — backend route not yet available)');
+      addToast('success', t('trips.create.successDummy'));
     }
     navigate(ROUTES.TRIPS);
   };
@@ -96,7 +98,7 @@ export function CreateTripPage() {
   return (
     <div className="space-y-6 animate-fade-up max-w-4xl">
       <button onClick={() => navigate(ROUTES.TRIPS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Trips
+        <ArrowLeft size={16} /> {t('trips.create.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent">
@@ -105,60 +107,60 @@ export function CreateTripPage() {
             <Truck size={22} className="text-brand-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">Create Trip</h1>
-            <p className="text-sm text-text-secondary font-body">Set up a new delivery trip</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('trips.create.title')}</h1>
+            <p className="text-sm text-text-secondary font-body">{t('trips.create.description')}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-4">Trip Details</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('trips.create.tripDetails')}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Trip Code</label>
-              <input value={form.tripCode} onChange={(e) => handleChange('tripCode', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="TRP-2025-008" />
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.tripCode')}</label>
+              <input value={form.tripCode} onChange={(e) => handleChange('tripCode', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('trips.create.tripCodePlaceholder')} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Planned Date *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.plannedDate')}</label>
               <input type="date" value={form.plannedDate} onChange={(e) => handleChange('plannedDate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Departure Time *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.departureTime')}</label>
               <input type="time" value={form.departureTime} onChange={(e) => handleChange('departureTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Cutoff Time</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cutoffTime')}</label>
               <input type="time" value={form.cutoffTime} onChange={(e) => handleChange('cutoffTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Expected Arrival</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.expectedArrival')}</label>
               <input type="time" value={form.expectedArrival} onChange={(e) => handleChange('expectedArrival', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
           </div>
         </Card>
 
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-4">Configuration</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('trips.create.configuration')}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Warehouse</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.warehouse')}</label>
               <select value={form.warehouseId} onChange={(e) => handleChange('warehouseId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
                 {warehouses.length === 0 ? (
-                  <option value="1">Riyadh Main Warehouse</option>
+                  <option value="1">{t('trips.create.riyadhWarehouse')}</option>
                 ) : warehouses.map((w) => (
                   <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Zone</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.deliveryZone')}</label>
               <select value={form.deliveryZone} onChange={(e) => handleChange('deliveryZone', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
                 {zones.length === 0 ? (
                   <>
-                    <option value="1">Riyadh North</option>
-                    <option value="2">Riyadh South</option>
-                    <option value="3">Jeddah Central</option>
+                    <option value="1">{t('trips.create.riyadhNorth')}</option>
+                    <option value="2">{t('trips.create.riyadhSouth')}</option>
+                    <option value="3">{t('trips.create.jeddahCentral')}</option>
                   </>
                 ) : zones.map((z) => (
                   <option key={z.id} value={z.id}>{z.name}</option>
@@ -166,14 +168,14 @@ export function CreateTripPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Cluster</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cluster')}</label>
               <select value={form.cluster} onChange={(e) => handleChange('cluster', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
                 {(() => {
                   const zoneId = Number(form.deliveryZone);
                   const zone = zones.find((z) => z.id === zoneId);
                   const clusters = zone?.clusters?.filter((c) => c.isActive) ?? [];
                   if (clusters.length === 0) {
-                    return <option value="1">General</option>;
+                    return <option value="1">{t('trips.create.generalCluster')}</option>;
                   }
                   return clusters.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -182,25 +184,25 @@ export function CreateTripPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Assignment Type</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.assignmentType')}</label>
               <select value={form.assignmentType} onChange={(e) => handleChange('assignmentType', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="manual">Manual</option>
-                <option value="automatic">Automatic</option>
+                <option value="manual">{t('trips.create.manual')}</option>
+                <option value="automatic">{t('trips.create.automatic')}</option>
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Min Orders</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.minOrders')}</label>
                 <input type="number" min="0" value={form.minOrders} onChange={(e) => handleChange('minOrders', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Max Orders</label>
+                <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.maxOrders')}</label>
                 <input type="number" min="0" value={form.maxCapacity} onChange={(e) => handleChange('maxCapacity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Delivery Fee Override</label>
-              <input type="number" min="0" value={form.deliveryFeeOverride} onChange={(e) => handleChange('deliveryFeeOverride', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="Leave empty for default" />
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.deliveryFeeOverride')}</label>
+              <input type="number" min="0" value={form.deliveryFeeOverride} onChange={(e) => handleChange('deliveryFeeOverride', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('trips.create.feePlaceholder')} />
             </div>
           </div>
         </Card>
@@ -210,17 +212,17 @@ export function CreateTripPage() {
       <Card padding="lg">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Assign Orders</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">Select orders ready to ship in this zone</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.create.assignOrders')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.create.assignOrdersDesc')}</p>
           </div>
           {selectedCount > 0 && (
-            <Badge variant="teal">{selectedCount} selected · {formatPrice(selectedTotal)}</Badge>
+            <Badge variant="teal">{t('trips.create.selectedCount', { count: selectedCount })} · {formatPrice(selectedTotal)}</Badge>
           )}
         </div>
         {ordersLoading ? (
           <div className="space-y-2 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-xl" />)}</div>
         ) : availableOrders.length === 0 ? (
-          <p className="text-sm text-text-secondary font-body py-4 text-center">No orders ready to ship in this zone</p>
+          <p className="text-sm text-text-secondary font-body py-4 text-center">{t('trips.create.noOrdersReady')}</p>
         ) : (
           <div className="space-y-2">
             {availableOrders.map((order) => (
@@ -228,9 +230,9 @@ export function CreateTripPage() {
                 <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-text-primary font-body">{order.customerName}</p>
-                  <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemCount} items</p>
+                  <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemCount} {t('common.items')}</p>
                 </div>
-                <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}</span>
+                <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : t('trips.create.tbd')}</span>
               </label>
             ))}
           </div>
@@ -241,7 +243,7 @@ export function CreateTripPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <User size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Assign Driver (optional)</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.create.assignDriver')}</h3>
         </div>
         {driversLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-pulse">{[1,2].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
@@ -265,7 +267,7 @@ export function CreateTripPage() {
                     <p className="text-sm font-bold text-text-primary font-body">{driver.name}</p>
                     <p className="text-xs text-text-secondary font-body">{driver.regionName}</p>
                     <p className={`text-xs font-bold ${driver.isAvailable ? 'text-green-600' : 'text-amber-600'}`}>
-                      {driver.isAvailable ? 'Available' : 'On Trip'}
+                      {driver.isAvailable ? t('trips.create.available') : t('trips.create.onTrip')}
                     </p>
                   </div>
                 </div>
@@ -276,8 +278,8 @@ export function CreateTripPage() {
       </Card>
 
       <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit}>Save Trip</Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.TRIPS)}>Cancel</Button>
+        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit}>{t('trips.create.saveTrip')}</Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.TRIPS)}>{t('trips.create.cancel')}</Button>
       </div>
     </div>
   );

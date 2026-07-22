@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { supportApi, type SupportTicketDetail, type SupportTicketMessage } from '../api/supportApi';
 import { extractErrorMessage } from '@/lib/apiHelpers';
@@ -53,6 +54,7 @@ export function useSendMessage(ticketId: number) {
 
 export function useUpdateTicketStatus(ticketId: number) {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -60,7 +62,7 @@ export function useUpdateTicketStatus(ticketId: number) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['support-ticket', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
-      addToast('success', `Ticket ${data.status} — updated successfully`);
+      addToast('success', t('support.toast.statusUpdated', { status: data.status }));
     },
     onError: (err) => {
       addToast('error', extractErrorMessage(err));

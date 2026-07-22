@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { deliveryMonitorApi, type SimulatorTrip } from '../api/deliveryMonitorApi'
 import { Card } from '@/components/ui/Card'
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function TripSimulatorCard({ trip }: Props) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [lat, setLat] = useState('24.713552')
   const [lng, setLng] = useState('46.675297')
@@ -51,7 +53,7 @@ export default function TripSimulatorCard({ trip }: Props) {
             </p>
           </div>
           <Badge variant={STATUS_BADGE[trip.status] || 'purple'} size="sm">
-            {trip.status.replace(/_/g, ' ')}
+            {t('trips.statusLabels.' + trip.status)}
           </Badge>
         </div>
 
@@ -131,7 +133,7 @@ export default function TripSimulatorCard({ trip }: Props) {
                     }
                     size="sm"
                   >
-                    {order.deliveryStatus.replace(/_/g, ' ')}
+                    {t('trips.deliveryStatusLabels.' + order.deliveryStatus)}
                   </Badge>
                 </div>
               </div>

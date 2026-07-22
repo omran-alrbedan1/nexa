@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ordersApi, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
 import { useToastStore } from '@/stores/toastStore';
 import { extractErrorMessage } from '@/lib/apiHelpers';
@@ -33,6 +34,7 @@ export function useOrderDetail(id: number) {
 
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -46,7 +48,7 @@ export function useUpdateOrderStatus() {
           : variables.newStatus === 'cancelled'
             ? 'cancelled'
             : 'updated';
-      addToast('success', `Order ${label} successfully`);
+      addToast('success', t('orders.toast.statusUpdated', { label }));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));
@@ -56,6 +58,7 @@ export function useUpdateOrderStatus() {
 
 export function useConfirmWarehouseReceipt() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -63,7 +66,7 @@ export function useConfirmWarehouseReceipt() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       queryClient.invalidateQueries({ queryKey: ['aggregation'] });
-      addToast('success', 'Warehouse receipt confirmed');
+      addToast('success', t('orders.toast.receiptConfirmed'));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));
@@ -73,6 +76,7 @@ export function useConfirmWarehouseReceipt() {
 
 export function useRescheduleOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -80,7 +84,7 @@ export function useRescheduleOrder() {
       ordersApi.rescheduleOrder(orderId, scheduledDate, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
-      addToast('success', 'Order rescheduled');
+      addToast('success', t('orders.toast.orderRescheduled'));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));
@@ -90,6 +94,7 @@ export function useRescheduleOrder() {
 
 export function useTransferOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -97,7 +102,7 @@ export function useTransferOrder() {
       ordersApi.transferOrder(orderId, warehouseId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
-      addToast('success', 'Order transferred');
+      addToast('success', t('orders.toast.orderTransferred'));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));

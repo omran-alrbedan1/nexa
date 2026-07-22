@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,12 +12,6 @@ const ICONS = {
   eyeOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
   arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
 };
-
-const QUICK_FILL = [
-  { email: 'admin@nexa.local', label: 'Admin', color: '#2dd4a8' },
-  { email: 'ops@nexa.local', label: 'Ops', color: '#3b82f6' },
-  { email: 'warehouse@nexa.local', label: 'Warehouse', color: '#a855f7' },
-];
 
 const styles: Record<string, React.CSSProperties> = {
   formLabel: {
@@ -74,6 +69,7 @@ const styles: Record<string, React.CSSProperties> = {
 };
 
 export function LoginForm() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,6 +77,12 @@ export function LoginForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const QUICK_FILL = [
+    { email: 'admin@nexa.local', label: t('auth.login.adminLabel'), color: '#2dd4a8' },
+    { email: 'ops@nexa.local', label: t('auth.login.opsLabel'), color: '#3b82f6' },
+    { email: 'warehouse@nexa.local', label: t('auth.login.warehouseLabel'), color: '#a855f7' },
+  ];
 
   const {
     register,
@@ -100,7 +102,7 @@ export function LoginForm() {
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (err instanceof Error ? err.message : 'Login failed. Check your credentials.');
+        (err instanceof Error ? err.message : t('auth.login.loginFailed'));
       setServerError(message);
       useToastStore.getState().addToast('error', message);
     }
@@ -116,34 +118,34 @@ export function LoginForm() {
       {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
         <div style={{ width: 32, height: 32, background: '#2dd4a8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#0a1628' }}>N</div>
-        <span style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e' }}>NEXA</span>
-        <span style={{ fontSize: 13, color: '#2dd4a8', fontWeight: 500 }}>Operations</span>
+        <span style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e' }}>{t('app.title')}</span>
+        <span style={{ fontSize: 13, color: '#2dd4a8', fontWeight: 500 }}>{t('app.subtitle')}</span>
       </div>
 
-      <h2 style={{ fontSize: 26, fontWeight: 700, color: '#1a1a2e', marginBottom: 6 }}>Welcome Back</h2>
-      <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 28 }}>Sign in to your operations dashboard.</p>
+      <h2 style={{ fontSize: 26, fontWeight: 700, color: '#1a1a2e', marginBottom: 6 }}>{t('auth.login.welcomeBack')}</h2>
+      <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 28 }}>{t('auth.login.signInDescription')}</p>
 
       {serverError && (
         <div style={styles.errorBox} role="alert">{serverError}</div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label style={styles.formLabel}>Email</label>
+        <label style={styles.formLabel}>{t('auth.login.email')}</label>
         <input
           type="email"
           {...register('email')}
           autoFocus
-          placeholder="admin@nexa.local"
+          placeholder={t('auth.login.emailPlaceholder')}
           style={{ ...styles.textInput, ...(errors.email ? styles.inputError : {}) }}
         />
         {errors.email && <p style={styles.fieldError}>{errors.email.message}</p>}
 
-        <label style={{ ...styles.formLabel, marginTop: 20 }}>Password</label>
+        <label style={{ ...styles.formLabel, marginTop: 20 }}>{t('auth.login.password')}</label>
         <div style={styles.passwordWrapper}>
           <input
             type={showPassword ? 'text' : 'password'}
             {...register('password')}
-            placeholder="Enter password"
+            placeholder={t('auth.login.passwordPlaceholder')}
             style={{ ...styles.passwordInput, ...(errors.password ? styles.inputError : {}) }}
           />
           <button
@@ -158,10 +160,10 @@ export function LoginForm() {
         <div style={styles.formOptions}>
           <label style={styles.rememberMe}>
             <input type="checkbox" defaultChecked style={styles.checkbox} />
-            Remember me
+            {t('auth.login.rememberMe')}
           </label>
           <a href="#" style={styles.forgotLink} onClick={(e) => e.preventDefault()}>
-            Forgot Password?
+            {t('auth.login.forgotPassword')}
           </a>
         </div>
 
@@ -170,9 +172,9 @@ export function LoginForm() {
           disabled={isSubmitting}
           style={{ ...styles.loginBtn, opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
         >
-          {isSubmitting ? 'Signing in...' : (
+          {isSubmitting ? t('auth.login.signingIn') : (
             <>
-              Login to Dashboard
+              {t('auth.login.loginToDashboard')}
               <span style={styles.btnArrow} dangerouslySetInnerHTML={{ __html: ICONS.arrowRight }} />
             </>
           )}
@@ -184,7 +186,7 @@ export function LoginForm() {
         <>
           <div style={styles.divider}>
             <div style={styles.dividerLine} />
-            <span style={styles.dividerText}>quick login</span>
+            <span style={styles.dividerText}>{t('auth.login.quickLogin')}</span>
             <div style={styles.dividerLine} />
           </div>
 
@@ -206,13 +208,13 @@ export function LoginForm() {
       {/* Trust badges */}
       <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
         {[
-          { text: 'Verified Supplier Platform', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>` },
-          { text: 'Secure Business Operations', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` },
-          { text: 'Protected Commercial Data', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` },
+          { key: 'verifiedPlatform', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>` },
+          { key: 'secureOperations', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` },
+          { key: 'protectedData', icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4a8" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` },
         ].map((badge) => (
-          <div key={badge.text} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f3f4f6', borderRadius: 20, padding: '7px 14px', fontSize: 12, color: '#6b7280', fontWeight: 500 }}>
+          <div key={badge.key} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f3f4f6', borderRadius: 20, padding: '7px 14px', fontSize: 12, color: '#6b7280', fontWeight: 500 }}>
             <span style={{ width: 14, height: 14, display: 'inline-flex', color: '#2dd4a8' }} dangerouslySetInnerHTML={{ __html: badge.icon }} />
-            {badge.text}
+            {t(`auth.login.${badge.key}`)}
           </div>
         ))}
       </div>

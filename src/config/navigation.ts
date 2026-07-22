@@ -68,7 +68,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
   },
   {
     id: 'group-orders',
-    label: 'Orders',
+    label: 'nav.groupOrders',
     icon: 'ClipboardList',
     type: 'group',
     roles: ['admin', 'operations'],
@@ -81,7 +81,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
   },
   {
     id: 'group-fulfillment',
-    label: 'Fulfillment',
+    label: 'nav.groupFulfillment',
     icon: 'Truck',
     type: 'group',
     roles: ['admin', 'operations', 'aggregation'],
@@ -93,7 +93,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
   },
   {
     id: 'group-logistics',
-    label: 'Logistics',
+    label: 'nav.groupLogistics',
     icon: 'Truck',
     type: 'group',
     roles: ['admin', 'operations'],
@@ -107,7 +107,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
   },
   {
     id: 'group-catalog',
-    label: 'Catalog',
+    label: 'nav.groupCatalog',
     icon: 'Package',
     type: 'group',
     roles: ['admin'],

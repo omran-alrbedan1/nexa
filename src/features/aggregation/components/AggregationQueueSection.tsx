@@ -18,13 +18,6 @@ const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'pu
   completed: 'green',
 };
 
-const STATUS_LABELS: Record<AggregationStatus, string> = {
-  queued: 'Queued',
-  processing: 'Processing',
-  packed: 'Packed',
-  completed: 'Completed',
-};
-
 interface AggregationQueueSectionProps {
   items: AggregationOrder[];
   isLoading: boolean;
@@ -33,6 +26,12 @@ interface AggregationQueueSectionProps {
 export function AggregationQueueSection({ items, isLoading }: AggregationQueueSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<AggregationStatus, string> = {
+    queued: t('warehouse.aggregationQueue.queued'),
+    processing: t('warehouse.aggregationQueue.processing'),
+    packed: t('warehouse.aggregationQueue.packed'),
+    completed: t('warehouse.aggregationQueue.completed'),
+  };
   const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<AggregationStatus | ''>('');

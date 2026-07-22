@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { categoriesApi, type Category } from '../api/categoriesApi';
@@ -12,6 +13,7 @@ import { ArrowLeft, FolderTree, Save, Upload, ImageOff } from 'lucide-react';
 const BASE_URL = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
 
 export function CategoryFormPage() {
+  const { t } = useTranslation();
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -83,7 +85,7 @@ export function CategoryFormPage() {
 
   const handleSubmit = async () => {
     if (!form.nameAr.trim()) {
-      addToast('error', 'Arabic name is required');
+      addToast('error', t('categories.form.validationRequired'));
       return;
     }
     setSaving(true);
@@ -99,15 +101,15 @@ export function CategoryFormPage() {
 
       if (isEdit) {
         await categoriesApi.update(id, payload);
-        addToast('success', 'Category updated successfully');
+        addToast('success', t('categories.form.updateSuccess'));
       } else {
         await categoriesApi.create(payload);
-        addToast('success', 'Category created successfully');
+        addToast('success', t('categories.form.createSuccess'));
       }
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       navigate(ROUTES.CATEGORIES);
     } catch (err: any) {
-      addToast('error', err?.response?.data?.message || `Failed to ${isEdit ? 'update' : 'create'} category`);
+      addToast('error', err?.response?.data?.message || (isEdit ? t('categories.form.updateFailed') || 'Failed to update category' : t('categories.form.createFailed') || 'Failed to create category'));
     } finally {
       setSaving(false);
     }
@@ -125,7 +127,7 @@ export function CategoryFormPage() {
   if (error) {
     return (
       <div className="space-y-6 animate-fade-up">
-        <ErrorState title="Error" message={error} onRetry={() => navigate(ROUTES.CATEGORIES)} />
+        <ErrorState title={t('categories.form.errorTitle')} message={error} onRetry={() => navigate(ROUTES.CATEGORIES)} />
       </div>
     );
   }
@@ -133,7 +135,7 @@ export function CategoryFormPage() {
   return (
     <div className="space-y-6 animate-fade-up max-w-4xl">
       <button onClick={() => navigate(ROUTES.CATEGORIES)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Categories
+        <ArrowLeft size={16} /> {t('categories.form.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-purple-500/10 via-purple-50 to-transparent">
@@ -143,43 +145,43 @@ export function CategoryFormPage() {
             <FolderTree size={22} className="text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">{isEdit ? 'Edit Category' : 'Add Category'}</h1>
-            <p className="text-sm text-text-secondary font-body">{isEdit ? 'Update category details' : 'Create a new product category'}</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{isEdit ? t('categories.form.editTitle') : t('categories.form.addTitle')}</h1>
+            <p className="text-sm text-text-secondary font-body">{isEdit ? t('categories.form.editDescription') : t('categories.form.addDescription')}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">Basic Information</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('categories.form.basicInfo')}</h3>
           <div className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Name (Arabic) *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.nameAr')}</label>
               <input
                 value={form.nameAr}
                 onChange={(e) => handleChange('nameAr', e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder="اسم التصنيف"
+                placeholder={t('categories.form.nameArPlaceholder')}
                 dir="rtl"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Name (English)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.nameEn')}</label>
               <input
                 value={form.nameEn}
                 onChange={(e) => handleChange('nameEn', e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder="Category name"
+                placeholder={t('categories.form.namePlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Parent Category</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.parentCategory')}</label>
               <select
                 value={form.parentId}
                 onChange={(e) => handleChange('parentId', e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
               >
-                <option value="">None (Top-level)</option>
+                <option value="">{t('categories.form.noneTopLevel')}</option>
                 {categories
                   .filter((c) => !isEdit || c.id !== id)
                   .map((c) => (
@@ -190,7 +192,7 @@ export function CategoryFormPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Sort Order</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.sortOrder')}</label>
               <input
                 type="number"
                 min="0"
@@ -200,7 +202,7 @@ export function CategoryFormPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Active</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.active')}</label>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -215,7 +217,7 @@ export function CategoryFormPage() {
         </Card>
 
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">Category Image</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('categories.form.categoryImage')}</h3>
           <div className="space-y-4">
             <div className="w-full h-44 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center">
               {imagePreview ? (
@@ -229,22 +231,22 @@ export function CategoryFormPage() {
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
             <div className="flex items-center gap-2">
               <Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>
-                {imagePreview || existingImageUrl ? 'Change Image' : 'Upload Image'}
+                {imagePreview || existingImageUrl ? t('categories.form.changeImage') : t('categories.form.uploadImage')}
               </Button>
               {(imagePreview || existingImageUrl) && (
-                <Button variant="ghost" size="sm" onClick={handleRemoveImage}>Remove</Button>
+                <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('categories.form.remove')}</Button>
               )}
             </div>
-            <p className="text-xs text-text-secondary/60">JPG, PNG, or WebP. Max 2MB.</p>
+            <p className="text-xs text-text-secondary/60">{t('categories.form.imageFormatHint')}</p>
           </div>
         </Card>
       </div>
 
       <div className="flex items-center gap-3">
         <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>
-          {isEdit ? 'Save Changes' : 'Create Category'}
+          {isEdit ? t('categories.form.saveChanges') : t('categories.form.createCategory')}
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.CATEGORIES)}>Cancel</Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.CATEGORIES)}>{t('categories.form.cancel')}</Button>
       </div>
     </div>
   );

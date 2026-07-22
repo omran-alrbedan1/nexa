@@ -18,15 +18,6 @@ const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'gree
   shipped: 'green',
 };
 
-const STATUS_LABELS: Record<ShipmentStatus, string> = {
-  pending_trip: 'Pending Trip',
-  assigned_to_trip: 'Assigned',
-  loaded: 'Loaded',
-  shipped: 'Shipped',
-};
-
-
-
 interface ReadyToShipSectionProps {
   items: ReadyToShipItem[];
   isLoading: boolean;
@@ -34,6 +25,12 @@ interface ReadyToShipSectionProps {
 
 export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps) {
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<ShipmentStatus, string> = {
+    pending_trip: t('warehouse.readyToShip.pendingTrip'),
+    assigned_to_trip: t('warehouse.readyToShip.assigned'),
+    loaded: t('warehouse.readyToShip.loaded'),
+    shipped: t('warehouse.readyToShip.shipped'),
+  };
   const [search, setSearch] = useState('');
   const [assignModal, setAssignModal] = useState<{ open: boolean; item: ReadyToShipItem | null }>({ open: false, item: null });
   const [selectedTrip, setSelectedTrip] = useState<number | ''>('');

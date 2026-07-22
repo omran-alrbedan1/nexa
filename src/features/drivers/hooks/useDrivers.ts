@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { driversApi, type DriversPageData, type DriverApprovalStatus } from '../api/driversApi';
 import { useToastStore } from '@/stores/toastStore';
 
@@ -18,39 +19,42 @@ export function useDriversPage(filters?: { approval_status?: DriverApprovalStatu
 
 export function useToggleDriverAvailability() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => driversApi.toggleAvailability(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: driverKeys.all });
-      addToast('success', data.isAvailable ? 'Driver marked available' : 'Driver marked unavailable');
+      addToast('success', data.isAvailable ? t('drivers.toast.markedAvailable') : t('drivers.toast.markedUnavailable'));
     },
-    onError: () => addToast('error', 'Failed to update driver status'),
+    onError: () => addToast('error', t('drivers.toast.statusUpdateFailed')),
   });
 }
 
 export function useApproveDriver() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => driversApi.approveDriver(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: driverKeys.all });
-      addToast('success', 'Driver approved');
+      addToast('success', t('drivers.toast.approved'));
     },
-    onError: () => addToast('error', 'Failed to approve driver'),
+    onError: () => addToast('error', t('drivers.toast.approveFailed')),
   });
 }
 
 export function useRejectDriver() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, reason }: { id: number; reason?: string }) => driversApi.rejectDriver(id, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: driverKeys.all });
-      addToast('success', 'Driver rejected');
+      addToast('success', t('drivers.toast.rejected'));
     },
-    onError: () => addToast('error', 'Failed to reject driver'),
+    onError: () => addToast('error', t('drivers.toast.rejectFailed')),
   });
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
@@ -23,6 +24,7 @@ interface EditCampaignFormItem {
 }
 
 export function EditCampaignPage() {
+  const { t } = useTranslation();
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
@@ -101,7 +103,7 @@ export function EditCampaignPage() {
         setItems(mappedItems);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Failed to load campaign');
+        setError(err instanceof Error ? err.message : t('campaigns.edit.loadFailed'));
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -138,7 +140,7 @@ export function EditCampaignPage() {
 
   const handleSubmit = async () => {
     if (!form.name || !form.startDate || !form.endDate) {
-      addToast('error', 'Campaign name, start date, and end date are required');
+      addToast('error', t('campaigns.edit.validationRequired'));
       return;
     }
     setSaving(true);
@@ -175,7 +177,7 @@ export function EditCampaignPage() {
         })),
       });
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
-      addToast('success', 'Campaign updated successfully');
+      addToast('success', t('campaigns.toast.updatedSuccessfully'));
       navigate(ROUTES.CAMPAIGN_DETAIL(id));
     } catch (err) {
       addToast('error', extractErrorMessage(err));
@@ -202,10 +204,10 @@ export function EditCampaignPage() {
     return (
       <div className="space-y-6 animate-fade-up max-w-4xl">
         <button onClick={() => navigate(ROUTES.CAMPAIGNS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Campaigns
+          <ArrowLeft size={16} /> {t('campaigns.create.backToCampaigns')}
         </button>
         <ErrorState
-          title="Failed to load campaign"
+          title={t('campaigns.edit.errorTitle')}
           message={error}
           onRetry={() => window.location.reload()}
         />
@@ -222,7 +224,7 @@ export function EditCampaignPage() {
       {/* Back */}
       <button onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(id))} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body group">
         <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-        Back to Campaign
+        {t('campaigns.edit.back')}
       </button>
 
       {/* Hero */}
@@ -233,8 +235,8 @@ export function EditCampaignPage() {
             <Megaphone size={24} className="text-brand-accent" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">Edit Campaign</h1>
-            <p className="text-sm text-text-secondary font-body">Update campaign details and settings</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('campaigns.edit.title')}</h1>
+            <p className="text-sm text-text-secondary font-body">{t('campaigns.edit.editDescription')}</p>
           </div>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
@@ -249,37 +251,37 @@ export function EditCampaignPage() {
               <Tag size={16} className="text-brand-accent" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-text-primary font-display">Campaign Details</h3>
-              <p className="text-xs text-text-secondary font-body">Basic information about the campaign</p>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.campaignDetails')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.campaignDetailsDesc')}</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <label className={labelClass}>Campaign Name (EN) *</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className={inputClass} placeholder="Summer Fruits Festival" />
+              <label className={labelClass}>{t('campaigns.edit.nameEn')}</label>
+              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className={inputClass} placeholder={t('campaigns.edit.nameEnPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Campaign Name (AR)</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className={inputClass} placeholder="مهرجان الفواكه الصيفية" dir="rtl" />
+              <label className={labelClass}>{t('campaigns.edit.nameAr')}</label>
+              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className={inputClass} placeholder={t('campaigns.edit.nameArPlaceholder')} dir="rtl" />
             </div>
             <div>
-              <label className={labelClass}>Subtitle (AR)</label>
-              <input value={form.subtitleAr} onChange={(e) => handleChange('subtitleAr', e.target.value)} className={inputClass} placeholder="عروض الصيف" dir="rtl" />
+              <label className={labelClass}>{t('campaigns.edit.subtitleAr')}</label>
+              <input value={form.subtitleAr} onChange={(e) => handleChange('subtitleAr', e.target.value)} className={inputClass} placeholder={t('campaigns.edit.subtitleArPlaceholder')} dir="rtl" />
             </div>
             <div>
-              <label className={labelClass}>Subtitle (EN)</label>
-              <input value={form.subtitleEn} onChange={(e) => handleChange('subtitleEn', e.target.value)} className={inputClass} placeholder="Summer deals" />
+              <label className={labelClass}>{t('campaigns.edit.subtitleEn')}</label>
+              <input value={form.subtitleEn} onChange={(e) => handleChange('subtitleEn', e.target.value)} className={inputClass} placeholder={t('campaigns.edit.subtitleEnPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Description</label>
-              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder="Campaign description..." />
+              <label className={labelClass}>{t('campaigns.edit.description')}</label>
+              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder={t('campaigns.edit.descriptionPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Description (EN)</label>
-              <textarea value={form.descriptionEn} onChange={(e) => handleChange('descriptionEn', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder="English description..." />
+              <label className={labelClass}>{t('campaigns.edit.descriptionEn')}</label>
+              <textarea value={form.descriptionEn} onChange={(e) => handleChange('descriptionEn', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder={t('campaigns.edit.descriptionEnPlaceholder')} />
             </div>
             <div className="md:col-span-2">
-              <label className={labelClass}>Target Zone</label>
+              <label className={labelClass}>{t('campaigns.edit.targetZone')}</label>
               <select value={form.targetRegion} onChange={(e) => handleChange('targetRegion', e.target.value)} className={selectClass}
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em", paddingRight: "2.5rem" }}>
                 {(zones || []).map((z) => (
@@ -297,32 +299,32 @@ export function EditCampaignPage() {
               <Clock size={16} className="text-brand-primary" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-text-primary font-display">Schedule</h3>
-              <p className="text-xs text-text-secondary font-body">Campaign timeline and ordering window</p>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.schedule')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.scheduleDesc')}</p>
             </div>
           </div>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Start Date *</label>
+                <label className={labelClass}>{t('campaigns.create.startDate')}</label>
                 <input type="date" value={form.startDate} onChange={(e) => handleChange('startDate', e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>End Date *</label>
+                <label className={labelClass}>{t('campaigns.create.endDate')}</label>
                 <input type="date" value={form.endDate} onChange={(e) => handleChange('endDate', e.target.value)} className={inputClass} />
               </div>
             </div>
             <div>
-              <label className={labelClass}>Ordering Closes At</label>
+              <label className={labelClass}>{t('campaigns.edit.orderingClosesAt')}</label>
               <input type="datetime-local" value={form.orderingClosesAt} onChange={(e) => handleChange('orderingClosesAt', e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Status</label>
+              <label className={labelClass}>{t('campaigns.edit.status')}</label>
               <select value={form.status} onChange={(e) => handleChange('status', e.target.value)} className={selectClass}
                 style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em", paddingRight: "2.5rem" }}>
-                <option value="draft">Draft</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="active">Active</option>
+                <option value="draft">{t('campaigns.edit.draft')}</option>
+                <option value="scheduled">{t('campaigns.edit.scheduled')}</option>
+                <option value="active">{t('campaigns.edit.active')}</option>
               </select>
             </div>
           </div>
@@ -335,19 +337,19 @@ export function EditCampaignPage() {
               <Package size={16} className="text-green-600" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-text-primary font-display">Delivery</h3>
-              <p className="text-xs text-text-secondary font-body">Delivery lead time expectations</p>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.delivery')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.deliveryDesc')}</p>
             </div>
           </div>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass}>Min Days</label>
-                <input type="number" min="0" value={form.deliveryLeadTimeMinDays} onChange={(e) => handleChange('deliveryLeadTimeMinDays', e.target.value)} className={inputClass} placeholder="1" />
+                <label className={labelClass}>{t('campaigns.edit.minDays')}</label>
+                <input type="number" min="0" value={form.deliveryLeadTimeMinDays} onChange={(e) => handleChange('deliveryLeadTimeMinDays', e.target.value)} className={inputClass} placeholder={t('campaigns.create.minDaysPlaceholder')} />
               </div>
               <div>
-                <label className={labelClass}>Max Days</label>
-                <input type="number" min="0" value={form.deliveryLeadTimeMaxDays} onChange={(e) => handleChange('deliveryLeadTimeMaxDays', e.target.value)} className={inputClass} placeholder="3" />
+                <label className={labelClass}>{t('campaigns.edit.maxDays')}</label>
+                <input type="number" min="0" value={form.deliveryLeadTimeMaxDays} onChange={(e) => handleChange('deliveryLeadTimeMaxDays', e.target.value)} className={inputClass} placeholder={t('campaigns.create.maxDaysPlaceholder')} />
               </div>
             </div>
           </div>
@@ -361,8 +363,8 @@ export function EditCampaignPage() {
             <ImageIcon size={16} className="text-purple-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Campaign Image</h3>
-            <p className="text-xs text-text-secondary font-body">Upload a banner image for the campaign</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.campaignImage')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.campaignImageDesc')}</p>
           </div>
         </div>
         {imagePreview ? (
@@ -371,7 +373,7 @@ export function EditCampaignPage() {
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
               <label className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-2 px-4 py-2 bg-white/90 rounded-xl text-sm font-bold text-text-primary hover:bg-white">
                 <ImageIcon size={16} />
-                Change Image
+                {t('campaigns.edit.changeImage')}
                 <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               </label>
             </div>
@@ -380,8 +382,8 @@ export function EditCampaignPage() {
           <label className="flex flex-col items-center justify-center w-full h-48 md:h-56 border-2 border-dashed border-border-default rounded-xl cursor-pointer hover:border-brand-primary hover:bg-brand-accent/5 transition-all group">
             <div className="flex flex-col items-center gap-2 text-text-tertiary group-hover:text-brand-accent transition-colors">
               <ImageIcon size={32} />
-              <span className="text-sm font-bold">Upload Campaign Image</span>
-              <span className="text-xs">Click to browse or drag and drop</span>
+              <span className="text-sm font-bold">{t('campaigns.edit.uploadImage')}</span>
+              <span className="text-xs">{t('campaigns.edit.dragDropHint')}</span>
             </div>
             <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
           </label>
@@ -389,7 +391,7 @@ export function EditCampaignPage() {
         {imageFile && (
           <div className="mt-3">
             <Button variant="secondary" size="sm" onClick={() => { setImageFile(null); setImagePreview(campaign?.bannerUrl || null); }}>
-              Remove Image
+              {t('campaigns.edit.removeImage')}
             </Button>
           </div>
         )}
@@ -402,8 +404,8 @@ export function EditCampaignPage() {
             <Package size={16} className="text-amber-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Stock Management</h3>
-            <p className="text-xs text-text-secondary font-body">Configure campaign-level inventory limits</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.stockManagement')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.stockManagementDesc')}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4 rounded-xl bg-bg-section-alt border border-border-default/60">
@@ -412,30 +414,30 @@ export function EditCampaignPage() {
             <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary" />
           </div>
           <label htmlFor="stock-toggle" className="text-sm font-bold text-text-primary font-body cursor-pointer select-none">
-            {form.isStockLimited ? 'Stock is limited' : 'Unlimited stock'}
+            {form.isStockLimited ? t('campaigns.edit.stockLimited') : t('campaigns.edit.unlimitedStock')}
           </label>
         </div>
         {form.isStockLimited && (
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className={labelClass}>Total Quantity</label>
-              <input type="number" min="0" value={form.stockTotalQuantity} onChange={(e) => handleChange('stockTotalQuantity', e.target.value)} className={inputClass} placeholder="e.g. 1000" />
+              <label className={labelClass}>{t('campaigns.edit.totalQuantity')}</label>
+              <input type="number" min="0" value={form.stockTotalQuantity} onChange={(e) => handleChange('stockTotalQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.totalQuantityPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Reserved</label>
-              <input type="number" min="0" value={form.stockReservedQuantity} onChange={(e) => handleChange('stockReservedQuantity', e.target.value)} className={inputClass} placeholder="e.g. 50" />
+              <label className={labelClass}>{t('campaigns.edit.reserved')}</label>
+              <input type="number" min="0" value={form.stockReservedQuantity} onChange={(e) => handleChange('stockReservedQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.reservedPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Already Sold</label>
-              <input type="number" min="0" value={form.stockSoldQuantity} onChange={(e) => handleChange('stockSoldQuantity', e.target.value)} className={inputClass} placeholder="e.g. 200" />
+              <label className={labelClass}>{t('campaigns.edit.alreadySold')}</label>
+              <input type="number" min="0" value={form.stockSoldQuantity} onChange={(e) => handleChange('stockSoldQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.alreadySoldPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Low Stock Threshold</label>
-              <input type="number" min="0" value={form.stockLowStockThreshold} onChange={(e) => handleChange('stockLowStockThreshold', e.target.value)} className={inputClass} placeholder="e.g. 100" />
+              <label className={labelClass}>{t('campaigns.edit.lowStockThreshold')}</label>
+              <input type="number" min="0" value={form.stockLowStockThreshold} onChange={(e) => handleChange('stockLowStockThreshold', e.target.value)} className={inputClass} placeholder={t('campaigns.create.lowStockThresholdPlaceholder')} />
             </div>
             <div>
-              <label className={labelClass}>Stock Unit</label>
-              <input value={form.stockUnit} onChange={(e) => handleChange('stockUnit', e.target.value)} className={inputClass} placeholder="kg, box, item" />
+              <label className={labelClass}>{t('campaigns.edit.stockUnit')}</label>
+              <input value={form.stockUnit} onChange={(e) => handleChange('stockUnit', e.target.value)} className={inputClass} placeholder={t('campaigns.edit.stockUnitPlaceholder')} />
             </div>
           </div>
         )}
@@ -449,61 +451,61 @@ export function EditCampaignPage() {
               <Package size={16} className="text-brand-accent" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-text-primary font-display">Campaign Items</h3>
-              <p className="text-xs text-text-secondary font-body">Products suppliers can bid on</p>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.edit.campaignItems')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('campaigns.edit.campaignItemsDesc')}</p>
             </div>
           </div>
-          <Button variant="secondary" size="sm" leftIcon={<Plus size={14} />} onClick={addItem}>Add Item</Button>
+          <Button variant="secondary" size="sm" leftIcon={<Plus size={14} />} onClick={addItem}>{t('campaigns.edit.addItem')}</Button>
         </div>
         {items.length === 0 ? (
           <div className="text-center py-10">
             <Package size={40} className="mx-auto text-text-tertiary/40 mb-3" />
-            <p className="text-sm text-text-tertiary font-body">No items added yet.</p>
-            <p className="text-xs text-text-tertiary/60 font-body mt-1">Click "Add Item" to define what suppliers can bid on.</p>
+            <p className="text-sm text-text-tertiary font-body">{t('campaigns.edit.noItems')}</p>
+            <p className="text-xs text-text-tertiary/60 font-body mt-1">{t('campaigns.edit.noItemsDesc')}</p>
           </div>
         ) : (
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.key} className="p-5 rounded-xl border border-border-default/60 bg-white/50 hover:border-border-default transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wider bg-bg-section-alt px-2.5 py-1 rounded-lg">Item #{items.indexOf(item) + 1}</span>
+                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wider bg-bg-section-alt px-2.5 py-1 rounded-lg">{t('campaigns.create.itemLabel', { number: items.indexOf(item) + 1 })}</span>
                   <button onClick={() => removeItem(item.key)} className="p-1.5 rounded-lg hover:bg-red-50 text-text-tertiary hover:text-red-500 transition-colors">
                     <X size={14} />
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Name (AR) *</label>
-                    <input value={item.nameAr} onChange={(e) => updateItem(item.key, 'nameAr', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="اسم المنتج" dir="rtl" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemNameAr')}</label>
+                    <input value={item.nameAr} onChange={(e) => updateItem(item.key, 'nameAr', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemNameArPlaceholder')} dir="rtl" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Name (EN)</label>
-                    <input value={item.nameEn} onChange={(e) => updateItem(item.key, 'nameEn', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="Product name" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemNameEn')}</label>
+                    <input value={item.nameEn} onChange={(e) => updateItem(item.key, 'nameEn', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemNameEnPlaceholder')} />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Category *</label>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemCategory')}</label>
                     <select value={item.categoryId} onChange={(e) => updateItem(item.key, 'categoryId', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all">
-                      <option value="">Select category</option>
+                      <option value="">{t('campaigns.edit.selectCategory')}</option>
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.id}>{cat.nameEn || cat.nameAr}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Unit *</label>
-                    <input value={item.unit} onChange={(e) => updateItem(item.key, 'unit', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="kg, box" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemUnit')}</label>
+                    <input value={item.unit} onChange={(e) => updateItem(item.key, 'unit', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemUnitPlaceholder')} />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Price *</label>
-                    <input type="number" step="0.01" min="0" value={item.price} onChange={(e) => updateItem(item.key, 'price', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="0.00" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemPrice')}</label>
+                    <input type="number" step="0.01" min="0" value={item.price} onChange={(e) => updateItem(item.key, 'price', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemPricePlaceholder')} />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Stock Qty</label>
-                    <input type="number" min="0" value={item.stockQuantity} onChange={(e) => updateItem(item.key, 'stockQuantity', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="0" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemStockQty')}</label>
+                    <input type="number" min="0" value={item.stockQuantity} onChange={(e) => updateItem(item.key, 'stockQuantity', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemStockQtyPlaceholder')} />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold text-text-secondary mb-1">Description</label>
-                    <input value={item.description} onChange={(e) => updateItem(item.key, 'description', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="Item description (optional)" />
+                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.edit.itemDescription')}</label>
+                    <input value={item.description} onChange={(e) => updateItem(item.key, 'description', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.edit.itemDescriptionPlaceholder')} />
                   </div>
                 </div>
               </div>
@@ -514,8 +516,8 @@ export function EditCampaignPage() {
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-default/50">
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(id))}>Cancel</Button>
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} isLoading={saving} onClick={handleSubmit}>Save Changes</Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.CAMPAIGN_DETAIL(id))}>{t('common.cancel')}</Button>
+        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} isLoading={saving} onClick={handleSubmit}>{t('campaigns.edit.saveCampaign')}</Button>
       </div>
     </div>
   );

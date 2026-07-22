@@ -10,19 +10,19 @@ interface DriverActivityWidgetProps {
   isLoading?: boolean;
 }
 
-function getStatusBadge(status: DriverStatus['status']) {
-  switch (status) {
-    case 'on_trip':
-      return <Badge variant="teal" size="sm" dot>On Trip</Badge>;
-    case 'available':
-      return <Badge variant="green" size="sm" dot>Available</Badge>;
-    case 'offline':
-      return <Badge variant="gray" size="sm">Offline</Badge>;
-  }
-}
-
 export function DriverActivityWidget({ drivers, isLoading }: DriverActivityWidgetProps) {
   const { t } = useTranslation();
+
+  function getStatusBadge(status: DriverStatus['status']) {
+    switch (status) {
+      case 'on_trip':
+        return <Badge variant="teal" size="sm" dot>{t('dashboard.drivers.onTrip')}</Badge>;
+      case 'available':
+        return <Badge variant="green" size="sm" dot>{t('dashboard.drivers.available')}</Badge>;
+      case 'offline':
+        return <Badge variant="gray" size="sm">{t('dashboard.drivers.offline')}</Badge>;
+    }
+  }
 
   return (
     <Card padding="lg" hover>

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { aggregationApi, type AggregationPageData } from '../api/aggregationApi';
 
@@ -21,22 +22,24 @@ export function useAggregationPage() {
 
 export function useConfirmReceipt() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (supplyId: number) => aggregationApi.confirmReceipt(supplyId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.pageData() });
-      addToast('success', 'Receipt confirmed successfully');
+      addToast('success', t('aggregation.toast.receiptConfirmed'));
     },
     onError: () => {
-      addToast('error', 'Failed to confirm receipt');
+      addToast('error', t('aggregation.toast.receiptConfirmFailed'));
     },
   });
 }
 
 export function useStartProcessing() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -44,48 +47,51 @@ export function useStartProcessing() {
       aggregationApi.startProcessing(orderId, assignee),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.pageData() });
-      addToast('success', 'Order is now being processed');
+      addToast('success', t('aggregation.toast.processingStarted'));
     },
     onError: () => {
-      addToast('error', 'Failed to start processing');
+      addToast('error', t('aggregation.toast.processingStartFailed'));
     },
   });
 }
 
 export function useMarkPacked() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (orderId: number) => aggregationApi.markPacked(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.pageData() });
-      addToast('success', 'Order packed successfully');
+      addToast('success', t('aggregation.toast.packed'));
     },
     onError: () => {
-      addToast('error', 'Failed to mark as packed');
+      addToast('error', t('aggregation.toast.packFailed'));
     },
   });
 }
 
 export function usePassQualityCheck() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (orderId: number) => aggregationApi.passQualityCheck(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.pageData() });
-      addToast('success', 'Quality check passed — order ready to ship');
+      addToast('success', t('aggregation.toast.qualityPassed'));
     },
     onError: () => {
-      addToast('error', 'Quality check failed');
+      addToast('error', t('aggregation.toast.qualityFailed'));
     },
   });
 }
 
 export function useAssignToTrip() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -93,10 +99,10 @@ export function useAssignToTrip() {
       aggregationApi.assignToTrip(itemId, tripId, tripName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.pageData() });
-      addToast('success', 'Order assigned to trip successfully');
+      addToast('success', t('aggregation.toast.assignedToTrip'));
     },
     onError: () => {
-      addToast('error', 'Failed to assign to trip');
+      addToast('error', t('aggregation.toast.assignToTripFailed'));
     },
   });
 }

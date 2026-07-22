@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { regionsApi, type RegionsPageData } from '../api/regionsApi';
 
@@ -18,28 +19,30 @@ export function useRegionsPage() {
 
 export function useToggleRegionActive() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => regionsApi.toggleActive(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', data.isActive ? 'Region enabled' : 'Region disabled');
+      addToast('success', data.isActive ? t('regions.toast.regionEnabled') : t('regions.toast.regionDisabled'));
     },
-    onError: () => addToast('error', 'Failed to toggle region'),
+    onError: () => addToast('error', t('regions.toast.toggleFailed')),
   });
 }
 
 export function useUpdateDeliveryFee() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, deliveryFee }: { id: number; deliveryFee: number }) =>
       regionsApi.updateDeliveryFee(id, deliveryFee),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', 'Delivery fee updated');
+      addToast('success', t('regions.toast.feeUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update delivery fee'),
+    onError: () => addToast('error', t('regions.toast.feeUpdateFailed')),
   });
 }
 
@@ -47,20 +50,22 @@ export function useUpdateDeliveryFee() {
 
 export function useCreateZone() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (data: { name_ar: string; name_en?: string; code?: string }) =>
       regionsApi.createZone(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', 'Zone created');
+      addToast('success', t('regions.toast.zoneCreated'));
     },
-    onError: () => addToast('error', 'Failed to create zone'),
+    onError: () => addToast('error', t('regions.toast.zoneCreateFailed')),
   });
 }
 
 export function useUpdateZone() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; code?: string } }) =>
@@ -68,9 +73,9 @@ export function useUpdateZone() {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
       queryClient.invalidateQueries({ queryKey: regionKeys.detail(vars.id) });
-      addToast('success', 'Zone updated');
+      addToast('success', t('regions.toast.zoneUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update zone'),
+    onError: () => addToast('error', t('regions.toast.zoneUpdateFailed')),
   });
 }
 
@@ -86,6 +91,7 @@ export function useClusters() {
 
 export function useCreateCluster() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (data: { zone_id: number; name_ar: string; name_en?: string; code?: string }) =>
@@ -93,14 +99,15 @@ export function useCreateCluster() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'clusters'] });
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', 'Cluster created');
+      addToast('success', t('regions.toast.clusterCreated'));
     },
-    onError: () => addToast('error', 'Failed to create cluster'),
+    onError: () => addToast('error', t('regions.toast.clusterCreateFailed')),
   });
 }
 
 export function useUpdateCluster() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; code?: string; is_active?: boolean } }) =>
@@ -108,23 +115,24 @@ export function useUpdateCluster() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'clusters'] });
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', 'Cluster updated');
+      addToast('success', t('regions.toast.clusterUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update cluster'),
+    onError: () => addToast('error', t('regions.toast.clusterUpdateFailed')),
   });
 }
 
 export function useDeleteCluster() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => regionsApi.deleteCluster(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'clusters'] });
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
-      addToast('success', 'Cluster deleted');
+      addToast('success', t('regions.toast.clusterDeleted'));
     },
-    onError: () => addToast('error', 'Failed to delete cluster'),
+    onError: () => addToast('error', t('regions.toast.clusterDeleteFailed')),
   });
 }
 
@@ -149,29 +157,31 @@ export function useDeliverySlotsForZone(zoneId: number) {
 
 export function useCreateDeliverySlot() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (data: { warehouse_id: number; zone_id: number; trip_date: string; departure_time: string; cutoff_time: string; max_capacity: number; delivery_fee: number }) =>
       regionsApi.createDeliverySlot(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'delivery-slots'] });
-      addToast('success', 'Delivery slot created');
+      addToast('success', t('regions.toast.slotCreated'));
     },
-    onError: () => addToast('error', 'Failed to create delivery slot'),
+    onError: () => addToast('error', t('regions.toast.slotCreateFailed')),
   });
 }
 
 export function useUpdateDeliverySlot() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: { max_capacity?: number; delivery_fee?: number; is_available?: boolean } }) =>
       regionsApi.updateDeliverySlot(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...regionKeys.all, 'delivery-slots'] });
-      addToast('success', 'Delivery slot updated');
+      addToast('success', t('regions.toast.slotUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update delivery slot'),
+    onError: () => addToast('error', t('regions.toast.slotUpdateFailed')),
   });
 }
 
@@ -179,13 +189,14 @@ export function useUpdateDeliverySlot() {
 
 export function useUpdateWorkingDays() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, days }: { id: number; days: { day_of_week: number; is_working: boolean }[] }) =>
       regionsApi.updateWorkingDays(id, days),
     onSuccess: () => {
-      addToast('success', 'Working days updated');
+      addToast('success', t('regions.toast.workingDaysUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update working days'),
+    onError: () => addToast('error', t('regions.toast.workingDaysUpdateFailed')),
   });
 }

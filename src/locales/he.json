@@ -37,7 +37,12 @@
     "reports": "דוחות",
     "specialOrders": "הזמנות מיוחדות",
     "driverMonitor": "ניטור נהגים",
-    "settings": "הגדרות"
+    "deliverySlots": "משבצות משלוח",
+    "settings": "הגדרות",
+    "groupOrders": "הזמנות",
+    "groupFulfillment": "מילוי",
+    "groupLogistics": "לוגיסטיקה",
+    "groupCatalog": "קטלוג"
   },
   "settings": {
     "title": "הגדרות",
@@ -48,7 +53,9 @@
       "staff": "צוות",
       "banners": "באנרים",
       "notifications": "התראות",
-      "audit": "יומן ביקורת"
+      "audit": "יומן ביקורת",
+      "privacyPolicy": "מדיניות פרטיות",
+      "navigation": "תפריט ניווט"
     },
     "general": {
       "title": "הגדרות מערכת",
@@ -118,7 +125,7 @@
       "createBanner": "צור באנר",
       "editBanner": "ערוך באנר",
       "titleField": "כותרת",
-      "imageUrl": "כתובת תמונה",
+      "imageUrl": "תמונה",
       "linkType": "סוג קישור",
       "sortOrder": "סדר מיון",
       "deleteTitle": "מחק באנר",
@@ -159,6 +166,12 @@
       "timestamp": "חותמת זמן",
       "newValues": "ערכים חדשים",
       "oldValues": "ערכים ישנים"
+    },
+    "privacyPolicy": {
+      "title": "מדיניות פרטיות",
+      "description": "ניהול תוכן מדיניות הפרטיות עבור אפליקציית המובייל שלך",
+      "titleLabel": "כותרת העמוד",
+      "contentLabel": "תוכן"
     }
   },
   "customers": {
@@ -552,6 +565,28 @@
       "delivered": "נמסרו",
       "failed": "נכשלו"
     },
+    "status": {
+      "new": "חדשה",
+      "pending_management": "ממתין לניהול",
+      "pending_pricing": "ממתין לתמחור",
+      "pending_customer_approval": "ממתין לאישור לקוח",
+      "confirmed": "מאושרת",
+      "paid": "שולם",
+      "pending_supply": "בהספקה",
+      "pending_aggregation": "באיגregation",
+      "ready_to_ship": "מוכן למשלוח",
+      "out_for_delivery": "במשלוח",
+      "delivered": "נמסרה",
+      "failed_delivery": "משלוח נכשל",
+      "cancelled": "בוטלה",
+      "postponed": "נדחתה",
+      "refunded": "הוחזרה"
+    },
+    "paymentMethods": {
+      "cash_on_delivery": "מזומן במשלוח",
+      "card_online": "כרטיס אונליין",
+      "bank_transfer": "העברה בנקאית"
+    },
     "list": {
       "export": "ייצוא",
       "totalOrders": "{{count}} סה״כ הזמנות",
@@ -741,6 +776,19 @@
       "totalOrders": "סך ההזמנות",
       "revenue": "הכנסות",
       "acceptanceRate": "שיעור קבלה"
+    },
+    "status": {
+      "active": "פעיל",
+      "inactive": "לא פעיל",
+      "suspended": "מושעה",
+      "pending_approval": "ממתין לאישור",
+      "unknown": "לא ידוע"
+    },
+    "paymentTerms": {
+      "net_15": "נטו 15",
+      "net_30": "נטו 30",
+      "net_45": "נטו 45",
+      "prepaid": "תשלום מראש"
     }
   },
   "regions": {
@@ -971,6 +1019,17 @@
       "deliveredCount": "נמסרו: {{count}}",
       "noTripsYet": "עדיין אין נסיעות",
       "noTripsDescription": "נהג זה עדיין לא ביצע נסיעות."
+    },
+    "status": {
+      "pending": "ממתין",
+      "approved": "מאושר",
+      "rejected": "נדחה"
+    },
+    "vehicleTypes": {
+      "van": "טנדר",
+      "truck": "משאית",
+      "motorcycle": "אופנוע",
+      "car": "רכב"
     }
   },
   "payments": {
@@ -1004,7 +1063,21 @@
     "start": "התחל",
     "resolve": "סמן כנפתר",
     "system": "מערכת",
-    "viewTicket": "צפה בכרטיס"
+    "viewTicket": "צפה בכרטיס",
+    "sendMessage": "שלח",
+    "publicReply": "ציבורי",
+    "internalNote": "פנימי",
+    "customerInfo": "לקוח",
+    "assigneeInfo": "ממונה",
+    "priorityInfo": "עדיפות",
+    "createdInfo": "נוצר",
+    "unassigned": "לא משויך",
+    "noMessages": "אין הודעות",
+    "noMessagesDesc": "שלח הודעה כדי להתחיל את השיחה",
+    "messagePlaceholder": "הקלד את תשובתך...",
+    "internalPlaceholder": "כתוב הערה פנימית (לא גלויה ללקוח)...",
+    "statusUpdated": "סטטוס הכרטיס עודכן",
+    "close": "סגור"
   },
   "reports": {
     "title": "דוחות",
@@ -1116,6 +1189,7 @@
       "scheduled": "מתוכנן",
       "draft": "טיוטה",
       "ended": "הסתיים",
+      "fulfilled": "מומש",
       "cancelled": "בוטל",
       "noCampaigns": "אין קמפיינים",
       "noFilterMatch": "אין קמפיינים התואמים את המסנן",
@@ -1236,6 +1310,8 @@
     "inactive": "לא פעיל",
     "activate": "הפעל",
     "deactivate": "בטל הפעלה",
-    "select": "בחר"
+    "back": "חזרה",
+    "select": "בחר",
+    "unknown": "לא ידוע"
   }
 }

@@ -202,14 +202,14 @@ export interface DashboardWidgetsExpanded {
 
 function buildActionRequired(ar: DashboardActionRequired): ActionRequiredItem[] {
   const all: ActionRequiredItem[] = [
-    { type: 'overdue_supply', label: 'Overdue Supply (Past SLA)', count: ar.orders_in_supply_delayed, link: '/orders?status=pending_supply' },
-    { type: 'failed_delivery', label: 'Failed Delivery — Needs Follow-up', count: ar.delivery_failed_open, link: '/orders?status=failed_delivery' },
-    { type: 'ready_no_trip', label: 'Ready to Ship — No Trip Assigned', count: ar.orders_ready_without_trip, link: '/orders?status=ready_to_ship' },
-    { type: 'trip_no_driver', label: 'Trips Without Driver', count: ar.trips_without_driver, link: '/trips?status=scheduled' },
-    { type: 'pending_pricing', label: 'Special Orders — Needs Pricing', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
-    { type: 'new_special', label: 'Special Orders — Pending Admin Review', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
-    { type: 'pending_customer', label: 'Awaiting Customer Approval', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
-    { type: 'negotiation_reply', label: 'Negotiations — Needs New Quote', count: ar.special_orders_negotiating, link: '/special-orders?status=pending_pricing' },
+    { type: 'overdue_supply', label: '', count: ar.orders_in_supply_delayed, link: '/orders?status=pending_supply' },
+    { type: 'failed_delivery', label: '', count: ar.delivery_failed_open, link: '/orders?status=failed_delivery' },
+    { type: 'ready_no_trip', label: '', count: ar.orders_ready_without_trip, link: '/orders?status=ready_to_ship' },
+    { type: 'trip_no_driver', label: '', count: ar.trips_without_driver, link: '/trips?status=scheduled' },
+    { type: 'pending_pricing', label: '', count: ar.special_orders_pending_pricing, link: '/orders?status=pending_pricing' },
+    { type: 'new_special', label: '', count: ar.special_orders_pending_admin, link: '/orders?status=pending_management' },
+    { type: 'pending_customer', label: '', count: ar.orders_pending_customer, link: '/orders?status=pending_customer_approval' },
+    { type: 'negotiation_reply', label: '', count: ar.special_orders_negotiating, link: '/special-orders?status=pending_pricing' },
   ];
   return all.filter((item) => item.count > 0).slice(0, 5);
 }
@@ -280,7 +280,7 @@ async function fetchPendingApprovals(): Promise<PendingApproval[]> {
       id: s.id,
       orderNumber: `SUP-${s.id}`,
       customerName: s.name,
-      requestDetails: 'Supplier pending approval',
+      requestDetails: 'pending_approval_supplier',
       createdAt: s.createdAt,
     });
   }
@@ -289,7 +289,7 @@ async function fetchPendingApprovals(): Promise<PendingApproval[]> {
       id: p.id,
       orderNumber: `PROD-${p.id}`,
       customerName: p.name,
-      requestDetails: 'Product pending approval',
+      requestDetails: 'pending_approval_product',
       createdAt: p.createdAt,
     });
   }

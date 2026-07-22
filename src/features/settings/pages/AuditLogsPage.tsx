@@ -20,8 +20,8 @@ const ACTION_COLORS: Record<string, 'teal' | 'green' | 'yellow' | 'red' | 'purpl
 
 export function AuditLogsPage() {
   const { t } = useTranslation();
-  const { data, isLoading, isError, error, refetch } = useAuditLogs();
   const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useAuditLogs(page);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   const logs = data?.data || [];

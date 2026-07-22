@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { apiClient, getAuthToken } from '@/lib/axios';
 import { formatPrice } from '@/utils/currency';
 import { LoginForm } from '@/features/auth/components/LoginForm';
@@ -6,7 +7,7 @@ import { LoginForm } from '@/features/auth/components/LoginForm';
 // ── Types ──
 
 interface StatCardData {
-  label: string;
+  labelKey: string;
   value: string;
   sublabel: string;
   trend: 'up' | 'live' | 'neutral';
@@ -29,19 +30,19 @@ const ICONS = {
 
 const DEFAULT_STATS: StatCardData[] = [
   {
-    label: 'Total Orders', value: '1,247', sublabel: '+18 dispatched today',
+    labelKey: 'totalOrders', value: '1,247', sublabel: '+18 dispatched today',
     trend: 'up', iconSvg: ICONS.orders, iconBg: 'green',
   },
   {
-    label: 'Active Suppliers', value: '48', sublabel: '100% operational',
+    labelKey: 'activeSuppliers', value: '48', sublabel: '100% operational',
     trend: 'live', iconSvg: ICONS.suppliers, iconBg: 'blue',
   },
   {
-    label: 'Monthly Revenue', value: '482K', sublabel: '+12.5% growth',
+    labelKey: 'monthlyRevenue', value: '482K', sublabel: '+12.5% growth',
     trend: 'up', iconSvg: ICONS.revenue, iconBg: 'orange',
   },
   {
-    label: 'Fulfillment Rate', value: '98.7%', sublabel: '+2.3% this week',
+    labelKey: 'fulfillmentRate', value: '98.7%', sublabel: '+2.3% this week',
     trend: 'up', iconSvg: ICONS.fulfillment, iconBg: 'purple',
   },
 ];
@@ -61,26 +62,26 @@ async function fetchLoginStats(): Promise<StatCardData[]> {
 
     return [
       {
-        label: 'Total Orders',
+        labelKey: 'totalOrders',
         value: totalOrders > 0 ? totalOrders.toLocaleString() : '1,247',
         sublabel: `${orders.today || 0} today`,
         trend: 'up', iconSvg: ICONS.orders, iconBg: 'green',
       },
       {
-        label: 'Active Suppliers',
+        labelKey: 'activeSuppliers',
         value: '48',
         sublabel: pendingApprovals.suppliers > 0 ? `${pendingApprovals.suppliers} pending` : 'All approved',
         trend: pendingApprovals.suppliers > 0 ? 'live' : 'up',
         iconSvg: ICONS.suppliers, iconBg: 'blue',
       },
       {
-        label: 'Revenue',
+        labelKey: 'monthlyRevenue',
         value: d.revenue ? `${formatPrice(Number(d.revenue))}` : '482K',
         sublabel: 'This month',
         trend: 'up', iconSvg: ICONS.revenue, iconBg: 'orange',
       },
       {
-        label: 'Fulfillment Rate',
+        labelKey: 'fulfillmentRate',
         value: d.trips_today ? '94%' : '98.7%',
         sublabel: `${d.trips_today || 0} trips today`,
         trend: 'up', iconSvg: ICONS.fulfillment, iconBg: 'purple',
@@ -110,6 +111,7 @@ const ICON_COLOR: Record<string, string> = {
 // ── Component ──
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<StatCardData[]>(DEFAULT_STATS);
   const statsLoaded = useRef(false);
 
@@ -204,8 +206,8 @@ export function LoginPage() {
         <div style={styles.logoArea}>
           <div style={styles.logoIcon}>N</div>
           <div>
-            <div style={styles.logoText}>NEXA</div>
-            <div style={styles.logoSub}>Operations</div>
+            <div style={styles.logoText}>{t('app.title')}</div>
+            <div style={styles.logoSub}>{t('app.subtitle')}</div>
           </div>
         </div>
 
@@ -220,7 +222,7 @@ export function LoginPage() {
           const pos = positions[idx % positions.length];
           return (
             <div
-              key={stat.label}
+              key={stat.labelKey}
               style={{
                 position: 'absolute',
                 ...pos,
@@ -236,7 +238,7 @@ export function LoginPage() {
                   }}
                     dangerouslySetInnerHTML={{ __html: stat.iconSvg }}
                   />
-                  <span style={styles.statLabel}>{stat.label}</span>
+                  <span style={styles.statLabel}>{t(`auth.loginPage.${stat.labelKey}`)}</span>
                 </div>
                 <div style={styles.statValue}>{stat.value}</div>
                 <div style={{
@@ -254,20 +256,20 @@ export function LoginPage() {
         })}
 
         {/* Node labels */}
-        <div style={styles.nodeLabelHub}>NEXA Hub</div>
-        <div style={styles.nodeLabelAir}>Air Freight</div>
-        <div style={styles.nodeLabelRegional}>Regional</div>
-        <div style={styles.nodeLabelDist}>Distribution</div>
+        <div style={styles.nodeLabelHub}>{t('auth.loginPage.hubLabel')}</div>
+        <div style={styles.nodeLabelAir}>{t('auth.loginPage.airFreightLabel')}</div>
+        <div style={styles.nodeLabelRegional}>{t('auth.loginPage.regionalLabel')}</div>
+        <div style={styles.nodeLabelDist}>{t('auth.loginPage.distributionLabel')}</div>
 
         {/* Bottom content */}
         <div style={styles.bottomContent}>
           <div style={styles.platformBadge}>
             <div style={styles.platformDot} />
-            <span style={styles.platformText}>Intelligent Supply Platform</span>
+            <span style={styles.platformText}>{t('auth.loginPage.intelligentPlatform')}</span>
           </div>
-          <h1 style={styles.bottomTitle}>Powering Modern<br />Supply Operations</h1>
+          <h1 style={styles.bottomTitle} dangerouslySetInnerHTML={{ __html: t('auth.loginPage.poweringModern') }} />
           <p style={styles.bottomDesc}>
-            Manage orders, inventory, procurement, and warehouse coordination from one intelligent platform.
+            {t('auth.loginPage.platformDescription')}
           </p>
         </div>
       </div>

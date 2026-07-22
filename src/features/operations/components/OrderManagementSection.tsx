@@ -33,28 +33,6 @@ const STATUS_COLORS: Record<string, 'green' | 'yellow' | 'blue' | 'orange' | 're
   refunded: 'orange',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  new: 'New',
-  pending_management: 'Pending Mgmt',
-  pending_pricing: 'Pending Pricing',
-  pending_customer_approval: 'Awaiting Customer',
-  confirmed: 'Confirmed',
-  paid: 'Paid',
-  pending_supply: 'Pending Supply',
-  pending_aggregation: 'In Aggregation',
-  ready_to_ship: 'Ready to Ship',
-  ready_to_deliver: 'Ready to Deliver',
-  out_for_delivery: 'Out for Delivery',
-  delivered: 'Delivered',
-  failed_delivery: 'Failed Delivery',
-  cancelled: 'Cancelled',
-  postponed: 'Postponed',
-  suspended: 'Suspended',
-  refunded: 'Refunded',
-};
-
-
-
 const TYPE_BADGE_COLORS: Record<OrderType, 'teal' | 'yellow' | 'purple'> = {
   regular: 'teal',
   special: 'yellow',
@@ -69,6 +47,25 @@ interface OrderManagementSectionProps {
 export function OrderManagementSection({ orders, isLoading }: OrderManagementSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    new: t('orders.status.new'),
+    pending_management: t('orders.status.pending_management'),
+    pending_pricing: t('orders.status.pending_pricing'),
+    pending_customer_approval: t('orders.status.pending_customer_approval'),
+    confirmed: t('orders.status.confirmed'),
+    paid: t('orders.status.paid'),
+    pending_supply: t('orders.status.pending_supply'),
+    pending_aggregation: t('orders.status.pending_aggregation'),
+    ready_to_ship: t('orders.status.ready_to_ship'),
+    ready_to_deliver: t('orders.status.out_for_delivery'),
+    out_for_delivery: t('orders.status.out_for_delivery'),
+    delivered: t('orders.status.delivered'),
+    failed_delivery: t('orders.status.failed_delivery'),
+    cancelled: t('orders.status.cancelled'),
+    postponed: t('orders.status.postponed'),
+    suspended: t('orders.status.cancelled'),
+    refunded: t('orders.status.refunded'),
+  };
   const formatPrice = useFormatPrice();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
@@ -182,15 +179,15 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
           className="px-3 py-2 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">{t('operations.orderManagement.allStatuses')}</option>
-          <option value="new">New</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="pending_supply">Pending Supply</option>
-          <option value="pending_aggregation">In Aggregation</option>
-          <option value="ready_to_ship">Ready to Ship</option>
-          <option value="out_for_delivery">Out for Delivery</option>
-          <option value="delivered">Delivered</option>
-          <option value="failed_delivery">Failed Delivery</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="new">{t('orders.status.new')}</option>
+          <option value="confirmed">{t('orders.status.confirmed')}</option>
+          <option value="pending_supply">{t('orders.status.pending_supply')}</option>
+          <option value="pending_aggregation">{t('orders.status.pending_aggregation')}</option>
+          <option value="ready_to_ship">{t('orders.status.ready_to_ship')}</option>
+          <option value="out_for_delivery">{t('orders.status.out_for_delivery')}</option>
+          <option value="delivered">{t('orders.status.delivered')}</option>
+          <option value="failed_delivery">{t('orders.status.failed_delivery')}</option>
+          <option value="cancelled">{t('orders.status.cancelled')}</option>
         </select>
         <select
           value={typeFilter}
@@ -243,9 +240,9 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
                     <span className="text-gray-400 mx-1">·</span>
                     {order.regionName}
                     <span className="text-gray-400 mx-1">·</span>
-                    {order.itemCount} items
+                    {order.itemCount} {t('common.items')}
                     <span className="text-gray-400 mx-1">·</span>
-                    {order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}
+                    {order.total > 0 ? `${formatPrice(order.total)}` : t('orders.list.tbd')}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5 truncate max-w-lg">{order.items}</p>
                   {order.notes && (
@@ -273,7 +270,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
                     size="sm"
                     onClick={() => navigate(`/orders/${order.id}`)}
                   >
-                    Details
+                    {t('operations.orderManagement.details')}
                   </Button>
                 </div>
               </div>
@@ -286,7 +283,7 @@ export function OrderManagementSection({ orders, isLoading }: OrderManagementSec
       {!isLoading && orders.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {orders.filter((o) => o.status === 'new').length} {t('orders.stats.new').toLowerCase()} ·{' '}
+            {orders.filter((o) => o.status === 'new').length} {t('orders.stats.new')} ·{' '}
             {orders.filter((o) => o.status === 'failed_delivery').length} {t('operations.stats.failedDeliveries')}
           </span>
           <button

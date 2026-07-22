@@ -132,7 +132,7 @@ export function SupportTicketsPage() {
                   icon={<LifeBuoy size={16} className="text-brand-primary" />}
                   title={<span className="text-sm font-bold text-text-primary font-body truncate">{ticket.subject}</span>}
                   badges={<>
-                    <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{ticket.status?.replace('_', ' ')}</Badge>
+                    <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{t('support.ticketStatus.' + (ticket.status ?? 'unknown'))}</Badge>
                     <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
                   </>}
                   actions={<>

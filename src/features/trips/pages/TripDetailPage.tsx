@@ -24,10 +24,8 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   in_progress: 'teal', completed: 'green', cancelled: 'red', failed: 'red',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  scheduled: 'Scheduled', assigned: 'Assigned', accepted: 'Accepted',
-  in_progress: 'In Progress', completed: 'Completed', cancelled: 'Cancelled', failed: 'Failed',
-};
+
+
 
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
@@ -38,6 +36,10 @@ export function TripDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(tripId || '0', 10);
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    scheduled: t('trips.statusLabels.scheduled'), assigned: t('trips.statusLabels.assigned'), accepted: t('trips.statusLabels.accepted'),
+    in_progress: t('trips.statusLabels.in_progress'), completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
+  };
   const formatPrice = useFormatPrice();
 
   const queryClient = useQueryClient();
@@ -407,7 +409,7 @@ export function TripDetailPage() {
                           }
                           size="sm"
                         >
-                          {order.deliveryStatus.replace(/_/g, ' ')}
+                          {t('trips.deliveryStatusLabels.' + order.deliveryStatus)}
                         </Badge>
                       </div>
                     </div>

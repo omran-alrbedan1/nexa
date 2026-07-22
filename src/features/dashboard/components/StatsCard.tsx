@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import { Card } from '@/components/ui/Card';
 
@@ -40,6 +41,7 @@ export function StatsCard({
   isLoading = false,
   onClick,
 }: StatsCardProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <Card padding="md" className="animate-pulse">
@@ -85,7 +87,7 @@ export function StatsCard({
               >
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
               </span>
-              <span className="text-xs text-text-tertiary font-body">vs last period</span>
+              <span className="text-xs text-text-tertiary font-body">{t('dashboard.statsCard.vsLastPeriod')}</span>
             </div>
           )}
         </div>

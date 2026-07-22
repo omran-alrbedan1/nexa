@@ -24,16 +24,6 @@ const STATUS_COLORS: Record<string, 'yellow' | 'blue' | 'green' | 'red' | 'purpl
   cancelled: 'red',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  pending_management: 'Pending Review',
-  pending_pricing: 'Needs Pricing',
-  pending_customer_approval: 'Awaiting Customer',
-  priced: 'Priced',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-};
-
 interface SpecialRequestsSectionProps {
   requests: SpecialRequest[];
   isLoading: boolean;
@@ -42,6 +32,15 @@ interface SpecialRequestsSectionProps {
 export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    pending_management: t('operations.specialRequestStatus.pending_management'),
+    pending_pricing: t('operations.specialRequestStatus.pending_pricing'),
+    pending_customer_approval: t('operations.specialRequestStatus.pending_customer_approval'),
+    priced: t('operations.specialRequestStatus.priced'),
+    approved: t('operations.specialRequestStatus.approved'),
+    rejected: t('operations.specialRequestStatus.rejected'),
+    cancelled: t('operations.specialRequestStatus.cancelled'),
+  };
   const formatPrice = useFormatPrice();
   const { user } = useAuth();
   const assignForPricing = useAssignForPricing();
@@ -275,8 +274,8 @@ export function SpecialRequestsSection({ requests, isLoading }: SpecialRequestsS
         {!isLoading && requests.length > 0 && (
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
             <span>
-              {requests.filter((r) => r.status === 'pending_pricing').length} {t('operations.specialRequests.needsPricing').toLowerCase()} ·{' '}
-              {requests.filter((r) => r.status === 'pending_customer_approval').length} {t('operations.specialRequests.awaitingCustomer').toLowerCase()}
+              {requests.filter((r) => r.status === 'pending_pricing').length} {t('operations.specialRequests.needsPricing')} ·{' '}
+              {requests.filter((r) => r.status === 'pending_customer_approval').length} {t('operations.specialRequests.awaitingCustomer')}
             </span>
             <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"

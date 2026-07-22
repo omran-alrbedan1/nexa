@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -23,6 +24,7 @@ interface CampaignFormItem {
 
 export function CreateCampaignPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -101,7 +103,7 @@ export function CreateCampaignPage() {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
-      addToast('success', 'Campaign created successfully');
+      addToast('success', t('campaigns.toast.createdSuccessfully'));
       navigate(ROUTES.CAMPAIGNS);
     },
     onError: (error) => {

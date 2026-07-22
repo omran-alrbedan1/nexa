@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { operationsApi, type OperationsPageData } from '../api/operationsApi';
 
@@ -23,6 +24,7 @@ export function useOperationsPage() {
 
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -36,10 +38,10 @@ export function useUpdateOrderStatus() {
           : variables.newStatus === 'cancelled'
             ? 'cancelled'
             : 'updated';
-      addToast('success', `Order ${label} successfully`);
+      addToast('success', t('operations.toast.orderStatusUpdated', { label }));
     },
     onError: () => {
-      addToast('error', 'Failed to update order status');
+      addToast('error', t('operations.toast.orderStatusUpdateFailed'));
     },
   });
 }
@@ -48,6 +50,7 @@ export function useUpdateOrderStatus() {
 
 export function useAssignForPricing() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -55,16 +58,17 @@ export function useAssignForPricing() {
       operationsApi.assignForPricing(requestId, assignedTo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Request assigned for pricing');
+      addToast('success', t('operations.toast.requestAssigned'));
     },
     onError: () => {
-      addToast('error', 'Failed to assign request');
+      addToast('error', t('operations.toast.requestAssignFailed'));
     },
   });
 }
 
 export function useSubmitPriceQuote() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -72,58 +76,61 @@ export function useSubmitPriceQuote() {
       operationsApi.submitPriceQuote(requestId, price, notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Price quote submitted — awaiting customer approval');
+      addToast('success', t('operations.toast.priceQuoteSubmitted'));
     },
     onError: () => {
-      addToast('error', 'Failed to submit price quote');
+      addToast('error', t('operations.toast.priceQuoteSubmitFailed'));
     },
   });
 }
 
 export function useApproveSpecialOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (requestId: number) => operationsApi.approveSpecialOrder(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Special order approved');
+      addToast('success', t('operations.toast.specialApproved'));
     },
     onError: () => {
-      addToast('error', 'Failed to approve special order');
+      addToast('error', t('operations.toast.specialApproveFailed'));
     },
   });
 }
 
 export function useRejectSpecialOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (requestId: number) => operationsApi.rejectSpecialOrder(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Special order rejected');
+      addToast('success', t('operations.toast.specialRejected'));
     },
     onError: () => {
-      addToast('error', 'Failed to reject special order');
+      addToast('error', t('operations.toast.specialRejectFailed'));
     },
   });
 }
 
 export function useConvertToOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (requestId: number) => operationsApi.convertToOrder(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Special order converted to regular order');
+      addToast('success', t('operations.toast.specialConverted'));
     },
     onError: () => {
-      addToast('error', 'Failed to convert special order');
+      addToast('error', t('operations.toast.specialConvertFailed'));
     },
   });
 }
@@ -132,6 +139,7 @@ export function useConvertToOrder() {
 
 export function useAssignComplaint() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
@@ -139,26 +147,27 @@ export function useAssignComplaint() {
       operationsApi.assignComplaint(complaintId, assignedTo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Complaint assigned to you');
+      addToast('success', t('operations.toast.complaintAssigned'));
     },
     onError: () => {
-      addToast('error', 'Failed to assign complaint');
+      addToast('error', t('operations.toast.complaintAssignFailed'));
     },
   });
 }
 
 export function useResolveComplaint() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
     mutationFn: (complaintId: number) => operationsApi.resolveComplaint(complaintId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: operationsKeys.pageData() });
-      addToast('success', 'Complaint resolved');
+      addToast('success', t('operations.toast.complaintResolved'));
     },
     onError: () => {
-      addToast('error', 'Failed to resolve complaint');
+      addToast('error', t('operations.toast.complaintResolveFailed'));
     },
   });
 }

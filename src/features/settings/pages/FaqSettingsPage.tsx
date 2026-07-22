@@ -83,20 +83,20 @@ export function FaqSettingsPage() {
         sort_order: data.sort_order,
         is_active: data.is_active,
       }),
-    onSuccess: () => { invalidate(); addToast('success', 'FAQ created'); setModalOpen(false); setForm(emptyForm); },
+    onSuccess: () => { invalidate(); addToast('success', t('settings.faq.createdToast')); setModalOpen(false); setForm(emptyForm); },
     onError: (err) => addToast('error', extractErrorMessage(err)),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<FaqForm> }) =>
       apiClient.put(`/api/v1/admin/faqs/${id}`, data),
-    onSuccess: () => { invalidate(); addToast('success', 'FAQ updated'); setModalOpen(false); setEditingId(null); setForm(emptyForm); },
+    onSuccess: () => { invalidate(); addToast('success', t('settings.faq.updatedToast')); setModalOpen(false); setEditingId(null); setForm(emptyForm); },
     onError: (err) => addToast('error', extractErrorMessage(err)),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => apiClient.delete(`/api/v1/admin/faqs/${id}`),
-    onSuccess: () => { invalidate(); addToast('success', 'FAQ deleted'); setDeleteConfirm(null); },
+    onSuccess: () => { invalidate(); addToast('success', t('settings.faq.deletedToast')); setDeleteConfirm(null); },
     onError: (err) => addToast('error', extractErrorMessage(err)),
   });
 
@@ -124,7 +124,7 @@ export function FaqSettingsPage() {
 
   const handleSave = () => {
     if (!form.question_ar || !form.answer_ar) {
-      addToast('error', 'Arabic question and answer are required');
+      addToast('error', t('settings.faq.validationRequired'));
       return;
     }
     if (editingId !== null) {
@@ -156,8 +156,8 @@ export function FaqSettingsPage() {
               <HelpCircle size={22} className="text-purple-600" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">FAQ / Common Questions</h1>
-              <p className="text-sm text-text-secondary font-body">Manage frequently asked questions shown in the app</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('settings.faq.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('settings.faq.description')}</p>
             </div>
           </div>
         </div>
@@ -170,12 +170,12 @@ export function FaqSettingsPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search FAQs..."
+              placeholder={t('settings.faq.searchPlaceholder')}
               className="w-full sm:w-64 px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
             />
           </div>
           <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>
-            Add FAQ
+            {t('settings.faq.addFaq')}
           </Button>
         </div>
 
@@ -184,7 +184,7 @@ export function FaqSettingsPage() {
             <LoadingSpinner size="lg" />
           </div>
         ) : faqs.length === 0 ? (
-          <EmptyState title="No FAQs yet" description="Create your first FAQ to get started" />
+          <EmptyState title={t('settings.faq.emptyTitle')} description={t('settings.faq.emptyDescription')} />
         ) : (
           <div className="space-y-3">
             {faqs.map((faq) => (
@@ -205,7 +205,7 @@ export function FaqSettingsPage() {
                         'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                         faq.is_active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-text-tertiary'
                       )}>
-                        {faq.is_active ? 'Active' : 'Draft'}
+                        {faq.is_active ? t('settings.faq.active') : t('settings.faq.draft')}
                       </span>
                     </div>
                     <p className="text-xs text-text-tertiary font-body mt-0.5 truncate">{faq.question_en}</p>
@@ -217,7 +217,7 @@ export function FaqSettingsPage() {
                         'p-1.5 rounded-lg transition-colors',
                         faq.is_active ? 'hover:bg-amber-50 text-green-600' : 'hover:bg-green-50 text-text-tertiary'
                       )}
-                      title={faq.is_active ? 'Deactivate' : 'Activate'}
+                      title={faq.is_active ? t('settings.faq.deactivate') : t('settings.faq.activate')}
                     >
                       {faq.is_active ? <Check size={14} /> : <X size={14} />}
                     </button>
@@ -241,25 +241,25 @@ export function FaqSettingsPage() {
                   <div className="px-4 pb-4 pt-0 border-t border-border-default/40 mt-0">
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">Question (AR)</p>
+                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">{t('settings.faq.questionAr')}</p>
                         <p className="text-sm text-text-primary font-body">{faq.question_ar}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">Question (EN)</p>
+                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">{t('settings.faq.questionEn')}</p>
                         <p className="text-sm text-text-primary font-body">{faq.question_en || '—'}</p>
                       </div>
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">Answer (AR)</p>
+                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">{t('settings.faq.answerAr')}</p>
                         <p className="text-sm text-text-primary font-body whitespace-pre-wrap">{faq.answer_ar}</p>
                       </div>
                       <div className="md:col-span-2">
-                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">Answer (EN)</p>
+                        <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-1">{t('settings.faq.answerEn')}</p>
                         <p className="text-sm text-text-primary font-body whitespace-pre-wrap">{faq.answer_en || '—'}</p>
                       </div>
                     </div>
                     <div className="mt-3 flex items-center gap-4 text-[10px] text-text-tertiary">
-                      <span>Sort: {faq.sort_order}</span>
-                      <span>Created: {new Date(faq.created_at).toLocaleDateString()}</span>
+                      <span>{t('settings.faq.sortLabel')} {faq.sort_order}</span>
+                      <span>{t('settings.faq.createdLabel')} {new Date(faq.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 )}
@@ -273,52 +273,52 @@ export function FaqSettingsPage() {
       <Modal
         open={modalOpen}
         onClose={() => { setModalOpen(false); setEditingId(null); setForm(emptyForm); }}
-        title={editingId !== null ? 'Edit FAQ' : 'Add FAQ'}
+        title={editingId !== null ? t('settings.faq.editModalTitle') : t('settings.faq.addModalTitle')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Question (AR) *</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.questionAr')} *</label>
             <input
               value={form.question_ar}
               onChange={(e) => setForm((prev) => ({ ...prev, question_ar: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder="السؤال بالعربية"
+              placeholder={t('settings.faq.questionArPlaceholder')}
               dir="rtl"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Question (EN)</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.questionEn')}</label>
             <input
               value={form.question_en}
               onChange={(e) => setForm((prev) => ({ ...prev, question_en: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder="Question in English"
+              placeholder={t('settings.faq.questionEnPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Answer (AR) *</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.answerAr')} *</label>
             <textarea
               value={form.answer_ar}
               onChange={(e) => setForm((prev) => ({ ...prev, answer_ar: e.target.value }))}
               rows={4}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
-              placeholder="الإجابة بالعربية"
+              placeholder={t('settings.faq.answerArPlaceholder')}
               dir="rtl"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Answer (EN)</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.answerEn')}</label>
             <textarea
               value={form.answer_en}
               onChange={(e) => setForm((prev) => ({ ...prev, answer_en: e.target.value }))}
               rows={4}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
-              placeholder="Answer in English"
+              placeholder={t('settings.faq.answerEnPlaceholder')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Sort Order</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.sortOrder')}</label>
               <input
                 type="number"
                 min="0"
@@ -328,20 +328,20 @@ export function FaqSettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Status</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.faq.status')}</label>
               <select
                 value={form.is_active ? '1' : '0'}
                 onChange={(e) => setForm((prev) => ({ ...prev, is_active: e.target.value === '1' }))}
                 className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
               >
-                <option value="1">Active</option>
-                <option value="0">Draft</option>
+                <option value="1">{t('settings.faq.active')}</option>
+                <option value="0">{t('settings.faq.draft')}</option>
               </select>
             </div>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={() => { setModalOpen(false); setEditingId(null); setForm(emptyForm); }}>
-              Cancel
+              {t('settings.faq.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -350,7 +350,7 @@ export function FaqSettingsPage() {
               isLoading={createMutation.isPending || updateMutation.isPending}
               onClick={handleSave}
             >
-              {editingId !== null ? 'Update' : 'Create'}
+              {editingId !== null ? t('settings.faq.update') : t('settings.faq.create')}
             </Button>
           </div>
         </div>
@@ -360,14 +360,14 @@ export function FaqSettingsPage() {
       <Modal
         open={deleteConfirm !== null}
         onClose={() => setDeleteConfirm(null)}
-        title="Delete FAQ"
+        title={t('settings.faq.deleteModalTitle')}
       >
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Are you sure you want to delete this FAQ? This action cannot be undone.</p>
+          <p className="text-sm text-text-secondary font-body">{t('settings.faq.deleteModalDescription')}</p>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>{t('settings.faq.cancel')}</Button>
             <Button variant="danger" size="sm" isLoading={deleteMutation.isPending} onClick={() => deleteConfirm !== null && deleteMutation.mutate(deleteConfirm)}>
-              Delete
+              {t('settings.faq.delete')}
             </Button>
           </div>
         </div>

@@ -39,15 +39,6 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   refunded: 'gray',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  new: 'New', pending_management: 'Pending Mgmt', pending_pricing: 'Pending Pricing',
-  pending_customer_approval: 'Awaiting Customer', confirmed: 'Confirmed', paid: 'Paid',
-  pending_supply: 'In Supply', pending_aggregation: 'In Aggregation',
-  ready_to_ship: 'Ready to Ship', out_for_delivery: 'Out for Delivery',
-  delivered: 'Delivered', failed_delivery: 'Failed Delivery',
-  cancelled: 'Cancelled', postponed: 'Postponed', refunded: 'Refunded',
-};
-
 const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
   regular: 'teal', special: 'coral', seasonal: 'purple',
 };
@@ -77,6 +68,14 @@ export function OrderDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(orderId || '0', 10);
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    new: t('orders.status.new'), pending_management: t('orders.status.pending_management'), pending_pricing: t('orders.status.pending_pricing'),
+    pending_customer_approval: t('orders.status.pending_customer_approval'), confirmed: t('orders.status.confirmed'), paid: t('orders.status.paid'),
+    pending_supply: t('orders.status.pending_supply'), pending_aggregation: t('orders.status.pending_aggregation'),
+    ready_to_ship: t('orders.status.ready_to_ship'), out_for_delivery: t('orders.status.out_for_delivery'),
+    delivered: t('orders.status.delivered'), failed_delivery: t('orders.status.failed_delivery'),
+    cancelled: t('orders.status.cancelled'), postponed: t('orders.status.postponed'), refunded: t('orders.status.refunded'),
+  };
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
   const updateStatus = useUpdateOrderStatus();
   const confirmReceipt = useConfirmWarehouseReceipt();
@@ -173,7 +172,7 @@ export function OrderDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{order.orderNumber}</h1>
                 <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{order.orderType}</Badge>
-                <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
+                <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1">
                 <Calendar size={14} className="inline mr-1" />
@@ -206,7 +205,7 @@ export function OrderDetailPage() {
         </OrderInfoCard>
 
         <OrderInfoCard icon={<Package size={16} />} label={t('orders.detail.orderInfo')}>
-          <p>{t('orders.detail.status')}: <span className="font-bold">{STATUS_LABELS[order.status] || order.status}</span></p>
+          <p>{t('orders.detail.status')}: <span className="font-bold">{STATUS_LABELS[order.status] || t('common.unknown')}</span></p>
           <p className="text-xs text-text-secondary">{t('orders.detail.type')}: {order.orderType}</p>
           <p className="text-xs text-text-secondary">{t('orders.detail.items', { count: order.items.length })}</p>
           <p className="text-xs text-text-secondary">{t('orders.detail.created')}: {new Date(order.createdAt).toLocaleDateString()}</p>
@@ -232,7 +231,7 @@ export function OrderDetailPage() {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{order.paymentStatus}</Badge>
-            <span className="text-xs text-text-tertiary">{order.paymentMethod.replace(/_/g, ' ')}</span>
+            <span className="text-xs text-text-tertiary">{t('orders.paymentMethods.' + order.paymentMethod)}</span>
           </div>
         </OrderInfoCard>
       </div>
@@ -336,7 +335,7 @@ export function OrderDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign size={16} className="text-amber-600" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Quote History</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.quoteHistory')}</h3>
           </div>
           <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-100 space-y-3">
             <div className="flex items-center justify-between">
@@ -350,20 +349,20 @@ export function OrderDetailPage() {
             </div>
             {order.specialOrder && (
               <p className="text-xs text-text-tertiary font-body">
-                Special Order: {order.specialOrder.referenceNumber} ({order.specialOrder.status})
+                {t('orders.detail.specialOrderRef', { reference: order.specialOrder.referenceNumber, status: order.specialOrder.status })}
               </p>
             )}
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-xs text-text-tertiary font-body">Subtotal</p>
+                <p className="text-xs text-text-tertiary font-body">{t('orders.detail.subtotal')}</p>
                 <p className="font-bold text-text-primary">{formatPrice(order.priceQuote.subtotal)}</p>
               </div>
               <div>
-                <p className="text-xs text-text-tertiary font-body">Delivery Fee</p>
+                <p className="text-xs text-text-tertiary font-body">{t('orders.detail.deliveryFee')}</p>
                 <p className="font-bold text-text-primary">{formatPrice(order.priceQuote.deliveryFee)}</p>
               </div>
               <div>
-                <p className="text-xs text-text-tertiary font-body">Total</p>
+                <p className="text-xs text-text-tertiary font-body">{t('orders.detail.totalLabel')}</p>
                 <p className="font-extrabold text-brand-accent">{formatPrice(order.priceQuote.total)}</p>
               </div>
             </div>
@@ -376,7 +375,7 @@ export function OrderDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Navigation size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Driver Tracking</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.driverTracking')}</h3>
           </div>
           <div className="space-y-4">
             <DeliveryStageIndicator orderId={id} currentStatus={order.status} />
@@ -423,7 +422,7 @@ export function OrderDetailPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-text-primary font-body">
-                      {STATUS_LABELS[log.toStatus.toLowerCase()] || log.toStatus}
+                      {STATUS_LABELS[log.toStatus.toLowerCase()] || t('common.unknown')}
                     </span>
                     <span className="text-xs text-text-tertiary font-body">
                       {new Date(log.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -431,7 +430,7 @@ export function OrderDetailPage() {
                   </div>
                   <p className="text-xs text-text-secondary font-body mt-0.5">
                     {log.actor === 'system' ? 'System' : t('orders.detail.by', { actor: log.actor })}
-                    {log.fromStatus && ` (from ${STATUS_LABELS[log.fromStatus.toLowerCase()] || log.fromStatus})`}
+                    {log.fromStatus && ` (from ${STATUS_LABELS[log.fromStatus.toLowerCase()] || t('common.unknown')})`}
                   </p>
                 </div>
               </div>

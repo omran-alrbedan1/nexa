@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { specialOrdersApi } from '../api/specialOrdersApi';
 
@@ -32,108 +33,116 @@ export function useSpecialOrderDetail(id: number) {
 
 export function useAssignSupplier() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, supplierId }: { id: number; supplierId: number }) => specialOrdersApi.assignSupplier(id, supplierId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Supplier assigned');
+      addToast('success', t('specialOrders.toast.supplierAssigned'));
     },
-    onError: () => addToast('error', 'Failed to assign supplier'),
+    onError: () => addToast('error', t('specialOrders.toast.supplierAssignFailed')),
   });
 }
 
 export function useAssignStaff() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, staffUserId }: { id: number; staffUserId: number }) => specialOrdersApi.assignStaff(id, staffUserId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Staff assigned');
+      addToast('success', t('specialOrders.toast.staffAssigned'));
     },
-    onError: () => addToast('error', 'Failed to assign staff'),
+    onError: () => addToast('error', t('specialOrders.toast.staffAssignFailed')),
   });
 }
 
 export function useApproveSpecialOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, note }: { id: number; note?: string }) => specialOrdersApi.approve(id, note),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Special order approved');
+      addToast('success', t('specialOrders.toast.approved'));
     },
-    onError: () => addToast('error', 'Failed to approve'),
+    onError: () => addToast('error', t('specialOrders.toast.approveFailed')),
   });
 }
 
 export function useRejectSpecialOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) => specialOrdersApi.reject(id, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Special order rejected');
+      addToast('success', t('specialOrders.toast.rejected'));
     },
-    onError: () => addToast('error', 'Failed to reject'),
+    onError: () => addToast('error', t('specialOrders.toast.rejectFailed')),
   });
 }
 
 export function useUpdateNotes() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, notes }: { id: number; notes: string }) => specialOrdersApi.updateNotes(id, notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Notes updated');
+      addToast('success', t('specialOrders.toast.notesUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update notes'),
+    onError: () => addToast('error', t('specialOrders.toast.notesUpdateFailed')),
   });
 }
 
 export function useConvertToOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Parameters<typeof specialOrdersApi.convertToOrder>[1] }) =>
       specialOrdersApi.convertToOrder(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Converted to order');
+      addToast('success', t('specialOrders.toast.converted'));
     },
-    onError: () => addToast('error', 'Failed to convert'),
+    onError: () => addToast('error', t('specialOrders.toast.convertFailed')),
   });
 }
 
 export function useCreatePriceQuote() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Parameters<typeof specialOrdersApi.createPriceQuote>[1] }) =>
       specialOrdersApi.createPriceQuote(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Price quote created and sent to customer');
+      addToast('success', t('specialOrders.toast.priceQuoteCreated'));
     },
-    onError: () => addToast('error', 'Failed to create price quote'),
+    onError: () => addToast('error', t('specialOrders.toast.priceQuoteCreateFailed')),
   });
 }
 
 export function useSubmitPriceQuote() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, price, notes }: { id: number; price: number; notes: string }) =>
       specialOrdersApi.submitPriceQuote(id, price, notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: specialOrderKeys.all });
-      addToast('success', 'Price quote submitted — awaiting customer approval');
+      addToast('success', t('specialOrders.toast.priceQuoteSubmitted'));
     },
-    onError: () => addToast('error', 'Failed to submit price quote'),
+    onError: () => addToast('error', t('specialOrders.toast.priceQuoteSubmitFailed')),
   });
 }
 

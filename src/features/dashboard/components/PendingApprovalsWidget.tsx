@@ -64,7 +64,7 @@ export function PendingApprovalsWidget({ approvals, isLoading }: PendingApproval
                 </div>
                 <Badge variant="yellow" size="sm">{t('dashboard.pendingApprovals.pendingPricing')}</Badge>
               </div>
-              <p className="text-xs text-text-secondary font-body line-clamp-2 ml-7">{approval.requestDetails}</p>
+              <p className="text-xs text-text-secondary font-body line-clamp-2 ml-7">{t('dashboard.pendingApprovals.' + approval.requestDetails)}</p>
               <div className="flex items-center justify-between mt-2.5 ml-7">
                 <span className="text-xs font-mono text-text-tertiary">{approval.orderNumber}</span>
                 <button

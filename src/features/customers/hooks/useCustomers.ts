@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { customersApi, type CustomersPageData, type CustomerStatus } from '../api/customersApi';
 
@@ -39,6 +40,7 @@ export function useCustomerOrders(id: number) {
 
 export function useUpdateCustomerStatus() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: CustomerStatus }) =>
@@ -46,22 +48,23 @@ export function useUpdateCustomerStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: customerKeys.pageData() });
       queryClient.invalidateQueries({ queryKey: customerKeys.detail(variables.id) });
-      addToast('success', 'Customer status updated');
+      addToast('success', t('customers.toast.statusUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update customer status'),
+    onError: () => addToast('error', t('customers.toast.statusUpdateFailed')),
   });
 }
 
 export function useUpdateCustomerNotes() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, notes }: { id: number; notes: string }) =>
       customersApi.updateNotes(id, notes),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: customerKeys.detail(variables.id) });
-      addToast('success', 'Customer notes updated');
+      addToast('success', t('customers.toast.notesUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update customer notes'),
+    onError: () => addToast('error', t('customers.toast.notesUpdateFailed')),
   });
 }

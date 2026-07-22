@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
@@ -10,6 +11,7 @@ import { regionsApi } from '@/features/regions/api/regionsApi';
 import { ArrowLeft, Warehouse, Save, MapPin, Clock } from 'lucide-react';
 
 export function WarehouseSettingsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
@@ -85,7 +87,7 @@ export function WarehouseSettingsPage() {
   return (
     <div className="space-y-6 animate-fade-up max-w-3xl">
       <button onClick={() => navigate(ROUTES.AGGREGATION)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Warehouse
+        <ArrowLeft size={16} /> {t('aggregation.warehouseSettings.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-purple-500/10 via-purple-50 to-transparent">
@@ -94,38 +96,38 @@ export function WarehouseSettingsPage() {
             <Warehouse size={22} className="text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">Warehouse Settings</h1>
-            <p className="text-sm text-text-secondary font-body">Configure warehouse details and zone assignments</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('aggregation.warehouseSettings.title')}</h1>
+            <p className="text-sm text-text-secondary font-body">{t('aggregation.warehouseSettings.description')}</p>
           </div>
         </div>
       </div>
 
       <Card padding="lg">
-        <h3 className="text-sm font-bold text-text-primary font-display mb-4">Warehouse Information</h3>
+        <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('aggregation.warehouseSettings.warehouseInfo')}</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Name (EN)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.nameEn')}</label>
               <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Name (AR)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.nameAr')}</label>
               <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" dir="rtl" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1">Address</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.address')}</label>
             <textarea value={form.address} onChange={(e) => handleChange('address', e.target.value)} rows={2} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">Capacity (orders/day)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.capacity')}</label>
               <input type="number" min="0" value={form.capacity} onChange={(e) => handleChange('capacity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div className="flex items-end pb-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((prev) => ({ ...prev, isActive: e.target.checked }))} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
-                <span className="text-sm font-bold text-text-primary font-body">Active</span>
+                <span className="text-sm font-bold text-text-primary font-body">{t('aggregation.warehouseSettings.active')}</span>
               </label>
             </div>
           </div>
@@ -135,9 +137,9 @@ export function WarehouseSettingsPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <MapPin size={16} className="text-purple-600" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Zone Assignments</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('aggregation.warehouseSettings.zoneAssignments')}</h3>
         </div>
-        <p className="text-xs text-text-secondary font-body mb-4">Select which delivery zones this warehouse serves</p>
+        <p className="text-xs text-text-secondary font-body mb-4">{t('aggregation.warehouseSettings.zoneAssignmentsDesc')}</p>
         <div className="space-y-2">
           {availableZones.map((zone) => (
             <label key={zone.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-default/60 hover:border-brand-primary/20 cursor-pointer transition-all">
@@ -151,23 +153,23 @@ export function WarehouseSettingsPage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-4">
           <Clock size={16} className="text-purple-600" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Working Hours</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('aggregation.warehouseSettings.workingHours')}</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1">Opening Time</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.openingTime')}</label>
             <input type="time" defaultValue="07:00" className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1">Closing Time</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.warehouseSettings.closingTime')}</label>
             <input type="time" defaultValue="23:00" className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
         </div>
       </Card>
 
       <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSave} isLoading={updateWarehouse.isPending}>Save Settings</Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.AGGREGATION)}>Cancel</Button>
+        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSave} isLoading={updateWarehouse.isPending}>{t('aggregation.warehouseSettings.save')}</Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.AGGREGATION)}>{t('aggregation.warehouseSettings.cancel')}</Button>
       </div>
     </div>
   );

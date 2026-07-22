@@ -42,7 +42,7 @@ export function ActionRequiredWidget({ items, isLoading }: ActionRequiredWidgetP
     if (item.link) {
       navigate(item.link);
     } else {
-      addToast('info', `${item.label}: ${item.count} items — full details page coming soon`);
+      addToast('info', `${t('dashboard.actionRequired.items.' + item.type)}: ${item.count} ${t('dashboard.actionRequired.items')}`);
     }
   };
 
@@ -95,7 +95,7 @@ export function ActionRequiredWidget({ items, isLoading }: ActionRequiredWidgetP
                   )}>
                     {ICON_MAP[item.type]}
                   </div>
-                  <span className="text-sm text-text-primary font-body font-medium truncate">{item.label}</span>
+                  <span className="text-sm text-text-primary font-body font-medium truncate">{t('dashboard.actionRequired.items.' + item.type)}</span>
                 </div>
                 <Badge variant={variant === 'red' ? 'red' : variant === 'yellow' ? 'yellow' : variant === 'purple' ? 'purple' : 'teal'} size="sm">
                   {item.count}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
@@ -11,6 +12,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedRouteProps) {
+  const { t } = useTranslation();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,9 +36,9 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
       return (
         <div className="flex flex-col items-center justify-center min-h-screen">
           <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg max-w-md text-center">
-            <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+            <h2 className="text-lg font-semibold mb-2">{t('auth.protected.accessDenied')}</h2>
             <p className="text-sm">
-              Your account does not have the required permissions to access this area.
+              {t('auth.protected.noPermission')}
             </p>
           </div>
           <button
@@ -46,7 +48,7 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
             }}
             className="mt-4 text-sm text-blue-600 hover:underline"
           >
-            Sign in with a different account
+            {t('auth.protected.signInDifferent')}
           </button>
         </div>
       );
@@ -58,10 +60,9 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg max-w-md text-center">
-          <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+          <h2 className="text-lg font-semibold mb-2">{t('auth.protected.accessDenied')}</h2>
           <p className="text-sm">
-            You are signed in as <strong>{user.role}</strong> but this area requires one of the
-            following roles: {allowedRoles.join(', ')}.
+            {t('auth.protected.signedInAs', { role: user.role, roles: allowedRoles.join(', ') })}
           </p>
         </div>
         <button
@@ -71,7 +72,7 @@ export function ProtectedRoute({ allowedRoles, requiredPermissions }: ProtectedR
           }}
           className="mt-4 text-sm text-blue-600 hover:underline"
         >
-          Sign in with a different account
+          {t('auth.protected.signInDifferent')}
         </button>
       </div>
     );

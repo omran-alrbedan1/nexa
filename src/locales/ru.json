@@ -38,7 +38,11 @@
     "specialOrders": "Спецзаказы",
     "driverMonitor": "Монитор водителей",
     "deliverySlots": "Слоты доставки",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "groupOrders": "Заказы",
+    "groupFulfillment": "Доставка",
+    "groupLogistics": "Логистика",
+    "groupCatalog": "Каталог"
   },
   "settings": {
     "title": "Настройки",
@@ -49,7 +53,9 @@
       "staff": "Персонал",
       "banners": "Баннеры",
       "notifications": "Уведомления",
-      "audit": "Журнал аудита"
+      "audit": "Журнал аудита",
+      "privacyPolicy": "Политика конфиденциальности",
+      "navigation": "Меню навигации"
     },
     "general": {
       "title": "Системные настройки",
@@ -119,7 +125,7 @@
       "createBanner": "Создать баннер",
       "editBanner": "Редактировать баннер",
       "titleField": "Заголовок",
-      "imageUrl": "URL изображения",
+      "imageUrl": "Изображение",
       "linkType": "Тип ссылки",
       "sortOrder": "Порядок сортировки",
       "deleteTitle": "Удалить баннер",
@@ -160,6 +166,12 @@
       "timestamp": "Время",
       "newValues": "Новые значения",
       "oldValues": "Старые значения"
+    },
+    "privacyPolicy": {
+      "title": "Политика конфиденциальности",
+      "description": "Управление содержанием политики конфиденциальности для вашего мобильного приложения",
+      "titleLabel": "Заголовок страницы",
+      "contentLabel": "Содержание"
     }
   },
   "customers": {
@@ -553,6 +565,28 @@
       "delivered": "Доставленные",
       "failed": "Неудачные"
     },
+    "status": {
+      "new": "Новый",
+      "pending_management": "Ожидает управления",
+      "pending_pricing": "Ожидает ценообразования",
+      "pending_customer_approval": "Ожидает одобрения клиента",
+      "confirmed": "Подтверждён",
+      "paid": "Оплачен",
+      "pending_supply": "В поставке",
+      "pending_aggregation": "В агрегации",
+      "ready_to_ship": "Готов к отправке",
+      "out_for_delivery": "В доставке",
+      "delivered": "Доставлен",
+      "failed_delivery": "Доставка не удалась",
+      "cancelled": "Отменён",
+      "postponed": "Отложен",
+      "refunded": "Возвращён"
+    },
+    "paymentMethods": {
+      "cash_on_delivery": "Наложенный платёж",
+      "card_online": "Карта онлайн",
+      "bank_transfer": "Банковский перевод"
+    },
     "list": {
       "export": "Экспорт",
       "totalOrders": "{{count}} всего заказов",
@@ -742,6 +776,19 @@
       "totalOrders": "Всего заказов",
       "revenue": "Выручка",
       "acceptanceRate": "Уровень принятия"
+    },
+    "status": {
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "suspended": "Приостановлен",
+      "pending_approval": "Ожидает одобрения",
+      "unknown": "Неизвестно"
+    },
+    "paymentTerms": {
+      "net_15": "Нетто 15",
+      "net_30": "Нетто 30",
+      "net_45": "Нетто 45",
+      "prepaid": "Предоплата"
     }
   },
   "regions": {
@@ -972,6 +1019,17 @@
       "deliveredCount": "Доставлено: {{count}}",
       "noTripsYet": "Поездок пока нет",
       "noTripsDescription": "Этот водитель ещё не совершил ни одной поездки."
+    },
+    "status": {
+      "pending": "В ожидании",
+      "approved": "Одобрен",
+      "rejected": "Отклонён"
+    },
+    "vehicleTypes": {
+      "van": "Фургон",
+      "truck": "Грузовик",
+      "motorcycle": "Мотоцикл",
+      "car": "Автомобиль"
     }
   },
   "payments": {
@@ -1005,7 +1063,21 @@
     "start": "Начать",
     "resolve": "Отметить решённым",
     "system": "Система",
-    "viewTicket": "Просмотреть тикет"
+    "viewTicket": "Просмотреть тикет",
+    "sendMessage": "Отправить",
+    "publicReply": "Публичный",
+    "internalNote": "Внутренний",
+    "customerInfo": "Клиент",
+    "assigneeInfo": "Исполнитель",
+    "priorityInfo": "Приоритет",
+    "createdInfo": "Создан",
+    "unassigned": "Не назначен",
+    "noMessages": "Нет сообщений",
+    "noMessagesDesc": "Отправьте сообщение, чтобы начать разговор",
+    "messagePlaceholder": "Введите ваш ответ...",
+    "internalPlaceholder": "Напишите внутреннюю заметку (не видна клиенту)...",
+    "statusUpdated": "Статус тикета обновлён",
+    "close": "Закрыть"
   },
   "reports": {
     "title": "Отчёты",
@@ -1117,6 +1189,7 @@
       "scheduled": "Запланирована",
       "draft": "Черновик",
       "ended": "Завершена",
+      "fulfilled": "Выполнена",
       "cancelled": "Отменена",
       "noCampaigns": "Нет кампаний",
       "noFilterMatch": "Кампании не соответствуют фильтру",
@@ -1237,6 +1310,8 @@
     "inactive": "Неактивен",
     "activate": "Активировать",
     "deactivate": "Деактивировать",
-    "select": "Выбрать"
+    "back": "Назад",
+    "select": "Выбрать",
+    "unknown": "Неизвестно"
   }
 }

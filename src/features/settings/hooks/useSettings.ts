@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { settingsApi, type Role, type Setting, type Banner } from '../api/settingsApi';
 
@@ -38,15 +39,16 @@ export function useRole(id: number) {
 
 export function useUpdateRolePermissions() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, permissionIds }: { id: number; permissionIds: number[] }) =>
       settingsApi.updateRolePermissions(id, permissionIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.roles() });
-      addToast('success', 'Permissions updated successfully');
+      addToast('success', t('settings.toast.permissionsUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update permissions'),
+    onError: () => addToast('error', t('settings.toast.permissionsUpdateFailed')),
   });
 }
 
@@ -62,43 +64,46 @@ export function useStaff() {
 
 export function useCreateStaff() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (data: { firstName: string; lastName: string; email: string; password: string; roleIds: number[] }) =>
       settingsApi.createStaff(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.staff() });
-      addToast('success', 'Staff member created');
+      addToast('success', t('settings.toast.staffCreated'));
     },
-    onError: () => addToast('error', 'Failed to create staff member'),
+    onError: () => addToast('error', t('settings.toast.staffCreateFailed')),
   });
 }
 
 export function useUpdateStaffRoles() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, roleIds }: { id: number; roleIds: number[] }) =>
       settingsApi.updateStaffRoles(id, roleIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.staff() });
-      addToast('success', 'Staff roles updated');
+      addToast('success', t('settings.toast.staffRolesUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update staff roles'),
+    onError: () => addToast('error', t('settings.toast.staffRolesUpdateFailed')),
   });
 }
 
 export function useUpdateStaffStatus() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       settingsApi.updateStaffStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.staff() });
-      addToast('success', 'Staff status updated');
+      addToast('success', t('settings.toast.staffStatusUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update staff status'),
+    onError: () => addToast('error', t('settings.toast.staffStatusUpdateFailed')),
   });
 }
 
@@ -114,29 +119,31 @@ export function useSettings() {
 
 export function useUpdateSetting() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ key, value }: { key: string; value: string }) =>
       settingsApi.updateSetting(key, value),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.settingsList() });
-      addToast('success', 'Setting updated');
+      addToast('success', t('settings.toast.settingUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update setting'),
+    onError: () => addToast('error', t('settings.toast.settingUpdateFailed')),
   });
 }
 
 export function useBulkUpdateSettings() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (settings: { key: string; value: string }[]) =>
       settingsApi.bulkUpdateSettings(settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.settingsList() });
-      addToast('success', 'Settings updated');
+      addToast('success', t('settings.toast.settingsUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update settings'),
+    onError: () => addToast('error', t('settings.toast.settingsUpdateFailed')),
   });
 }
 
@@ -154,7 +161,7 @@ export function useCreateBanner() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: Partial<Banner>) => settingsApi.createBanner(data),
+    mutationFn: (data: FormData) => settingsApi.createBanner(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.banners() });
       addToast('success', 'Banner created');
@@ -167,7 +174,7 @@ export function useUpdateBanner() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Banner> }) =>
+    mutationFn: ({ id, data }: { id: number; data: FormData | Partial<Banner> }) =>
       settingsApi.updateBanner(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.banners() });
@@ -230,10 +237,10 @@ export function useBroadcastNotification() {
 
 // ── Audit Logs ──
 
-export function useAuditLogs() {
+export function useAuditLogs(page: number = 1) {
   return useQuery({
-    queryKey: settingsKeys.auditLogs(),
-    queryFn: () => settingsApi.getAuditLogs(),
+    queryKey: [...settingsKeys.auditLogs(), page],
+    queryFn: () => settingsApi.getAuditLogs(page),
     staleTime: 60_000,
   });
 }

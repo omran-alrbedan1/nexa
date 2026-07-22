@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, FileClock, DollarSign, User, Calendar,
   CheckCircle2, Phone, XCircle,
@@ -26,16 +27,6 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'teal' | 'purple
   cancelled: 'red',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  pending_management: 'Pending Mgmt',
-  pending_pricing: 'Pending Pricing',
-  pending_customer_approval: 'Awaiting Customer',
-  priced: 'Priced',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-};
-
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -44,6 +35,16 @@ export function SpecialRequestDetailPage() {
   const { requestId } = useParams<{ requestId: string }>();
   const navigate = useNavigate();
   const id = parseInt(requestId || '0', 10);
+  const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    pending_management: t('operations.specialRequestStatus.pending_management'),
+    pending_pricing: t('operations.specialRequestStatus.pending_pricing'),
+    pending_customer_approval: t('operations.specialRequestStatus.pending_customer_approval'),
+    priced: t('operations.specialRequestStatus.priced'),
+    approved: t('operations.specialRequestStatus.approved'),
+    rejected: t('operations.specialRequestStatus.rejected'),
+    cancelled: t('operations.specialRequestStatus.cancelled'),
+  };
   const formatPrice = useFormatPrice();
   const queryClient = useQueryClient();
 
@@ -72,9 +73,9 @@ export function SpecialRequestDetailPage() {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.OPERATIONS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Operations
+          <ArrowLeft size={16} /> {t('operations.specialRequests.backToOperations')}
         </button>
-        <ErrorState title="Failed to load request" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+        <ErrorState title={t('operations.specialRequests.errorTitle')} message={error instanceof Error ? error.message : t('operations.specialRequests.errorMessage')} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -117,32 +118,32 @@ export function SpecialRequestDetailPage() {
                 <h1 className="text-xl font-extrabold text-text-primary font-display">{request.orderNumber}</h1>
                 <Badge variant={STATUS_BADGE[request.status] || 'yellow'} size="sm">{STATUS_LABELS[request.status]}</Badge>
               </div>
-              <p className="text-sm text-text-secondary font-body mt-1">Special Request · {request.customerName}</p>
+              <p className="text-sm text-text-secondary font-body mt-1">{t('operations.specialRequests.specialRequestLabel')} · {request.customerName}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {request.status === 'pending_management' && (
                 <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} onClick={() => { assignForPricing.mutate({ requestId: request.id, assignedTo: 'Operations Staff' }); }}>
-                  Assign for Pricing
+                  {t('operations.specialRequests.assignForPricing')}
                 </Button>
               )}
               {(request.status === 'pending_management' || request.status === 'pending_pricing') && (
                 <Button variant="primary" size="sm" leftIcon={<DollarSign size={14} />} onClick={() => setQuoteModal({ open: true, price: String(request.estimatedBudget || ''), notes: '' })}>
-                  Set Price Quote
+                  {t('operations.specialRequests.setPriceQuote')}
                 </Button>
               )}
               {request.status === 'pending_customer_approval' && (
                 <>
                   <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approveSpecialOrder.isPending} onClick={() => approveSpecialOrder.mutate(request.id)}>
-                    Approve
+                    {t('operations.specialRequests.approve')}
                   </Button>
                   <Button variant="secondary" size="sm" leftIcon={<XCircle size={14} />} isLoading={rejectSpecialOrder.isPending} onClick={() => rejectSpecialOrder.mutate(request.id)}>
-                    Reject
+                    {t('operations.specialRequests.reject')}
                   </Button>
                 </>
               )}
               {request.status === 'approved' && (
                 <Button variant="primary" size="sm" leftIcon={<ArrowLeft size={14} />} isLoading={convertToOrder.isPending} onClick={() => convertToOrder.mutate(request.id)}>
-                  Convert to Order
+                  {t('specialOrders.detail.convertToOrder')}
                 </Button>
               )}
             </div>
@@ -154,7 +155,7 @@ export function SpecialRequestDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card padding="lg">
-            <h3 className="text-sm font-bold text-text-primary font-display mb-3">Request Details</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display mb-3">{t('operations.specialRequests.requestDetails')}</h3>
             <p className="text-sm text-text-primary font-body leading-relaxed">{request.requestDetails}</p>
             <div className="flex items-center gap-3 mt-4 text-xs text-text-tertiary font-body">
               <Calendar size={12} /> {new Date(request.createdAt).toLocaleString()}
@@ -165,14 +166,14 @@ export function SpecialRequestDetailPage() {
           <Card padding="lg">
             <div className="flex items-center gap-2 mb-4">
               <DollarSign size={16} className="text-brand-primary" />
-              <h3 className="text-sm font-bold text-text-primary font-display">Pricing Timeline</h3>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('operations.specialRequests.pricingTimeline')}</h3>
             </div>
             <div className="relative pl-8">
               <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-default" />
               {[
-                { status: 'Request Created', time: request.createdAt, desc: 'Customer submitted request' },
-                ...(request.status !== 'pending_management' ? [{ status: 'Assigned for Pricing', time: request.updatedAt, desc: `Assigned to ${request.assignedTo || 'staff'}` }] : []),
-                ...(request.priceQuote ? [{ status: 'Price Quote Submitted', time: request.updatedAt, desc: `${formatPrice(request.priceQuote)} — awaiting customer approval` }] : []),
+                { statusKey: 'requestCreated', descKey: 'customerSubmittedRequest', time: request.createdAt, dynamicDesc: null },
+                ...(request.status !== 'pending_management' ? [{ statusKey: 'assignedForPricing', descKey: 'assignedToDesc', time: request.updatedAt, dynamicDesc: `Assigned to ${request.assignedTo || t('operations.specialRequests.staff')}` }] : []),
+                ...(request.priceQuote ? [{ statusKey: 'priceQuoteSubmitted', descKey: 'priceQuoteAwaitingDesc', time: request.updatedAt, dynamicDesc: `${formatPrice(request.priceQuote)} — ${t('operations.specialRequests.awaitingCustomerApproval')}` }] : []),
               ].map((step, idx, arr) => (
                 <div key={idx} className="relative pb-10 last:pb-0">
                   <div className={cn(
@@ -182,9 +183,9 @@ export function SpecialRequestDetailPage() {
                     <div className={cn('w-2 h-2 rounded-full', idx === arr.length - 1 ? 'bg-white' : 'bg-border-default')} />
                   </div>
                   <div>
-                    <span className="text-sm font-bold text-text-primary font-body">{step.status}</span>
+                    <span className="text-sm font-bold text-text-primary font-body">{t(`operations.specialRequests.${step.statusKey}`)}</span>
                     <span className="text-xs text-text-tertiary font-body ml-2">{new Date(step.time).toLocaleDateString()}</span>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{step.desc}</p>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">{step.dynamicDesc || t(`operations.specialRequests.${step.descKey}`)}</p>
                   </div>
                 </div>
               ))}
@@ -194,7 +195,7 @@ export function SpecialRequestDetailPage() {
 
         <div className="space-y-6">
           <Card padding="md">
-            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">Customer</h3>
+            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">{t('operations.specialRequests.customer')}</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <User size={14} className="text-text-tertiary" />
@@ -207,22 +208,22 @@ export function SpecialRequestDetailPage() {
             </div>
             {request.assignedTo && (
               <div className="mt-3 pt-3 border-t border-border-default/50">
-                <span className="text-xs text-text-secondary">Assigned: <span className="font-bold text-text-primary">{request.assignedTo}</span></span>
+                <span className="text-xs text-text-secondary">{t('operations.specialRequests.assignedToLabel')} <span className="font-bold text-text-primary">{request.assignedTo}</span></span>
               </div>
             )}
           </Card>
 
           <Card padding="md">
-            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">Budget & Pricing</h3>
+            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">{t('operations.specialRequests.budgetAndPricing')}</h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-text-secondary">Est. Budget</span>
+                <span className="text-text-secondary">{t('operations.specialRequests.estimatedBudget')}</span>
                 <span className="font-bold text-text-primary">{request.estimatedBudget ? `${formatPrice(request.estimatedBudget)}` : '—'}</span>
               </div>
               <div className="flex justify-between text-sm pt-2 border-t border-border-default/50">
-                <span className="text-text-secondary">Price Quote</span>
+                <span className="text-text-secondary">{t('operations.specialRequests.priceQuote')}</span>
                 <span className={request.priceQuote ? 'font-extrabold text-brand-accent' : 'text-text-tertiary'}>
-                  {request.priceQuote ? `${formatPrice(request.priceQuote)}` : 'Pending'}
+                  {request.priceQuote ? `${formatPrice(request.priceQuote)}` : t('operations.specialRequests.pending')}
                 </span>
               </div>
             </div>
@@ -231,38 +232,38 @@ export function SpecialRequestDetailPage() {
       </div>
 
       {/* Assign Modal */}
-      <Modal open={assignModal} onClose={() => setAssignModal(false)} title={`Assign ${request.orderNumber}`}>
+      <Modal open={assignModal} onClose={() => setAssignModal(false)} title={t('operations.specialRequests.assignModalTitle', { orderNumber: request.orderNumber })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Assign this request for pricing.</p>
+          <p className="text-sm text-text-secondary font-body">{t('operations.specialRequests.assignModalDesc')}</p>
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setAssignModal(false)}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAssignModal(false)}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" isLoading={assignForPricing.isPending} onClick={() => {
               assignForPricing.mutate({ requestId: request.id, assignedTo: 'Operations Staff' });
               setAssignModal(false);
-            }}>Assign</Button>
+            }}>{t('operations.specialRequests.assign')}</Button>
           </div>
         </div>
       </Modal>
 
       {/* Quote Modal */}
-      <Modal open={quoteModal.open} onClose={() => setQuoteModal({ ...quoteModal, open: false })} title={`Set Price Quote — ${request.orderNumber}`}>
+      <Modal open={quoteModal.open} onClose={() => setQuoteModal({ ...quoteModal, open: false })} title={t('operations.specialRequests.pricingModalTitle') + ' — ' + request.orderNumber}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-text-secondary font-body mb-1">Price</label>
+            <label className="block text-sm font-bold text-text-secondary font-body mb-1">{t('operations.specialRequests.priceInputLabel')}</label>
             <input type="number" step="0.5" min="0" value={quoteModal.price}
               onChange={(e) => setQuoteModal({ ...quoteModal, price: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary bg-bg-input" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-text-secondary font-body mb-1">Notes</label>
+            <label className="block text-sm font-bold text-text-secondary font-body mb-1">{t('operations.specialRequests.notes')}</label>
             <textarea rows={3} value={quoteModal.notes}
               onChange={(e) => setQuoteModal({ ...quoteModal, notes: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary resize-none bg-bg-input"
-              placeholder="Additional notes about pricing..." />
+              placeholder={t('operations.specialRequests.notesPlaceholder')} />
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setQuoteModal({ ...quoteModal, open: false })}>Cancel</Button>
-            <Button variant="primary" size="sm" isLoading={submitPriceQuote.isPending} onClick={handlePriceQuote}>Submit Quote</Button>
+            <Button variant="secondary" size="sm" onClick={() => setQuoteModal({ ...quoteModal, open: false })}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={submitPriceQuote.isPending} onClick={handlePriceQuote}>{t('operations.specialRequests.submitQuote')}</Button>
           </div>
         </div>
       </Modal>

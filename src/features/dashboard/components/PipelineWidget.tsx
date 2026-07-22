@@ -37,7 +37,7 @@ export function PipelineWidget({ stages, isLoading }: PipelineWidgetProps) {
                     className="h-3 w-3 rounded-full flex-shrink-0 ring-2 ring-white"
                     style={{ backgroundColor: stage.color }}
                   />
-                  <span className="text-text-primary font-medium font-body">{stage.label}</span>
+                  <span className="text-text-primary font-medium font-body">{t('dashboard.pipeline.stages.' + stage.stage)}</span>
                 </div>
                 <span className="text-text-primary font-extrabold font-display">{stage.count}</span>
               </div>

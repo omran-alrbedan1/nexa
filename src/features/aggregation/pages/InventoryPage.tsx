@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsApi, type DashboardProduct } from '@/features/products/api/productsApi';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -17,10 +18,10 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { productKeys } from '@/features/products/hooks/useProductsAdmin';
 
 const STAT_CONFIG = [
-  { key: 'total', label: 'Total SKUs', icon: Package, variant: 'teal' as const },
-  { key: 'inStock', label: 'In Stock', icon: CheckCircle2, variant: 'success' as const },
-  { key: 'lowStock', label: 'Low Stock (<20)', icon: AlertTriangle, variant: 'warning' as const },
-  { key: 'outOfStock', label: 'Out of Stock', icon: XCircle, variant: 'coral' as const },
+  { key: 'total', labelKey: 'aggregation.inventory.statTotalSkus', icon: Package, variant: 'teal' as const },
+  { key: 'inStock', labelKey: 'aggregation.inventory.statInStock', icon: CheckCircle2, variant: 'success' as const },
+  { key: 'lowStock', labelKey: 'aggregation.inventory.statLowStock', icon: AlertTriangle, variant: 'warning' as const },
+  { key: 'outOfStock', labelKey: 'aggregation.inventory.statOutOfStock', icon: XCircle, variant: 'coral' as const },
 ];
 
 function cn(...classes: (string | false | undefined | null)[]) {
@@ -28,6 +29,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 }
 
 export function InventoryPage() {
+  const { t } = useTranslation();
   const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: productKeys.pageData(),
@@ -55,7 +57,7 @@ export function InventoryPage() {
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
-        <ErrorState title="Failed to load inventory" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+        <ErrorState title={t('aggregation.inventory.errorTitle')} message={error instanceof Error ? error.message : t('aggregation.inventory.errorMessage')} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -93,8 +95,8 @@ export function InventoryPage() {
             <Package size={22} className="text-brand-accent" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">Inventory</h1>
-            <p className="text-sm text-text-secondary font-body">Manage stock levels, view low stock alerts, and adjust inventory</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('aggregation.inventory.title')}</h1>
+            <p className="text-sm text-text-secondary font-body">{t('aggregation.inventory.description')}</p>
           </div>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
@@ -107,7 +109,7 @@ export function InventoryPage() {
             <Card key={s.key} padding="md" hover>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{s.label}</p>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t(s.labelKey)}</p>
                   <p className="text-xl font-extrabold text-text-primary font-display mt-1">
                     {isLoading ? <span className="inline-block w-10 h-6 bg-gray-200 rounded animate-pulse" /> : stats[s.key as keyof typeof stats]}
                   </p>
@@ -132,8 +134,8 @@ export function InventoryPage() {
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle size={18} className="text-amber-600" />
-            <h3 className="text-sm font-bold text-amber-800 font-display">Low Stock Alert</h3>
-            <span className="text-xs text-amber-600">({lowStockItems.length} items)</span>
+            <h3 className="text-sm font-bold text-amber-800 font-display">{t('aggregation.inventory.lowStockTitle')}</h3>
+            <span className="text-xs text-amber-600">({lowStockItems.length})</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {lowStockItems.map((item) => (
@@ -148,22 +150,22 @@ export function InventoryPage() {
       <Card padding="lg">
         <CardHeader>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Stock Overview</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{filtered.length} products</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('aggregation.inventory.stockOverviewTitle')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('aggregation.inventory.productCount', { count: filtered.length })}</p>
           </div>
         </CardHeader>
 
         <div className="flex items-center gap-3 mb-5">
           <div className="w-full sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..." className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('aggregation.inventory.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
         </div>
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
         ) : filtered.length === 0 ? (
-          <EmptyState title="No products found" description={search ? 'Try a different search term' : 'No products in inventory'} />
+          <EmptyState title={t('aggregation.inventory.noProducts')} description={search ? t('aggregation.inventory.tryDifferentSearch') : t('aggregation.inventory.noProductsInInventory')} />
         ) : (
           <div className="space-y-2">
             {filtered.map((product) => {
@@ -176,13 +178,13 @@ export function InventoryPage() {
                   icon={<Package size={16} className="text-brand-primary" />}
                   title={<span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>}
                   badges={<>
-                    {!product.isAvailable && <Badge variant="red" size="sm">Disabled</Badge>}
-                    {isLow && <Badge variant="yellow" size="sm">Low Stock</Badge>}
-                    {product.stockQuantity === 0 && <Badge variant="red" size="sm">Out</Badge>}
+                    {!product.isAvailable && <Badge variant="red" size="sm">{t('aggregation.inventory.disabled')}</Badge>}
+                    {isLow && <Badge variant="yellow" size="sm">{t('aggregation.inventory.lowStock')}</Badge>}
+                    {product.stockQuantity === 0 && <Badge variant="red" size="sm">{t('aggregation.inventory.outOfStock')}</Badge>}
                   </>}
                   actions={
-                    <Button variant="secondary" size="sm" leftIcon={<Plus size={12} />} onClick={() => setStockModal({ open: true, product, adjustment: 10, reason: 'Restock' })}>
-                      Restock
+                    <Button variant="secondary" size="sm" leftIcon={<Plus size={12} />} onClick={() => setStockModal({ open: true, product, adjustment: 10, reason: t('aggregation.inventory.restock') })}>
+                      {t('aggregation.inventory.restock')}
                     </Button>
                   }
                 >
@@ -201,35 +203,35 @@ export function InventoryPage() {
         )}
       </Card>
 
-      <Modal open={stockModal.open} onClose={() => setStockModal({ ...stockModal, open: false })} title={`Adjust Stock — ${stockModal.product?.name}`}>
+      <Modal open={stockModal.open} onClose={() => setStockModal({ ...stockModal, open: false })} title={t('aggregation.inventory.adjustStockTitle', { name: stockModal.product?.name })}>
         <div className="space-y-4">
           <div className="p-3 rounded-xl bg-bg-section-alt">
-            <p className="text-sm text-text-secondary font-body">Current stock: <span className="font-bold text-text-primary">{stockModal.product?.stockQuantity} {stockModal.product?.unit}</span></p>
+            <p className="text-sm text-text-secondary font-body">{t('aggregation.inventory.currentStock', { quantity: stockModal.product?.stockQuantity, unit: stockModal.product?.unit })}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Button variant="secondary" size="sm" leftIcon={<Minus size={14} />} onClick={() => setStockModal((prev) => ({ ...prev, adjustment: -10 }))}>
-              Remove 10
+              {t('aggregation.inventory.remove10')}
             </Button>
             <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setStockModal((prev) => ({ ...prev, adjustment: 10 }))}>
-              Add 10
+              {t('aggregation.inventory.add10')}
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setStockModal((prev) => ({ ...prev, adjustment: -50 }))}>Remove 50</Button>
-            <Button variant="primary" size="sm" onClick={() => setStockModal((prev) => ({ ...prev, adjustment: 50 }))}>Add 50</Button>
+            <Button variant="secondary" size="sm" onClick={() => setStockModal((prev) => ({ ...prev, adjustment: -50 }))}>{t('aggregation.inventory.remove50')}</Button>
+            <Button variant="primary" size="sm" onClick={() => setStockModal((prev) => ({ ...prev, adjustment: 50 }))}>{t('aggregation.inventory.add50')}</Button>
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1">Custom Adjustment</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.inventory.customAdjustment')}</label>
             <input type="number" value={stockModal.adjustment} onChange={(e) => setStockModal((prev) => ({ ...prev, adjustment: parseInt(e.target.value) || 0 }))} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1">Reason</label>
-            <input value={stockModal.reason} onChange={(e) => setStockModal((prev) => ({ ...prev, reason: e.target.value }))} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="Restock, spoilage, adjustment..." />
+            <label className="block text-xs font-bold text-text-secondary mb-1">{t('aggregation.inventory.reason')}</label>
+            <input value={stockModal.reason} onChange={(e) => setStockModal((prev) => ({ ...prev, reason: e.target.value }))} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('aggregation.inventory.reasonPlaceholder')} />
           </div>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setStockModal({ ...stockModal, open: false })}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setStockModal({ ...stockModal, open: false })}>{t('aggregation.inventory.cancel')}</Button>
             <Button variant="primary" size="sm" disabled={stockModal.adjustment === 0} isLoading={adjustStock.isPending} onClick={handleAdjustStock}>
-              {stockModal.adjustment > 0 ? `Add ${stockModal.adjustment}` : `Remove ${Math.abs(stockModal.adjustment)}`}
+              {stockModal.adjustment > 0 ? t('aggregation.inventory.addStock', { count: stockModal.adjustment }) : t('aggregation.inventory.removeStock', { count: Math.abs(stockModal.adjustment) })}
             </Button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { productsApi, type ProductCategory } from '../api/productsApi';
 import { Card } from '@/components/ui/Card';
@@ -13,6 +14,7 @@ import { extractErrorMessage } from '@/lib/apiHelpers';
 export function CreateProductPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
@@ -56,7 +58,7 @@ export function CreateProductPage() {
 
   const handleSubmit = async () => {
     if (!form.name || !form.nameAr || !form.price) {
-      addToast('error', 'Product name (EN & AR) and price are required');
+      addToast('error', t('products.create.validationRequired'));
       return;
     }
     setSaving(true);
@@ -75,7 +77,7 @@ export function CreateProductPage() {
         image: imageFile || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      addToast('success', 'Product created successfully');
+      addToast('success', t('products.create.successMessage'));
       navigate(ROUTES.PRODUCTS);
     } catch (error) {
       addToast('error', extractErrorMessage(error));

@@ -159,7 +159,7 @@ export function SettingsPage() {
               >
                 <div className="flex-1 min-w-0 mr-4">
                   <p className="text-sm font-bold text-text-primary font-body capitalize">
-                    {setting.key.replace(/_/g, ' ')}
+                    {t('settings.settingKeys.' + setting.key) || setting.key.replace(/_/g, ' ')}
                   </p>
                   <p className="text-xs text-text-tertiary font-body mt-0.5">{setting.group}</p>
                 </div>

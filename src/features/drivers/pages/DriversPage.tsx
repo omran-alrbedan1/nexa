@@ -21,12 +21,6 @@ const STATUS_BADGE: Record<DriverApprovalStatus, 'green' | 'yellow' | 'red' | 'p
   rejected: 'red',
 };
 
-const STATUS_LABELS: Record<DriverApprovalStatus, string> = {
-  pending: 'Pending',
-  approved: 'Approved',
-  rejected: 'Rejected',
-};
-
 const VEHICLE_ICONS: Record<string, string> = {
   Van: '🚐', Truck: '🚛', Motorcycle: '🏍️', Car: '🚗',
 };
@@ -179,7 +173,7 @@ export function DriversPage() {
                 iconClassName="bg-brand-primary-light rounded-full"
                 title={<span className="text-sm font-bold text-text-primary font-body truncate">{driver.name}</span>}
                 badges={<>
-                  <Badge variant={STATUS_BADGE[driver.approvalStatus]} size="sm">{STATUS_LABELS[driver.approvalStatus]}</Badge>
+                  <Badge variant={STATUS_BADGE[driver.approvalStatus]} size="sm">{t('drivers.status.' + driver.approvalStatus)}</Badge>
                   {driver.approvalStatus === 'approved' && (
                     <>
                       <div className={`w-2 h-2 rounded-full ${driver.isAvailable ? 'bg-green-500' : 'bg-amber-500'} flex-shrink-0`} />

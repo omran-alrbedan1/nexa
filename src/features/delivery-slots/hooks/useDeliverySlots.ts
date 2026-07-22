@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { deliverySlotsApi, type DeliverySlotsPageData, type WarehouseOption, type ZoneOption } from '../api/deliverySlotsApi';
 
@@ -35,28 +36,30 @@ export function useDeliverySlotsPage() {
 
 export function useCreateDeliverySlot() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (data: Parameters<typeof deliverySlotsApi.createSlot>[0]) =>
       deliverySlotsApi.createSlot(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: deliverySlotKeys.pageData() });
-      addToast('success', 'Delivery slot created');
+      addToast('success', t('deliverySlots.toast.slotCreated'));
     },
-    onError: () => addToast('error', 'Failed to create delivery slot'),
+    onError: () => addToast('error', t('deliverySlots.toast.slotCreateFailed')),
   });
 }
 
 export function useUpdateDeliverySlot() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Parameters<typeof deliverySlotsApi.updateSlot>[1] }) =>
       deliverySlotsApi.updateSlot(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: deliverySlotKeys.pageData() });
-      addToast('success', 'Delivery slot updated');
+      addToast('success', t('deliverySlots.toast.slotUpdated'));
     },
-    onError: () => addToast('error', 'Failed to update delivery slot'),
+    onError: () => addToast('error', t('deliverySlots.toast.slotUpdateFailed')),
   });
 }

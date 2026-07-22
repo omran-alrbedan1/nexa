@@ -19,15 +19,6 @@ const STATUS_COLORS: Record<SupplyStatus, 'green' | 'yellow' | 'blue' | 'orange'
   cancelled: 'red',
 };
 
-const STATUS_LABELS: Record<SupplyStatus, string> = {
-  pending: 'Pending',
-  awaiting_supplier: 'Awaiting Supplier',
-  in_transit: 'In Transit',
-  confirmed: 'Confirmed',
-  partial: 'Partially Received',
-  cancelled: 'Cancelled',
-};
-
 interface SupplyReceivingSectionProps {
   items: WarehouseSupplyItem[];
   isLoading: boolean;
@@ -36,6 +27,14 @@ interface SupplyReceivingSectionProps {
 export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSectionProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<SupplyStatus, string> = {
+    pending: t('warehouse.supplyReceiving.pending'),
+    awaiting_supplier: t('warehouse.supplyReceiving.awaitingSupplier'),
+    in_transit: t('warehouse.supplyReceiving.inTransit'),
+    confirmed: t('warehouse.supplyReceiving.confirmed'),
+    partial: t('warehouse.supplyReceiving.partial'),
+    cancelled: t('warehouse.supplyReceiving.cancelled'),
+  };
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<SupplyStatus | ''>('');
   const confirmReceipt = useConfirmReceipt();

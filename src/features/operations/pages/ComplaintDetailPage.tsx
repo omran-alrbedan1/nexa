@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, AlertTriangle, MessageSquare, User,
   CheckCircle2, Clock, Tag, Calendar,
@@ -32,6 +33,7 @@ export function ComplaintDetailPage() {
   const { complaintId } = useParams<{ complaintId: string }>();
   const navigate = useNavigate();
   const id = parseInt(complaintId || '0', 10);
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data: complaint, isLoading, isError, error, refetch } = useQuery<Complaint>({
@@ -57,9 +59,9 @@ export function ComplaintDetailPage() {
     return (
       <div className="space-y-6 animate-fade-up">
         <button onClick={() => navigate(ROUTES.OPERATIONS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-          <ArrowLeft size={16} /> Back to Operations
+          <ArrowLeft size={16} /> {t('operations.complaints.back')}
         </button>
-        <ErrorState title="Failed to load complaint" message={error instanceof Error ? error.message : 'An error occurred'} onRetry={() => refetch()} />
+        <ErrorState title={t('operations.complaints.errorTitle')} message={error instanceof Error ? error.message : t('operations.complaints.errorMessage')} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -87,7 +89,7 @@ export function ComplaintDetailPage() {
   return (
     <div className="space-y-6 animate-fade-up max-w-3xl">
       <button onClick={() => navigate(ROUTES.OPERATIONS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Operations
+        <ArrowLeft size={16} /> {t('operations.complaints.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
@@ -101,19 +103,19 @@ export function ComplaintDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-xl font-extrabold text-text-primary font-display">{complaint.ticketNumber}</h1>
                 <Badge variant={PRIORITY_BADGE[complaint.priority] || 'teal'} size="sm">{complaint.priority}</Badge>
-                <Badge variant={STATUS_BADGE[complaint.status] || 'yellow'} size="sm">{(complaint.status ?? 'unknown').replace('_', ' ')}</Badge>
+                <Badge variant={STATUS_BADGE[complaint.status] || 'yellow'} size="sm">{t('operations.complaintStatus.' + (complaint.status ?? 'unknown'))}</Badge>
               </div>
               <h2 className="text-base font-bold text-text-primary font-body mt-1">{complaint.subject}</h2>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {complaint.status === 'open' && (
                 <Button variant="primary" size="sm" leftIcon={<User size={14} />} onClick={() => setAssignModal({ open: true })}>
-                  Assign to Me
+                  {t('operations.complaints.assignToMe')}
                 </Button>
               )}
               {(complaint.status === 'in_progress' || complaint.status === 'open') && (
                 <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={resolveComplaint.isPending} onClick={() => resolveComplaint.mutate(complaint.id)}>
-                  Resolve
+                  {t('operations.complaints.resolve')}
                 </Button>
               )}
             </div>
@@ -125,7 +127,7 @@ export function ComplaintDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card padding="lg">
-            <h3 className="text-sm font-bold text-text-primary font-display mb-3">Description</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display mb-3">{t('operations.complaints.description')}</h3>
             <p className="text-sm text-text-primary font-body leading-relaxed">{complaint.description}</p>
             <div className="flex items-center gap-3 mt-4 text-xs text-text-tertiary font-body">
               <Calendar size={12} /> {new Date(complaint.createdAt).toLocaleString()}
@@ -135,10 +137,10 @@ export function ComplaintDetailPage() {
           <Card padding="lg">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare size={16} className="text-brand-accent" />
-              <h3 className="text-sm font-bold text-text-primary font-display">Conversation</h3>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('operations.complaints.conversation')}</h3>
             </div>
             {messages.length === 0 ? (
-              <p className="text-sm text-text-tertiary font-body">No messages yet. Write a response below.</p>
+              <p className="text-sm text-text-tertiary font-body">{t('operations.complaints.noMessages')}</p>
             ) : (
               <div className="space-y-3 mb-4">
                 {messages.map((m, i) => (
@@ -158,17 +160,17 @@ export function ComplaintDetailPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 rows={2}
                 className="flex-1 px-3 py-2 text-sm border border-border-default rounded-lg outline-none focus:border-brand-primary resize-none bg-bg-input"
-                placeholder="Type a response..."
+                placeholder={t('operations.complaints.messagePlaceholder')}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }}}
               />
-              <Button variant="primary" size="sm" onClick={sendMessage}>Send</Button>
+              <Button variant="primary" size="sm" onClick={sendMessage}>{t('operations.complaints.send')}</Button>
             </div>
           </Card>
         </div>
 
         <div className="space-y-6">
           <Card padding="md">
-            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">Customer</h3>
+            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 font-body">{t('operations.complaints.customer')}</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <User size={14} className="text-text-tertiary" />
@@ -187,22 +189,22 @@ export function ComplaintDetailPage() {
             </div>
             {complaint.assignedTo && (
               <div className="mt-3 pt-3 border-t border-border-default/50">
-                <span className="text-xs text-text-secondary">Assigned to: <span className="font-bold text-text-primary">{complaint.assignedTo}</span></span>
+                <span className="text-xs text-text-secondary">{t('operations.complaints.assignedTo', { name: complaint.assignedTo })}</span>
               </div>
             )}
           </Card>
         </div>
       </div>
 
-      <Modal open={assignModal.open} onClose={() => setAssignModal({ open: false })} title={`Assign Complaint ${complaint.ticketNumber}`}>
+      <Modal open={assignModal.open} onClose={() => setAssignModal({ open: false })} title={t('operations.complaints.assignModalTitle', { ticketNumber: complaint.ticketNumber })}>
         <div className="space-y-4">
-          <p className="text-sm text-text-secondary font-body">Assign this complaint to yourself to start working on it.</p>
+          <p className="text-sm text-text-secondary font-body">{t('operations.complaints.assignModalDesc')}</p>
           <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ open: false })}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAssignModal({ open: false })}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" isLoading={assignComplaint.isPending} onClick={() => {
               assignComplaint.mutate({ complaintId: complaint.id, assignedTo: 'Operations Staff' });
               setAssignModal({ open: false });
-            }}>Assign to Me</Button>
+            }}>{t('operations.complaints.assignToMe')}</Button>
           </div>
         </div>
       </Modal>

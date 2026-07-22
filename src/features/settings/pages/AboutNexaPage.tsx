@@ -76,8 +76,8 @@ export function AboutNexaPage() {
     return (
       <div className="space-y-6 animate-fade-up">
         <div>
-          <h1 className="text-2xl font-extrabold text-text-primary font-display">About NEXA</h1>
-          <p className="text-sm text-text-secondary font-body mt-1">Manage the About NEXA section content</p>
+          <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('settings.about.title')}</h1>
+          <p className="text-sm text-text-secondary font-body mt-1">{t('settings.about.description')}</p>
         </div>
         <div className="flex items-center justify-center py-20">
           <LoadingSpinner size="lg" />
@@ -96,8 +96,8 @@ export function AboutNexaPage() {
               <Info size={22} className="text-brand-accent" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">About NEXA</h1>
-              <p className="text-sm text-text-secondary font-body">Manage the About NEXA section content</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('settings.about.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('settings.about.description')}</p>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function AboutNexaPage() {
           )}
         >
           <Globe size={15} />
-          العربية
+          {t('settings.about.arabicTab')}
         </button>
         <button
           type="button"
@@ -129,7 +129,7 @@ export function AboutNexaPage() {
           )}
         >
           <Globe size={15} />
-          English
+          {t('settings.about.englishTab')}
         </button>
       </div>
 
@@ -137,12 +137,12 @@ export function AboutNexaPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">
-              {activeLang === 'ar' ? 'المحتوى العربي' : 'English Content'}
+              {activeLang === 'ar' ? t('settings.about.arabicContent') : t('settings.about.englishContent')}
             </h3>
             <p className="text-xs text-text-secondary font-body mt-0.5">
               {activeLang === 'ar'
-                ? 'قم بتعديل محتوى "عن NEXA" باللغة العربية'
-                : 'Edit the About NEXA content in English'}
+                ? t('settings.about.arabicContentHint')
+                : t('settings.about.englishContentHint')}
             </p>
           </div>
           {needsSync && (
@@ -161,18 +161,18 @@ export function AboutNexaPage() {
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-bold text-text-primary font-body mb-1.5">
-              {activeLang === 'ar' ? 'العنوان' : 'Title'}
+              {activeLang === 'ar' ? t('settings.about.titleLabelAr') : t('settings.about.titleLabelEn')}
             </label>
             <Input
               value={activeLang === 'ar' ? values.titleAr : values.titleEn}
               onChange={(e) => updateField(activeLang === 'ar' ? 'titleAr' : 'titleEn', e.target.value)}
-              placeholder={activeLang === 'ar' ? 'عن NEXA' : 'About NEXA'}
+              placeholder={activeLang === 'ar' ? t('settings.about.titlePlaceholderAr') : t('settings.about.titlePlaceholderEn')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-bold text-text-primary font-body mb-1.5">
-              {activeLang === 'ar' ? 'المحتوى' : 'Content'}
+              {activeLang === 'ar' ? t('settings.about.contentLabelAr') : t('settings.about.contentLabelEn')}
             </label>
             <RichTextEditor
               content={activeLang === 'ar' ? values.contentAr : values.contentEn}

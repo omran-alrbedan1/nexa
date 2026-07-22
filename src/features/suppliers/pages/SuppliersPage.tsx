@@ -18,15 +18,6 @@ const STATUS_BADGE: Record<SupplierStatus, 'green' | 'yellow' | 'red' | 'purple'
   active: 'green', inactive: 'yellow', suspended: 'red', pending_approval: 'purple',
 };
 
-const STATUS_LABELS: Record<SupplierStatus, string> = {
-  active: 'Active',
-  inactive: 'Inactive',
-  suspended: 'Suspended',
-  pending_approval: 'Pending Approval',
-};
-
-
-
 export function SuppliersPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -167,7 +158,7 @@ export function SuppliersPage() {
                 title={<span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>}
                 badges={<>
                   <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
-                  <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{STATUS_LABELS[supplier.status as keyof typeof STATUS_LABELS] || (supplier.status ?? 'unknown').replace('_', ' ')}</Badge>
+                  <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{t('suppliers.status.' + (supplier.status ?? 'unknown'))}</Badge>
                 </>}
                 actions={<>
                   {supplier.status === 'pending_approval' && (
@@ -192,7 +183,7 @@ export function SuppliersPage() {
                   <span className="font-bold text-text-primary">{formatPrice(supplier.totalRevenue)}</span>
                   <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
                   <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
-                  <span>{supplier.paymentTerms.replace(/_/g, ' ')}</span>
+                  <span>{t('suppliers.paymentTerms.' + supplier.paymentTerms)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}

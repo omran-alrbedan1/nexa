@@ -38,7 +38,11 @@
     "specialOrders": "الطلبات الخاصة",
     "driverMonitor": "مراقبة السائقين",
     "deliverySlots": "مواعيد التوصيل",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "groupOrders": "الطلبات",
+    "groupFulfillment": "التوصيل",
+    "groupLogistics": "اللوجستيات",
+    "groupCatalog": "الكتالوج"
   },
   "settings": {
     "title": "الإعدادات",
@@ -121,7 +125,7 @@
       "createBanner": "إنشاء لافتة",
       "editBanner": "تعديل اللافتة",
       "titleField": "العنوان",
-      "imageUrl": "رابط الصورة",
+      "imageUrl": "الصورة",
       "linkType": "نوع الرابط",
       "sortOrder": "ترتيب الفرز",
       "deleteTitle": "حذف لافتة",
@@ -561,6 +565,28 @@
       "delivered": "تم التوصيل",
       "failed": "فاشل"
     },
+    "status": {
+      "new": "جديد",
+      "pending_management": "بانتظار الإدارة",
+      "pending_pricing": "بانتظار التسعير",
+      "pending_customer_approval": "بانتظار موافقة العميل",
+      "confirmed": "مؤكد",
+      "paid": "مدفوع",
+      "pending_supply": "في التوريد",
+      "pending_aggregation": "في التجميع",
+      "ready_to_ship": "جاهز للشحن",
+      "out_for_delivery": "في التوصيل",
+      "delivered": "تم التوصيل",
+      "failed_delivery": "توصيل فاشل",
+      "cancelled": "ملغي",
+      "postponed": "مؤجل",
+      "refunded": "مسترجع"
+    },
+    "paymentMethods": {
+      "cash_on_delivery": "الدفع عند الاستلام",
+      "card_online": "بطاقة اونلاين",
+      "bank_transfer": "تحويل بنكي"
+    },
     "list": {
       "export": "تصدير",
       "totalOrders": "{{count}} إجمالي الطلبات",
@@ -750,6 +776,19 @@
       "totalOrders": "إجمالي الطلبات",
       "revenue": "الإيرادات",
       "acceptanceRate": "معدل القبول"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "موقوف",
+      "pending_approval": "بانتظار الاعتماد",
+      "unknown": "غير معروف"
+    },
+    "paymentTerms": {
+      "net_15": "صافي 15",
+      "net_30": "صافي 30",
+      "net_45": "صافي 45",
+      "prepaid": "مدفوع مسبقاً"
     }
   },
   "regions": {
@@ -980,6 +1019,17 @@
       "deliveredCount": "تم التوصيل: {{count}}",
       "noTripsYet": "لا توجد رحلات بعد",
       "noTripsDescription": "لم يقم هذا السائق بأي رحلات بعد."
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "مقبول",
+      "rejected": "مرفوض"
+    },
+    "vehicleTypes": {
+      "van": "شاحنة صغيرة",
+      "truck": "شاحنة",
+      "motorcycle": "دراجة نارية",
+      "car": "سيارة"
     }
   },
   "payments": {
@@ -1261,6 +1311,7 @@
     "activate": "تفعيل",
     "deactivate": "تعطيل",
     "back": "رجوع",
-    "select": "اختيار"
+    "select": "اختيار",
+    "unknown": "غير معروف"
   }
 }

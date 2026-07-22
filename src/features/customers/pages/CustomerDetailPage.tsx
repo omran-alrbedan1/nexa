@@ -23,13 +23,6 @@ const STATUS_BADGE: Record<CustomerStatus, 'green' | 'yellow' | 'red' | 'purple'
   blocked: 'purple',
 };
 
-const STATUS_LABELS: Record<CustomerStatus, string> = {
-  active: 'Active',
-  inactive: 'Inactive',
-  suspended: 'Suspended',
-  blocked: 'Blocked',
-};
-
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -39,6 +32,12 @@ export function CustomerDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(customerId || '0', 10);
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<CustomerStatus, string> = {
+    active: t('customers.status.active'),
+    inactive: t('customers.status.inactive'),
+    suspended: t('customers.status.suspended'),
+    blocked: t('customers.status.blocked'),
+  };
 
   const { data: customer, isLoading, isError, error, refetch } = useCustomerDetail(id);
   const { data: ordersData } = useCustomerOrders(id);

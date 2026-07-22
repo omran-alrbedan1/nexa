@@ -15,12 +15,6 @@ function formatTimeAgo(dateStr: string): string {
   return `${Math.floor(diffHours / 24)}d ago`;
 }
 
-function formatStatusLabel(status: string): string {
-  return status
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 function getStatusBadgeVariant(status: string): 'teal' | 'green' | 'yellow' | 'purple' | 'gray' | 'red' {
   const s = status.toLowerCase();
   if (s.includes('delivered')) return 'green';
@@ -88,7 +82,7 @@ export function RecentOrdersWidget({ orders, isLoading }: RecentOrdersWidgetProp
                   variant={getStatusBadgeVariant(order.status)}
                   size="sm"
                 >
-                  {formatStatusLabel(order.status)}
+                  {t('orders.status.' + order.status)}
                 </Badge>
               </div>
             </div>

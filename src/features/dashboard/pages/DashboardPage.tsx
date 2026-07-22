@@ -11,43 +11,34 @@ import { cn } from '@/utils/cn';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { getDefaultFilters, type DashboardFilterState } from '../components/DashboardFilterBar';
 
-const ROLE_LABELS: Record<string, string> = {
-  admin: 'Admin Dashboard',
-  operations: 'Operations Dashboard',
-  aggregation: 'Warehouse Dashboard',
-};
-
-const ROLE_DESCRIPTIONS: Record<string, string> = {
-  admin: 'Full system overview — orders, revenue, suppliers, and KPIs',
-  operations: 'Order processing — action items, pipeline, and delivery tracking',
-  aggregation: 'Warehouse operations — supply receiving, aggregation, and shipping',
-};
-
 const ROLE_GRADIENTS: Record<string, string> = {
   admin: 'from-brand-primary/10 via-brand-primary-light to-transparent',
   operations: 'from-brand-accent/10 via-brand-accent-light to-transparent',
   aggregation: 'from-purple-500/10 via-purple-50 to-transparent',
 };
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
+const ROLE_TITLE_KEYS: Record<string, string> = {
+  admin: 'dashboard.adminTitle',
+  operations: 'dashboard.operationsTitle',
+  aggregation: 'dashboard.warehouseTitle',
+};
 
-function getGreeting(): string {
+const ROLE_DESC_KEYS: Record<string, string> = {
+  admin: 'dashboard.adminDescription',
+  operations: 'dashboard.operationsDescription',
+  aggregation: 'dashboard.warehouseDescription',
+};
+
+function getGreetingKey(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return 'dashboard.greetingMorning';
+  if (hour < 17) return 'dashboard.greetingAfternoon';
+  return 'dashboard.greetingEvening';
 }
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [filters, setFilters] = useState<DashboardFilterState>(getDefaultFilters);
   const [isExpanded, setIsExpanded] = useState(false);
   const formatPrice = useFormatPrice();
@@ -60,9 +51,9 @@ export function DashboardPage() {
   const { data, isLoading, error, refetch } = useDashboardWidgetsExpanded(filters);
 
   const role = user?.role ?? 'admin';
-  const title = ROLE_LABELS[role] || 'Dashboard';
-  const description = ROLE_DESCRIPTIONS[role] || '';
   const gradient = ROLE_GRADIENTS[role] || ROLE_GRADIENTS.admin;
+  const titleKey = ROLE_TITLE_KEYS[role] || 'dashboard.adminTitle';
+  const descKey = ROLE_DESC_KEYS[role] || 'dashboard.adminDescription';
 
   if (error) {
     return (
@@ -86,7 +77,7 @@ export function DashboardPage() {
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center gap-1.5 bg-white/30 backdrop-blur-sm rounded-full px-3 py-1">
                 <CalendarDays size={12} className="text-brand-primary-dark" />
-                <span className="text-xs font-bold text-brand-primary-dark font-body">{formatDate(new Date())}</span>
+                <span className="text-xs font-bold text-brand-primary-dark font-body">{new Date().toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'he' ? 'he-IL' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/30 backdrop-blur-sm rounded-full px-3 py-1">
                 <TrendingUp size={12} className="text-brand-primary-dark" />
@@ -94,10 +85,10 @@ export function DashboardPage() {
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display mt-2">
-              {getGreeting()}, {user?.full_name?.split(' ')[0] || 'there'}
+              {t(getGreetingKey())}, {user?.full_name?.split(' ')[0] || t('common.user')}
             </h1>
             <p className="text-sm text-text-secondary font-body mt-1 max-w-xl">
-              {description}
+              {t(descKey)}
             </p>
           </div>
           <div className="flex items-center gap-3">

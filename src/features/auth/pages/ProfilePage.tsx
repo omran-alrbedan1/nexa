@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -6,6 +7,7 @@ import {
 } from 'lucide-react';
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   if (!user) return null;
@@ -46,46 +48,46 @@ export function ProfilePage() {
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-5">
           <User size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">Account Details</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('auth.profile.accountDetails')}</h3>
         </div>
         <div className="space-y-0 divide-y divide-border-default/50">
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Mail size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Email</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.email')}</span>
             <span className="font-bold text-text-primary">{user.email || '—'}</span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Phone size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Phone</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.phone')}</span>
             <span className="font-bold text-text-primary">{user.phone || '—'}</span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Shield size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Role</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.role')}</span>
             <span className="font-bold text-text-primary capitalize">{user.role}</span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Shield size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">User Type</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.userType')}</span>
             <span className="font-bold text-text-primary">{user.user_type}</span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Building2 size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Permissions</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.permissions')}</span>
             <span className="font-bold text-text-primary">
-              {user.permissions.length > 0 ? `${user.permissions.length} permissions` : 'None'}
+              {user.permissions.length > 0 ? t('auth.profile.permissionsCount', { count: user.permissions.length }) : t('auth.profile.none')}
             </span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Calendar size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Created</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.created')}</span>
             <span className="font-bold text-text-primary">
               {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
             </span>
           </div>
           <div className="flex items-center gap-3 py-3 text-sm font-body">
             <Clock size={14} className="text-text-tertiary flex-shrink-0" />
-            <span className="text-text-secondary w-24">Last Login</span>
+            <span className="text-text-secondary w-24">{t('auth.profile.lastLogin')}</span>
             <span className="font-bold text-text-primary">
               {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : '—'}
             </span>
@@ -96,8 +98,8 @@ export function ProfilePage() {
       {/* Powered by FutureX */}
       <div className="text-center py-6">
         <p className="text-xs text-text-tertiary font-body">
-          Powered by{' '}
-          <span className="font-bold text-brand-primary">FutureX</span>
+          {t('auth.profile.poweredBy')}{' '}
+          <span className="font-bold text-brand-primary">{t('auth.profile.futureX')}</span>
         </p>
       </div>
     </div>

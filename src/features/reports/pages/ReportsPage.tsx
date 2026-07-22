@@ -185,7 +185,7 @@ function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string;
           <div className="space-y-2">
             {Object.entries(data.byStatus).map(([status, info]) => (
               <div key={status} className="flex items-center justify-between p-2.5 rounded-lg bg-bg-section-alt">
-                <span className="text-sm font-bold text-text-primary font-body capitalize">{status.replace(/_/g, ' ')}</span>
+                <span className="text-sm font-bold text-text-primary font-body capitalize">{t('orders.status.' + status)}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-secondary">{info.count} {t('reports.orders.orders')}</span>
                   <span className="text-xs font-bold text-text-primary">{formatPrice(info.revenue)}</span>

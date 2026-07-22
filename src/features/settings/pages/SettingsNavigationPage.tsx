@@ -72,7 +72,7 @@ export function SettingsNavigationPage() {
 
   const handleReset = () => {
     resetToDefaults();
-    addToast('success', 'Navigation reset to defaults');
+    addToast('success', t('settings.navigation.resetToast'));
   };
 
   const orderedGroups = groupOrder
@@ -105,10 +105,10 @@ export function SettingsNavigationPage() {
     if (isEditing) {
       return (
         <div className="flex items-center gap-1">
-          <button onClick={confirmEdit} className="p-1.5 rounded-md text-green-600 hover:bg-green-50 transition-colors" title="Save">
+          <button onClick={confirmEdit} className="p-1.5 rounded-md text-green-600 hover:bg-green-50 transition-colors" title={t('settings.navigation.save')}>
             <Check size={14} />
           </button>
-          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-50 transition-colors" title="Cancel">
+          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-50 transition-colors" title={t('settings.navigation.cancel')}>
             <X size={14} />
           </button>
         </div>
@@ -120,7 +120,7 @@ export function SettingsNavigationPage() {
         <button
           onClick={() => startEdit(id, resolveLabel(id, getDefaultLabel(id), customLabels, t))}
           className="p-1.5 rounded-md text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary transition-colors"
-          title="Rename"
+          title={t('settings.navigation.rename')}
         >
           <Pencil size={14} />
         </button>
@@ -128,7 +128,7 @@ export function SettingsNavigationPage() {
           <button
             onClick={onMoveUp}
             className="p-1.5 rounded-md text-text-secondary hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Move up"
+            title={t('settings.navigation.moveUp')}
           >
             <ChevronUp size={14} />
           </button>
@@ -137,7 +137,7 @@ export function SettingsNavigationPage() {
           <button
             onClick={onMoveDown}
             className="p-1.5 rounded-md text-text-secondary hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Move down"
+            title={t('settings.navigation.moveDown')}
           >
             <ChevronDown size={14} />
           </button>
@@ -152,7 +152,7 @@ export function SettingsNavigationPage() {
         onClick={() => navigate(ROUTES.SETTINGS)}
         className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body"
       >
-        <ArrowLeft size={16} /> Back to Settings
+        <ArrowLeft size={16} /> {t('settings.navigation.backToSettings')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent">
@@ -163,8 +163,8 @@ export function SettingsNavigationPage() {
               <Menu size={22} className="text-brand-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-text-primary font-display">Navigation Menu</h1>
-              <p className="text-sm text-text-secondary font-body">Reorder and rename sidebar navigation items</p>
+              <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('settings.navigation.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('settings.navigation.description')}</p>
             </div>
           </div>
         </div>
@@ -173,12 +173,12 @@ export function SettingsNavigationPage() {
       <Card padding="lg">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">Sidebar Structure</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">Drag to reorder, click to rename. Changes save automatically.</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('settings.navigation.sidebarStructure')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('settings.navigation.sidebarHint')}</p>
           </div>
           {!isDefault() && (
             <Button variant="ghost" size="sm" leftIcon={<RotateCcw size={14} />} onClick={handleReset}>
-              Reset to Defaults
+              {t('settings.navigation.resetToDefaults')}
             </Button>
           )}
         </div>
@@ -197,7 +197,7 @@ export function SettingsNavigationPage() {
                 <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-border-default">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     {Icon && <Icon size={16} className="text-text-secondary flex-shrink-0" />}
-                    <span className="text-xs font-bold text-text-secondary uppercase tracking-wider flex-shrink-0">Group:</span>
+                    <span className="text-xs font-bold text-text-secondary uppercase tracking-wider flex-shrink-0">{t('settings.navigation.groupLabel')}</span>
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       {renderLabel(group.id, group.label)}
                     </div>

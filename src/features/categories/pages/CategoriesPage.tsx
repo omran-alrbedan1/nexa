@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { categoriesApi, type Category } from '../api/categoriesApi';
@@ -22,6 +23,7 @@ function cn(...classes: (string | false | undefined | null)[]) {
 }
 
 export function CategoriesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
@@ -105,8 +107,8 @@ export function CategoriesPage() {
               <FolderTree size={22} className="text-purple-600" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">Categories</h1>
-              <p className="text-sm text-text-secondary font-body">Manage product and business categories</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('categories.title')}</h1>
+              <p className="text-sm text-text-secondary font-body">{t('categories.description')}</p>
             </div>
           </div>
         </div>
@@ -116,8 +118,8 @@ export function CategoriesPage() {
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'product', label: 'Product Categories' },
-          { id: 'business', label: 'Business Categories' },
+          { id: 'product', label: t('categories.tabs.product') },
+          { id: 'business', label: t('categories.tabs.business') },
         ]}
         activeTab={tab}
         onChange={setTab}
@@ -128,15 +130,15 @@ export function CategoriesPage() {
       {tab === 'product' && (
         <>
           {isError ? (
-            <ErrorState title="Failed to load categories" message={error instanceof Error ? error.message : 'An unexpected error occurred'} onRetry={() => refetch()} />
+            <ErrorState title={t('categories.errorTitle')} message={error instanceof Error ? error.message : t('categories.errorMessage')} onRetry={() => refetch()} />
           ) : (
             <>
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-5">
                 {[
-                  { key: 'total', label: 'Total Categories', icon: Layers, variant: 'purple' as const },
-                  { key: 'active', label: 'Active', icon: CheckCircle2, variant: 'success' as const },
-                  { key: 'inactive', label: 'Inactive', icon: XCircle, variant: 'coral' as const },
+                  { key: 'total', label: t('categories.stats.total'), icon: Layers, variant: 'purple' as const },
+                  { key: 'active', label: t('categories.stats.active'), icon: CheckCircle2, variant: 'success' as const },
+                  { key: 'inactive', label: t('categories.stats.inactive'), icon: XCircle, variant: 'coral' as const },
                 ].map((s) => {
                   const Icon = s.icon;
                   return (
@@ -167,22 +169,22 @@ export function CategoriesPage() {
                 <CardHeader
                   action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.CATEGORIES_CREATE)}>
-                      Add Category
+                      {t('categories.list.addCategory')}
                     </Button>
                   }
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-text-primary font-display">All Categories</h3>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{categories.length} categor{categories.length === 1 ? 'y' : 'ies'}</p>
+                    <h3 className="text-sm font-bold text-text-primary font-display">{t('categories.list.allCategories')}</h3>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">{categories.length} {t('common.items')}</p>
                   </div>
                 </CardHeader>
 
                 {isLoading ? (
                   <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
                 ) : topLevelCategories.length === 0 ? (
-                  <EmptyState title="No categories yet" description="Create your first category to organize products" action={
+                  <EmptyState title={t('categories.list.noCategories')} description={t('categories.list.noCategoriesDescription')} action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.CATEGORIES_CREATE)}>
-                      Add Category
+                      {t('categories.list.addCategory')}
                     </Button>
                   } />
                 ) : (
@@ -205,28 +207,28 @@ export function CategoriesPage() {
                 open={deleteModal.open}
                 onClose={() => setDeleteModal({ open: false, category: null })}
                 size="sm"
-                title={deleteModal.category ? `Delete "${deleteModal.category.nameAr}"` : 'Delete Category'}
+                title={deleteModal.category ? t('categories.deleteTitle', { name: deleteModal.category.nameAr }) : t('categories.deleteTitle', { name: '' })}
               >
                 <div className="space-y-4">
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-200">
                     <Trash2 size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-text-secondary font-body">
-                      Are you sure you want to delete <strong>{deleteModal.category?.nameAr}</strong>?
+                      {t('categories.deleteConfirm', { name: deleteModal.category?.nameAr })}
                       {deleteModal.category && deleteModal.category.productsCount > 0 && (
                         <span className="block mt-1 text-red-600 font-bold">
-                          This category has {deleteModal.category.productsCount} product(s) associated with it.
+                          {t('categories.deleteWarning', { count: deleteModal.category.productsCount })}
                         </span>
                       )}
                     </p>
                   </div>
                   <div className="flex items-center justify-end gap-3">
-                    <Button variant="secondary" size="sm" onClick={() => setDeleteModal({ open: false, category: null })}>Cancel</Button>
+                    <Button variant="secondary" size="sm" onClick={() => setDeleteModal({ open: false, category: null })}>{t('categories.cancel')}</Button>
                     <Button
                       variant="danger" size="sm" leftIcon={<Trash2 size={14} />}
                       isLoading={deleteMutation.isPending}
                       onClick={() => deleteModal.category && deleteMutation.mutate(deleteModal.category.id)}
                     >
-                      Delete
+                      {t('categories.delete')}
                     </Button>
                   </div>
                 </div>
@@ -240,15 +242,15 @@ export function CategoriesPage() {
       {tab === 'business' && (
         <>
           {businessIsError ? (
-            <ErrorState title="Failed to load business categories" message={businessError instanceof Error ? businessError.message : 'An unexpected error occurred'} onRetry={() => businessRefetch()} />
+            <ErrorState title={t('categories.errorTitle')} message={businessError instanceof Error ? businessError.message : t('categories.errorMessage')} onRetry={() => businessRefetch()} />
           ) : (
             <>
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-5">
                 {[
-                  { key: 'total', label: 'Total Business Categories', icon: Building2, variant: 'emerald' as const },
-                  { key: 'active', label: 'Active', icon: CheckCircle2, variant: 'success' as const },
-                  { key: 'inactive', label: 'Inactive', icon: XCircle, variant: 'coral' as const },
+                  { key: 'total', label: t('categories.stats.totalBusiness'), icon: Building2, variant: 'emerald' as const },
+                  { key: 'active', label: t('categories.stats.active'), icon: CheckCircle2, variant: 'success' as const },
+                  { key: 'inactive', label: t('categories.stats.inactive'), icon: XCircle, variant: 'coral' as const },
                 ].map((s) => {
                   const Icon = s.icon;
                   return (
@@ -279,22 +281,22 @@ export function CategoriesPage() {
                 <CardHeader
                   action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.BUSINESS_CATEGORIES_CREATE)}>
-                      Add Business Category
+                      {t('categories.list.addBusinessCategory')}
                     </Button>
                   }
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-text-primary font-display">All Business Categories</h3>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{businessCategories.length} categor{businessCategories.length === 1 ? 'y' : 'ies'}</p>
+                    <h3 className="text-sm font-bold text-text-primary font-display">{t('categories.list.allBusinessCategories')}</h3>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">{businessCategories.length} {t('common.items')}</p>
                   </div>
                 </CardHeader>
 
                 {businessLoading ? (
                   <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
                 ) : businessCategories.length === 0 ? (
-                  <EmptyState title="No business categories yet" description="Create your first business category to organize suppliers" action={
+                  <EmptyState title={t('categories.list.noBusinessCategories')} description={t('categories.list.noBusinessCategoriesDescription')} action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.BUSINESS_CATEGORIES_CREATE)}>
-                      Add Business Category
+                      {t('categories.list.addBusinessCategory')}
                     </Button>
                   } />
                 ) : (
@@ -316,28 +318,28 @@ export function CategoriesPage() {
                 open={deleteBusinessModal.open}
                 onClose={() => setDeleteBusinessModal({ open: false, category: null })}
                 size="sm"
-                title={deleteBusinessModal.category ? `Delete "${deleteBusinessModal.category.nameAr}"` : 'Delete Business Category'}
+                title={t('categories.deleteBusinessTitle')}
               >
                 <div className="space-y-4">
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-200">
                     <Trash2 size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-text-secondary font-body">
-                      Are you sure you want to delete <strong>{deleteBusinessModal.category?.nameAr}</strong>?
+                      {t('categories.deleteBusinessConfirm', { name: deleteBusinessModal.category?.nameAr })}
                       {deleteBusinessModal.category && deleteBusinessModal.category.suppliersCount > 0 && (
                         <span className="block mt-1 text-red-600 font-bold">
-                          This category has {deleteBusinessModal.category.suppliersCount} supplier(s) associated with it.
+                          {t('categories.deleteBusinessWarning', { count: deleteBusinessModal.category.suppliersCount })}
                         </span>
                       )}
                     </p>
                   </div>
                   <div className="flex items-center justify-end gap-3">
-                    <Button variant="secondary" size="sm" onClick={() => setDeleteBusinessModal({ open: false, category: null })}>Cancel</Button>
+                    <Button variant="secondary" size="sm" onClick={() => setDeleteBusinessModal({ open: false, category: null })}>{t('categories.cancel')}</Button>
                     <Button
                       variant="danger" size="sm" leftIcon={<Trash2 size={14} />}
                       isLoading={deleteBusinessMutation.isPending}
                       onClick={() => deleteBusinessModal.category && deleteBusinessMutation.mutate(deleteBusinessModal.category.id)}
                     >
-                      Delete
+                      {t('categories.delete')}
                     </Button>
                   </div>
                 </div>
@@ -360,6 +362,7 @@ interface CategoryListItemProps {
 }
 
 function CategoryListItem({ category, allCategories, onEdit, onDelete }: CategoryListItemProps) {
+  const { t } = useTranslation();
   const children = allCategories.filter((c) => c.parentId === category.id);
 
   return (
@@ -376,23 +379,23 @@ function CategoryListItem({ category, allCategories, onEdit, onDelete }: Categor
             <span className="text-xs text-text-tertiary">Sub: {category.parent.name_ar}</span>
           )}
           <Badge variant={category.isActive ? 'green' : 'red'} size="sm">
-            {category.isActive ? 'Active' : 'Inactive'}
+            {category.isActive ? t('common.active') : t('common.inactive')}
           </Badge>
         </>}
         actions={<>
           {children.length > 0 && (
-            <span className="text-xs text-text-secondary mr-1">{children.length} sub</span>
+            <span className="text-xs text-text-secondary mr-1">{t('categories.sub', { count: children.length })}</span>
           )}
           <Button variant="ghost" size="sm" leftIcon={<Pencil size={12} />} onClick={(e) => { e.stopPropagation(); onEdit(category); }}>
-            Edit
+            {t('categories.edit')}
           </Button>
           <Button variant="ghost" size="sm" leftIcon={<Trash2 size={12} />} onClick={(e) => { e.stopPropagation(); onDelete(category); }} className="text-red-500 hover:text-red-700">
-            Delete
+            {t('categories.delete')}
           </Button>
         </>}
       >
         <p className="text-xs text-text-secondary font-body">
-          Sort: {category.sortOrder} &middot; {category.productsCount} product{category.productsCount !== 1 ? 's' : ''}
+          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {category.productsCount} product{category.productsCount !== 1 ? 's' : ''}
         </p>
       </ListItem>
     </div>
@@ -408,6 +411,7 @@ interface BusinessCategoryListItemProps {
 }
 
 function BusinessCategoryListItem({ category, onEdit, onDelete }: BusinessCategoryListItemProps) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-xl border border-border-default/60 hover:border-border-default transition-colors">
       <ListItem
@@ -423,20 +427,20 @@ function BusinessCategoryListItem({ category, onEdit, onDelete }: BusinessCatego
             {category.code}
           </span>
           <Badge variant={category.isActive ? 'green' : 'red'} size="sm">
-            {category.isActive ? 'Active' : 'Inactive'}
+            {category.isActive ? t('common.active') : t('common.inactive')}
           </Badge>
         </>}
         actions={<>
           <Button variant="ghost" size="sm" leftIcon={<Pencil size={12} />} onClick={(e) => { e.stopPropagation(); onEdit(category); }}>
-            Edit
+            {t('categories.edit')}
           </Button>
           <Button variant="ghost" size="sm" leftIcon={<Trash2 size={12} />} onClick={(e) => { e.stopPropagation(); onDelete(category); }} className="text-red-500 hover:text-red-700">
-            Delete
+            {t('categories.delete')}
           </Button>
         </>}
       >
         <p className="text-xs text-text-secondary font-body">
-          Sort: {category.sortOrder} &middot; {category.suppliersCount} supplier{category.suppliersCount !== 1 ? 's' : ''}
+          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {category.suppliersCount} supplier{category.suppliersCount !== 1 ? 's' : ''}
         </p>
       </ListItem>
     </div>

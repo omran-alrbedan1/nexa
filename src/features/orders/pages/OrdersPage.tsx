@@ -37,24 +37,6 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   refunded: 'gray',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  new: 'New',
-  pending_management: 'Pending',
-  pending_pricing: 'Pricing',
-  pending_customer_approval: 'Awaiting Customer',
-  confirmed: 'Confirmed',
-  paid: 'Paid',
-  pending_supply: 'In Supply',
-  pending_aggregation: 'Aggregation',
-  ready_to_ship: 'Ready',
-  out_for_delivery: 'Out for Del.',
-  delivered: 'Delivered',
-  failed_delivery: 'Failed',
-  cancelled: 'Cancelled',
-  postponed: 'Postponed',
-  refunded: 'Refunded',
-};
-
 const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
   regular: 'teal', special: 'coral', seasonal: 'purple',
 };
@@ -64,6 +46,23 @@ const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
 export function OrdersPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    new: t('orders.status.new'),
+    pending_management: t('orders.status.pending_management'),
+    pending_pricing: t('orders.status.pending_pricing'),
+    pending_customer_approval: t('orders.status.pending_customer_approval'),
+    confirmed: t('orders.status.confirmed'),
+    paid: t('orders.status.paid'),
+    pending_supply: t('orders.status.pending_supply'),
+    pending_aggregation: t('orders.status.pending_aggregation'),
+    ready_to_ship: t('orders.status.ready_to_ship'),
+    out_for_delivery: t('orders.status.out_for_delivery'),
+    delivered: t('orders.status.delivered'),
+    failed_delivery: t('orders.status.failed_delivery'),
+    cancelled: t('orders.status.cancelled'),
+    postponed: t('orders.status.postponed'),
+    refunded: t('orders.status.refunded'),
+  };
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<OrderType | ''>('');
@@ -251,9 +250,9 @@ export function OrdersPage() {
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('orders.list.allTypes')}</option>
-              <option value="regular">Regular</option>
-              <option value="special">Special</option>
-              <option value="seasonal">Seasonal</option>
+              <option value="regular">{t('orders.list.regular')}</option>
+              <option value="special">{t('orders.list.special')}</option>
+              <option value="seasonal">{t('orders.list.seasonal')}</option>
             </select>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -291,11 +290,11 @@ export function OrdersPage() {
                   iconClassName="bg-brand-accent-light"
                   title={<span className="text-sm font-bold text-text-primary font-body truncate">{order.orderNumber}</span>}
                   badges={<>
-                    <Badge variant={TYPE_BADGE[order.type]} size="sm">{order.type}</Badge>
-                    <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || order.status}</Badge>
+                    <Badge variant={TYPE_BADGE[order.type]} size="sm">{t(`orders.list.${order.type}`)}</Badge>
+                    <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
                   </>}
                   actions={<>
-                    <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : 'TBD'}</span>
+                    <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : t('orders.list.tbd')}</span>
                     <ChevronRight size={16} className="text-text-tertiary" />
                   </>}
                 >

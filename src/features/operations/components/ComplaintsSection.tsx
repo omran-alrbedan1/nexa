@@ -115,7 +115,7 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
                               : 'bg-gray-50 text-gray-600'
                       }`}
                     >
-                      {(complaint.status ?? 'unknown').replace('_', ' ')}
+                      {t('operations.complaintStatus.' + (complaint.status ?? 'unknown'))}
                     </span>
                   </div>
                   <p className="text-sm text-gray-800 mt-1 font-medium">{complaint.subject}</p>
@@ -182,9 +182,9 @@ export function ComplaintsSection({ complaints, isLoading }: ComplaintsSectionPr
       {!isLoading && complaints.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {complaints.filter((c) => c.status === 'open').length} {t('operations.complaints.open').toLowerCase()} ·{' '}
-            {complaints.filter((c) => c.status === 'in_progress').length} {t('operations.complaints.inProgress').toLowerCase()} ·{' '}
-            {complaints.filter((c) => c.status === 'resolved').length} {t('operations.complaints.resolved').toLowerCase()}
+            {complaints.filter((c) => c.status === 'open').length} {t('operations.complaints.open')} ·{' '}
+            {complaints.filter((c) => c.status === 'in_progress').length} {t('operations.complaints.inProgress')} ·{' '}
+            {complaints.filter((c) => c.status === 'resolved').length} {t('operations.complaints.resolved')}
           </span>
           <button
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors"

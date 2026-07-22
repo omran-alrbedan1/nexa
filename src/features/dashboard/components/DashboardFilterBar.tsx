@@ -191,14 +191,14 @@ export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded,
             placeholder={t('dashboard.filters.allTypes')}
             value={filters.orderType || ''}
             onChange={(v) => onFilterChange({ orderType: v || null })}
-            options={ORDER_TYPES.map((t) => t.replace(/_/g, ' '))}
+            options={ORDER_TYPES.map((o) => t('dashboard.filters.' + o))}
           />
           <FilterSelect
             label={t('dashboard.filters.status')}
             placeholder={t('dashboard.filters.allStatuses')}
             value={filters.status || ''}
             onChange={(v) => onFilterChange({ status: v || null })}
-            options={STATUSES.map((s) => s.replace(/_/g, ' '))}
+            options={STATUSES.map((s) => t('orders.status.' + s))}
           />
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { Icon, type LatLngExpression, type Marker as LeafletMarker } from 'leaflet'
 import { useDriverLocation, type DriverLocation } from '@/hooks/useDriverLocation'
@@ -14,6 +15,7 @@ const driverIcon = new Icon({
 })
 
 function LiveMarker({ location }: { location: DriverLocation }) {
+  const { t } = useTranslation()
   const markerRef = useRef<LeafletMarker>(null)
   const map = useMap()
   const position: LatLngExpression = [location.latitude, location.longitude]
@@ -27,7 +29,7 @@ function LiveMarker({ location }: { location: DriverLocation }) {
   return (
     <Marker position={position} icon={driverIcon} ref={markerRef}>
       <Popup>
-        Speed: {location.speed ? `${location.speed} km/h` : 'N/A'}
+        {t('orders.tracking.speed')}: {location.speed ? `${location.speed} ${t('orders.tracking.kmh')}` : t('orders.tracking.notAvailable')}
         <br />
         Updated: {new Date(location.recordedAt).toLocaleTimeString()}
       </Popup>
@@ -41,12 +43,13 @@ interface Props {
 }
 
 export default function DriverTrackingMap({ orderId, initialLocation }: Props) {
+  const { t } = useTranslation()
   const location = useDriverLocation(orderId, initialLocation)
 
   if (!location) {
     return (
       <div className="flex items-center justify-center h-48 bg-gray-100 rounded-lg">
-        <p className="text-gray-500">Awaiting driver location…</p>
+        <p className="text-gray-500">{t('orders.tracking.awaitingLocation')}</p>
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { productsApi, type ProductsPageData } from '../api/productsApi';
 
@@ -19,41 +20,44 @@ export function useProductsPage() {
 
 export function useToggleProductAvailability() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => productsApi.toggleAvailability(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: productKeys.pageData() });
-      addToast('success', data.isAvailable ? 'Product enabled' : 'Product disabled');
+      addToast('success', data.isAvailable ? t('products.toast.enabled') : t('products.toast.disabled'));
     },
-    onError: () => addToast('error', 'Failed to update product'),
+    onError: () => addToast('error', t('products.toast.updateFailed')),
   });
 }
 
 export function useApproveProduct() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => productsApi.approveProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.pageData() });
       queryClient.invalidateQueries({ queryKey: ['products', 'pending-approvals'] });
-      addToast('success', 'Product approved');
+      addToast('success', t('products.toast.approved'));
     },
-    onError: () => addToast('error', 'Failed to approve product'),
+    onError: () => addToast('error', t('products.toast.approveFailed')),
   });
 }
 
 export function useRejectProduct() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (id: number) => productsApi.rejectProduct(id, 'Rejected by admin'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.pageData() });
       queryClient.invalidateQueries({ queryKey: ['products', 'pending-approvals'] });
-      addToast('success', 'Product rejected');
+      addToast('success', t('products.toast.rejected'));
     },
-    onError: () => addToast('error', 'Failed to reject product'),
+    onError: () => addToast('error', t('products.toast.rejectFailed')),
   });
 }

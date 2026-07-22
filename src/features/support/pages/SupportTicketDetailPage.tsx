@@ -164,7 +164,7 @@ export function SupportTicketDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={STATUS_VARIANT[ticket.status] || 'yellow'} size="sm" className="capitalize">
-            {(ticket.status ?? 'unknown').replace('_', ' ')}
+            {t('support.ticketStatus.' + (ticket.status ?? 'unknown'))}
           </Badge>
           {nextAction && (
             <Button

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBanners, useCreateBanner, useUpdateBanner, useDeleteBanner } from '../hooks/useSettings';
 import { Card } from '@/components/ui/Card';
@@ -8,7 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
-import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
 import type { Banner } from '../api/settingsApi';
 
 export function BannersPage() {
@@ -17,10 +17,11 @@ export function BannersPage() {
   const createBanner = useCreateBanner();
   const updateBanner = useUpdateBanner();
   const deleteBanner = useDeleteBanner();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [modal, setModal] = useState<{ open: boolean; editing: Banner | null }>({ open: false, editing: null });
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; banner: Banner | null }>({ open: false, banner: null });
-  const [form, setForm] = useState({ title: '', image: '', linkType: '', sortOrder: 1, isActive: true });
+  const [form, setForm] = useState<{ title: string; image: string | File; linkType: string; sortOrder: number; isActive: boolean }>({ title: '', image: '', linkType: '', sortOrder: 1, isActive: true });
 
   const openCreate = () => {
     setForm({ title: '', image: '', linkType: '', sortOrder: 1, isActive: true });
@@ -32,11 +33,27 @@ export function BannersPage() {
     setModal({ open: true, editing: banner });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setForm({ ...form, image: file });
+    }
+  };
+
   const handleSave = () => {
+    const fd = new FormData();
+    fd.append('title', form.title);
+    fd.append('link_type', form.linkType);
+    fd.append('sort_order', String(form.sortOrder));
+    fd.append('is_active', form.isActive ? '1' : '0');
+    if (form.image instanceof File) {
+      fd.append('image', form.image);
+    }
     if (modal.editing) {
-      updateBanner.mutate({ id: modal.editing.id, data: form });
+      fd.append('_method', 'PUT');
+      updateBanner.mutate({ id: modal.editing.id, data: fd });
     } else {
-      createBanner.mutate(form);
+      createBanner.mutate(fd);
     }
     setModal({ open: false, editing: null });
   };
@@ -132,7 +149,21 @@ export function BannersPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.banners.imageUrl')}</label>
-            <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="https://..." />
+            <div className="flex items-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-text-secondary file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary/20 cursor-pointer"
+              />
+              {form.image && typeof form.image === 'string' && (
+                <img src={form.image} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+              )}
+              {form.image instanceof File && (
+                <img src={URL.createObjectURL(form.image)} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

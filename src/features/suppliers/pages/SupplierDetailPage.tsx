@@ -280,7 +280,7 @@ export function SupplierDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{supplier.name}</h1>
                 <span className="text-sm text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
-                <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{(supplier.status ?? 'unknown').replace('_', ' ')}</Badge>
+                <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{t('suppliers.status.' + (supplier.status ?? 'unknown'))}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {supplier.email} · {supplier.phone}
@@ -390,7 +390,7 @@ export function SupplierDetailPage() {
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
               <span className="text-text-secondary">{t('suppliers.detail.paymentTerms')}</span>
-              <span className="font-bold text-text-primary capitalize">{supplier.paymentTerms.replace(/_/g, ' ')}</span>
+              <span className="font-bold text-text-primary capitalize">{t('suppliers.paymentTerms.' + supplier.paymentTerms)}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
               <span className="text-text-secondary">{t('suppliers.detail.commissionRate')}</span>

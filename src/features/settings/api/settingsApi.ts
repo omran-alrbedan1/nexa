@@ -389,18 +389,24 @@ export const settingsApi = {
     }
   },
 
-  createBanner: async (data: Partial<Banner>): Promise<Banner> => {
+  createBanner: async (data: FormData | Partial<Banner>): Promise<Banner> => {
     try {
-      const response = await apiClient.post<ApiResponse<BackendBanner>>('/api/v1/admin/banners', data);
+      const isFormData = data instanceof FormData;
+      const response = await apiClient.post<ApiResponse<BackendBanner>>('/api/v1/admin/banners', data, {
+        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined,
+      });
       return mapBanner(response.data.data);
     } catch {
       throw new Error('Failed to create banner');
     }
   },
 
-  updateBanner: async (id: number, data: Partial<Banner>): Promise<Banner> => {
+  updateBanner: async (id: number, data: FormData | Partial<Banner>): Promise<Banner> => {
     try {
-      const response = await apiClient.put<ApiResponse<BackendBanner>>(`/api/v1/admin/banners/${id}`, data);
+      const isFormData = data instanceof FormData;
+      const response = await apiClient.post<ApiResponse<BackendBanner>>(`/api/v1/admin/banners/${id}`, data, {
+        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined,
+      });
       return mapBanner(response.data.data);
     } catch {
       throw new Error('Failed to update banner');
@@ -457,9 +463,9 @@ export const settingsApi = {
   },
 
   // ── Audit Logs ──
-  getAuditLogs: async (): Promise<PaginatedResponse<AuditLog>> => {
+  getAuditLogs: async (page: number = 1): Promise<PaginatedResponse<AuditLog>> => {
     try {
-      const response = await apiClient.get<ApiResponse<{ audit_logs: BackendAuditLog[]; meta: any }>>('/api/v1/admin/audit-logs');
+      const response = await apiClient.get<ApiResponse<{ audit_logs: BackendAuditLog[]; meta: any }>>(`/api/v1/admin/audit-logs?page=${page}`);
       const data = response.data.data;
       return {
         data: (data.audit_logs || []).map(mapAuditLog),

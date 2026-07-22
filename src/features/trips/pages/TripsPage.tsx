@@ -17,13 +17,6 @@ import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, 
 import type { DashboardTrip } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
 
-const STATUS_LABELS: Record<string, string> = {
-  scheduled: 'Scheduled', assigned: 'Assigned', accepted: 'Accepted', in_progress: 'In Progress',
-  completed: 'Completed', cancelled: 'Cancelled', failed: 'Failed',
-};
-
-
-
 function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple' | 'red' {
   switch (status) {
     case 'completed': return 'green';
@@ -39,6 +32,10 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
 export function TripsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    scheduled: t('trips.statusLabels.scheduled'), assigned: t('trips.statusLabels.assigned'), accepted: t('trips.statusLabels.accepted'), in_progress: t('trips.statusLabels.in_progress'),
+    completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
+  };
   const formatPrice = useFormatPrice();
   const { data, isLoading, isError, error, refetch } = useTripsPage();
   const { data: driversData } = useQuery({

@@ -28,17 +28,6 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal
   converted: 'gray',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  pending_admin: 'Pending Admin',
-  pending_pricing: 'Pending Pricing',
-  pending_customer: 'Awaiting Customer',
-  priced: 'Priced',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-  converted: 'Converted',
-};
-
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -48,6 +37,16 @@ export function SpecialOrderDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(requestId || '0', 10);
   const { t } = useTranslation();
+  const STATUS_LABELS: Record<string, string> = {
+    pending_admin: t('specialOrders.statusLabels.pending_admin'),
+    pending_pricing: t('specialOrders.statusLabels.pending_pricing'),
+    pending_customer: t('specialOrders.statusLabels.pending_customer'),
+    priced: t('specialOrders.statusLabels.priced'),
+    approved: t('specialOrders.statusLabels.approved'),
+    rejected: t('specialOrders.statusLabels.rejected'),
+    cancelled: t('specialOrders.statusLabels.cancelled'),
+    converted: t('specialOrders.statusLabels.converted'),
+  };
   const formatPrice = useFormatPrice();
 
   const { data: order, isLoading, isError, error, refetch } = useSpecialOrderDetail(id);
