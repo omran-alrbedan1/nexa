@@ -14,7 +14,7 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { safeFormatDate, isDateValid } from '@/utils/date';
 import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap'
 import {
-  ArrowLeft, Truck, User, Calendar, Clock, MapPin,
+  ArrowLeft, Navigation, Truck, User, Calendar, Clock, MapPin,
   CheckCircle2, ShoppingCart, Warehouse,
 } from 'lucide-react';
 

@@ -103,6 +103,11 @@ const DriverDetailPage = lazy(() =>
   import('@/features/drivers/pages/DriverDetailPage').then((m) => ({ default: m.DriverDetailPage }))
 );
 
+// ── Driver Monitor ──
+const DriverMonitorPage = lazy(() =>
+  import('@/features/delivery-monitor/pages/DriverMonitorPage').then((m) => ({ default: m.default }))
+);
+
 // ── Payments ──
 const PaymentsPage = lazy(() =>
   import('@/features/payments/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage }))
@@ -311,6 +316,7 @@ export function App() {
                 <Route path={ROUTES.TRIPS} element={<TripsPage />} />
                 <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<TripDetailPage />} />
                 <Route path={ROUTES.TRIP_CREATE} element={<CreateTripPage />} />
+                <Route path={ROUTES.DRIVER_MONITOR} element={<DriverMonitorPage />} />
               </Route>
 
               {/* Drivers — requires drivers.view */}
