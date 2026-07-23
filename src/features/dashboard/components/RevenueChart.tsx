@@ -66,7 +66,7 @@ export function RevenueChart({ data, todayRevenue, isLoading }: RevenueChartProp
         <div className="flex flex-col items-center justify-center h-44 text-center">
           <TrendingUp size={32} className="text-text-tertiary mb-2 opacity-40" />
           <p className="text-sm text-text-secondary font-body">
-            {todayRevenue
+            {todayRevenue !== undefined
               ? `${t('dashboard.todayRevenue')}: ${formatPrice(todayRevenue)}`
               : t('common.noData')}
           </p>

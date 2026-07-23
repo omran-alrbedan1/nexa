@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import { deliveryMonitorApi } from '../api/deliveryMonitorApi';
-import TripSimulatorCard from '../components/TripSimulatorCard';
+import { tripsApi } from '@/features/trips/api/tripsApi';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { env } from '@/config/env';
 import { ROUTES } from '@/routes/routes';
@@ -21,21 +20,27 @@ const defaultCenter = { lat: 24.713552, lng: 46.675297 };
 export default function DriverMonitorPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [simOpen, setSimOpen] = useState(false);
   const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
 
-  const { data: trips = [], isLoading } = useQuery({
-    queryKey: ['trips', 'simulator', 'active'],
-    queryFn: () => deliveryMonitorApi.getActiveTrips(),
-    refetchInterval: 15_000,
+  const { data: pageData, isLoading } = useQuery({
+    queryKey: ['trips', 'active'],
+    queryFn: () => tripsApi.getPageData(),
+    refetchInterval: 30_000,
   });
+
+  const activeTrips = useMemo(
+    () => (pageData?.trips ?? []).filter((t) =>
+      ['assigned', 'accepted', 'in_progress'].includes(t.status)
+    ),
+    [pageData],
+  );
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: env.GOOGLE_MAPS_API_KEY,
   });
 
-  const selectedTrip = trips.find((t) => t.id === selectedTripId);
+  const selectedTrip = activeTrips.find((t) => t.id === selectedTripId);
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -56,7 +61,7 @@ export default function DriverMonitorPage() {
         <div className="flex justify-center py-12">
           <LoadingSpinner size="lg" />
         </div>
-      ) : trips.length === 0 ? (
+      ) : activeTrips.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-text-secondary font-body">
             {t('drivers.monitor.noActiveTrips')}
@@ -69,10 +74,10 @@ export default function DriverMonitorPage() {
             <div className="flex items-center gap-2 mb-2">
               <Truck size={16} className="text-brand-primary" />
               <h3 className="text-sm font-bold text-text-primary font-display">
-                {t('drivers.monitor.activeTrips', { count: trips.length })}
+                {t('drivers.monitor.activeTrips', { count: activeTrips.length })}
               </h3>
             </div>
-            {trips.map((trip) => (
+            {activeTrips.map((trip) => (
               <button
                 key={trip.id}
                 onClick={() => {
@@ -95,7 +100,7 @@ export default function DriverMonitorPage() {
                   {trip.driverName || t('drivers.monitor.unassigned')}
                 </p>
                 <p className="text-[10px] text-text-tertiary mt-0.5">
-                  {t('drivers.monitor.ordersCount', { count: trip.orders.length })}
+                  {t('drivers.monitor.ordersCount', { count: trip.orderCount })}
                 </p>
               </button>
             ))}
@@ -115,7 +120,7 @@ export default function DriverMonitorPage() {
                     fullscreenControl: false,
                   }}
                 >
-                  {trips.map((trip) => (
+                  {activeTrips.map((trip) => (
                     <Marker
                       key={trip.id}
                       position={defaultCenter}
@@ -158,23 +163,6 @@ export default function DriverMonitorPage() {
           </div>
         </div>
       )}
-
-      {/* Simulate Driver (Collapsed) */}
-      <details
-        className="rounded-xl border border-border-default/60 overflow-hidden"
-        open={simOpen}
-        onToggle={(e) => setSimOpen(e.currentTarget.open)}
-      >
-        <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-bg-section-alt text-sm font-bold text-text-primary">
-          <Navigation size={16} className="text-brand-accent" />
-          {t('trips.detail.simulateDriver')}
-        </summary>
-        <div className="px-4 pb-4 space-y-4 border-t border-border-default/60 pt-4">
-          {trips.map((trip) => (
-            <TripSimulatorCard key={trip.id} trip={trip} />
-          ))}
-        </div>
-      </details>
     </div>
   );
 }

@@ -372,12 +372,7 @@ function transformBackendResponse(backend: DashboardBackendResponse): DashboardW
     pipeline: buildPipeline(backend.pipeline),
     tripSummary: buildTripSummary(backend.trips_today),
     revenueData: backend.revenue_by_day || [],
-    timeKPIs: (backend.time_kpis || []).map((kpi) => ({
-      metric: kpi.metric,
-      averageHours: kpi.average_hours,
-      trend: kpi.trend,
-      trendPercent: kpi.trend_percent,
-    })),
+    timeKPIs: [], // computed after stats are built
 
     // Frontend-only widgets — populated by fetchWidgetData() call below
     topSuppliers: [],
@@ -422,6 +417,40 @@ export const dashboardApi = {
     result.topSuppliers = topSuppliersData;
     result.topAreas = topAreasData;
     result.stats.activeDrivers = driverActivityData.filter((d) => d.status === 'available' || d.status === 'on_trip').length;
+
+    const pipelineTotal = result.pipeline.reduce((s, p) => s + p.count, 0);
+    result.timeKPIs = [
+      {
+        metric: 'orders_today',
+        averageHours: result.stats.totalOrders,
+        trend: 'stable',
+        trendPercent: 0,
+      },
+      {
+        metric: 'delivered_today',
+        averageHours: result.stats.deliveredToday,
+        trend: 'stable',
+        trendPercent: 0,
+      },
+      {
+        metric: 'active_drivers',
+        averageHours: result.stats.activeDrivers,
+        trend: 'stable',
+        trendPercent: 0,
+      },
+      {
+        metric: 'in_pipeline',
+        averageHours: pipelineTotal,
+        trend: 'stable',
+        trendPercent: 0,
+      },
+      {
+        metric: 'revenue_today',
+        averageHours: result.stats.revenueToday,
+        trend: 'stable',
+        trendPercent: 0,
+      },
+    ];
     return result;
   },
 };

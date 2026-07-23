@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
-import { Timer, TrendingDown, TrendingUp } from 'lucide-react';
+import { BarChart3, TrendingDown, TrendingUp } from 'lucide-react';
 import type { TimeKPI } from '../api/dashboardApi';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 interface TimeKPIsWidgetProps {
   kpis: TimeKPI[];
@@ -11,24 +12,25 @@ interface TimeKPIsWidgetProps {
 
 export function TimeKPIsWidget({ kpis, isLoading }: TimeKPIsWidgetProps) {
   const { t } = useTranslation();
+  const formatPrice = useFormatPrice();
 
   return (
     <Card padding="lg" hover>
       <CardHeader>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-            <Timer size={16} className="text-purple-600" />
+            <BarChart3 size={16} className="text-purple-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.timeKPIs.title')}</h3>
-            <p className="text-xs text-text-secondary font-body">{t('dashboard.timeKPIs.subtitle')}</p>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('dashboard.operationalKPIs.title')}</h3>
+            <p className="text-xs text-text-secondary font-body">{t('dashboard.operationalKPIs.subtitle')}</p>
           </div>
         </div>
       </CardHeader>
 
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-12 bg-gray-100 rounded-lg" />
           ))}
         </div>
@@ -40,13 +42,13 @@ export function TimeKPIsWidget({ kpis, isLoading }: TimeKPIsWidgetProps) {
               className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-bg-section-alt transition-colors"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-text-primary font-body truncate">{kpi.metric}</p>
+                <p className="text-sm font-bold text-text-primary font-body truncate">
+                  {t(`dashboard.kpis.${kpi.metric}`)}
+                </p>
               </div>
               <div className="flex items-center gap-3 ml-4">
                 <span className="text-sm font-extrabold text-text-primary font-display">
-                  {kpi.metric.toLowerCase().includes('rate') || kpi.metric.toLowerCase().includes('success')
-                    ? `${kpi.averageHours}%`
-                    : `${kpi.averageHours}h`}
+                  {kpi.metric === 'revenue_today' ? formatPrice(kpi.averageHours) : kpi.averageHours}
                 </span>
                 {kpi.trend !== 'stable' && (
                   <span

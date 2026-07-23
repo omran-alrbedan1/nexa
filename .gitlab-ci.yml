@@ -23,7 +23,7 @@ build_dev:
         --build-arg VITE_REVERB_HOST=${DEV_REVERB_HOST:-api-nexa.futxtech.com}
         --build-arg VITE_REVERB_PORT=${DEV_REVERB_PORT:-443}
         --build-arg VITE_REVERB_SCHEME=${DEV_REVERB_SCHEME:-https}
-        --build-arg VITE_GOOGLE_MAPS_API_KEY=${DEV_GOOGLE_MAPS_KEY} .
+        --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
 
 deploy_dev:
   stage: deploy
@@ -81,7 +81,7 @@ build_prod:
         --build-arg VITE_REVERB_HOST=${PROD_REVERB_HOST:-api-nexa.futxtech.com}
         --build-arg VITE_REVERB_PORT=${PROD_REVERB_PORT:-443}
         --build-arg VITE_REVERB_SCHEME=${PROD_REVERB_SCHEME:-https}
-        --build-arg VITE_GOOGLE_MAPS_API_KEY=${PROD_GOOGLE_MAPS_KEY} .
+        --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
 
 deploy_prod:
   stage: deploy

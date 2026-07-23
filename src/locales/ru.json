@@ -336,9 +336,16 @@
       "title": "Конвейер операций",
       "subtitle": "Текущий поток заказов"
     },
-    "timeKPIs": {
-      "title": "Временные KPI",
-      "subtitle": "Среднее время обработки"
+    "operationalKPIs": {
+      "title": "Операционные KPI",
+      "subtitle": "Ключевые показатели сегодня"
+    },
+    "kpis": {
+      "orders_today": "Заказов сегодня",
+      "delivered_today": "Доставлено сегодня",
+      "active_drivers": "Активных водителей",
+      "in_pipeline": "В обработке",
+      "revenue_today": "Выручка сегодня"
     },
     "topSuppliers": {
       "title": "Лучшие поставщики",
@@ -1045,9 +1052,7 @@
       "cancel": "Отменить",
       "assignButton": "Назначить водителя",
       "selectDriverLabel": "Выберите водителя для {{region}}",
-      "assignModalTitle": "Назначить водителя — {{trip}}",
-      "simulateDriver": "Симуляция водителя",
-      "lastSent": "Последняя отправка: {{time}}"
+      "assignModalTitle": "Назначить водителя — {{trip}}"
     }
   },
   "drivers": {

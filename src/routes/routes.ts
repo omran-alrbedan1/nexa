@@ -87,9 +87,6 @@ export const ROUTES = {
   // Driver detail
   DRIVER_DETAIL: (driverId: number | string) => `/drivers/${driverId}`,
 
-  // Driver Monitor (simulator)
-  DRIVER_MONITOR: '/driver-monitor',
-
   // Delivery Slots
   DELIVERY_SLOTS: '/delivery-slots',
 

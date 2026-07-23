@@ -455,9 +455,16 @@
         "delivered_today": "Delivered Today"
       }
     },
-    "timeKPIs": {
-      "title": "Time KPIs",
-      "subtitle": "Average processing times"
+    "operationalKPIs": {
+      "title": "Operational KPIs",
+      "subtitle": "Today's key metrics"
+    },
+    "kpis": {
+      "orders_today": "Orders Today",
+      "delivered_today": "Delivered Today",
+      "active_drivers": "Active Drivers",
+      "in_pipeline": "In Pipeline",
+      "revenue_today": "Revenue Today"
     },
     "topSuppliers": {
       "title": "Top Suppliers",
@@ -1524,9 +1531,7 @@
       "cancel": "Cancel",
       "assignButton": "Assign Driver",
       "selectDriverLabel": "Select a driver for {{region}}",
-      "assignModalTitle": "Assign Driver — {{trip}}",
-      "simulateDriver": "Simulate Driver",
-      "lastSent": "Last sent: {{time}}"
+      "assignModalTitle": "Assign Driver — {{trip}}"
     },
     "create": {
       "validationRequired": "Planned date and departure time are required",

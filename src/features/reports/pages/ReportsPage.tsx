@@ -172,16 +172,23 @@ function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string;
         <CardHeader>
           <h3 className="text-sm font-bold text-text-primary font-display">{t('reports.orders.dailyTrend')}</h3>
         </CardHeader>
-        <div className="flex items-end justify-between gap-1.5 h-44 pt-4">
-          {data.daily.map((day) => (
-            <div key={day.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-              <span className="text-[10px] font-bold text-text-secondary font-body opacity-0 group-hover:opacity-100 transition-opacity">{day.count}</span>
-              <div className="relative w-full max-w-[32px] rounded-t-lg bg-gradient-to-t from-blue-500 to-blue-400 transition-all duration-300 hover:from-blue-600 hover:to-blue-500"
-                style={{ height: `${(day.count / maxDailyCount) * 100}%`, minHeight: '2px' }} />
-              <span className="text-[9px] text-text-tertiary font-body">{day.date.slice(5)}</span>
-            </div>
-          ))}
-        </div>
+        {data.daily.length > 0 ? (
+          <div className="flex items-end justify-between gap-1.5 h-44 pt-4">
+            {data.daily.map((day) => (
+              <div key={day.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
+                <span className="text-[10px] font-bold text-text-secondary font-body opacity-0 group-hover:opacity-100 transition-opacity">{day.count}</span>
+                <div className="relative w-full max-w-[32px] rounded-t-lg bg-gradient-to-t from-blue-500 to-blue-400 transition-all duration-300 hover:from-blue-600 hover:to-blue-500"
+                  style={{ height: `${(day.count / maxDailyCount) * 100}%`, minHeight: '2px' }} />
+                <span className="text-[9px] text-text-tertiary font-body">{new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-44 text-center">
+            <BarChart3 size={32} className="text-text-tertiary mb-2 opacity-40" />
+            <p className="text-sm text-text-secondary font-body">{t('common.noData')}</p>
+          </div>
+        )}
       </Card>
 
       {/* By Status */}

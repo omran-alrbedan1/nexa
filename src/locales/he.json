@@ -336,9 +336,16 @@
       "title": "צנרת תפעול",
       "subtitle": "זרם הזמנות נוכחי"
     },
-    "timeKPIs": {
-      "title": "KPI זמן",
-      "subtitle": "זמני עיבוד ממוצעים"
+    "operationalKPIs": {
+      "title": "KPI תפעוליים",
+      "subtitle": "מדדים מרכזיים להיום"
+    },
+    "kpis": {
+      "orders_today": "הזמנות היום",
+      "delivered_today": "נמסר היום",
+      "active_drivers": "נהגים פעילים",
+      "in_pipeline": "בצנרת",
+      "revenue_today": "הכנסות היום"
     },
     "topSuppliers": {
       "title": "הספקים המובילים",
@@ -1045,9 +1052,7 @@
       "cancel": "בטל",
       "assignButton": "שייך נהג",
       "selectDriverLabel": "בחר נהג עבור {{region}}",
-      "assignModalTitle": "שייך נהג — {{trip}}",
-      "simulateDriver": "סימולציית נהג",
-      "lastSent": "נשלח לאחרון: {{time}}"
+      "assignModalTitle": "שייך נהג — {{trip}}"
     }
   },
   "drivers": {

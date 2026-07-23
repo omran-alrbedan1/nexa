@@ -364,9 +364,16 @@
       "title": "خط سير العمليات",
       "subtitle": "تدفق الطلبات الحالي"
     },
-    "timeKPIs": {
-      "title": "مؤشرات الوقت",
-      "subtitle": "متوسط أوقات المعالجة"
+    "operationalKPIs": {
+      "title": "مؤشرات التشغيل",
+      "subtitle": "المقاييس الرئيسية لليوم"
+    },
+    "kpis": {
+      "orders_today": "طلبات اليوم",
+      "delivered_today": "تم التوصيل اليوم",
+      "active_drivers": "السائقين النشطين",
+      "in_pipeline": "قيد المعالجة",
+      "revenue_today": "إيرادات اليوم"
     },
     "topSuppliers": {
       "title": "أفضل الموردين",
@@ -1073,9 +1080,7 @@
       "cancel": "إلغاء",
       "assignButton": "إسناد سائق",
       "selectDriverLabel": "اختر سائقاً لـ {{region}}",
-      "assignModalTitle": "إسناد سائق — {{trip}}",
-      "simulateDriver": "محاكاة السائق",
-      "lastSent": "آخر إرسال: {{time}}"
+      "assignModalTitle": "إسناد سائق — {{trip}}"
     }
   },
   "drivers": {
