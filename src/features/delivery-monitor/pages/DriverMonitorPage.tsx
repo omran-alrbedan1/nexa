@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import { useJsApiLoader, GoogleMap, Marker, InfoWindow, type Libraries } from '@react-google-maps/api';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { env } from '@/config/env';
@@ -35,9 +35,12 @@ export default function DriverMonitorPage() {
     [pageData],
   );
 
+  const libraries: Libraries = ['places'];
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: env.GOOGLE_MAPS_API_KEY,
+    libraries,
   });
 
   const selectedTrip = activeTrips.find((t) => t.id === selectedTripId);
