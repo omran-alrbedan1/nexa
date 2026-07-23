@@ -14,6 +14,8 @@ import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useToastStore } from '@/stores/toastStore';
 import { extractErrorMessage } from '@/lib/apiHelpers';
+import { safeFormatDate, isDateValid } from '@/utils/date';
+import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap'
 import {
   ArrowLeft, Truck, User, Calendar, Clock, MapPin, Navigation,
   CheckCircle2, ShoppingCart, Warehouse, Send, ChevronDown, ChevronRight,
@@ -291,10 +293,14 @@ export function TripDetailPage() {
               </div>
               <div>
                 <span className="text-sm font-bold text-text-primary font-body">{step.status}</span>
-                <span className="text-xs text-text-tertiary font-body ml-2">
-                  {new Date(step.time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                </span>
-                <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.detail.by', { actor: step.actor })}</p>
+                {isDateValid(step.time) && (
+                  <span className="text-xs text-text-tertiary font-body ml-2">
+                    {safeFormatDate(step.time, (d) => d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+                  </span>
+                )}
+                {step.actor && (
+                  <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.detail.by', { actor: step.actor })}</p>
+                )}
               </div>
             </div>
           ))}
@@ -312,7 +318,22 @@ export function TripDetailPage() {
         </Card>
       )}
 
-      {/* Simulate Driver */}
+      {/* Live Driver Map */}
+      {trip.driverName && trip.tripOrders && trip.tripOrders.length > 0 && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.driverTracking')}</h3>
+          </div>
+          <GoogleDriverTrackingMap
+            orderId={trip.tripOrders[0].orderId}
+            height="300px"
+            follow
+          />
+        </Card>
+      )}
+
+      {/* Simulate Driver (Testing) */}
       <Card padding="none" className="overflow-hidden">
         <button
           onClick={() => setSimOpen(!simOpen)}
@@ -320,9 +341,9 @@ export function TripDetailPage() {
         >
           <div className="flex items-center gap-2">
             <Navigation size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Simulate Driver</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.simulateDriver')}</h3>
             {lastSent && (
-              <span className="text-[10px] text-green-600 font-medium">Last sent: {lastSent}</span>
+              <span className="text-[10px] text-green-600 font-medium">{t('trips.detail.lastSent', { time: lastSent })}</span>
             )}
           </div>
           {simOpen ? <ChevronDown size={16} className="text-text-tertiary" /> : <ChevronRight size={16} className="text-text-tertiary" />}

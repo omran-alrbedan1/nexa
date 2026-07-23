@@ -10,7 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { useDeliveryStage } from '@/hooks/useDeliveryStage';
-import DriverTrackingMap from '../components/DriverTrackingMap';
+import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap';
 import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
@@ -20,7 +20,8 @@ import {
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import { safeFormatDate } from '@/utils/date';
+import { safeFormatDate, isDateValid } from '@/utils/date';
+import { mapFromBackend, ORDER_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -32,11 +33,13 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   pending_supply: 'yellow',
   pending_aggregation: 'yellow',
   ready_to_ship: 'teal',
+  ready_to_deliver: 'teal',
   out_for_delivery: 'teal',
   delivered: 'green',
   failed_delivery: 'red',
   cancelled: 'red',
   postponed: 'yellow',
+  suspended: 'gray',
   refunded: 'gray',
 };
 
@@ -77,9 +80,9 @@ export function OrderDetailPage() {
     new: t('orders.status.new'), pending_management: t('orders.status.pending_management'), pending_pricing: t('orders.status.pending_pricing'),
     pending_customer_approval: t('orders.status.pending_customer_approval'), confirmed: t('orders.status.confirmed'), paid: t('orders.status.paid'),
     pending_supply: t('orders.status.pending_supply'), pending_aggregation: t('orders.status.pending_aggregation'),
-    ready_to_ship: t('orders.status.ready_to_ship'), out_for_delivery: t('orders.status.out_for_delivery'),
+    ready_to_ship: t('orders.status.ready_to_ship'), ready_to_deliver: t('orders.status.ready_to_deliver'), out_for_delivery: t('orders.status.out_for_delivery'),
     delivered: t('orders.status.delivered'), failed_delivery: t('orders.status.failed_delivery'),
-    cancelled: t('orders.status.cancelled'), postponed: t('orders.status.postponed'), refunded: t('orders.status.refunded'),
+    cancelled: t('orders.status.cancelled'), postponed: t('orders.status.postponed'), suspended: t('orders.status.suspended'), refunded: t('orders.status.refunded'),
   };
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
   const updateStatus = useUpdateOrderStatus();
@@ -384,7 +387,7 @@ export function OrderDetailPage() {
           </div>
           <div className="space-y-4">
             <DeliveryStageIndicator orderId={id} currentStatus={order.status} />
-            <DriverTrackingMap
+            <GoogleDriverTrackingMap
               orderId={id}
               initialLocation={
                 order.trip?.driverLocation
@@ -427,16 +430,20 @@ export function OrderDetailPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-text-primary font-body">
-                      {STATUS_LABELS[log.toStatus.toLowerCase()] || t('common.unknown')}
+                      {STATUS_LABELS[mapFromBackend(log.toStatus, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase()] || t('common.unknown')}
                     </span>
-                    <span className="text-xs text-text-tertiary font-body">
-                      {safeFormatDate(log.timestamp, (d) => d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
-                    </span>
+                    {isDateValid(log.timestamp) && (
+                      <span className="text-xs text-text-tertiary font-body">
+                        {safeFormatDate(log.timestamp, (d) => d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-text-secondary font-body mt-0.5">
-                    {log.actor === 'system' ? 'System' : t('orders.detail.by', { actor: log.actor })}
-                    {log.fromStatus && ` (from ${STATUS_LABELS[log.fromStatus.toLowerCase()] || t('common.unknown')})`}
-                  </p>
+                  {log.actor && (
+                    <p className="text-xs text-text-secondary font-body mt-0.5">
+                      {log.actor === 'system' ? 'System' : t('orders.detail.by', { actor: log.actor })}
+                      {log.fromStatus && ` (from ${STATUS_LABELS[mapFromBackend(log.fromStatus, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase()] || t('common.unknown')})`}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

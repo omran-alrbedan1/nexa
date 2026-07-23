@@ -215,12 +215,22 @@ export function SpecialOrderDetailPage() {
 
   // Build workflow timeline steps
   const timelineSteps = [
-    { status: 'Created', time: order.createdAt, desc: 'Special order request submitted', done: true },
-    ...(order.status !== 'pending_admin' ? [{ status: 'Assigned', time: order.updatedAt, desc: order.assignedSupplier ? `Assigned to ${order.assignedSupplier.businessName}` : 'Staff assigned', done: true }] : []),
-    ...(order.priceQuotes.length > 0 ? [{ status: 'Priced', time: order.updatedAt, desc: `${formatPrice(order.priceQuotes[0].total)} quote submitted`, done: true }] : []),
-    ...(order.status === 'approved' || order.status === 'converted' ? [{ status: 'Approved', time: order.updatedAt, desc: 'Order approved', done: true }] : []),
-    ...(order.status === 'converted' ? [{ status: 'Converted', time: order.updatedAt, desc: 'Converted to regular order', done: true }] : []),
-    ...(order.status === 'rejected' ? [{ status: 'Rejected', time: order.updatedAt, desc: order.rejectionReason || 'Rejected', done: true }] : []),
+    { statusKey: 'created', time: order.createdAt, descKey: 'created', descArgs: undefined, done: true },
+    ...(order.status !== 'pending_admin' ? [{
+      statusKey: 'assigned', time: order.updatedAt,
+      descKey: order.assignedSupplier ? 'assignedTo' : 'staffAssigned',
+      descArgs: order.assignedSupplier ? { name: order.assignedSupplier.businessName } : undefined,
+      done: true,
+    }] : []),
+    ...(order.priceQuotes.length > 0 ? [{
+      statusKey: 'priced', time: order.updatedAt,
+      descKey: 'priced',
+      descArgs: { amount: formatPrice(order.priceQuotes[0].total) },
+      done: true,
+    }] : []),
+    ...(order.status === 'approved' || order.status === 'converted' ? [{ statusKey: 'approved', time: order.updatedAt, descKey: 'approved', descArgs: undefined, done: true }] : []),
+    ...(order.status === 'converted' ? [{ statusKey: 'converted', time: order.updatedAt, descKey: 'converted', descArgs: undefined, done: true }] : []),
+    ...(order.status === 'rejected' ? [{ statusKey: 'rejected', time: order.updatedAt, descKey: 'rejected', descArgs: undefined, done: true }] : []),
   ];
 
   return (
@@ -356,7 +366,7 @@ export function SpecialOrderDetailPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-text-primary font-body">{quote.quoteNumber}</span>
                         <Badge variant={quote.status === 'accepted' ? 'green' : quote.status === 'rejected' ? 'red' : quote.status === 'superseded' ? 'gray' : 'yellow'} size="sm">
-                          {quote.status === 'accepted' ? 'Accepted' : quote.status === 'rejected' ? 'Rejected' : quote.status === 'superseded' ? 'Superseded' : quote.status === 'sent' ? 'Sent' : 'Draft'}
+                          {t('specialOrders.quoteStatus.' + quote.status, quote.status)}
                         </Badge>
                       </div>
                       <span className="text-sm font-extrabold text-brand-accent">{formatPrice(quote.total)}</span>
@@ -401,7 +411,7 @@ export function SpecialOrderDetailPage() {
             <Card padding="lg">
               <div className="flex items-center gap-2 mb-3">
                 <MessageCircle size={16} className="text-blue-600" />
-                <h3 className="text-sm font-bold text-text-primary font-display">Negotiations</h3>
+                <h3 className="text-sm font-bold text-text-primary font-display">{t('specialOrders.negotiations.title')}</h3>
               </div>
               <div className="space-y-3">
                 {order.negotiations.map((n) => (
@@ -412,7 +422,7 @@ export function SpecialOrderDetailPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 text-xs">
                         <span className="font-bold text-text-primary font-body">
-                          {n.actorType === 'customer' ? 'Customer' : n.user?.fullName || 'Staff'}
+                          {n.actorType === 'customer' ? t('specialOrders.negotiations.customer') : n.user?.fullName || t('specialOrders.negotiations.staff')}
                         </span>
                         <span className="text-text-tertiary">{new Date(n.createdAt).toLocaleString()}</span>
                       </div>
@@ -422,7 +432,7 @@ export function SpecialOrderDetailPage() {
                 ))}
               </div>
               <p className="text-xs text-text-tertiary mt-3 font-body">
-                To respond, create a new price quote with updated pricing.
+                {t('specialOrders.negotiations.responseHint')}
               </p>
             </Card>
           )}
@@ -444,9 +454,11 @@ export function SpecialOrderDetailPage() {
                     <div className={cn('w-2 h-2 rounded-full', step.done ? 'bg-white' : 'bg-gray-400')} />
                   </div>
                   <div>
-                    <span className="text-sm font-bold text-text-primary font-body">{step.status}</span>
+                    <span className="text-sm font-bold text-text-primary font-body">{t('specialOrders.timelineLabels.' + step.statusKey, step.statusKey)}</span>
                     <span className="text-xs text-text-tertiary font-body ml-2">{new Date(step.time).toLocaleString()}</span>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{step.desc}</p>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">
+                      {t('specialOrders.timelineDescriptions.' + step.descKey, step.descArgs)}
+                    </p>
                   </div>
                 </div>
               ))}

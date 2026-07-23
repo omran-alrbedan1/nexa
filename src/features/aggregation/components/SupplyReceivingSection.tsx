@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
-import { useToastStore } from '@/stores/toastStore';
 import { useConfirmReceipt } from '../hooks/useAggregation';
 import type { WarehouseSupplyItem, SupplyStatus } from '../api/aggregationApi';
 
@@ -25,7 +23,6 @@ interface SupplyReceivingSectionProps {
 }
 
 export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSectionProps) {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const STATUS_LABELS: Record<SupplyStatus, string> = {
     pending: t('warehouse.supplyReceiving.pending'),
@@ -59,17 +56,9 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
               {t('warehouse.supplyReceiving.pendingDelivery', { count: pendingCount })} · {t('warehouse.supplyReceiving.total', { count: items.length })}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/aggregation')}
-          >
-            {t('warehouse.supplyReceiving.newPurchaseOrder')}
-          </Button>
         </div>
       </CardHeader>
 
-      {/* Filters */}
       <div className="flex items-center gap-3 mb-4">
         <div className="flex-1 max-w-xs">
           <SearchInput
@@ -92,7 +81,6 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
         </select>
       </div>
 
-      {/* Table */}
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
           {[1, 2, 3, 4].map((i) => (
@@ -155,18 +143,11 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
         </div>
       )}
 
-      {/* Summary bar */}
       {!isLoading && items.length > 0 && (
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
             {t('warehouse.supplyReceiving.confirmedToday', { count: items.filter((i) => i.status === 'confirmed').length })}
           </span>
-          <button
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => navigate('/aggregation')}
-          >
-            {t('warehouse.supplyReceiving.viewAllPO')} →
-          </button>
         </div>
       )}
     </Card>

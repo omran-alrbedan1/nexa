@@ -92,6 +92,11 @@ interface BackendSupplier {
   acceptance_rate: number;
   rating_avg: number | null;
   products_count: number;
+  commercial_register: string | null;
+  tax_number: string | null;
+  commission_rate: number;
+  total_orders: number;
+  total_revenue: number;
   approved_at: string | null;
   rejection_reason: string | null;
   user: BackendSupplierUser;
@@ -157,14 +162,14 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     nameAr: bs.business_name,
     email: bs.user?.email || '',
     phone: bs.user?.phone || '',
-    commercialRegister: '',
-    taxNumber: '',
+    commercialRegister: bs.commercial_register || '',
+    taxNumber: bs.tax_number || '',
     status: mapSupplierApprovalStatus(bs.approval_status) as SupplierStatus,
     paymentTerms: 'net_30',
-    commissionRate: 10,
+    commissionRate: Number(bs.commission_rate ?? 0),
     rating: Number(bs.rating_avg ?? 0),
-    totalOrders: 0,
-    totalRevenue: 0,
+    totalOrders: Number(bs.total_orders ?? 0),
+    totalRevenue: Number(bs.total_revenue ?? 0),
     acceptanceRate: Number(bs.acceptance_rate),
     categories: [],
     regions: bs.zone ? [bs.zone.name] : [],
@@ -248,6 +253,21 @@ export const suppliersApi = {
   getPendingApprovals: async (): Promise<Supplier[]> => {
     const response = await apiClient.get<ApiResponse<{ suppliers: BackendSupplier[] }>>('/api/v1/admin/suppliers/pending-approvals');
     return (response.data.data?.suppliers ?? []).map(mapBackendSupplier);
+  },
+
+  /** Fetch recent orders for this supplier */
+  getSupplierOrders: async (supplierId: number): Promise<any[]> => {
+    const response = await apiClient.get<ApiResponse<{ orders: any[]; meta: Record<string, unknown> }>>(`/api/v1/admin/suppliers/${supplierId}/orders`);
+    const data = response.data.data;
+    return (data.orders || []).map((o: any) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      customerName: o.customer?.name || 'Unknown',
+      total: o.total,
+      itemsCount: o.items_count || 0,
+      status: o.status,
+      createdAt: o.created_at,
+    }));
   },
 
   /** Fetch products belonging to this supplier */

@@ -5,17 +5,17 @@ import { aggregationApi, type AggregationPageData } from '../api/aggregationApi'
 
 export const aggregationKeys = {
   all: ['aggregation'] as const,
-  pageData: () => [...aggregationKeys.all, 'page-data'] as const,
+  pageData: (warehouseId?: number) => [...aggregationKeys.all, 'page-data', warehouseId] as const,
   supplyReceiving: () => [...aggregationKeys.all, 'supply-receiving'] as const,
   aggregationQueue: () => [...aggregationKeys.all, 'aggregation-queue'] as const,
   readyToShip: () => [...aggregationKeys.all, 'ready-to-ship'] as const,
   throughput: () => [...aggregationKeys.all, 'throughput'] as const,
 };
 
-export function useAggregationPage() {
+export function useAggregationPage(warehouseId?: number) {
   return useQuery<AggregationPageData>({
-    queryKey: aggregationKeys.pageData(),
-    queryFn: () => aggregationApi.getPageData(),
+    queryKey: aggregationKeys.pageData(warehouseId),
+    queryFn: () => aggregationApi.getPageData(warehouseId),
     staleTime: 30_000,
   });
 }

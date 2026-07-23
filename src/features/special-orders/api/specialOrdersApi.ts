@@ -302,7 +302,7 @@ export const specialOrdersApi = {
 
   /** Update internal notes */
   updateNotes: async (id: number, notes: string): Promise<void> => {
-    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes });
+    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { internal_notes: notes });
   },
 
   /** Convert to regular order */

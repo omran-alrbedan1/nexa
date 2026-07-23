@@ -3,6 +3,16 @@
  * Supports both English and Arabic locale formatting.
  */
 
+export function isDateValid(date: string | Date | null | undefined): boolean {
+  if (!date) return false;
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return !isNaN(d.getTime());
+  } catch {
+    return false;
+  }
+}
+
 export function safeFormatDate(date: string | Date | null | undefined, formatter: (d: Date) => string, fallback = '—'): string {
   if (!date) return fallback;
   try {

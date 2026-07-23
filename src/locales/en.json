@@ -25,6 +25,7 @@
     "orders": "Orders",
     "trips": "Trips",
     "warehouse": "Warehouse",
+    "warehouses": "Warehouses",
     "suppliers": "Suppliers",
     "regions": "Regions",
     "campaigns": "Campaigns",
@@ -54,9 +55,12 @@
       "banners": "Banners",
       "notifications": "Notifications",
       "audit": "Audit Logs",
+      "faq": "FAQ",
+      "aboutNexa": "About NEXA",
       "privacyPolicy": "Privacy Policy",
-      "navigation": "Navigation Menu",
-    "navigationPage": {
+      "navigation": "Navigation Menu"
+    },
+    "navigation": {
       "title": "Navigation Menu",
       "description": "Reorder and rename sidebar navigation items",
       "backToSettings": "Back to Settings",
@@ -70,25 +74,39 @@
       "rename": "Rename",
       "moveUp": "Move up",
       "moveDown": "Move down"
-    }
     },
     "general": {
       "title": "System Settings",
       "description": "Configure general system preferences and defaults",
       "noSettings": "No settings are configured yet."
     },
-    "currency": {
-      "title": "Currency Settings",
-      "description": "Configure display currency and exchange rates",
-      "displayCurrency": "Display Currency",
-      "exchangeRates": "Exchange Rates (base units per 1 currency)",
-      "usd": "USD (Dollar)",
-      "ils": "ILS (Shekel)",
-      "aed": "AED (Dirham)",
-      "save": "Save Currency Settings",
-      "saved": "Currency settings saved",
-      "baseNote": "base"
+    "settingKeys": {
+      "app_name": "Application Name",
+      "support_phone": "Support Phone",
+      "support_email": "Support Email",
+      "min_order_amount": "Minimum Order Amount",
+      "default_delivery_fee": "Default Delivery Fee",
+      "supplier_accept_timeout_hours": "Supplier Acceptance Timeout (hours)",
+      "default_trip_capacity": "Default Trip Capacity",
+      "trip_cutoff_hours_before": "Trip Cutoff (hours before)",
+      "privacy_policy_title_ar": "Privacy Policy Title (AR)",
+      "privacy_policy_title_en": "Privacy Policy Title (EN)",
+      "privacy_policy_content_ar": "Privacy Policy Content (AR)",
+      "privacy_policy_content_en": "Privacy Policy Content (EN)",
+      "about_title_ar": "About NEXA Title (AR)",
+      "about_title_en": "About NEXA Title (EN)",
+      "about_content_ar": "About NEXA Content (AR)",
+      "about_content_en": "About NEXA Content (EN)"
     },
+    "settingGroups": {
+      "general": "General",
+      "orders": "Orders",
+      "trips": "Trips",
+      "legal": "Legal",
+      "about": "About NEXA",
+      "support": "Support"
+    },
+
     "roles": {
       "title": "Roles & Permissions",
       "description": "Manage user roles and assign permissions",
@@ -338,8 +356,73 @@
     }
   },
   "dashboard": {
+    "title": "Dashboard",
+    "adminTitle": "Admin Dashboard",
+    "operationsTitle": "Operations Dashboard",
+    "warehouseTitle": "Warehouse Dashboard",
+    "adminDescription": "Full system overview — orders, revenue, suppliers, and KPIs",
+    "operationsDescription": "Order processing — action items, pipeline, and delivery tracking",
+    "warehouseDescription": "Warehouse operations — supply receiving, aggregation, and shipping",
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "todayRevenue": "Today's Revenue",
+    "thisMonth": "This Month",
+    "live": "Live",
+    "stats": {
+      "totalOrdersToday": "Total Orders Today",
+      "ordersToday": "Orders Today",
+      "revenueToday": "Revenue Today",
+      "activeDrivers": "Active Drivers",
+      "pendingRequests": "Pending Requests",
+      "activeOrders": "Active Orders",
+      "specialRequests": "Special Requests",
+      "pendingDeliveries": "Pending Deliveries",
+      "inSupply": "In Supply",
+      "inAggregation": "In Aggregation",
+      "readyToShip": "Ready to Ship",
+      "deliveredToday": "Delivered Today"
+    },
+    "subtitle": {
+      "activeOrders": "{{active}} active · {{total}} total",
+      "revenueMonth": "{{amount}} this month",
+      "pendingDeliveries": "{{pending}} pending · {{trip}} on trip",
+      "specialOrdersPricing": "Special orders needing pricing",
+      "activeOrdersProcessing": "Currently processing",
+      "awaitingReview": "Awaiting review or pricing",
+      "outForDelivery": "Out for delivery today",
+      "awaitingSupplier": "Awaiting supplier delivery",
+      "processingWarehouse": "Processing in warehouse",
+      "awaitingTrip": "Packed and awaiting a trip",
+      "successfullyDelivered": "Successfully delivered"
+    },
     "statsCard": {
       "vsLastPeriod": "vs last period"
+    },
+    "revenueChart": {
+      "title": "Revenue Trend",
+      "subtitle": "Last 7 days",
+      "trend": "12.3%+"
+    },
+    "ordersByStatus": {
+      "title": "Orders by Status",
+      "subtitle": "Today's breakdown",
+      "today": "Today"
+    },
+    "recentOrders": {
+      "title": "Recent Orders",
+      "subtitle": "Last 5 orders",
+      "viewAll": "View All"
+    },
+    "pendingApprovals": {
+      "title": "Pending Approvals",
+      "subtitle": "Suppliers and products needing approval",
+      "noPending": "No pending approvals",
+      "allResolved": "All approvals resolved",
+      "pendingPricing": "Pending Approval",
+      "pending_approval_supplier": "Supplier — Pending Approval",
+      "pending_approval_product": "Product — Pending Approval",
+      "setPrice": "Review"
     },
     "drivers": {
       "title": "Driver Activity",
@@ -348,6 +431,80 @@
       "onTrip": "On Trip",
       "available": "Available",
       "offline": "Offline"
+    },
+    "actionRequired": {
+      "title": "Action Required",
+      "subtitle": "Items needing attention",
+      "allClear": "All clear — no items need attention",
+      "items": {
+        "overdue_supply": "Overdue Supply",
+        "failed_delivery": "Failed Delivery",
+        "ready_no_trip": "Ready — No Trip",
+        "trip_no_driver": "Trip — No Driver",
+        "pending_pricing": "Pending Pricing"
+      }
+    },
+    "pipeline": {
+      "title": "Operations Pipeline",
+      "subtitle": "Current order flow",
+      "stages": {
+        "in_supply": "In Supply",
+        "in_aggregation": "In Aggregation",
+        "ready_to_ship": "Ready to Ship",
+        "in_trip": "In Trip",
+        "delivered_today": "Delivered Today"
+      }
+    },
+    "timeKPIs": {
+      "title": "Time KPIs",
+      "subtitle": "Average processing times"
+    },
+    "topSuppliers": {
+      "title": "Top Suppliers",
+      "subtitle": "By order volume and acceptance rate",
+      "orders": "{{count}} orders"
+    },
+    "topAreas": {
+      "title": "Top Areas",
+      "subtitle": "By orders and revenue",
+      "orders": "{{count}} orders"
+    },
+    "todayTrips": {
+      "title": "Today's Trips",
+      "subtitle": "Delivery trip status",
+      "scheduled": "Scheduled",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "filters": {
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "custom": "Custom",
+      "filters": "Filters",
+      "region": "Region",
+      "warehouse": "Warehouse",
+      "supplier": "Supplier",
+      "orderType": "Order Type",
+      "status": "Status",
+      "allRegions": "All Regions",
+      "allWarehouses": "All Warehouses",
+      "allSuppliers": "All Suppliers",
+      "allTypes": "All Types",
+      "allStatuses": "All Statuses",
+      "reset": "Reset Filters"
+    },
+    "warehouseQueue": {
+      "title": "Warehouse Queue",
+      "subtitle": "Incoming supplier deliveries",
+      "viewFullQueue": "View Full Queue",
+      "received": "Received",
+      "processing": "Processing",
+      "pending": "Pending",
+      "itemsReceived": "Items Received",
+      "itemsProcessed": "Items Processed",
+      "itemsShipped": "Items Shipped"
     }
   },
   "operations": {
@@ -521,6 +678,7 @@
   "warehouse": {
     "title": "Warehouse Dashboard",
     "description": "Supply receiving, aggregation queue, and shipping management",
+    "allWarehouses": "All Warehouses",
     "stats": {
       "itemsReceived": "Items Received",
       "itemsProcessed": "Items Processed",
@@ -570,6 +728,8 @@
       "markPacked": "Mark Packed",
       "passQC": "Pass QC ✓",
       "movedToShipping": "Moved to Shipping",
+      "itemsCount": "{{count}} items",
+      "weight": "{{weight}} kg",
       "avgProcessingTime": "Avg processing time: {{time}}",
       "viewFullQueue": "View Full Queue"
     },
@@ -595,6 +755,60 @@
       "loadingTrips": "Loading trips...",
       "noTrips": "No available trips",
       "differentRegion": "different region"
+    }
+  },
+  "warehouses": {
+    "title": "Warehouses",
+    "description": "Manage warehouses, zones, and capacity",
+    "list": {
+      "addFirst": "Add Warehouse",
+      "searchPlaceholder": "Search by code or name...",
+      "count": "{{count}} warehouses",
+      "code": "Code",
+      "nameEn": "Name (EN)",
+      "nameAr": "Name (AR)",
+      "zone": "Zone",
+      "capacity": "Capacity",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noWarehouses": "No warehouses found",
+      "noWarehousesDescription": "Add your first warehouse to get started",
+      "confirmDeleteTitle": "Delete Warehouse",
+      "confirmDeleteMessage": "Are you sure you want to delete {{name}}? This action cannot be undone."
+    },
+    "form": {
+      "backToList": "Back to warehouses",
+      "editTitle": "Edit Warehouse",
+      "createTitle": "New Warehouse",
+      "description": "Create or update warehouse details",
+      "warehouseInfo": "Warehouse Information",
+      "code": "Code",
+      "nameEn": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "zone": "Zone",
+      "selectZone": "Select a zone...",
+      "address": "Address",
+      "capacity": "Capacity",
+      "active": "Active",
+      "zoneAssignments": "Zone Assignments",
+      "zoneAssignmentsDesc": "Select which delivery zones this warehouse serves",
+      "workingHours": "Working Hours",
+      "openingTime": "Opening Time",
+      "closingTime": "Closing Time",
+      "save": "Save Warehouse",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "created": "Warehouse created successfully",
+      "createFailed": "Failed to create warehouse",
+      "updated": "Warehouse updated successfully",
+      "updateFailed": "Failed to update warehouse",
+      "deleted": "Warehouse deleted successfully",
+      "deleteFailed": "Failed to delete warehouse"
     }
   },
   "orders": {
@@ -718,6 +932,14 @@
       "orderTransferred": "Order transferred",
       "statusUpdated": "Order {{label}} successfully",
       "receiptConfirmed": "Warehouse receipt confirmed"
+    },
+    "tracking": {
+      "speed": "Speed",
+      "kmh": "km/h",
+      "notAvailable": "N/A",
+      "awaitingLocation": "Awaiting driver location...",
+      "loadingMap": "Loading map...",
+      "mapLoadError": "Failed to load map"
     }
   },
   "products": {
@@ -1234,6 +1456,78 @@
     }
   },
   "trips": {
+    "title": "Trips",
+    "description": "Manage delivery trips, driver assignment, and tracking",
+    "statusLabels": {
+      "scheduled": "Scheduled",
+      "assigned": "Assigned",
+      "accepted": "Accepted",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "deliveryStatusLabels": {
+      "pending": "Pending",
+      "out_for_delivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "failed": "Failed"
+    },
+    "stats": {
+      "totalTrips": "Total Trips",
+      "scheduled": "Scheduled",
+      "inProgress": "In Progress",
+      "assigned": "Assigned",
+      "completed": "Completed",
+      "orders": "Orders"
+    },
+    "list": {
+      "totalValue": "{{amount}} total value",
+      "avgCompletion": "{{rate}}% avg completion",
+      "allStatuses": "All Statuses",
+      "scheduleView": "Schedule View",
+      "listView": "List View",
+      "newTrip": "New Trip",
+      "noTrips": "No trips",
+      "noFilterMatch": "No trips match the filter",
+      "createFirst": "Create your first delivery trip",
+      "driver": "Driver:",
+      "unassigned": "Unassigned",
+      "delivered": "Delivered {{done}}/{{total}}",
+      "startTrip": "Start Trip",
+      "assignDriver": "Assign Driver",
+      "complete": "Complete",
+      "reassign": "Reassign",
+      "assignModalTitle": "Assign Driver — {{trip}}",
+      "selectDriver": "Select a driver for {{region}} ({{slot}})",
+      "assignButton": "Assign Driver"
+    },
+    "detail": {
+      "back": "Back to Trips",
+      "errorTitle": "Failed to load trip",
+      "driver": "Driver",
+      "region": "Region",
+      "schedule": "Schedule",
+      "stats": "Stats",
+      "ordersOnTrip": "Orders on This Trip",
+      "total": "{{count}} Total",
+      "orderDetailsPlaceholder": "Order details for this trip will appear here when the backend provides order data.",
+      "delivered": "{{count}} Delivered",
+      "failed": "{{count}} Failed",
+      "pending": "{{count}} Pending",
+      "tripTimeline": "Trip Timeline",
+      "notes": "Notes",
+      "by": "by {{actor}}",
+      "unassigned": "Unassigned",
+      "available": "Available",
+      "onTrip": "On Trip",
+      "cancel": "Cancel",
+      "assignButton": "Assign Driver",
+      "selectDriverLabel": "Select a driver for {{region}}",
+      "assignModalTitle": "Assign Driver — {{trip}}",
+      "simulateDriver": "Simulate Driver",
+      "lastSent": "Last sent: {{time}}"
+    },
     "create": {
       "validationRequired": "Planned date and departure time are required",
       "successTitle": "Trip created successfully",
@@ -1358,11 +1652,25 @@
       "approved": "Approved",
       "rejected": "Rejected"
     },
+    "userStatus": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "blocked": "Blocked",
+      "pending": "Pending"
+    },
     "vehicleTypes": {
       "van": "Van",
       "truck": "Truck",
       "motorcycle": "Motorcycle",
       "car": "Car"
+    },
+    "monitor": {
+      "description": "Monitor active trips and driver locations in real time",
+      "noActiveTrips": "No active trips right now.",
+      "activeTrips": "{{count}} Active Trips",
+      "unassigned": "Unassigned",
+      "ordersCount": "{{count}} orders"
     },
     "toast": {
       "markedAvailable": "Driver marked available",
@@ -1454,6 +1762,7 @@
     "revenue": {
       "totalRevenue": "Total Revenue",
       "deliveryFees": "Delivery Fees",
+      "fees": "fees",
       "ordersDelivered": "Orders Delivered",
       "byZone": "Revenue by Zone"
     },
@@ -1529,6 +1838,37 @@
       "rejected": "Rejected",
       "cancelled": "Cancelled",
       "converted": "Converted"
+    },
+    "quoteStatus": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "superseded": "Superseded",
+      "expired": "Expired"
+    },
+    "timelineLabels": {
+      "created": "Created",
+      "assigned": "Assigned",
+      "priced": "Priced",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "converted": "Converted"
+    },
+    "timelineDescriptions": {
+      "created": "Special order request submitted",
+      "assignedTo": "Assigned to {{name}}",
+      "staffAssigned": "Staff assigned",
+      "priced": "{{amount}} quote submitted",
+      "approved": "Order approved",
+      "converted": "Converted to regular order",
+      "rejected": "Rejected"
+    },
+    "negotiations": {
+      "title": "Negotiations",
+      "customer": "Customer",
+      "staff": "Staff",
+      "responseHint": "To respond, create a new price quote with updated pricing."
     },
     "toast": {
       "supplierAssigned": "Supplier assigned",

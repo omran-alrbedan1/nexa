@@ -6,9 +6,11 @@ import { driverKeys, useToggleDriverAvailability } from '../hooks/useDrivers';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { safeFormatDate } from '@/utils/date';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { ArrowLeft, User, Phone, Mail, Truck, Star, Route, Package, Calendar } from 'lucide-react';
+import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap';
+import { ArrowLeft, User, Phone, Mail, Truck, Star, Route, Package, Calendar, Navigation } from 'lucide-react';
 
 export function DriverDetailPage() {
   const { driverId } = useParams<{ driverId: string }>();
@@ -129,11 +131,27 @@ export function DriverDetailPage() {
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary"><Calendar size={16} /></div>
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('drivers.detail.joinedDate')}</p>
-              <p className="text-xl font-extrabold text-text-primary font-display">{new Date(driver.createdAt).toLocaleDateString()}</p>
+              <p className="text-xl font-extrabold text-text-primary font-display">{safeFormatDate(driver.createdAt, (d) => d.toLocaleDateString())}</p>
             </div>
           </div>
         </Card>
       </div>
+
+      {/* Live Location */}
+      {(() => {
+        const activeTrip = driver.recentTrips.find((t) => t.status === 'in_progress');
+        const activeOrderId = activeTrip?.trip_orders?.[0]?.order?.id;
+        if (!activeOrderId) return null;
+        return (
+          <Card padding="lg">
+            <div className="flex items-center gap-2 mb-4">
+              <Navigation size={16} className="text-brand-accent" />
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.driverTracking')}</h3>
+            </div>
+            <GoogleDriverTrackingMap orderId={activeOrderId} height="280px" />
+          </Card>
+        );
+      })()}
 
       {/* Personal & Vehicle Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -159,9 +177,14 @@ export function DriverDetailPage() {
             )}
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.status')}</span>
-              <Badge variant={driver.isAvailable ? 'green' : 'red'} size="sm">
-                {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={driver.isAvailable ? 'green' : 'red'} size="sm">
+                  {driver.isAvailable ? t('drivers.list.available') : t('drivers.list.onTrip')}
+                </Badge>
+                <span className="text-xs text-text-secondary">
+                  {t('drivers.userStatus.' + driver.userStatus, driver.userStatus)}
+                </span>
+              </div>
             </div>
           </div>
         </Card>
@@ -174,7 +197,7 @@ export function DriverDetailPage() {
           <div className="space-y-3 text-sm font-body">
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.vehicleType')}</span>
-              <span className="font-bold text-text-primary">{driver.vehicleType || '—'}</span>
+              <span className="font-bold text-text-primary">{driver.vehicleType ? t('drivers.vehicleTypes.' + driver.vehicleType, driver.vehicleType) : '—'}</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.plateNumber')}</span>
@@ -186,7 +209,7 @@ export function DriverDetailPage() {
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
               <span className="text-text-secondary">{t('drivers.detail.revenue')}</span>
-              <span className="font-bold text-text-primary">—</span>
+              <span className="font-bold text-text-primary">{driver.totalRevenue > 0 ? driver.totalRevenue.toFixed(2) : '—'}</span>
             </div>
           </div>
         </Card>
@@ -198,13 +221,34 @@ export function DriverDetailPage() {
           <Route size={16} className="text-amber-600" />
           <h3 className="text-sm font-bold text-text-primary font-display">{t('drivers.detail.recentTrips')}</h3>
         </div>
-        <div className="flex items-center justify-center py-10 text-text-tertiary">
-          <div className="text-center">
-            <Route size={32} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm font-body">{t('drivers.detail.noTripsYet')}</p>
-            <p className="text-xs text-text-tertiary mt-1">{t('drivers.detail.noTripsDescription')}</p>
+        {driver.recentTrips.length > 0 ? (
+          <div className="space-y-2">
+            {driver.recentTrips.map((trip) => (
+              <div key={trip.id} className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
+                <div className="flex items-center gap-3">
+                  <div className="text-sm font-bold font-mono text-text-primary">#{trip.trip_number}</div>
+                  <div className="text-xs text-text-secondary">
+                    {safeFormatDate(trip.planned_date || trip.started_at || trip.completed_at, (d) => d.toLocaleDateString())}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-secondary">
+                    {t('drivers.detail.deliveredCount', { count: trip.trip_orders.filter((to) => to.delivery_status === 'delivered').length })}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-bg-section font-bold">{t('trips.statusLabels.' + trip.status, trip.status)}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-center py-10 text-text-tertiary">
+            <div className="text-center">
+              <Route size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm font-body">{t('drivers.detail.noTripsYet')}</p>
+              <p className="text-xs text-text-tertiary mt-1">{t('drivers.detail.noTripsDescription')}</p>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

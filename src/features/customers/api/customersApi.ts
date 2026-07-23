@@ -200,7 +200,7 @@ export const customersApi = {
   /** Update internal notes */
   updateNotes: async (id: number, notes: string): Promise<Customer> => {
     try {
-      const response = await apiClient.put<ApiResponse<BackendCustomer>>(`/api/v1/admin/customers/${id}/notes`, { notes });
+      const response = await apiClient.put<ApiResponse<BackendCustomer>>(`/api/v1/admin/customers/${id}/notes`, { internal_notes: notes });
       return mapBackendCustomer(response.data.data);
     } catch {
       throw new Error('Failed to update customer notes');

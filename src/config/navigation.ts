@@ -89,6 +89,7 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
       { id: 'trips', label: 'nav.trips', icon: 'Truck', type: 'item', to: ROUTES.TRIPS, roles: ['admin', 'operations'] },
       { id: 'driver-monitor', label: 'nav.driverMonitor', icon: 'Map', type: 'item', to: ROUTES.DRIVER_MONITOR, roles: ['admin', 'operations'] },
       { id: 'warehouse', label: 'nav.warehouse', icon: 'Warehouse', type: 'item', to: ROUTES.AGGREGATION, roles: ['admin', 'aggregation'] },
+      { id: 'warehouses', label: 'nav.warehouses', icon: 'Building2', type: 'item', to: ROUTES.WAREHOUSES, roles: ['admin'] },
     ],
   },
   {

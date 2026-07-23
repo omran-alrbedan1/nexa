@@ -27,6 +27,54 @@ function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
+// ── Recent Orders Section ──
+
+function RecentOrdersSection({ supplierId, t, totalOrders }: { supplierId: number; t: (key: string, opts?: any) => string; totalOrders: number }) {
+  const navigate = useNavigate();
+  const formatPrice = useFormatPrice();
+  const { data: orders, isLoading } = useQuery({
+    queryKey: ['supplier-orders', supplierId],
+    queryFn: () => suppliersApi.getSupplierOrders(supplierId),
+    enabled: supplierId > 0,
+  });
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2 mb-4">
+        <ShoppingCart size={16} className="text-brand-primary" />
+        <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.recentOrders')}</h3>
+        <span className="text-xs text-text-tertiary">{t('suppliers.detail.totalCount', { count: totalOrders })}</span>
+      </div>
+      {isLoading ? (
+        <div className="space-y-3 animate-pulse">
+          {[1, 2, 3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-xl" />)}
+        </div>
+      ) : !orders || orders.length === 0 ? (
+        <p className="text-sm text-text-secondary font-body">{t('suppliers.detail.recentOrdersPlaceholder')}</p>
+      ) : (
+        <div className="space-y-2">
+          {orders.map((order: any) => (
+            <div
+              key={order.id}
+              className="flex items-center justify-between py-3 px-4 rounded-xl border border-border-default/60 hover:bg-bg-section-alt/50 transition-colors cursor-pointer"
+              onClick={() => navigate(ROUTES.ORDER_DETAIL(order.id))}
+            >
+              <div>
+                <p className="text-sm font-bold text-text-primary font-body">{order.orderNumber}</p>
+                <p className="text-xs text-text-tertiary font-body">{order.customerName} · {new Date(order.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-extrabold text-text-primary">{formatPrice(order.total)}</span>
+                <span className="text-xs text-text-secondary">{order.itemsCount ?? 0} items</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // ── Supplier Products Section ──
 
 function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (key: string, opts?: any) => string }) {
@@ -255,7 +303,6 @@ export function SupplierDetailPage() {
     const val = supplier[stat.key as keyof Supplier];
     if (typeof val === 'number') {
       if (stat.format === 'toFixed1') return val.toFixed(1);
-      if (stat.suffix === '%') return `${val}%`;
       return val.toLocaleString();
     }
     return val ?? '—';
@@ -428,16 +475,7 @@ export function SupplierDetailPage() {
       <SupplierProductsSection supplierId={id} t={t} />
 
       {/* Recent Orders */}
-      <Card padding="lg">
-        <div className="flex items-center gap-2 mb-4">
-          <ShoppingCart size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.detail.recentOrders')}</h3>
-          <span className="text-xs text-text-tertiary">{t('suppliers.detail.totalCount', { count: supplier.totalOrders })}</span>
-        </div>
-        <p className="text-sm text-text-secondary font-body">
-          {t('suppliers.detail.recentOrdersPlaceholder')}
-        </p>
-      </Card>
+      <RecentOrdersSection supplierId={id} t={t} totalOrders={supplier.totalOrders} />
 
       {/* Suspend Modal */}
       <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={t('suppliers.list.suspendTitle', { name: supplier.name })}>

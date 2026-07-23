@@ -38,7 +38,7 @@ export interface TripOrderDetail {
   status: string;
   deliveryStatus: string;
   customerName: string | null;
-  total: number | null;
+  total: number;
 }
 
 export interface DashboardTrip {
@@ -146,7 +146,7 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     status: to.order?.status ?? '',
     deliveryStatus: to.delivery_status,
     customerName: to.order?.customer?.full_name ?? null,
-    total: to.order?.total ?? null,
+    total: parseFloat(String(to.order?.total ?? '')) || 0,
   }));
   const completed = tripOrders.filter((o) => o.deliveryStatus === 'delivered').length;
   const failed = tripOrders.filter((o) => o.deliveryStatus === 'failed').length;

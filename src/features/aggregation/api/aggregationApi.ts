@@ -58,6 +58,7 @@ export interface AggregationOrder {
   customerName: string;
   items: string;
   itemCount: number;
+  totalWeight: number;
   status: AggregationStatus;
   regionName: string;
   assignedTo: string | null;
@@ -183,6 +184,7 @@ interface BackendQueueOrder {
   customer: BackendQueueOrderCustomer | null;
   items_count: number;
   items_summary: string | null;
+  total_weight: number;
   zone: BackendQueueOrderZone | null;
 }
 
@@ -216,6 +218,9 @@ interface BackendReadyToShipOrder {
   status: string;
   payment_status?: string;
   total: number;
+  items_count: number;
+  items_summary: string | null;
+  total_weight: number;
   created_at: string;
   delivery_scheduled_at?: string | null;
   customer: { id: number; name: string; phone: string } | null;
@@ -304,6 +309,7 @@ function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
     customerName: order?.customer?.full_name || 'Unknown',
     items: order?.items_summary || '',
     itemCount: order?.items_count || 0,
+    totalWeight: order?.total_weight ?? 0,
     status: mapBackendAggregationStatus(q.aggregation_status),
     regionName,
     assignedTo: q.assigned_to?.full_name || null,
@@ -317,10 +323,9 @@ function mapBackendReadyToShip(o: BackendReadyToShipOrder): ReadyToShipItem {
     id: o.id,
     orderNumber: o.order_number || `ORD-${o.id}`,
     customerName: o.customer?.name || 'Unknown',
-    // OrderResource doesn't include items/trip_orders, so defaults for now
-    items: '',
-    itemCount: 0,
-    totalWeight: 0,
+    items: o.items_summary || '',
+    itemCount: o.items_count || 0,
+    totalWeight: o.total_weight ?? 0,
     status: 'pending_trip',
     regionName: '',
     tripId: null,
@@ -357,14 +362,14 @@ function extractPaginated<T>(response: ApiResponse<Record<string, unknown>> | nu
 
 export const aggregationApi = {
   /** Fetch all warehouse/aggregation page data */
-  getPageData: async (): Promise<AggregationPageData> => {
+  getPageData: async (warehouseId?: number): Promise<AggregationPageData> => {
     try {
-      // Fire all data fetches in parallel
+      const whParam = warehouseId ? `?warehouse_id=${warehouseId}` : '';
       const [supplyRes, queueRes, readyRes, throughputRes] = await Promise.all([
-        apiClient.get<ApiResponse<BackendSupplyReceivingResponse>>('/api/v1/admin/aggregation/supply-receiving').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendAggregationQueueResponse>>('/api/v1/admin/aggregation/queue').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendReadyToShipResponse>>('/api/v1/admin/aggregation/ready-to-ship').then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendThroughput>>('/api/v1/admin/aggregation/throughput').then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendSupplyReceivingResponse>>(`/api/v1/admin/aggregation/supply-receiving${whParam}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendAggregationQueueResponse>>(`/api/v1/admin/aggregation/queue${whParam}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendReadyToShipResponse>>(`/api/v1/admin/aggregation/ready-to-ship${whParam}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendThroughput>>(`/api/v1/admin/aggregation/throughput${whParam}`).then((r) => r.data).catch(() => null),
       ]);
 
       // Backend keys: supply-receiving→supply_records, queue→items, ready-to-ship→orders
@@ -504,9 +509,9 @@ export const aggregationApi = {
         id: data.id || itemId,
         orderNumber: data.order_number || `ORD-${itemId}`,
         customerName: data.customer?.name || 'Unknown',
-        items: '',
-        itemCount: 0,
-        totalWeight: 0,
+        items: data.items_summary || '',
+        itemCount: data.items_count || 0,
+        totalWeight: data.total_weight ?? 0,
         status: 'assigned_to_trip',
         regionName: '',
         tripId,

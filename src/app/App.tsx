@@ -206,6 +206,14 @@ const InventoryPage = lazy(() =>
   import('@/features/aggregation/pages/InventoryPage').then((m) => ({ default: m.InventoryPage }))
 );
 
+// ── Warehouses CRUD ──
+const WarehousesPage = lazy(() =>
+  import('@/features/warehouses/pages/WarehousesPage').then((m) => ({ default: m.WarehousesPage }))
+);
+const WarehouseFormPage = lazy(() =>
+  import('@/features/warehouses/pages/WarehouseFormPage').then((m) => ({ default: m.WarehouseFormPage }))
+);
+
 // ── Shared components ──
 
 function PageLoader() {
@@ -254,7 +262,7 @@ export function App() {
 
               {/* Aggregation (warehouse) — accessible by aggregation role */}
               <Route path={ROUTES.AGGREGATION} element={<AggregationPage />} />
-              <Route path={ROUTES.WAREHOUSE_SETTINGS} element={<WarehouseSettingsPage />} />
+              <Route path={ROUTES.WAREHOUSE_SETTINGS} element={<Navigate to={ROUTES.WAREHOUSES} replace />} />
               <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
 
               {/* Operations sub-pages */}
@@ -336,6 +344,9 @@ export function App() {
               {/* Delivery Slots — requires settings.manage */}
               <Route element={<ProtectedRoute requiredPermissions={['settings.manage']} />}>
                 <Route path={ROUTES.DELIVERY_SLOTS} element={<DeliverySlotsPage />} />
+                <Route path={ROUTES.WAREHOUSES} element={<WarehousesPage />} />
+                <Route path={ROUTES.WAREHOUSE_NEW} element={<WarehouseFormPage />} />
+                <Route path={ROUTES.WAREHOUSE_EDIT} element={<WarehouseFormPage />} />
               </Route>
 
               {/* Reports — requires reports.view */}

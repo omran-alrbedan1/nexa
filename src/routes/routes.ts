@@ -35,6 +35,9 @@ export const ROUTES = {
   // Warehouse / aggregation
   AGGREGATION: '/aggregation',
   WAREHOUSE_SETTINGS: '/warehouse/settings',
+  WAREHOUSES: '/warehouses',
+  WAREHOUSE_NEW: '/warehouses/new',
+  WAREHOUSE_EDIT: '/warehouses/:id/edit',
   INVENTORY: '/inventory',
 
   // Complaints & Special Requests

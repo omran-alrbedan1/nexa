@@ -25,6 +25,7 @@
     "orders": "הזמנות",
     "trips": "נסיעות",
     "warehouse": "מחסן",
+    "warehouses": "מחסנים",
     "suppliers": "ספקים",
     "regions": "אזורים",
     "campaigns": "קמפיינים",
@@ -57,23 +58,27 @@
       "privacyPolicy": "מדיניות פרטיות",
       "navigation": "תפריט ניווט"
     },
+    "navigation": {
+      "title": "תפריט ניווט",
+      "description": "סדר מחדש ושנה שמות של פריטי ניווט בתפריט הצד",
+      "backToSettings": "חזרה להגדרות",
+      "sidebarStructure": "מבנה תפריט הצד",
+      "sidebarHint": "גרור לסידור מחדש, לחץ לשינוי שם. שינויים נשמרים אוטומטית.",
+      "resetToDefaults": "איפוס לברירות מחדל",
+      "resetToast": "תפריט הניווט אופס לברירות המחדל",
+      "groupLabel": "קבוצה:",
+      "save": "שמור",
+      "cancel": "ביטול",
+      "rename": "שנה שם",
+      "moveUp": "הזז למעלה",
+      "moveDown": "הזז למטה"
+    },
     "general": {
       "title": "הגדרות מערכת",
       "description": "הגדרת העדפות מערכת כלליות וברירות מחדל",
       "noSettings": "עדיין לא הוגדרו הגדרות."
     },
-    "currency": {
-      "title": "הגדרות מטבע",
-      "description": "הגדרת מטבע תצוגה ושערי חליפין",
-      "displayCurrency": "מטבע תצוגה",
-      "exchangeRates": "שערי חליפין (יחידות בסיס לכל מטבע 1)",
-      "usd": "USD (דולר)",
-      "ils": "ILS (שקל)",
-      "aed": "AED (דירהם)",
-      "save": "שמור הגדרות מטבע",
-      "saved": "הגדרות המטבע נשמרו",
-      "baseNote": "בסיס"
-    },
+
     "roles": {
       "title": "תפקידים והרשאות",
       "description": "ניהול תפקידי משתמשים והקצאת הרשאות",
@@ -242,6 +247,12 @@
       "confirmSuspend": "אשר השעיה",
       "confirmActivate": "אשר הפעלה",
       "confirmBlock": "אשר חסימה"
+    },
+    "status": {
+      "active": "פעיל",
+      "inactive": "לא פעיל",
+      "suspended": "מושעה",
+      "blocked": "חסום"
     }
   },
   "dashboard": {
@@ -478,6 +489,7 @@
   "warehouse": {
     "title": "לוח בקרת מחסן",
     "description": "קבלת אספקה, תור הרכבה וניהול משלוחים",
+    "allWarehouses": "כל המחסנים",
     "stats": {
       "itemsReceived": "פריטים שהתקבלו",
       "itemsProcessed": "פריטים שעובדו",
@@ -527,6 +539,8 @@
       "markPacked": "סמן כארוז",
       "passQC": "עבר בקרת איכות ✓",
       "movedToShipping": "הועבר למשלוח",
+      "itemsCount": "{{count}} פריטים",
+      "weight": "{{weight}} ק״ג",
       "avgProcessingTime": "זמן עיבוד ממוצע: {{time}}",
       "viewFullQueue": "צפה בתור המלא"
     },
@@ -554,6 +568,60 @@
       "differentRegion": "אזור שונה"
     }
   },
+  "warehouses": {
+    "title": "מחסנים",
+    "description": "ניהול מחסנים, אזורים וקיבולת",
+    "list": {
+      "addFirst": "הוסף מחסן",
+      "searchPlaceholder": "חפש לפי קוד או שם...",
+      "count": "{{count}} מחסנים",
+      "code": "קוד",
+      "nameEn": "שם (אנגלית)",
+      "nameAr": "שם (ערבית)",
+      "zone": "אזור",
+      "capacity": "קיבולת",
+      "status": "סטטוס",
+      "active": "פעיל",
+      "inactive": "לא פעיל",
+      "actions": "פעולות",
+      "edit": "ערוך",
+      "delete": "מחק",
+      "noWarehouses": "לא נמצאו מחסנים",
+      "noWarehousesDescription": "הוסף מחסן ראשון כדי להתחיל",
+      "confirmDeleteTitle": "מחק מחסן",
+      "confirmDeleteMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? לא ניתן לבטל פעולה זו."
+    },
+    "form": {
+      "backToList": "חזרה למחסנים",
+      "editTitle": "ערוך מחסן",
+      "createTitle": "מחסן חדש",
+      "description": "צור או עדכן פרטי מחסן",
+      "warehouseInfo": "מידע על המחסן",
+      "code": "קוד",
+      "nameEn": "שם (אנגלית)",
+      "nameAr": "שם (ערבית)",
+      "zone": "אזור",
+      "selectZone": "בחר אזור...",
+      "address": "כתובת",
+      "capacity": "קיבולת",
+      "active": "פעיל",
+      "zoneAssignments": "שיוך אזורים",
+      "zoneAssignmentsDesc": "בחר אילו אזורי משלוח מחסן זה משרת",
+      "workingHours": "שעות עבודה",
+      "openingTime": "שעת פתיחה",
+      "closingTime": "שעת סגירה",
+      "save": "שמור מחסן",
+      "cancel": "ביטול"
+    },
+    "toast": {
+      "created": "המחסן נוצר בהצלחה",
+      "createFailed": "נכשל ביצירת המחסן",
+      "updated": "המחסן עודכן בהצלחה",
+      "updateFailed": "נכשל בעדכון המחסן",
+      "deleted": "המחסן נמחק בהצלחה",
+      "deleteFailed": "נכשל במחיקת המחסן"
+    }
+  },
   "orders": {
     "title": "הזמנות",
     "description": "ניהול כל ההזמנות, צפייה בפרטים ומעקב אחר ביצוע",
@@ -575,11 +643,13 @@
       "pending_supply": "בהספקה",
       "pending_aggregation": "באיגregation",
       "ready_to_ship": "מוכן למשלוח",
+      "ready_to_deliver": "מוכן להפצה",
       "out_for_delivery": "במשלוח",
       "delivered": "נמסרה",
       "failed_delivery": "משלוח נכשל",
       "cancelled": "בוטלה",
       "postponed": "נדחתה",
+      "suspended": "מושעה",
       "refunded": "הוחזרה"
     },
     "paymentMethods": {
@@ -594,6 +664,9 @@
       "searchPlaceholder": "חיפוש הזמנות או לקוחות...",
       "allStatuses": "כל הסטטוסים",
       "allTypes": "כל הסוגים",
+      "regular": "רגיל",
+      "special": "מיוחד",
+      "seasonal": "עונתי",
       "noOrdersFound": "לא נמצאו הזמנות",
       "tryDifferentSearch": "נסה מונח חיפוש אחר",
       "noOrdersMatch": "אין הזמנות התואמות את המסננים שנבחרו",
@@ -650,6 +723,14 @@
       "transferWarning": "העברה מעבירה הזמנה זו למחסן אחר. הדבר משפיע על מסלול המשלוח ועשוי לשנות את תאריך המשלוח.",
       "confirmTransfer": "אשר העברה",
       "by": "על ידי {{actor}}"
+    },
+    "tracking": {
+      "speed": "מהירות",
+      "kmh": "קמ״ש",
+      "notAvailable": "ללא מידע",
+      "awaitingLocation": "ממתין למיקום הנהג...",
+      "loadingMap": "טוען מפה...",
+      "mapLoadError": "נכשל בטעינת המפה"
     }
   },
   "products": {
@@ -898,6 +979,21 @@
   "trips": {
     "title": "נסיעות",
     "description": "ניהול נסיעות משלוח, שיוך נהגים ומעקב",
+    "statusLabels": {
+      "scheduled": "מתוכנן",
+      "assigned": "משויך",
+      "accepted": "התקבל",
+      "in_progress": "בתהליך",
+      "completed": "הושלם",
+      "cancelled": "בוטל",
+      "failed": "נכשל"
+    },
+    "deliveryStatusLabels": {
+      "pending": "ממתין",
+      "out_for_delivery": "במשלוח",
+      "delivered": "נמסר",
+      "failed": "נכשל"
+    },
     "stats": {
       "totalTrips": "סך הנסיעות",
       "scheduled": "מתוכננות",
@@ -916,7 +1012,7 @@
       "noTrips": "אין נסיעות",
       "noFilterMatch": "אין נסיעות התואמות את המסנן",
       "createFirst": "צור את נסיעת המשלוח הראשונה",
-      "driver": "נהג: {{name}}",
+      "driver": "נהג:",
       "unassigned": "לא משויך",
       "delivered": "נמסרו {{done}}/{{total}}",
       "startTrip": "התחל נסיעה",
@@ -949,7 +1045,9 @@
       "cancel": "בטל",
       "assignButton": "שייך נהג",
       "selectDriverLabel": "בחר נהג עבור {{region}}",
-      "assignModalTitle": "שייך נהג — {{trip}}"
+      "assignModalTitle": "שייך נהג — {{trip}}",
+      "simulateDriver": "סימולציית נהג",
+      "lastSent": "נשלח לאחרון: {{time}}"
     }
   },
   "drivers": {
@@ -1026,11 +1124,25 @@
       "approved": "מאושר",
       "rejected": "נדחה"
     },
+    "userStatus": {
+      "active": "פעיל",
+      "inactive": "לא פעיל",
+      "suspended": "מושהה",
+      "blocked": "חסום",
+      "pending": "ממתין"
+    },
     "vehicleTypes": {
       "van": "טנדר",
       "truck": "משאית",
       "motorcycle": "אופנוע",
       "car": "רכב"
+    },
+    "monitor": {
+      "description": "עקוב אחר נסיעות פעילות ומיקומי נהגים בזמן אמת",
+      "noActiveTrips": "אין נסיעות פעילות כרגע.",
+      "activeTrips": "{{count}} נסיעות פעילות",
+      "unassigned": "לא משויך",
+      "ordersCount": "{{count}} הזמנות"
     }
   },
   "payments": {
@@ -1103,6 +1215,7 @@
     "revenue": {
       "totalRevenue": "סך ההכנסות",
       "deliveryFees": "דמי משלוח",
+      "fees": "עמלות",
       "ordersDelivered": "הזמנות שנמסרו",
       "byZone": "הכנסות לפי אזור"
     },
@@ -1168,6 +1281,47 @@
       "priceQuoteNotesPlaceholder": "הוסף פרטים על תמחור, זמינות, לוח זמנים למשלוח...",
       "priceQuoteUpdateWarning": "להזמנה מיוחדת זו כבר יש הצעת מחיר. שליחת הצעה חדשה תחליף אותה.",
       "submitQuote": "שלח הצעת מחיר"
+    },
+    "statusLabels": {
+      "pending_admin": "ממתין למנהל",
+      "pending_pricing": "ממתין לתמחור",
+      "pending_customer": "ממתין ללקוח",
+      "priced": "תומחר",
+      "approved": "מאושר",
+      "rejected": "נדחה",
+      "cancelled": "בוטל",
+      "converted": "הומר"
+    },
+    "quoteStatus": {
+      "draft": "טיוטה",
+      "sent": "נשלח",
+      "accepted": "התקבל",
+      "rejected": "נדחה",
+      "superseded": "הוחלף",
+      "expired": "פג תוקף"
+    },
+    "timelineLabels": {
+      "created": "נוצר",
+      "assigned": "שויך",
+      "priced": "תומחר",
+      "approved": "אושר",
+      "rejected": "נדחה",
+      "converted": "הומר"
+    },
+    "timelineDescriptions": {
+      "created": "בקשת הזמנה מיוחדת הוגשה",
+      "assignedTo": "שויך ל{{name}}",
+      "staffAssigned": "עובד שויך",
+      "priced": "הוגשה הצעת מחיר בסך {{amount}}",
+      "approved": "ההזמנה אושרה",
+      "converted": "הומר להזמנה רגילה",
+      "rejected": "נדחה"
+    },
+    "negotiations": {
+      "title": "משא ומתן",
+      "customer": "לקוח",
+      "staff": "עובד",
+      "responseHint": "כדי להגיב, צור הצעת מחיר חדשה עם תמחור מעודכן."
     }
   },
   "campaigns": {

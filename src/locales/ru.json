@@ -25,6 +25,7 @@
     "orders": "Заказы",
     "trips": "Поездки",
     "warehouse": "Склад",
+    "warehouses": "Склады",
     "suppliers": "Поставщики",
     "regions": "Регионы",
     "campaigns": "Кампании",
@@ -57,23 +58,27 @@
       "privacyPolicy": "Политика конфиденциальности",
       "navigation": "Меню навигации"
     },
+    "navigation": {
+      "title": "Меню навигации",
+      "description": "Изменить порядок и переименовать элементы боковой навигации",
+      "backToSettings": "Назад к настройкам",
+      "sidebarStructure": "Структура боковой панели",
+      "sidebarHint": "Перетащите для изменения порядка, нажмите для переименования. Изменения сохраняются автоматически.",
+      "resetToDefaults": "Сбросить до стандартных",
+      "resetToast": "Навигация сброшена до стандартной",
+      "groupLabel": "Группа:",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "rename": "Переименовать",
+      "moveUp": "Вверх",
+      "moveDown": "Вниз"
+    },
     "general": {
       "title": "Системные настройки",
       "description": "Настройка общих системных предпочтений и значений по умолчанию",
       "noSettings": "Настройки ещё не настроены."
     },
-    "currency": {
-      "title": "Настройки валюты",
-      "description": "Настройка валюты отображения и курсов обмена",
-      "displayCurrency": "Валюта отображения",
-      "exchangeRates": "Курсы обмена (базовые единицы за 1 валюту)",
-      "usd": "USD (Доллар)",
-      "ils": "ILS (Шекель)",
-      "aed": "AED (Дирхам)",
-      "save": "Сохранить настройки валюты",
-      "saved": "Настройки валюты сохранены",
-      "baseNote": "база"
-    },
+
     "roles": {
       "title": "Роли и разрешения",
       "description": "Управление ролями пользователей и назначение разрешений",
@@ -242,6 +247,12 @@
       "confirmSuspend": "Подтвердить приостановку",
       "confirmActivate": "Подтвердить активацию",
       "confirmBlock": "Подтвердить блокировку"
+    },
+    "status": {
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "suspended": "Приостановлен",
+      "blocked": "Заблокирован"
     }
   },
   "dashboard": {
@@ -478,6 +489,7 @@
   "warehouse": {
     "title": "Панель склада",
     "description": "Приём поставок, очередь сборки и управление отгрузкой",
+    "allWarehouses": "Все склады",
     "stats": {
       "itemsReceived": "Товаров получено",
       "itemsProcessed": "Товаров обработано",
@@ -527,6 +539,8 @@
       "markPacked": "Отметить упакованным",
       "passQC": "Пройден QC ✓",
       "movedToShipping": "Передано в отгрузку",
+      "itemsCount": "{{count}} товаров",
+      "weight": "{{weight}} кг",
       "avgProcessingTime": "Среднее время обработки: {{time}}",
       "viewFullQueue": "Просмотреть полную очередь"
     },
@@ -554,6 +568,60 @@
       "differentRegion": "другой регион"
     }
   },
+  "warehouses": {
+    "title": "Склады",
+    "description": "Управление складами, зонами и вместимостью",
+    "list": {
+      "addFirst": "Добавить склад",
+      "searchPlaceholder": "Поиск по коду или названию...",
+      "count": "{{count}} складов",
+      "code": "Код",
+      "nameEn": "Название (англ.)",
+      "nameAr": "Название (ар.)",
+      "zone": "Зона",
+      "capacity": "Вместимость",
+      "status": "Статус",
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "actions": "Действия",
+      "edit": "Редактировать",
+      "delete": "Удалить",
+      "noWarehouses": "Склады не найдены",
+      "noWarehousesDescription": "Добавьте первый склад для начала работы",
+      "confirmDeleteTitle": "Удалить склад",
+      "confirmDeleteMessage": "Вы уверены, что хотите удалить {{name}}? Это действие нельзя отменить."
+    },
+    "form": {
+      "backToList": "Назад к складам",
+      "editTitle": "Редактировать склад",
+      "createTitle": "Новый склад",
+      "description": "Создание или обновление данных склада",
+      "warehouseInfo": "Информация о складе",
+      "code": "Код",
+      "nameEn": "Название (англ.)",
+      "nameAr": "Название (ар.)",
+      "zone": "Зона",
+      "selectZone": "Выберите зону...",
+      "address": "Адрес",
+      "capacity": "Вместимость",
+      "active": "Активен",
+      "zoneAssignments": "Назначение зон",
+      "zoneAssignmentsDesc": "Выберите зоны доставки, которые обслуживает этот склад",
+      "workingHours": "Рабочие часы",
+      "openingTime": "Время открытия",
+      "closingTime": "Время закрытия",
+      "save": "Сохранить склад",
+      "cancel": "Отмена"
+    },
+    "toast": {
+      "created": "Склад успешно создан",
+      "createFailed": "Не удалось создать склад",
+      "updated": "Склад успешно обновлен",
+      "updateFailed": "Не удалось обновить склад",
+      "deleted": "Склад успешно удален",
+      "deleteFailed": "Не удалось удалить склад"
+    }
+  },
   "orders": {
     "title": "Заказы",
     "description": "Управление всеми заказами, просмотр деталей и отслеживание выполнения",
@@ -575,11 +643,13 @@
       "pending_supply": "В поставке",
       "pending_aggregation": "В агрегации",
       "ready_to_ship": "Готов к отправке",
+      "ready_to_deliver": "Готов к доставке",
       "out_for_delivery": "В доставке",
       "delivered": "Доставлен",
       "failed_delivery": "Доставка не удалась",
       "cancelled": "Отменён",
       "postponed": "Отложен",
+      "suspended": "Приостановлен",
       "refunded": "Возвращён"
     },
     "paymentMethods": {
@@ -594,6 +664,9 @@
       "searchPlaceholder": "Поиск заказов или клиентов...",
       "allStatuses": "Все статусы",
       "allTypes": "Все типы",
+      "regular": "Обычный",
+      "special": "Специальный",
+      "seasonal": "Сезонный",
       "noOrdersFound": "Заказы не найдены",
       "tryDifferentSearch": "Попробуйте другой поисковый запрос",
       "noOrdersMatch": "Заказы не соответствуют выбранным фильтрам",
@@ -650,6 +723,14 @@
       "transferWarning": "Передача перемещает заказ на другой склад. Это влияет на маршрут доставки и может изменить дату доставки.",
       "confirmTransfer": "Подтвердить передачу",
       "by": "от {{actor}}"
+    },
+    "tracking": {
+      "speed": "Скорость",
+      "kmh": "км/ч",
+      "notAvailable": "Н/Д",
+      "awaitingLocation": "Ожидание местоположения водителя...",
+      "loadingMap": "Загрузка карты...",
+      "mapLoadError": "Не удалось загрузить карту"
     }
   },
   "products": {
@@ -898,6 +979,21 @@
   "trips": {
     "title": "Поездки",
     "description": "Управление поездками доставки, назначением водителей и отслеживанием",
+    "statusLabels": {
+      "scheduled": "Запланировано",
+      "assigned": "Назначено",
+      "accepted": "Принято",
+      "in_progress": "В процессе",
+      "completed": "Завершено",
+      "cancelled": "Отменено",
+      "failed": "Не удалось"
+    },
+    "deliveryStatusLabels": {
+      "pending": "Ожидает",
+      "out_for_delivery": "В доставке",
+      "delivered": "Доставлено",
+      "failed": "Не удалось"
+    },
     "stats": {
       "totalTrips": "Всего поездок",
       "scheduled": "Запланировано",
@@ -916,7 +1012,7 @@
       "noTrips": "Нет поездок",
       "noFilterMatch": "Поездки не соответствуют фильтру",
       "createFirst": "Создайте первую поездку доставки",
-      "driver": "Водитель: {{name}}",
+      "driver": "Водитель:",
       "unassigned": "Не назначен",
       "delivered": "Доставлено {{done}}/{{total}}",
       "startTrip": "Начать поездку",
@@ -949,7 +1045,9 @@
       "cancel": "Отменить",
       "assignButton": "Назначить водителя",
       "selectDriverLabel": "Выберите водителя для {{region}}",
-      "assignModalTitle": "Назначить водителя — {{trip}}"
+      "assignModalTitle": "Назначить водителя — {{trip}}",
+      "simulateDriver": "Симуляция водителя",
+      "lastSent": "Последняя отправка: {{time}}"
     }
   },
   "drivers": {
@@ -1026,11 +1124,25 @@
       "approved": "Одобрен",
       "rejected": "Отклонён"
     },
+    "userStatus": {
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "suspended": "Приостановлен",
+      "blocked": "Заблокирован",
+      "pending": "В ожидании"
+    },
     "vehicleTypes": {
       "van": "Фургон",
       "truck": "Грузовик",
       "motorcycle": "Мотоцикл",
       "car": "Автомобиль"
+    },
+    "monitor": {
+      "description": "Отслеживайте активные поездки и местоположение водителей в реальном времени",
+      "noActiveTrips": "Сейчас нет активных поездок.",
+      "activeTrips": "{{count}} активных поездок",
+      "unassigned": "Не назначен",
+      "ordersCount": "{{count}} заказов"
     }
   },
   "payments": {
@@ -1103,6 +1215,7 @@
     "revenue": {
       "totalRevenue": "Общая выручка",
       "deliveryFees": "Плата за доставку",
+      "fees": "плата",
       "ordersDelivered": "Заказов доставлено",
       "byZone": "Выручка по зонам"
     },
@@ -1168,6 +1281,47 @@
       "priceQuoteNotesPlaceholder": "Добавьте детали о цене, доступности, сроках доставки...",
       "priceQuoteUpdateWarning": "У этого спецзаказа уже есть ценовое предложение. Отправка нового заменит его.",
       "submitQuote": "Отправить предложение"
+    },
+    "statusLabels": {
+      "pending_admin": "Ожидает администратора",
+      "pending_pricing": "Ожидает оценки",
+      "pending_customer": "Ожидает клиента",
+      "priced": "Оценено",
+      "approved": "Одобрен",
+      "rejected": "Отклонён",
+      "cancelled": "Отменён",
+      "converted": "Конвертирован"
+    },
+    "quoteStatus": {
+      "draft": "Черновик",
+      "sent": "Отправлено",
+      "accepted": "Принято",
+      "rejected": "Отклонено",
+      "superseded": "Заменено",
+      "expired": "Истекло"
+    },
+    "timelineLabels": {
+      "created": "Создан",
+      "assigned": "Назначен",
+      "priced": "Оценён",
+      "approved": "Одобрен",
+      "rejected": "Отклонён",
+      "converted": "Конвертирован"
+    },
+    "timelineDescriptions": {
+      "created": "Запрос специального заказа отправлен",
+      "assignedTo": "Назначен {{name}}",
+      "staffAssigned": "Сотрудник назначен",
+      "priced": "Отправлено предложение на {{amount}}",
+      "approved": "Заказ одобрен",
+      "converted": "Конвертирован в обычный заказ",
+      "rejected": "Отклонён"
+    },
+    "negotiations": {
+      "title": "Переговоры",
+      "customer": "Клиент",
+      "staff": "Сотрудник",
+      "responseHint": "Чтобы ответить, создайте новое ценовое предложение с обновлёнными ценами."
     }
   },
   "campaigns": {

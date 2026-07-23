@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
 import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
-import { CurrencySwitch } from '@/components/ui/CurrencySwitch';
+// import { CurrencySwitch } from '@/components/ui/CurrencySwitch';
 import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalette';
 import { ROUTES } from '@/routes/routes';
 import { cn } from '@/utils/cn';
@@ -226,12 +226,12 @@ export function AppLayout() {
             </button>
 
             <div className="flex items-center gap-1">
-              <CurrencySwitch />
+              {/* <CurrencySwitch /> */}
               <LanguageSwitch />
               <button
-                onClick={() => setNotificationsOpen(true)}
+                onClick={() => navigate(ROUTES.SETTINGS_NOTIFICATIONS)}
                 className="relative p-2 text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary rounded-full transition-colors"
-                title="Notifications"
+                title={t('app.notifications')}
               >
                 <Bell size={20} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full border border-white" />

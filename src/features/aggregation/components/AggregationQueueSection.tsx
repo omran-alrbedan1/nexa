@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -7,7 +6,6 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToastStore } from '@/stores/toastStore';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
 import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
 
@@ -24,7 +22,6 @@ interface AggregationQueueSectionProps {
 }
 
 export function AggregationQueueSection({ items, isLoading }: AggregationQueueSectionProps) {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const STATUS_LABELS: Record<AggregationStatus, string> = {
     queued: t('warehouse.aggregationQueue.queued'),
@@ -40,7 +37,6 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
   const markPacked = useMarkPacked();
   const passQC = usePassQualityCheck();
 
-  // Priority order: queued → processing → packed → completed
   const priorityOrder: Record<AggregationStatus, number> = {
     queued: 0, processing: 1, packed: 2, completed: 3,
   };
@@ -127,7 +123,6 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
         </div>
       </CardHeader>
 
-      {/* Filters */}
       <div className="flex items-center gap-3 mb-4">
         <div className="flex-1 max-w-xs">
           <SearchInput
@@ -148,7 +143,6 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
         </select>
       </div>
 
-      {/* Table */}
       {isLoading ? (
         <div className="space-y-3 animate-pulse">
           {[1, 2, 3, 4].map((i) => (
@@ -177,11 +171,23 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
                   <span className="text-sm font-medium text-gray-900">{item.customerName}</span>
                   <span className="text-xs text-gray-400">{item.orderNumber}</span>
                   <span className="text-xs text-gray-300">·</span>
-                  <span className="text-xs text-gray-400">{item.regionName}</span>
+                  <StatusBadge
+                    status={STATUS_LABELS[item.status]}
+                    color={STATUS_COLORS[item.status]}
+                    dot
+                  />
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 truncate max-w-md">{item.items}</p>
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400">
-                  <span>{item.itemCount} items</span>
+                  <span>{t('warehouse.aggregationQueue.itemsCount', { count: item.itemCount })}</span>
+                  {item.totalWeight > 0 && (
+                    <>
+                      <span>·</span>
+                      <span>{t('warehouse.aggregationQueue.weight', { weight: item.totalWeight })}</span>
+                    </>
+                  )}
+                  <span>·</span>
+                  <span>{item.regionName}</span>
                   {item.assignedTo && (
                     <>
                       <span>·</span>
@@ -191,31 +197,11 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 ml-4">
-                <StatusBadge
-                  status={STATUS_LABELS[item.status]}
-                  color={STATUS_COLORS[item.status]}
-                  dot
-                />
+              <div className="flex items-center gap-3 ml-4 flex-shrink-0">
                 {renderActionButtons(item)}
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Summary */}
-      {!isLoading && items.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-          <span>
-            {t('warehouse.aggregationQueue.avgProcessingTime', { time: '45 min' })}
-          </span>
-          <button
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            onClick={() => navigate('/aggregation')}
-          >
-            {t('warehouse.aggregationQueue.viewFullQueue')} →
-          </button>
         </div>
       )}
     </Card>

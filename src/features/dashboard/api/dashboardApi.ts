@@ -60,6 +60,8 @@ export interface DashboardBackendResponse {
   pipeline: DashboardPipeline;
   trips_today: DashboardTripsToday;
   revenue: number;
+  revenue_by_day: { day: string; amount: number }[];
+  time_kpis: { metric: string; average_hours: number; trend: 'up' | 'down' | 'stable'; trend_percent: number }[];
   pending_approvals: DashboardPendingApprovals;
 }
 
@@ -188,7 +190,10 @@ export interface DashboardWidgetsExpanded {
   /** Trip summary derived from backend trips_today data */
   tripSummary: TripSummary;
 
-  /** Time KPIs (frontend-only widget — dummy until backend route exists) */
+  /** Daily revenue data from backend — passed to RevenueChart */
+  revenueData: { day: string; amount: number }[];
+
+  /** Time KPIs derived from backend time_kpis data */
   timeKPIs: TimeKPI[];
 
   /** Top suppliers (frontend-only widget — dummy until backend route exists) */
@@ -366,9 +371,15 @@ function transformBackendResponse(backend: DashboardBackendResponse): DashboardW
     actionRequired: buildActionRequired(backend.action_required),
     pipeline: buildPipeline(backend.pipeline),
     tripSummary: buildTripSummary(backend.trips_today),
+    revenueData: backend.revenue_by_day || [],
+    timeKPIs: (backend.time_kpis || []).map((kpi) => ({
+      metric: kpi.metric,
+      averageHours: kpi.average_hours,
+      trend: kpi.trend,
+      trendPercent: kpi.trend_percent,
+    })),
 
     // Frontend-only widgets — populated by fetchWidgetData() call below
-    timeKPIs: [],
     topSuppliers: [],
     topAreas: [],
   };

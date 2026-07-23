@@ -29,11 +29,13 @@ const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red
   pending_supply: 'yellow',
   pending_aggregation: 'yellow',
   ready_to_ship: 'teal',
+  ready_to_deliver: 'teal',
   out_for_delivery: 'teal',
   delivered: 'green',
   failed_delivery: 'red',
   cancelled: 'red',
   postponed: 'yellow',
+  suspended: 'gray',
   refunded: 'gray',
 };
 
@@ -231,15 +233,21 @@ export function OrdersPage() {
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('orders.list.allStatuses')}</option>
-              <option value="new">{t('orders.stats.new')}</option>
-              <option value="confirmed">{t('orders.stats.confirmed')}</option>
-              <option value="pending_supply">{t('orders.stats.inProgress')}</option>
-              <option value="pending_aggregation">{t('orders.stats.inProgress')}</option>
-              <option value="ready_to_ship">{t('orders.stats.inProgress')}</option>
-              <option value="out_for_delivery">{t('orders.stats.inProgress')}</option>
-              <option value="delivered">{t('orders.stats.delivered')}</option>
-              <option value="failed_delivery">{t('orders.stats.failed')}</option>
-              <option value="cancelled">{t('orders.stats.failed')}</option>
+              <option value="new">{STATUS_LABELS.new}</option>
+              <option value="pending_management">{STATUS_LABELS.pending_management}</option>
+              <option value="pending_pricing">{STATUS_LABELS.pending_pricing}</option>
+              <option value="pending_customer_approval">{STATUS_LABELS.pending_customer_approval}</option>
+              <option value="confirmed">{STATUS_LABELS.confirmed}</option>
+              <option value="paid">{STATUS_LABELS.paid}</option>
+              <option value="pending_supply">{STATUS_LABELS.pending_supply}</option>
+              <option value="pending_aggregation">{STATUS_LABELS.pending_aggregation}</option>
+              <option value="ready_to_ship">{STATUS_LABELS.ready_to_ship}</option>
+              <option value="out_for_delivery">{STATUS_LABELS.out_for_delivery}</option>
+              <option value="delivered">{STATUS_LABELS.delivered}</option>
+              <option value="failed_delivery">{STATUS_LABELS.failed_delivery}</option>
+              <option value="cancelled">{STATUS_LABELS.cancelled}</option>
+              <option value="postponed">{STATUS_LABELS.postponed}</option>
+              <option value="refunded">{STATUS_LABELS.refunded}</option>
             </select>
           </div>
           <div className="relative">

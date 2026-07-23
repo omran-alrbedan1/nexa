@@ -92,6 +92,17 @@ export function ReportsPage() {
   );
 }
 
+function mapStatusKey(status: string): string {
+  const map: Record<string, string> = {
+    PENDING_ADMIN: 'pending_management',
+    PENDING_CUSTOMER: 'pending_customer_approval',
+    IN_SUPPLY: 'pending_supply',
+    IN_AGGREGATION: 'pending_aggregation',
+    DELIVERY_FAILED: 'failed_delivery',
+  };
+  return map[status] || status.toLowerCase();
+}
+
 // ── Orders Report Tab ──
 
 function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string; to: string }; t: (key: string) => string; formatPrice: (amount: number, showSymbol?: boolean) => string }) {
@@ -185,7 +196,7 @@ function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string;
           <div className="space-y-2">
             {Object.entries(data.byStatus).map(([status, info]) => (
               <div key={status} className="flex items-center justify-between p-2.5 rounded-lg bg-bg-section-alt">
-                <span className="text-sm font-bold text-text-primary font-body capitalize">{t('orders.status.' + status)}</span>
+                <span className="text-sm font-bold text-text-primary font-body">{t('orders.status.' + mapStatusKey(status))}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-secondary">{info.count} {t('reports.orders.orders')}</span>
                   <span className="text-xs font-bold text-text-primary">{formatPrice(info.revenue)}</span>
@@ -204,7 +215,7 @@ function OrdersReportTab({ filters, t, formatPrice }: { filters: { from: string;
           <div className="space-y-2">
             {Object.entries(data.byType).map(([type, info]) => (
               <div key={type} className="flex items-center justify-between p-2.5 rounded-lg bg-bg-section-alt">
-                <span className="text-sm font-bold text-text-primary font-body capitalize">{type}</span>
+                <span className="text-sm font-bold text-text-primary font-body">{t('orders.list.' + type)}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-text-secondary">{info.count} {t('reports.orders.orders')}</span>
                   <span className="text-xs font-bold text-text-primary">{formatPrice(info.revenue)}</span>
@@ -287,10 +298,10 @@ function RevenueReportTab({ filters, t, formatPrice }: { filters: { from: string
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm font-bold text-text-primary font-body">{zone.zoneName}</span>
-                  <span className="text-xs text-text-tertiary">{zone.orders} orders</span>
+                  <span className="text-xs text-text-tertiary">{zone.orders} {t('reports.orders.orders')}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-text-secondary">{formatPrice(zone.deliveryFees)} fees</span>
+                  <span className="text-xs text-text-secondary">{formatPrice(zone.deliveryFees)} {t('reports.revenue.fees')}</span>
                   <span className="text-xs font-bold text-text-primary">{formatPrice(zone.revenue)}</span>
                 </div>
               </div>
@@ -356,7 +367,7 @@ function SuppliersReportTab({ filters, t, formatPrice }: { filters: { from: stri
                     <span className="text-xs text-text-secondary flex items-center gap-1">
                       <Package size={12} /> {supplier.productsCount}
                     </span>
-                    <span className="text-xs text-text-secondary">{supplier.ordersCount} orders</span>
+                    <span className="text-xs text-text-secondary">{supplier.ordersCount} {t('reports.orders.orders')}</span>
                     {supplier.ratingAvg > 0 && (
                       <span className="text-xs text-amber-500 flex items-center gap-0.5"><Star size={12} fill="currentColor" />{supplier.ratingAvg.toFixed(1)}</span>
                     )}

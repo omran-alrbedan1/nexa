@@ -15,6 +15,8 @@ import {
   MapPin,  Shield, ShieldAlert, AlertTriangle, CheckCircle2, Ban,
   FileText, Calendar, Home, Hash, ClipboardList,
 } from 'lucide-react';
+import { mapFromBackend, ORDER_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
+import { safeFormatDate, isDateValid } from '@/utils/date';
 
 const STATUS_BADGE: Record<CustomerStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green',
@@ -119,6 +121,33 @@ export function CustomerDetailPage() {
   const saveNotes = () => {
     updateNotes.mutate({ id: customer.id, notes: notesModal.notes });
     setNotesModal({ ...notesModal, open: false });
+  };
+
+  const ORDER_STATUS_LABELS: Record<string, string> = {
+    new: t('orders.status.new'),
+    pending_management: t('orders.status.pending_management'),
+    pending_pricing: t('orders.status.pending_pricing'),
+    pending_customer_approval: t('orders.status.pending_customer_approval'),
+    confirmed: t('orders.status.confirmed'),
+    paid: t('orders.status.paid'),
+    pending_supply: t('orders.status.pending_supply'),
+    pending_aggregation: t('orders.status.pending_aggregation'),
+    ready_to_ship: t('orders.status.ready_to_ship'),
+    ready_to_deliver: t('orders.status.ready_to_deliver'),
+    out_for_delivery: t('orders.status.out_for_delivery'),
+    delivered: t('orders.status.delivered'),
+    failed_delivery: t('orders.status.failed_delivery'),
+    cancelled: t('orders.status.cancelled'),
+    postponed: t('orders.status.postponed'),
+    refunded: t('orders.status.refunded'),
+  };
+
+  const ORDER_STATUS_VARIANT: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
+    new: 'purple', pending_management: 'yellow', pending_pricing: 'yellow',
+    pending_customer_approval: 'yellow', confirmed: 'teal', paid: 'teal',
+    pending_supply: 'yellow', pending_aggregation: 'yellow', ready_to_ship: 'teal',
+    ready_to_deliver: 'teal', out_for_delivery: 'teal', delivered: 'green',
+    failed_delivery: 'red', cancelled: 'red', postponed: 'yellow', refunded: 'gray',
   };
 
   const orders = ordersData?.data || [];
@@ -234,7 +263,7 @@ export function CustomerDetailPage() {
             <div>
               <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('customers.detail.registered')}</p>
               <p className="text-xl font-extrabold text-text-primary font-display mt-1">
-                {new Date(customer.createdAt).toLocaleDateString()}
+                {safeFormatDate(customer.createdAt, (d) => d.toLocaleDateString())}
               </p>
             </div>
             <div className="p-2.5 rounded-lg bg-brand-primary-light text-brand-primary flex-shrink-0">
@@ -356,7 +385,7 @@ export function CustomerDetailPage() {
         <div className="flex items-center gap-2 mb-4">
           <ClipboardList size={16} className="text-brand-primary" />
           <h3 className="text-sm font-bold text-text-primary font-display">{t('customers.detail.recentOrders')}</h3>
-          <span className="text-xs text-text-tertiary">{t('customers.detail.totalCount', { count: customer.ordersCount })}</span>
+          <span className="text-xs text-text-tertiary">{t('customers.detail.totalCount', { count: customer.ordersCount || orders.length })}</span>
         </div>
         {orders.length === 0 ? (
           <EmptyState
@@ -377,12 +406,12 @@ export function CustomerDetailPage() {
                     <span className="text-sm font-bold text-text-primary font-body">
                       {order.order_number || `#${order.id}`}
                     </span>
-                    <Badge variant={order.status === 'delivered' ? 'green' : 'yellow'} size="sm">
-                      {order.status}
+                    <Badge variant={ORDER_STATUS_VARIANT[mapFromBackend(order.status, ORDER_STATUS_BACKEND_TO_FRONTEND)] || 'yellow'} size="sm">
+                      {ORDER_STATUS_LABELS[mapFromBackend(order.status, ORDER_STATUS_BACKEND_TO_FRONTEND)] || order.status}
                     </Badge>
                   </div>
                   <span className="text-xs text-text-secondary font-body">
-                    {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''}
+                    {safeFormatDate(order.created_at, (d) => d.toLocaleDateString())}
                   </span>
                 </div>
               </div>

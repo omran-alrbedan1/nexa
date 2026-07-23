@@ -18,6 +18,30 @@ import type { ApiResponse } from '@/types/common';
 
 export type DriverApprovalStatus = 'pending' | 'approved' | 'rejected';
 
+export interface DriverTripOrder {
+  id: number;
+  sequence: number;
+  delivery_status: string;
+  order: {
+    id: number;
+    order_number: string;
+    status: string;
+    total: number | null;
+    customer: { id: number; full_name: string } | null;
+  } | null;
+}
+
+export interface DriverTrip {
+  id: number;
+  trip_number: string;
+  status: string;
+  planned_date: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  orders_count: number;
+  trip_orders: DriverTripOrder[];
+}
+
 export interface Driver {
   id: number;
   name: string;
@@ -30,11 +54,14 @@ export interface Driver {
   approvalStatus: DriverApprovalStatus;
   zoneName: string;
   isAvailable: boolean;
+  userStatus: string;
   totalTrips: number;
   totalOrders: number;
   rating: number;
+  totalRevenue: number;
   createdAt: string;
   updatedAt: string;
+  recentTrips: DriverTrip[];
 }
 
 export interface DriversPageData {
@@ -80,6 +107,30 @@ interface BackendDriverTimelineEntry {
   occurred_at: string | null;
 }
 
+interface BackendDriverTripOrder {
+  id: number;
+  sequence: number;
+  delivery_status: string;
+  order: {
+    id: number;
+    order_number: string;
+    status: string;
+    total: number | null;
+    customer: { id: number; full_name: string } | null;
+  } | null;
+}
+
+interface BackendDriverTrip {
+  id: number;
+  trip_number: string;
+  status: string;
+  planned_date: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  orders_count: number;
+  trip_orders: BackendDriverTripOrder[];
+}
+
 interface BackendDriver {
   id: number;
   application_number: string | null;
@@ -102,6 +153,11 @@ interface BackendDriver {
   submitted_at: string | null;
   review_min_hours: number | null;
   review_max_hours: number | null;
+  total_trips: number;
+  completed_trips: number;
+  rating_avg: number | null;
+  total_revenue: number;
+  recent_trips: BackendDriverTrip[];
   user?: BackendDriverUser | null;
   zone?: BackendDriverZone | null;
   timeline?: BackendDriverTimelineEntry[];
@@ -134,11 +190,28 @@ function mapBackendDriver(d: BackendDriver): Driver {
     approvalStatus: mapApprovalStatus(d.approval_status),
     zoneName: d.zone?.name || '',
     isAvailable: d.is_available ?? false,
-    totalTrips: 0,
-    totalOrders: 0,
-    rating: 0,
+    userStatus: d.user?.status || 'active',
+    totalTrips: d.total_trips || 0,
+    totalOrders: d.completed_trips || 0,
+    rating: d.rating_avg || 0,
+    totalRevenue: d.total_revenue || 0,
     createdAt: d.created_at || new Date().toISOString(),
     updatedAt: d.created_at || new Date().toISOString(),
+    recentTrips: (d.recent_trips || []).map((t) => ({
+      id: t.id,
+      trip_number: t.trip_number,
+      status: t.status,
+      planned_date: t.planned_date,
+      started_at: t.started_at,
+      completed_at: t.completed_at,
+      orders_count: t.orders_count,
+      trip_orders: (t.trip_orders || []).map((to) => ({
+        id: to.id,
+        sequence: to.sequence,
+        delivery_status: to.delivery_status,
+        order: to.order,
+      })),
+    })),
   };
 }
 

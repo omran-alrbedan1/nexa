@@ -1,17 +1,29 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
 import { useAggregationPage } from '../hooks/useAggregation';
+import { useWarehousesList } from '@/features/warehouses/hooks/useWarehouses';
 import { SupplyReceivingSection } from '../components/SupplyReceivingSection';
 import { AggregationQueueSection } from '../components/AggregationQueueSection';
 import { ReadyToShipSection } from '../components/ReadyToShipSection';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Card } from '@/components/ui/Card';
-import { Package, Boxes, Ship, Users, Clock, Warehouse } from 'lucide-react';
+import { Package, Boxes, Ship, Users, Clock, Warehouse, Receipt, ListOrdered, Truck, Building2 } from 'lucide-react';
 
-
+const TABS = [
+  { key: 'supply', labelKey: 'warehouse.supplyReceiving.title', icon: Receipt },
+  { key: 'queue', labelKey: 'warehouse.aggregationQueue.title', icon: ListOrdered },
+  { key: 'ship', labelKey: 'warehouse.readyToShip.title', icon: Truck },
+];
 
 export function AggregationPage() {
   const { t } = useTranslation();
-  const { data, isLoading, error, refetch } = useAggregationPage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
+  const { data, isLoading, error, refetch } = useAggregationPage(warehouseId);
+  const { data: warehousesData } = useWarehousesList(undefined, 1);
+  const [activeTab, setActiveTab] = useState('supply');
 
   if (error) {
     return (
@@ -25,7 +37,6 @@ export function AggregationPage() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-purple-500/10 via-purple-50 to-transparent">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="relative z-10 flex items-center gap-4">
@@ -36,25 +47,35 @@ export function AggregationPage() {
             <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{t('warehouse.title')}</h1>
             <p className="text-sm text-text-secondary font-body mt-1">{t('warehouse.description')}</p>
           </div>
+          {isAdmin && (
+            <div className="ml-auto flex items-center gap-2">
+              <Building2 size={16} className="text-text-tertiary" />
+              <select
+                value={warehouseId ?? ''}
+                onChange={(e) => setWarehouseId(e.target.value ? Number(e.target.value) : undefined)}
+                className="px-3 py-1.5 text-sm bg-white border border-border-default rounded-lg outline-none focus:border-brand-primary font-body"
+              >
+                <option value="">{t('warehouse.allWarehouses')}</option>
+                {(warehousesData?.data || []).map((w) => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-500 via-brand-primary to-purple-500 rounded-full opacity-30" />
       </div>
 
-      {/* Throughput Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
         {[
-          { label: t('warehouse.stats.itemsReceived'), key: 'itemsReceived', value: data?.throughput.itemsReceived ?? 0 },
-          { label: t('warehouse.stats.itemsProcessed'), key: 'itemsProcessed', value: data?.throughput.itemsProcessed ?? 0 },
-          { label: t('warehouse.stats.itemsShipped'), key: 'itemsShipped', value: data?.throughput.itemsShipped ?? 0 },
-          { label: t('warehouse.stats.activeWorkers'), key: 'activeWorkers', value: data?.throughput.activeWorkers ?? 0 },
-          { label: t('warehouse.stats.avgProcessTime'), key: 'avgProcessTime', value: data ? `${data.throughput.avgProcessingTime}m` : '-' },
+          { label: t('warehouse.stats.itemsReceived'), value: data?.throughput.itemsReceived ?? 0, icon: Package, color: 'teal' },
+          { label: t('warehouse.stats.itemsProcessed'), value: data?.throughput.itemsProcessed ?? 0, icon: Boxes, color: 'teal' },
+          { label: t('warehouse.stats.itemsShipped'), value: data?.throughput.itemsShipped ?? 0, icon: Ship, color: 'teal' },
+          { label: t('warehouse.stats.activeWorkers'), value: data?.throughput.activeWorkers ?? 0, icon: Users, color: 'warning' },
         ].map((stat, idx) => {
-          const icons = [Package, Boxes, Ship, Users, Clock];
-          const variants = ['teal' as const, 'teal' as const, 'teal' as const, 'warning' as const, 'purple' as const];
-          const Icon = icons[idx];
-          const variant = variants[idx];
+          const Icon = stat.icon;
           return (
-            <Card key={stat.label} padding="md" hover>
+            <Card key={idx} padding="md" hover>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{stat.label}</p>
@@ -66,9 +87,7 @@ export function AggregationPage() {
                 </div>
                 <div className={cn(
                   'p-2.5 rounded-lg flex-shrink-0',
-                  variant === 'teal' ? 'bg-brand-primary-light text-brand-primary' :
-                  variant === 'warning' ? 'bg-amber-50 text-amber-600' :
-                  'bg-purple-50 text-purple-600'
+                  stat.color === 'teal' ? 'bg-brand-primary-light text-brand-primary' : 'bg-amber-50 text-amber-600'
                 )}>
                   <Icon size={20} />
                 </div>
@@ -78,10 +97,38 @@ export function AggregationPage() {
         })}
       </div>
 
-      {/* Sections */}
-      <SupplyReceivingSection items={data?.supplyReceiving ?? []} isLoading={isLoading} />
-      <AggregationQueueSection items={data?.aggregationQueue ?? []} isLoading={isLoading} />
-      <ReadyToShipSection items={data?.readyToShip ?? []} isLoading={isLoading} />
+      {/* Tabs */}
+      <div className="flex items-center gap-1 p-1 bg-bg-section-alt rounded-xl overflow-x-auto">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-body font-medium transition-all whitespace-nowrap',
+                activeTab === tab.key
+                  ? 'bg-white text-brand-primary shadow-sm font-bold'
+                  : 'text-text-secondary hover:text-text-primary'
+              )}
+            >
+              <Icon size={16} />
+              {t(tab.labelKey)}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab content */}
+      {activeTab === 'supply' && (
+        <SupplyReceivingSection items={data?.supplyReceiving ?? []} isLoading={isLoading} />
+      )}
+      {activeTab === 'queue' && (
+        <AggregationQueueSection items={data?.aggregationQueue ?? []} isLoading={isLoading} />
+      )}
+      {activeTab === 'ship' && (
+        <ReadyToShipSection items={data?.readyToShip ?? []} isLoading={isLoading} />
+      )}
     </div>
   );
 }

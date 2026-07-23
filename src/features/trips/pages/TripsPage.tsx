@@ -174,7 +174,7 @@ export function TripsPage() {
               <option value="assigned">{t('trips.stats.assigned')}</option>
               <option value="in_progress">{t('trips.stats.inProgress')}</option>
               <option value="completed">{t('trips.stats.completed')}</option>
-              <option value="cancelled">{t('campaigns.list.cancelled')}</option>
+              <option value="cancelled">{STATUS_LABELS.cancelled}</option>
             </select>
           </div>
         </div>
@@ -202,7 +202,14 @@ export function TripsPage() {
                   {trip.regionName} · {trip.clusterName} · {trip.scheduledDate} · {trip.timeSlot}
                 </p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
-                  <span>{t('trips.list.driver', { name: trip.driverName ? <span className="font-bold text-text-primary">{trip.driverName}</span> : <span className="text-status-error font-bold">{t('trips.list.unassigned')}</span> })}</span>
+                  <span>
+                    {t('trips.list.driver')}{' '}
+                    {trip.driverName ? (
+                      <span className="font-bold text-text-primary">{trip.driverName}</span>
+                    ) : (
+                      <span className="text-status-error font-bold">{t('trips.list.unassigned')}</span>
+                    )}
+                  </span>
                   <span>{trip.orderCount} {t('trips.stats.orders').toLowerCase()} · <span className="font-bold text-text-primary">{formatPrice(trip.totalValue)}</span></span>
                   {trip.status === 'in_progress' && <span>{t('trips.list.delivered', { done: trip.completedOrders, total: trip.orderCount })}</span>}
                   {trip.notes && <span className="text-amber-600 truncate max-w-[200px]">{trip.notes}</span>}

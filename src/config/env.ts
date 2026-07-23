@@ -7,6 +7,7 @@ export const env = {
   REVERB_HOST: import.meta.env.VITE_REVERB_HOST as string,
   REVERB_PORT: Number(import.meta.env.VITE_REVERB_PORT) || 8869,
   REVERB_SCHEME: (import.meta.env.VITE_REVERB_SCHEME as string) || 'https',
+  GOOGLE_MAPS_API_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
 } as const;
 
 if (!env.API_BASE_URL) {

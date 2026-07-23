@@ -25,6 +25,7 @@
     "orders": "الطلبات",
     "trips": "الرحلات",
     "warehouse": "المستودع",
+    "warehouses": "المستودعات",
     "suppliers": "الموردين",
     "regions": "المناطق",
     "campaigns": "الحملات",
@@ -54,26 +55,58 @@
       "banners": "اللافتات",
       "notifications": "الإشعارات",
       "audit": "سجل النشاطات",
+      "faq": "الأسئلة الشائعة",
+      "aboutNexa": "عن NEXA",
       "privacyPolicy": "سياسة الخصوصية",
       "navigation": "قائمة التنقل"
+    },
+    "navigation": {
+      "title": "قائمة التنقل",
+      "description": "إعادة ترتيب وإعادة تسمية عناصر التنقل في الشريط الجانبي",
+      "backToSettings": "العودة إلى الإعدادات",
+      "sidebarStructure": "هيكل الشريط الجانبي",
+      "sidebarHint": "اسحب لإعادة الترتيب، انقر لإعادة التسمية. يتم حفظ التغييرات تلقائياً.",
+      "resetToDefaults": "إعادة إلى الإعدادات الافتراضية",
+      "resetToast": "تمت إعادة تعيين التنقل إلى الإعدادات الافتراضية",
+      "groupLabel": "مجموعة:",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "rename": "إعادة تسمية",
+      "moveUp": "تحريك لأعلى",
+      "moveDown": "تحريك لأسفل"
     },
     "general": {
       "title": "إعدادات النظام",
       "description": "تكوين تفضيلات النظام العامة والافتراضيات",
       "noSettings": "لم يتم تكوين أي إعدادات بعد."
     },
-    "currency": {
-      "title": "إعدادات العملة",
-      "description": "تكوين عملة العرض وأسعار الصرف",
-      "displayCurrency": "عملة العرض",
-      "exchangeRates": "أسعار الصرف (الوحدات الأساسية لكل 1 عملة)",
-      "usd": "USD (دولار)",
-      "ils": "ILS (شيكل)",
-      "aed": "AED (درهم)",
-      "save": "حفظ إعدادات العملة",
-      "saved": "تم حفظ إعدادات العملة",
-      "baseNote": "أساس"
+    "settingKeys": {
+      "app_name": "اسم التطبيق",
+      "support_phone": "هاتف الدعم",
+      "support_email": "البريد الإلكتروني للدعم",
+      "min_order_amount": "الحد الأدنى للطلب",
+      "default_delivery_fee": "رسوم التوصيل الافتراضية",
+      "supplier_accept_timeout_hours": "مهلة قبول المورد (ساعات)",
+      "default_trip_capacity": "سعة الرحلة الافتراضية",
+      "trip_cutoff_hours_before": "وقت قطع الرحلة (ساعات قبل)",
+      "privacy_policy_title_ar": "عنوان سياسة الخصوصية (عربي)",
+      "privacy_policy_title_en": "عنوان سياسة الخصوصية (إنجليزي)",
+      "privacy_policy_content_ar": "محتوى سياسة الخصوصية (عربي)",
+      "privacy_policy_content_en": "محتوى سياسة الخصوصية (إنجليزي)",
+      "about_title_ar": "عنوان عن NEXA (عربي)",
+      "about_title_en": "عنوان عن NEXA (إنجليزي)",
+      "about_content_ar": "محتوى عن NEXA (عربي)",
+      "about_content_en": "محتوى عن NEXA (إنجليزي)"
     },
+    "settingGroups": {
+      "general": "عام",
+      "orders": "الطلبات",
+      "trips": "الرحلات",
+      "legal": "قانوني",
+      "about": "عن NEXA",
+      "support": "الدعم"
+    },
+
     "roles": {
       "title": "الأدوار والصلاحيات",
       "description": "إدارة أدوار المستخدمين وتعيين الصلاحيات",
@@ -242,6 +275,12 @@
       "confirmSuspend": "تأكيد الإيقاف",
       "confirmActivate": "تأكيد التفعيل",
       "confirmBlock": "تأكيد الحظر"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "موقوف",
+      "blocked": "محظور"
     }
   },
   "dashboard": {
@@ -478,6 +517,7 @@
   "warehouse": {
     "title": "لوحة تحكم المستودع",
     "description": "استلام التوريد، طابور التجميع، وإدارة الشحن",
+    "allWarehouses": "جميع المستودعات",
     "stats": {
       "itemsReceived": "الوارد من البضائع",
       "itemsProcessed": "البضائع المجهزة",
@@ -527,6 +567,8 @@
       "markPacked": "تحديد مغلف",
       "passQC": "اجتياز الجودة ✓",
       "movedToShipping": "تم النقل للشحن",
+      "itemsCount": "{{count}} صنف",
+      "weight": "{{weight}} كجم",
       "avgProcessingTime": "متوسط وقت المعالجة: {{time}}",
       "viewFullQueue": "عرض الطابور كاملاً"
     },
@@ -554,6 +596,60 @@
       "differentRegion": "منطقة مختلفة"
     }
   },
+  "warehouses": {
+    "title": "المستودعات",
+    "description": "إدارة المستودعات والمناطق والسعة",
+    "list": {
+      "addFirst": "إضافة مستودع",
+      "searchPlaceholder": "بحث بالرمز أو الاسم...",
+      "count": "{{count}} مستودعات",
+      "code": "الرمز",
+      "nameEn": "الاسم (إنجليزي)",
+      "nameAr": "الاسم (عربي)",
+      "zone": "المنطقة",
+      "capacity": "السعة",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "actions": "إجراءات",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "noWarehouses": "لم يتم العثور على مستودعات",
+      "noWarehousesDescription": "أضف أول مستودع للبدء",
+      "confirmDeleteTitle": "حذف المستودع",
+      "confirmDeleteMessage": "هل أنت متأكد من حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "form": {
+      "backToList": "العودة إلى المستودعات",
+      "editTitle": "تعديل المستودع",
+      "createTitle": "مستودع جديد",
+      "description": "إنشاء أو تحديث بيانات المستودع",
+      "warehouseInfo": "معلومات المستودع",
+      "code": "الرمز",
+      "nameEn": "الاسم (إنجليزي)",
+      "nameAr": "الاسم (عربي)",
+      "zone": "المنطقة",
+      "selectZone": "اختر منطقة...",
+      "address": "العنوان",
+      "capacity": "السعة",
+      "active": "نشط",
+      "zoneAssignments": "تعيين المناطق",
+      "zoneAssignmentsDesc": "اختر مناطق التوصيل التي يخدمها هذا المستودع",
+      "workingHours": "ساعات العمل",
+      "openingTime": "وقت الافتتاح",
+      "closingTime": "وقت الإغلاق",
+      "save": "حفظ المستودع",
+      "cancel": "إلغاء"
+    },
+    "toast": {
+      "created": "تم إنشاء المستودع بنجاح",
+      "createFailed": "فشل إنشاء المستودع",
+      "updated": "تم تحديث المستودع بنجاح",
+      "updateFailed": "فشل تحديث المستودع",
+      "deleted": "تم حذف المستودع بنجاح",
+      "deleteFailed": "فشل حذف المستودع"
+    }
+  },
   "orders": {
     "title": "الطلبات",
     "description": "إدارة جميع الطلبات، عرض التفاصيل، وتتبع التنفيذ",
@@ -575,11 +671,13 @@
       "pending_supply": "في التوريد",
       "pending_aggregation": "في التجميع",
       "ready_to_ship": "جاهز للشحن",
+      "ready_to_deliver": "جاهز للتوصيل",
       "out_for_delivery": "في التوصيل",
       "delivered": "تم التوصيل",
       "failed_delivery": "توصيل فاشل",
       "cancelled": "ملغي",
       "postponed": "مؤجل",
+      "suspended": "موقوف",
       "refunded": "مسترجع"
     },
     "paymentMethods": {
@@ -594,6 +692,9 @@
       "searchPlaceholder": "البحث عن طلبات أو عملاء...",
       "allStatuses": "جميع الحالات",
       "allTypes": "جميع الأنواع",
+      "regular": "عادي",
+      "special": "خاص",
+      "seasonal": "موسمي",
       "noOrdersFound": "لا توجد طلبات",
       "tryDifferentSearch": "جرب كلمة بحث مختلفة",
       "noOrdersMatch": "لا توجد طلبات تطابق الفلاتر",
@@ -650,6 +751,14 @@
       "transferWarning": "نقل هذا الطلب ينقله إلى مستودع مختلف. قد يؤثر ذلك على مسار التوصيل وموعد التوصيل.",
       "confirmTransfer": "تأكيد النقل",
       "by": "بواسطة {{actor}}"
+    },
+    "tracking": {
+      "speed": "السرعة",
+      "kmh": "كم/س",
+      "notAvailable": "غير متاح",
+      "awaitingLocation": "بانتظار موقع السائق...",
+      "loadingMap": "جاري تحميل الخريطة...",
+      "mapLoadError": "فشل تحميل الخريطة"
     }
   },
   "products": {
@@ -898,6 +1007,21 @@
   "trips": {
     "title": "الرحلات",
     "description": "إدارة رحلات التوصيل وإسناد السائقين والتتبع",
+    "statusLabels": {
+      "scheduled": "مجدول",
+      "assigned": "مسند",
+      "accepted": "مقبول",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "failed": "فاشل"
+    },
+    "deliveryStatusLabels": {
+      "pending": "معلق",
+      "out_for_delivery": "في التوصيل",
+      "delivered": "تم التوصيل",
+      "failed": "فاشل"
+    },
     "stats": {
       "totalTrips": "إجمالي الرحلات",
       "scheduled": "مجدول",
@@ -916,7 +1040,7 @@
       "noTrips": "لا توجد رحلات",
       "noFilterMatch": "لا توجد رحلات تطابق الفلتر",
       "createFirst": "أنشئ أول رحلة توصيل",
-      "driver": "السائق: {{name}}",
+      "driver": "السائق:",
       "unassigned": "غير مسند",
       "delivered": "تم توصيل {{done}}/{{total}}",
       "startTrip": "بدء الرحلة",
@@ -949,7 +1073,9 @@
       "cancel": "إلغاء",
       "assignButton": "إسناد سائق",
       "selectDriverLabel": "اختر سائقاً لـ {{region}}",
-      "assignModalTitle": "إسناد سائق — {{trip}}"
+      "assignModalTitle": "إسناد سائق — {{trip}}",
+      "simulateDriver": "محاكاة السائق",
+      "lastSent": "آخر إرسال: {{time}}"
     }
   },
   "drivers": {
@@ -1026,11 +1152,25 @@
       "approved": "مقبول",
       "rejected": "مرفوض"
     },
+    "userStatus": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "موقوف",
+      "blocked": "محظور",
+      "pending": "قيد الانتظار"
+    },
     "vehicleTypes": {
       "van": "شاحنة صغيرة",
       "truck": "شاحنة",
       "motorcycle": "دراجة نارية",
       "car": "سيارة"
+    },
+    "monitor": {
+      "description": "مراقبة الرحلات النشطة ومواقع السائقين في الوقت الفعلي",
+      "noActiveTrips": "لا توجد رحلات نشطة حالياً.",
+      "activeTrips": "{{count}} رحلة نشطة",
+      "unassigned": "غير مسند",
+      "ordersCount": "{{count}} طلب"
     }
   },
   "payments": {
@@ -1103,6 +1243,7 @@
     "revenue": {
       "totalRevenue": "إجمالي الإيرادات",
       "deliveryFees": "رسوم التوصيل",
+      "fees": "رسوم",
       "ordersDelivered": "الطلبات المُوصَلة",
       "byZone": "الإيرادات حسب المنطقة"
     },
@@ -1168,6 +1309,47 @@
       "priceQuoteNotesPlaceholder": "أضف تفاصيل حول التسعير والتوفر ومدة التوصيل...",
       "priceQuoteUpdateWarning": "يوجد بالفعل عرض سعر لهذا الطلب الخاص. إرسال عرض جديد سيحل محله.",
       "submitQuote": "إرسال عرض السعر"
+    },
+    "statusLabels": {
+      "pending_admin": "بانتظار المشرف",
+      "pending_pricing": "بانتظار التسعير",
+      "pending_customer": "بانتظار العميل",
+      "priced": "تم التسعير",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "cancelled": "ملغي",
+      "converted": "تم التحويل"
+    },
+    "quoteStatus": {
+      "draft": "مسودة",
+      "sent": "مرسل",
+      "accepted": "مقبول",
+      "rejected": "مرفوض",
+      "superseded": "مستبدل",
+      "expired": "منتهي"
+    },
+    "timelineLabels": {
+      "created": "تم الإنشاء",
+      "assigned": "تم الإسناد",
+      "priced": "تم التسعير",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "converted": "تم التحويل"
+    },
+    "timelineDescriptions": {
+      "created": "تم تقديم طلب خاص",
+      "assignedTo": "تم الإسناد إلى {{name}}",
+      "staffAssigned": "تم إسناد موظف",
+      "priced": "تم تقديم عرض سعر بقيمة {{amount}}",
+      "approved": "تم اعتماد الطلب",
+      "converted": "تم التحويل إلى طلب عادي",
+      "rejected": "مرفوض"
+    },
+    "negotiations": {
+      "title": "التفاوض",
+      "customer": "العميل",
+      "staff": "موظف",
+      "responseHint": "للرد، قم بإنشاء عرض سعر جديد بتسعير محدّث."
     }
   },
   "campaigns": {

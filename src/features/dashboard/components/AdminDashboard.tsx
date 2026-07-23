@@ -95,7 +95,7 @@ export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExp
 
       {/* ═══ Charts Row ═══ */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RevenueChart todayRevenue={data?.stats.revenueToday} isLoading={isLoading} />
+        <RevenueChart data={data?.revenueData} todayRevenue={data?.stats.revenueToday} isLoading={isLoading} />
         <OrdersByStatusChart pipeline={data?.pipeline?.reduce((acc, p) => ({ ...acc, [p.stage]: p.count }), {} as Record<string, number>)} ordersByType={data?.stats.ordersByType} />
       </div>
 
