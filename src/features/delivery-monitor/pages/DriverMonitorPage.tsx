@@ -136,20 +136,18 @@ export default function DriverMonitorPage() {
                         setSelectedTripId(trip.id);
                         navigate(`${ROUTES.TRIPS}/${trip.id}`);
                       }}
-                    />
-                  ))}
-                  {selectedTrip && (
-                    <InfoWindow
-                      position={defaultCenter}
-                      onCloseClick={() => setSelectedTripId(null)}
                     >
-                      <div className="text-xs">
-                        <p className="font-bold text-sm mb-1">#{selectedTrip.tripNumber}</p>
-                        <p>{selectedTrip.driverName || '—'}</p>
-                        <p className="text-text-secondary mt-1">{selectedTrip.status}</p>
-                      </div>
-                    </InfoWindow>
-                  )}
+                      {selectedTripId === trip.id && (
+                        <InfoWindow onCloseClick={() => setSelectedTripId(null)}>
+                          <div className="text-xs">
+                            <p className="font-bold text-sm mb-1">#{trip.tripNumber}</p>
+                            <p>{trip.driverName || '—'}</p>
+                            <p className="text-text-secondary mt-1">{trip.status}</p>
+                          </div>
+                        </InfoWindow>
+                      )}
+                    </Marker>
+                  ))}
                 </GoogleMap>
               ) : (
                 <div className="flex items-center justify-center h-full bg-gray-100">

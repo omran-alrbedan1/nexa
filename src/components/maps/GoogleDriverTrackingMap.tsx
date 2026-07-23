@@ -57,7 +57,18 @@ function MapContent({ location, destination, follow }: {
         }}
         onLoad={(marker) => { markerRef.current = marker }}
         onClick={() => setShowInfo(true)}
-      />
+      >
+        {showInfo && (
+          <InfoWindow onCloseClick={() => setShowInfo(false)}>
+            <div className="text-xs">
+              <p>{t('orders.tracking.speed')}: {location.speed ? `${location.speed} ${t('orders.tracking.kmh')}` : t('orders.tracking.notAvailable')}</p>
+              <p className="text-text-secondary mt-1">
+                {new Date(location.recordedAt).toLocaleTimeString()}
+              </p>
+            </div>
+          </InfoWindow>
+        )}
+      </Marker>
       {destination && (
         <Marker
           position={destination}
@@ -70,19 +81,6 @@ function MapContent({ location, destination, follow }: {
             strokeWeight: 3,
           }}
         />
-      )}
-      {showInfo && (
-        <InfoWindow
-          position={position}
-          onCloseClick={() => setShowInfo(false)}
-        >
-          <div className="text-xs">
-            <p>{t('orders.tracking.speed')}: {location.speed ? `${location.speed} ${t('orders.tracking.kmh')}` : t('orders.tracking.notAvailable')}</p>
-            <p className="text-text-secondary mt-1">
-              {new Date(location.recordedAt).toLocaleTimeString()}
-            </p>
-          </div>
-        </InfoWindow>
       )}
     </>
   )
