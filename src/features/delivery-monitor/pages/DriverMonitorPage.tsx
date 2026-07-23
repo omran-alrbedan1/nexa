@@ -2,20 +2,17 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useJsApiLoader, GoogleMap, Marker, InfoWindow, type Libraries } from '@react-google-maps/api';
+import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { env } from '@/config/env';
 import { ROUTES } from '@/routes/routes';
+import {
+  GOOGLE_MAPS_LOADER_OPTIONS,
+  MAP_CONTAINER_STYLE,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_MAP_OPTIONS,
+} from '@/config/googleMaps';
 import { MapPin, Navigation, Truck } from 'lucide-react';
-
-const containerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '0.75rem',
-};
-
-const defaultCenter = { lat: 24.713552, lng: 46.675297 };
 
 export default function DriverMonitorPage() {
   const { t } = useTranslation();
@@ -29,25 +26,19 @@ export default function DriverMonitorPage() {
   });
 
   const activeTrips = useMemo(
-    () => (pageData?.trips ?? []).filter((t) =>
-      ['assigned', 'accepted', 'in_progress'].includes(t.status)
+    () => (pageData?.trips ?? []).filter((trip) =>
+      ['assigned', 'accepted', 'in_progress'].includes(trip.status)
     ),
     [pageData],
   );
 
-  const libraries: Libraries = ['places'];
+  // Uses the shared loader options -- identical across the entire app
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: env.GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
-
-  const selectedTrip = activeTrips.find((t) => t.id === selectedTripId);
+  const selectedTrip = activeTrips.find((trip) => trip.id === selectedTripId);
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="relative z-10">
@@ -72,7 +63,6 @@ export default function DriverMonitorPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Trip List */}
           <div className="lg:col-span-1 space-y-3">
             <div className="flex items-center gap-2 mb-2">
               <Truck size={16} className="text-brand-primary" />
@@ -109,24 +99,19 @@ export default function DriverMonitorPage() {
             ))}
           </div>
 
-          {/* Map */}
           <div className="lg:col-span-2">
             <div className="rounded-xl overflow-hidden border border-border-default/60" style={{ height: '500px' }}>
               {isLoaded ? (
                 <GoogleMap
-                  mapContainerStyle={containerStyle}
-                  center={defaultCenter}
+                  mapContainerStyle={MAP_CONTAINER_STYLE}
+                  center={DEFAULT_MAP_CENTER}
                   zoom={11}
-                  options={{
-                    streetViewControl: false,
-                    mapTypeControl: false,
-                    fullscreenControl: false,
-                  }}
+                  options={DEFAULT_MAP_OPTIONS}
                 >
                   {activeTrips.map((trip) => (
                     <Marker
                       key={trip.id}
-                      position={defaultCenter}
+                      position={DEFAULT_MAP_CENTER}
                       icon={{
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: selectedTripId === trip.id ? 12 : 8,
@@ -144,7 +129,7 @@ export default function DriverMonitorPage() {
                         <InfoWindow onCloseClick={() => setSelectedTripId(null)}>
                           <div className="text-xs">
                             <p className="font-bold text-sm mb-1">#{trip.tripNumber}</p>
-                            <p>{trip.driverName || '—'}</p>
+                            <p>{trip.driverName || '---'}</p>
                             <p className="text-text-secondary mt-1">{trip.status}</p>
                           </div>
                         </InfoWindow>

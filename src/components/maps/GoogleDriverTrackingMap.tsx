@@ -1,19 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GoogleMap, Marker, InfoWindow, useJsApiLoader, type Libraries } from '@react-google-maps/api'
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api'
 import { useDriverLocation, type DriverLocation } from '@/hooks/useDriverLocation'
-import { env } from '@/config/env'
+import {
+  GOOGLE_MAPS_LOADER_OPTIONS,
+  MAP_CONTAINER_STYLE,
+  DEFAULT_MAP_OPTIONS,
+} from '@/config/googleMaps'
 import { Navigation } from 'lucide-react'
-
-const libraries: Libraries = ['places']
-
-const containerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '0.75rem',
-}
-
-const defaultCenter = { lat: 24.713552, lng: 46.675297 }
 
 interface GoogleDriverTrackingMapProps {
   orderId: number
@@ -36,10 +30,8 @@ function MapContent({ location, destination, follow }: {
   const position = { lat: location.latitude, lng: location.longitude }
 
   useEffect(() => {
-    if (mapRef.current) {
-      if (follow) {
-        mapRef.current.panTo(position)
-      }
+    if (mapRef.current && follow) {
+      mapRef.current.panTo(position)
     }
   }, [position.lat, position.lng, follow])
 
@@ -95,11 +87,8 @@ export default function GoogleDriverTrackingMap({
 }: GoogleDriverTrackingMapProps) {
   const { t } = useTranslation()
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: env.GOOGLE_MAPS_API_KEY,
-    libraries,
-  })
+  // Uses the shared loader options -- identical across the entire app
+  const { isLoaded, loadError } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS)
 
   const location = useDriverLocation(orderId, initialLocation)
 
@@ -135,17 +124,12 @@ export default function GoogleDriverTrackingMap({
   return (
     <div style={{ height }}>
       <GoogleMap
-        mapContainerStyle={containerStyle}
+        mapContainerStyle={MAP_CONTAINER_STYLE}
         center={center}
         zoom={15}
-        options={{
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        }}
+        options={DEFAULT_MAP_OPTIONS}
         onLoad={(map) => {
-          const mapRef = map
-          setTimeout(() => mapRef.setCenter(center), 0)
+          setTimeout(() => map.setCenter(center), 0)
         }}
       >
         <MapContent location={location} destination={destination} follow={follow} />
