@@ -626,6 +626,7 @@
       "notScheduled": "לא מתוכנן",
       "confirmOrder": "אשר הזמנה",
       "confirmReceipt": "אשר קבלה",
+      "markPaid": "סמן כשולם",
       "markInSupply": "ספק בהספקה",
       "cancelOrder": "בטל הזמנה",
       "cancelModalTitle": "בטל {{number}}",

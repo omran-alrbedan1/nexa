@@ -626,6 +626,7 @@
       "notScheduled": "Не запланировано",
       "confirmOrder": "Подтвердить заказ",
       "confirmReceipt": "Подтвердить получение",
+      "markPaid": "Отметить оплаченным",
       "markInSupply": "Отметить в поставке",
       "cancelOrder": "Отменить заказ",
       "cancelModalTitle": "Отменить {{number}}",

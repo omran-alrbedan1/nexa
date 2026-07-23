@@ -681,6 +681,7 @@
       "notScheduled": "Not scheduled",
       "confirmOrder": "Confirm Order",
       "confirmReceipt": "Confirm Receipt",
+      "markPaid": "Mark Paid",
       "markInSupply": "Mark In Supply",
       "cancelOrder": "Cancel Order",
       "cancelModalTitle": "Cancel {{number}}",

@@ -277,13 +277,17 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
     customerNotes: bo.customer_notes,
     internalNotes: bo.internal_notes,
     scheduledDate: bo.delivery_scheduled_at,
-    items: (bo.items || []).map((i) => ({
-      id: i.id,
-      productName: i.product_name,
-      quantity: i.quantity,
-      unitPrice: parseFloat(i.unit_price) || 0,
-      totalPrice: parseFloat(i.total_price) || 0,
-    })),
+    items: (bo.items || []).map((i) => {
+      const unitPrice = parseFloat(i.unit_price) || 0;
+      const totalPrice = parseFloat(i.total_price) || unitPrice * i.quantity;
+      return {
+        id: i.id,
+        productName: i.product_name,
+        quantity: i.quantity,
+        unitPrice,
+        totalPrice,
+      };
+    }),
     timeline: (bo.status_logs || []).map((l) => ({
       fromStatus: l.from_status || null,
       toStatus: l.to_status,
@@ -304,9 +308,9 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
       id: bo.price_quote.id,
       quoteNumber: bo.price_quote.quote_number,
       status: bo.price_quote.status,
-      total: parseFloat(bo.price_quote.total),
-      subtotal: parseFloat(bo.price_quote.subtotal),
-      deliveryFee: parseFloat(bo.price_quote.delivery_fee),
+      total: parseFloat(bo.price_quote.total) || 0,
+      subtotal: parseFloat(bo.price_quote.subtotal) || 0,
+      deliveryFee: parseFloat(bo.price_quote.delivery_fee) || 0,
     } : null,
     trip: (bo as Record<string, unknown>).trip
       ? {

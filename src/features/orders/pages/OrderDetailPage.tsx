@@ -20,6 +20,7 @@ import {
 import type { OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
+import { safeFormatDate } from '@/utils/date';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red' | 'gray'> = {
   new: 'purple',
@@ -45,6 +46,10 @@ const TYPE_BADGE: Record<string, 'teal' | 'coral' | 'purple'> = {
 
 const PAYMENT_STATUS_VARIANT: Record<string, 'green' | 'yellow' | 'red'> = {
   paid: 'green', pending: 'yellow', failed: 'red', refunded: 'red',
+};
+
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  paid: 'Paid', pending: 'Pending', failed: 'Failed', refunded: 'Refunded',
 };
 
 function OrderInfoCard({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
@@ -176,7 +181,7 @@ export function OrderDetailPage() {
               </div>
               <p className="text-sm text-text-secondary font-body mt-1">
                 <Calendar size={14} className="inline mr-1" />
-                {new Date(order.createdAt).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                {safeFormatDate(order.createdAt, (d) => d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
               </p>
             </div>
           </div>
@@ -208,7 +213,7 @@ export function OrderDetailPage() {
           <p>{t('orders.detail.status')}: <span className="font-bold">{STATUS_LABELS[order.status] || t('common.unknown')}</span></p>
           <p className="text-xs text-text-secondary">{t('orders.detail.type')}: {order.orderType}</p>
           <p className="text-xs text-text-secondary">{t('orders.detail.items', { count: order.items.length })}</p>
-          <p className="text-xs text-text-secondary">{t('orders.detail.created')}: {new Date(order.createdAt).toLocaleDateString()}</p>
+          <p className="text-xs text-text-secondary">{t('orders.detail.created')}: {safeFormatDate(order.createdAt, (d) => d.toLocaleDateString())}</p>
         </OrderInfoCard>
 
         <OrderInfoCard icon={<Truck size={16} />} label={t('orders.detail.delivery')}>
@@ -216,7 +221,7 @@ export function OrderDetailPage() {
           {order.supplierName && <p className="text-xs text-text-secondary">Supplier: {order.supplierName}</p>}
           {order.scheduledDate ? (
             <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
-              <Clock size={10} />{new Date(order.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              <Clock size={10} />{safeFormatDate(order.scheduledDate, (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
             </p>
           ) : (
             <p className="text-xs text-text-tertiary">{t('orders.detail.notScheduled')}</p>
@@ -230,7 +235,7 @@ export function OrderDetailPage() {
             <span>{t('orders.detail.deliveryFee')}: {formatPrice(order.deliveryFee)}</span>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{order.paymentStatus}</Badge>
+            <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{PAYMENT_STATUS_LABELS[order.paymentStatus] || order.paymentStatus}</Badge>
             <span className="text-xs text-text-tertiary">{t('orders.paymentMethods.' + order.paymentMethod)}</span>
           </div>
         </OrderInfoCard>
@@ -259,7 +264,7 @@ export function OrderDetailPage() {
                     <span className="font-bold text-text-primary">{item.productName}</span>
                   </td>
                   <td className="py-3 px-4 text-center text-text-secondary">{item.quantity}</td>
-                  <td className="py-3 px-4 text-right text-text-secondary">{item.unitPrice.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right text-text-secondary">{formatPrice(item.unitPrice)}</td>
                   <td className="py-3 pl-4 text-right font-bold text-text-primary">{formatPrice(item.totalPrice)}</td>
                 </tr>
               ))}
@@ -292,7 +297,7 @@ export function OrderDetailPage() {
                 </div>
                 <div>
                   <span className="text-text-tertiary">{t('orders.detail.unitPrice')} </span>
-                  <span className="text-text-primary font-medium">{item.unitPrice.toFixed(2)}</span>
+                  <span className="text-text-primary font-medium">{formatPrice(item.unitPrice)}</span>
                 </div>
                 <div className="col-span-2 pt-1 border-t border-border-default/50">
                   <span className="text-text-tertiary">{t('orders.detail.total')} </span>
@@ -425,7 +430,7 @@ export function OrderDetailPage() {
                       {STATUS_LABELS[log.toStatus.toLowerCase()] || t('common.unknown')}
                     </span>
                     <span className="text-xs text-text-tertiary font-body">
-                      {new Date(log.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {safeFormatDate(log.timestamp, (d) => d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
                     </span>
                   </div>
                   <p className="text-xs text-text-secondary font-body mt-0.5">
@@ -457,7 +462,7 @@ export function OrderDetailPage() {
                   <p className="text-xs text-text-secondary font-body">{p.method}</p>
                 </div>
               </div>
-              <Badge variant={p.status === 'paid' ? 'green' : p.status === 'pending' ? 'yellow' : 'red'} size="sm">{p.status}</Badge>
+              <Badge variant={p.status === 'paid' ? 'green' : p.status === 'pending' ? 'yellow' : 'red'} size="sm">{PAYMENT_STATUS_LABELS[p.status] || p.status}</Badge>
             </div>
           ))}
         </Card>

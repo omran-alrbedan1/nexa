@@ -3,6 +3,17 @@
  * Supports both English and Arabic locale formatting.
  */
 
+export function safeFormatDate(date: string | Date | null | undefined, formatter: (d: Date) => string, fallback = '—'): string {
+  if (!date) return fallback;
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(d.getTime())) return fallback;
+    return formatter(d);
+  } catch {
+    return fallback;
+  }
+}
+
 export function formatDate(date: string | Date, locale: 'en' | 'ar' = 'en'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return d.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
