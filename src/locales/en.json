@@ -1620,6 +1620,7 @@
       "noDrivers": "No drivers found",
       "tryDifferentSearch": "Try a different search term",
       "addFirst": "Add your first driver",
+      "addDriver": "Add Driver",
       "available": "Available",
       "onTrip": "On Trip",
       "setUnavailable": "Set Unavailable",
@@ -1637,6 +1638,16 @@
       "description": "Enter the reason for rejecting this driver. They will be notified and their account will be blocked.",
       "placeholder": "Reason for rejection...",
       "confirm": "Confirm Reject"
+    },
+    "create": {
+      "title": "Add New Driver",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phone": "Phone",
+      "email": "Email",
+      "vehicleType": "Vehicle Type",
+      "vehiclePlate": "Vehicle Plate",
+      "submit": "Create Driver"
     },
     "detail": {
       "back": "Back to Drivers",
@@ -1696,7 +1707,9 @@
       "approved": "Driver approved",
       "approveFailed": "Failed to approve driver",
       "rejected": "Driver rejected",
-      "rejectFailed": "Failed to reject driver"
+      "rejectFailed": "Failed to reject driver",
+      "created": "Driver created successfully",
+      "createFailed": "Failed to create driver"
     }
   },
   "payments": {

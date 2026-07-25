@@ -2,7 +2,7 @@ import {
   LayoutDashboard, ClipboardList, Truck, Warehouse,
   Users, Map, Megaphone, Package, FolderTree, Settings2,
   CreditCard, LifeBuoy, BarChart3, FileClock, Building2,
-  Clock, Globe, MapPin, Layers,
+  Clock, Globe, MapPin,
   type LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
@@ -36,7 +36,6 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Map,
   Globe,
   MapPin,
-  Layers,
   Megaphone,
   Package,
   FolderTree,
@@ -118,7 +117,6 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
       { id: 'provinces', label: 'nav.provinces', icon: 'MapPin', type: 'item', to: ROUTES.PROVINCES, roles: ['admin'] },
       { id: 'regions', label: 'nav.regions', icon: 'Map', type: 'item', to: ROUTES.REGIONS, roles: ['admin'] },
       { id: 'warehouses', label: 'nav.warehouses', icon: 'Building2', type: 'item', to: ROUTES.WAREHOUSES, roles: ['admin'] },
-      { id: 'service-regions', label: 'nav.serviceRegions', icon: 'Layers', type: 'item', to: ROUTES.SERVICE_REGIONS, roles: ['admin'] },
     ],
   },
   {

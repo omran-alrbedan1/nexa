@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
-import { useDriversPage, useToggleDriverAvailability, useApproveDriver, useRejectDriver } from '../hooks/useDrivers';
+import { useDriversPage, useToggleDriverAvailability, useApproveDriver, useRejectDriver, useCreateDriver } from '../hooks/useDrivers';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import {
-  Users, Truck, CheckCircle2, XCircle, Clock, Search, Filter, Star, Phone, MapPin, ThumbsUp, ThumbsDown, AlertTriangle,
+  Users, Truck, CheckCircle2, XCircle, Clock, Search, Filter, Star, Phone, MapPin, ThumbsUp, ThumbsDown, AlertTriangle, Plus,
 } from 'lucide-react';
 import type { DriverApprovalStatus } from '../api/driversApi';
 
@@ -39,6 +39,16 @@ export function DriversPage() {
   const rejectDriver = useRejectDriver();
   const [search, setSearch] = useState('');
   const [rejectModal, setRejectModal] = useState<{ open: boolean; driverId: number; driverName: string; reason: string }>({ open: false, driverId: 0, driverName: '', reason: '' });
+  const [createModal, setCreateModal] = useState(false);
+  const createDriver = useCreateDriver();
+  const [createForm, setCreateForm] = useState({
+    first_name: '',
+    last_name: '',
+    phone: '',
+    email: '',
+    vehicle_type: '',
+    vehicle_plate: '',
+  });
 
   if (isError) {
     return (
@@ -64,8 +74,8 @@ export function DriversPage() {
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-1">
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center">
               <Truck size={22} className="text-brand-primary" />
             </div>
@@ -74,6 +84,12 @@ export function DriversPage() {
               <p className="text-sm text-text-secondary font-body">{t('drivers.description')}</p>
             </div>
           </div>
+          <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => {
+            setCreateForm({ first_name: '', last_name: '', phone: '', email: '', vehicle_type: '', vehicle_plate: '' });
+            setCreateModal(true);
+          }}>
+            {t('drivers.list.addDriver')}
+          </Button>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary rounded-full opacity-30" />
       </div>
@@ -235,6 +251,90 @@ export function DriversPage() {
           </div>
         )}
       </Card>
+
+      {/* Create Driver Modal */}
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('drivers.create.title')}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.firstName')} *</label>
+              <input
+                value={createForm.first_name}
+                onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.lastName')}</label>
+              <input
+                value={createForm.last_name}
+                onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.phone')} *</label>
+            <input
+              value={createForm.phone}
+              onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              placeholder="+966501234567"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.email')}</label>
+            <input
+              value={createForm.email}
+              onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.vehicleType')}</label>
+              <input
+                value={createForm.vehicle_type}
+                onChange={(e) => setCreateForm({ ...createForm, vehicle_type: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                placeholder="Car/Van/Truck"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('drivers.create.vehiclePlate')}</label>
+              <input
+                value={createForm.vehicle_plate}
+                onChange={(e) => setCreateForm({ ...createForm, vehicle_plate: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                placeholder="ABC 1234"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="secondary" size="sm" onClick={() => setCreateModal(false)}>{t('common.cancel')}</Button>
+            <Button
+              variant="primary"
+              size="sm"
+              isLoading={createDriver.isPending}
+              disabled={!createForm.first_name.trim() || !createForm.phone.trim()}
+              onClick={() => {
+                createDriver.mutate({
+                  first_name: createForm.first_name,
+                  last_name: createForm.last_name || undefined,
+                  phone: createForm.phone,
+                  email: createForm.email || undefined,
+                  vehicle_type: createForm.vehicle_type || undefined,
+                  vehicle_plate: createForm.vehicle_plate || undefined,
+                }, {
+                  onSuccess: () => setCreateModal(false),
+                });
+              }}
+            >
+              {t('drivers.create.submit')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Reject Modal */}
       <Modal

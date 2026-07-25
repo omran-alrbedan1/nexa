@@ -50,7 +50,7 @@ export function RegionsPage() {
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-purple-500/10 via-purple-50 to-transparent">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-        <div className="relative z-10">
+        <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center">
               <Map size={22} className="text-purple-600" />
@@ -60,15 +60,11 @@ export function RegionsPage() {
               <p className="text-sm text-text-secondary font-body">{t('regions.description')}</p>
             </div>
           </div>
+          <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setZoneModal(true)}>
+            {t('regions.list.addRegion')}
+          </Button>
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-purple-500 via-brand-primary to-purple-500 rounded-full opacity-30" />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="flex items-center gap-2">
-        <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setZoneModal(true)}>
-          {t('regions.list.addRegion')}
-        </Button>
       </div>
 
       {/* Stats */}

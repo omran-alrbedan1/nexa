@@ -58,3 +58,27 @@ export function useRejectDriver() {
     onError: () => addToast('error', t('drivers.toast.rejectFailed')),
   });
 }
+
+export function useCreateDriver() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (data: {
+      first_name: string;
+      last_name?: string;
+      phone: string;
+      email?: string;
+      vehicle_type?: string;
+      vehicle_plate?: string;
+      license_number?: string;
+      zone_id?: number;
+      address_line1?: string;
+    }) => driversApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: driverKeys.all });
+      addToast('success', t('drivers.toast.created'));
+    },
+    onError: () => addToast('error', t('drivers.toast.createFailed')),
+  });
+}

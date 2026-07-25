@@ -259,6 +259,22 @@ export const driversApi = {
     return mapBackendDriver(response.data.data);
   },
 
+  /** Create a new driver */
+  create: async (data: {
+    first_name: string;
+    last_name?: string;
+    phone: string;
+    email?: string;
+    vehicle_type?: string;
+    vehicle_plate?: string;
+    license_number?: string;
+    zone_id?: number;
+    address_line1?: string;
+  }): Promise<Driver> => {
+    const response = await apiClient.post<ApiResponse<BackendDriver>>('/api/v1/admin/drivers', data);
+    return mapBackendDriver(response.data.data);
+  },
+
   /** Toggle driver availability — backend uses PUT /drivers/{id}/availability */
   toggleAvailability: async (id: number): Promise<Driver> => {
     const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`);

@@ -1120,6 +1120,7 @@
       "noDrivers": "لا توجد سائقين",
       "tryDifferentSearch": "جرب كلمة بحث مختلفة",
       "addFirst": "أضف أول سائق",
+      "addDriver": "إضافة سائق",
       "available": "متاح",
       "onTrip": "في رحلة",
       "setUnavailable": "تعيين غير متاح",
@@ -1137,6 +1138,16 @@
       "description": "أدخل سبب رفض هذا السائق. سيتم إخطاره وسيتم حظر حسابه.",
       "placeholder": "سبب الرفض...",
       "confirm": "تأكيد الرفض"
+    },
+    "create": {
+      "title": "إضافة سائق جديد",
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "vehicleType": "نوع المركبة",
+      "vehiclePlate": "لوحة المركبة",
+      "submit": "إنشاء السائق"
     },
     "detail": {
       "back": "العودة إلى السائقين",
@@ -1163,6 +1174,17 @@
       "deliveredCount": "تم التوصيل: {{count}}",
       "noTripsYet": "لا توجد رحلات بعد",
       "noTripsDescription": "لم يقم هذا السائق بأي رحلات بعد."
+    },
+    "toast": {
+      "approved": "تم اعتماد السائق",
+      "approveFailed": "فشل اعتماد السائق",
+      "rejected": "تم رفض السائق",
+      "rejectFailed": "فشل رفض السائق",
+      "created": "تم إنشاء السائق بنجاح",
+      "createFailed": "فشل إنشاء السائق",
+      "markedAvailable": "تم تعيين السائق كمتاح",
+      "markedUnavailable": "تم تعيين السائق كغير متاح",
+      "statusUpdateFailed": "فشل تحديث حالة السائق"
     },
     "status": {
       "pending": "قيد الانتظار",
