@@ -79,65 +79,6 @@ export function useCompleteTrip() {
   });
 }
 
-export function useStartPickup() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: (tripId: number) => tripsApi.startPickup(tripId),
-    onSuccess: (_data, tripId) => {
-      invalidateTripQueries(queryClient, tripId);
-      addToast('success', t('trips.toast.pickupStarted'));
-    },
-    onError: () => addToast('error', t('trips.toast.pickupStartFailed')),
-  });
-}
-
-export function useConfirmPickup() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: ({ tripId, otp, notes }: { tripId: number; otp: string; notes?: string }) =>
-      tripsApi.confirmPickup(tripId, { otp, notes }),
-    onSuccess: (_data, { tripId }) => {
-      invalidateTripQueries(queryClient, tripId);
-      addToast('success', t('trips.toast.pickupConfirmed'));
-    },
-    onError: () => addToast('error', t('trips.toast.pickupConfirmFailed')),
-  });
-}
-
-export function useAdvanceClosure() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: ({ tripId, data }: { tripId: number; data?: { completed_order_ids?: number[]; failed_order_ids?: number[] } }) =>
-      tripsApi.advanceClosure(tripId, data),
-    onSuccess: (_data, { tripId }) => {
-      invalidateTripQueries(queryClient, tripId);
-      addToast('success', t('trips.toast.closureAdvanced'));
-    },
-    onError: () => addToast('error', t('trips.toast.closureAdvanceFailed')),
-  });
-}
-
-export function useCloseTrip() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: ({ tripId, data }: { tripId: number; data?: { cod_confirmed?: boolean; notes?: string } }) =>
-      tripsApi.closeTrip(tripId, data),
-    onSuccess: (_data, { tripId }) => {
-      invalidateTripQueries(queryClient, tripId);
-      addToast('success', t('trips.toast.tripClosed'));
-    },
-    onError: () => addToast('error', t('trips.toast.tripCloseFailed')),
-  });
-}
-
 export function useBumpManifest() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();

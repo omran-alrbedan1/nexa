@@ -1031,9 +1031,21 @@
       "assigned": "مسند",
       "accepted": "مقبول",
       "in_progress": "قيد التنفيذ",
+      "pickup_pending": "في انتظار التحميل",
+      "closure_pending": "في انتظار الإغلاق",
       "completed": "مكتمل",
       "cancelled": "ملغي",
       "failed": "فاشل"
+    },
+    "pickupStatus": {
+      "not_started": "لم يبدأ",
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد"
+    },
+    "closureStatus": {
+      "pending": "قيد الانتظار",
+      "action_required": "إجراء مطلوب",
+      "closed": "مغلق"
     },
     "deliveryStatusLabels": {
       "pending": "معلق",
@@ -1066,6 +1078,8 @@
       "assignDriver": "إسناد سائق",
       "complete": "إكمال",
       "reassign": "إعادة إسناد",
+      "view": "عرض",
+      "waitingDriver": "بانتظار السائق",
       "assignModalTitle": "إسناد سائق — {{trip}}",
       "selectDriver": "اختر سائقاً لـ {{region}} ({{slot}})",
       "assignButton": "إسناد سائق"
@@ -1092,7 +1106,40 @@
       "cancel": "إلغاء",
       "assignButton": "إسناد سائق",
       "selectDriverLabel": "اختر سائقاً لـ {{region}}",
-      "assignModalTitle": "إسناد سائق — {{trip}}"
+      "assignModalTitle": "إسناد سائق — {{trip}}",
+      "bumpManifest": "تحديث القائمة",
+      "pickupStatus": "حالة التحميل",
+      "closureStatus": "حالة الإغلاق",
+      "manifestVersion": "القائمة",
+      "closureVersion": "نسخة الإغلاق",
+      "pickupStarted": "بدء التحميل",
+      "pickupCompleted": "اكتمال التحميل",
+      "closureStarted": "بدء الإغلاق",
+      "closed": "مغلق",
+      "viewPickupIssues": "عرض مشاكل التحميل",
+      "viewCodHandovers": "عرض تسليم COD"
+    },
+    "pickupIssues": {
+      "title": "مشاكل التحميل",
+      "description": "عرض وحل مشاكل التحميل لهذه الرحلة",
+      "openIssues": "مشاكل مفتوحة",
+      "resolvedIssues": "مشاكل محلولة",
+      "noOpenIssues": "لا توجد مشاكل مفتوحة",
+      "allResolved": "تم حل جميع مشاكل التحميل",
+      "resolve": "حل",
+      "resolveTitle": "حل مشكلة التحميل",
+      "resolveDescription": "أدخل حل مشكلة التحميل",
+      "resolutionLabel": "الحل",
+      "resolutionPlaceholder": "صف كيفية حل المشكلة"
+    },
+    "codHandovers": {
+      "title": "تسليم COD",
+      "description": "عرض وتأكيد تسليمات الدفع عند الاستلام",
+      "pendingHandovers": "تسليمات معلقة",
+      "confirmedHandovers": "تسليمات مؤكدة",
+      "noPending": "لا توجد تسليمات معلقة",
+      "allConfirmed": "تم تأكيد جميع تسليمات COD",
+      "confirm": "تأكيد"
     }
   },
   "drivers": {

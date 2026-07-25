@@ -991,9 +991,21 @@
       "assigned": "משויך",
       "accepted": "התקבל",
       "in_progress": "בתהליך",
+      "pickup_pending": "ממתין לאיסוף",
+      "closure_pending": "ממתין לסגירה",
       "completed": "הושלם",
       "cancelled": "בוטל",
       "failed": "נכשל"
+    },
+    "pickupStatus": {
+      "not_started": "לא התחיל",
+      "pending": "ממתין",
+      "confirmed": "אושר"
+    },
+    "closureStatus": {
+      "pending": "ממתין",
+      "action_required": "נדרשת פעולה",
+      "closed": "סגור"
     },
     "deliveryStatusLabels": {
       "pending": "ממתין",
@@ -1026,6 +1038,8 @@
       "assignDriver": "שייך נהג",
       "complete": "השלם",
       "reassign": "שנה שיוך",
+      "view": "צפה",
+      "waitingDriver": "ממתין לנהג",
       "assignModalTitle": "שייך נהג — {{trip}}",
       "selectDriver": "בחר נהג עבור {{region}} ({{slot}})",
       "assignButton": "שייך נהג"
@@ -1052,7 +1066,40 @@
       "cancel": "בטל",
       "assignButton": "שייך נהג",
       "selectDriverLabel": "בחר נהג עבור {{region}}",
-      "assignModalTitle": "שייך נהג — {{trip}}"
+      "assignModalTitle": "שייך נהג — {{trip}}",
+      "bumpManifest": "עדכן מניפסט",
+      "pickupStatus": "סטטוס איסוף",
+      "closureStatus": "סטטוס סגירה",
+      "manifestVersion": "מניפסט",
+      "closureVersion": "גרסת סגירה",
+      "pickupStarted": "איסוף התחיל",
+      "pickupCompleted": "איסוף הושלם",
+      "closureStarted": "סגירה התחילה",
+      "closed": "סגור",
+      "viewPickupIssues": "צפה בבעיות איסוף",
+      "viewCodHandovers": "צפה בהעברות COD"
+    },
+    "pickupIssues": {
+      "title": "בעיות איסוף",
+      "description": "צפה ופתור בעיות איסוף עבור נסיעה זו",
+      "openIssues": "בעיות פתוחות",
+      "resolvedIssues": "בעיות שנפתרו",
+      "noOpenIssues": "אין בעיות פתוחות",
+      "allResolved": "כל בעיות האיסוף נפתרו",
+      "resolve": "פתור",
+      "resolveTitle": "פתור בעיית איסוף",
+      "resolveDescription": "הכנס את הפתרון לבעיית האיסוף",
+      "resolutionLabel": "פתרון",
+      "resolutionPlaceholder": "תאר כיצד הבעיה נפתרה"
+    },
+    "codHandovers": {
+      "title": "העברות COD",
+      "description": "צפה ואשר העברות תשלום במזומן",
+      "pendingHandovers": "העברות ממתינות",
+      "confirmedHandovers": "העברות מאושרות",
+      "noPending": "אין העברות ממתינות",
+      "allConfirmed": "כל העברות COD אושרו",
+      "confirm": "אשר"
     }
   },
   "drivers": {

@@ -1482,9 +1482,21 @@
       "assigned": "Assigned",
       "accepted": "Accepted",
       "in_progress": "In Progress",
+      "pickup_pending": "Pickup Pending",
+      "closure_pending": "Closure Pending",
       "completed": "Completed",
       "cancelled": "Cancelled",
       "failed": "Failed"
+    },
+    "pickupStatus": {
+      "not_started": "Not Started",
+      "pending": "Pending",
+      "confirmed": "Confirmed"
+    },
+    "closureStatus": {
+      "pending": "Pending",
+      "action_required": "Action Required",
+      "closed": "Closed"
     },
     "deliveryStatusLabels": {
       "pending": "Pending",
@@ -1517,6 +1529,8 @@
       "assignDriver": "Assign Driver",
       "complete": "Complete",
       "reassign": "Reassign",
+      "view": "View",
+      "waitingDriver": "Waiting Driver",
       "assignModalTitle": "Assign Driver — {{trip}}",
       "selectDriver": "Select a driver for {{region}} ({{slot}})",
       "assignButton": "Assign Driver"
@@ -1543,7 +1557,40 @@
       "cancel": "Cancel",
       "assignButton": "Assign Driver",
       "selectDriverLabel": "Select a driver for {{region}}",
-      "assignModalTitle": "Assign Driver — {{trip}}"
+      "assignModalTitle": "Assign Driver — {{trip}}",
+      "bumpManifest": "Bump Manifest",
+      "pickupStatus": "Pickup Status",
+      "closureStatus": "Closure Status",
+      "manifestVersion": "Manifest",
+      "closureVersion": "Closure Version",
+      "pickupStarted": "Pickup Started",
+      "pickupCompleted": "Pickup Completed",
+      "closureStarted": "Closure Started",
+      "closed": "Closed",
+      "viewPickupIssues": "View Pickup Issues",
+      "viewCodHandovers": "View COD Handovers"
+    },
+    "pickupIssues": {
+      "title": "Pickup Issues",
+      "description": "View and resolve pickup issues for this trip",
+      "openIssues": "Open Issues",
+      "resolvedIssues": "Resolved Issues",
+      "noOpenIssues": "No open issues",
+      "allResolved": "All pickup issues have been resolved",
+      "resolve": "Resolve",
+      "resolveTitle": "Resolve Pickup Issue",
+      "resolveDescription": "Enter the resolution for this pickup issue",
+      "resolutionLabel": "Resolution",
+      "resolutionPlaceholder": "Describe how the issue was resolved"
+    },
+    "codHandovers": {
+      "title": "COD Handovers",
+      "description": "View and confirm cash on delivery handovers",
+      "pendingHandovers": "Pending Handovers",
+      "confirmedHandovers": "Confirmed Handovers",
+      "noPending": "No pending handovers",
+      "allConfirmed": "All COD handovers have been confirmed",
+      "confirm": "Confirm"
     },
     "create": {
       "validationRequired": "Planned date and departure time are required",
@@ -1592,7 +1639,13 @@
       "tripStarted": "Trip started",
       "tripStartFailed": "Failed to start trip",
       "tripCompleted": "Trip completed",
-      "tripCompleteFailed": "Failed to complete trip"
+      "tripCompleteFailed": "Failed to complete trip",
+      "manifestBumped": "Manifest version bumped",
+      "manifestBumpFailed": "Failed to bump manifest",
+      "issueResolved": "Pickup issue resolved",
+      "issueResolveFailed": "Failed to resolve pickup issue",
+      "handoverConfirmed": "COD handover confirmed",
+      "handoverConfirmFailed": "Failed to confirm COD handover"
     }
   },
   "drivers": {

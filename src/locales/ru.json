@@ -991,9 +991,21 @@
       "assigned": "Назначено",
       "accepted": "Принято",
       "in_progress": "В процессе",
+      "pickup_pending": "Ожидает загрузки",
+      "closure_pending": "Ожидает закрытия",
       "completed": "Завершено",
       "cancelled": "Отменено",
       "failed": "Не удалось"
+    },
+    "pickupStatus": {
+      "not_started": "Не начато",
+      "pending": "Ожидает",
+      "confirmed": "Подтверждено"
+    },
+    "closureStatus": {
+      "pending": "Ожидает",
+      "action_required": "Требуется действие",
+      "closed": "Закрыто"
     },
     "deliveryStatusLabels": {
       "pending": "Ожидает",
@@ -1026,6 +1038,8 @@
       "assignDriver": "Назначить водителя",
       "complete": "Завершить",
       "reassign": "Переназначить",
+      "view": "Просмотр",
+      "waitingDriver": "Ожидание водителя",
       "assignModalTitle": "Назначить водителя — {{trip}}",
       "selectDriver": "Выберите водителя для {{region}} ({{slot}})",
       "assignButton": "Назначить водителя"
@@ -1052,7 +1066,40 @@
       "cancel": "Отменить",
       "assignButton": "Назначить водителя",
       "selectDriverLabel": "Выберите водителя для {{region}}",
-      "assignModalTitle": "Назначить водителя — {{trip}}"
+      "assignModalTitle": "Назначить водителя — {{trip}}",
+      "bumpManifest": "Обновить манифест",
+      "pickupStatus": "Статус загрузки",
+      "closureStatus": "Статус закрытия",
+      "manifestVersion": "Манифест",
+      "closureVersion": "Версия закрытия",
+      "pickupStarted": "Загрузка начата",
+      "pickupCompleted": "Загрузка завершена",
+      "closureStarted": "Закрытие начато",
+      "closed": "Закрыто",
+      "viewPickupIssues": "Просмотреть проблемы загрузки",
+      "viewCodHandovers": "Просмотреть передачи COD"
+    },
+    "pickupIssues": {
+      "title": "Проблемы загрузки",
+      "description": "Просмотр и решение проблем загрузки для этой поездки",
+      "openIssues": "Открытые проблемы",
+      "resolvedIssues": "Решенные проблемы",
+      "noOpenIssues": "Нет открытых проблем",
+      "allResolved": "Все проблемы загрузки решены",
+      "resolve": "Решить",
+      "resolveTitle": "Решить проблему загрузки",
+      "resolveDescription": "Введите решение проблемы загрузки",
+      "resolutionLabel": "Решение",
+      "resolutionPlaceholder": "Опишите, как была решена проблема"
+    },
+    "codHandovers": {
+      "title": "Передачи COD",
+      "description": "Просмотр и подтверждение передач наложенного платежа",
+      "pendingHandovers": "Ожидающие передачи",
+      "confirmedHandovers": "Подтвержденные передачи",
+      "noPending": "Нет ожидающих передач",
+      "allConfirmed": "Все передачи COD подтверждены",
+      "confirm": "Подтвердить"
     }
   },
   "drivers": {

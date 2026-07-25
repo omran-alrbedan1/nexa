@@ -330,34 +330,6 @@ export const tripsApi = {
     return mapBackendTrip(response.data.data);
   },
 
-  // ── Pickup ──
-
-  /** Start pickup process */
-  startPickup: async (tripId: number): Promise<DashboardTrip> => {
-    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/pickup/start`);
-    return mapBackendTrip(response.data.data);
-  },
-
-  /** Confirm pickup with OTP */
-  confirmPickup: async (tripId: number, data: { otp: string; notes?: string }): Promise<DashboardTrip> => {
-    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/pickup/confirm`, data);
-    return mapBackendTrip(response.data.data);
-  },
-
-  // ── Closure ──
-
-  /** Advance closure (mark orders as delivered/failed) */
-  advanceClosure: async (tripId: number, data?: { completed_order_ids?: number[]; failed_order_ids?: number[] }): Promise<DashboardTrip> => {
-    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/closure/advance`, data);
-    return mapBackendTrip(response.data.data);
-  },
-
-  /** Close trip (final) */
-  closeTrip: async (tripId: number, data?: { cod_confirmed?: boolean; notes?: string }): Promise<DashboardTrip> => {
-    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/closure/close`, data);
-    return mapBackendTrip(response.data.data);
-  },
-
   // ── Manifest ──
 
   /** Bump manifest version */
@@ -376,7 +348,7 @@ export const tripsApi = {
 
   /** Resolve a pickup issue */
   resolvePickupIssue: async (tripId: number, issueId: number, data: { resolution: string; notes?: string }): Promise<PickupIssue> => {
-    const response = await apiClient.post<ApiResponse<PickupIssue>>(`/api/v1/admin/trips/${tripId}/pickup/issues/${issueId}/resolve`, data);
+    const response = await apiClient.put<ApiResponse<PickupIssue>>(`/api/v1/admin/trips/${tripId}/pickup-issues/${issueId}/resolve`, data);
     return response.data.data;
   },
 
@@ -390,7 +362,7 @@ export const tripsApi = {
 
   /** Confirm a COD handover */
   confirmCodHandover: async (tripId: number, handoverId: number): Promise<CodHandover> => {
-    const response = await apiClient.post<ApiResponse<CodHandover>>(`/api/v1/admin/trips/${tripId}/cod-handovers/${handoverId}/confirm`, { confirmed: true });
+    const response = await apiClient.put<ApiResponse<CodHandover>>(`/api/v1/admin/trips/${tripId}/cod-handovers/${handoverId}/confirm`, { confirmed: true });
     return response.data.data;
   },
 };
