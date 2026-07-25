@@ -54,6 +54,8 @@ export const TRIP_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
   assigned: 'assigned',
   accepted: 'accepted',
   in_progress: 'in_progress',
+  pickup_pending: 'pickup_pending',
+  closure_pending: 'closure_pending',
   completed: 'completed',
   cancelled: 'cancelled',
   failed: 'failed',
@@ -63,6 +65,18 @@ export const TRIP_STATUS_FRONTEND_TO_BACKEND: Record<string, string> = {};
 for (const [backend, frontend] of Object.entries(TRIP_STATUS_BACKEND_TO_FRONTEND)) {
   TRIP_STATUS_FRONTEND_TO_BACKEND[frontend] = backend;
 }
+
+export const TRIP_PICKUP_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
+  not_started: 'not_started',
+  pending: 'pending',
+  confirmed: 'confirmed',
+};
+
+export const TRIP_CLOSURE_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
+  pending: 'pending',
+  action_required: 'action_required',
+  closed: 'closed',
+};
 
 // ──────────────────────────────────────────────
 // Order Type

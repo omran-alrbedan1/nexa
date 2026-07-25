@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { tripsApi, type DashboardTrip } from '../api/tripsApi';
-import { useAssignDriver, useStartTrip, useCompleteTrip, tripKeys } from '../hooks/useTrips';
+import {
+  useAssignDriver, useStartTrip, useCompleteTrip, useTripDetail,
+  useStartPickup, useConfirmPickup, useAdvanceClosure, useCloseTrip,
+  useBumpManifest, tripKeys,
+} from '../hooks/useTrips';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -15,12 +19,14 @@ import { safeFormatDate, isDateValid } from '@/utils/date';
 import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap'
 import {
   ArrowLeft, Navigation, Truck, User, Calendar, Clock, MapPin,
-  CheckCircle2, ShoppingCart, Warehouse,
+  CheckCircle2, ShoppingCart, Warehouse, PackageCheck, ClipboardCheck,
+  AlertTriangle, DollarSign, RefreshCw, ExternalLink,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
   scheduled: 'purple', assigned: 'yellow', accepted: 'teal',
-  in_progress: 'teal', completed: 'green', cancelled: 'red', failed: 'red',
+  in_progress: 'teal', pickup_pending: 'teal', closure_pending: 'teal',
+  completed: 'green', cancelled: 'red', failed: 'red',
 };
 
 
@@ -37,25 +43,36 @@ export function TripDetailPage() {
   const { t } = useTranslation();
   const STATUS_LABELS: Record<string, string> = {
     scheduled: t('trips.statusLabels.scheduled'), assigned: t('trips.statusLabels.assigned'), accepted: t('trips.statusLabels.accepted'),
-    in_progress: t('trips.statusLabels.in_progress'), completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
+    in_progress: t('trips.statusLabels.in_progress'), pickup_pending: t('trips.statusLabels.pickup_pending'),
+    closure_pending: t('trips.statusLabels.closure_pending'),
+    completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
   };
   const formatPrice = useFormatPrice();
 
   const assignDriver = useAssignDriver();
   const startTrip = useStartTrip();
   const completeTrip = useCompleteTrip();
+  const startPickup = useStartPickup();
+  const confirmPickup = useConfirmPickup();
+  const advanceClosure = useAdvanceClosure();
+  const closeTrip = useCloseTrip();
+  const bumpManifest = useBumpManifest();
 
-  const { data: trip, isLoading, isError, error, refetch } = useQuery<DashboardTrip>({
-    queryKey: [...tripKeys.all, 'detail', id],
-    queryFn: () => tripsApi.getTrip(id),
-    enabled: id > 0,
-    staleTime: 30_000,
-    retry: 1,
-  });
+  const { data: trip, isLoading, isError, error, refetch } = useTripDetail(id);
 
   const [assignModal, setAssignModal] = useState<{
     open: boolean; driverId: number; driverName: string;
   }>({ open: false, driverId: 0, driverName: '' });
+
+  const [pickupModal, setPickupModal] = useState(false);
+  const [pickupOtp, setPickupOtp] = useState('000000');
+  const [pickupNotes, setPickupNotes] = useState('');
+
+  const [closureModal, setClosureModal] = useState(false);
+  const [closureCodConfirmed, setClosureCodConfirmed] = useState(false);
+  const [closureNotes, setClosureNotes] = useState('');
+
+  const [confirmCloseModal, setConfirmCloseModal] = useState(false);
 
   const { data: driversData } = useQuery({
     queryKey: [...tripKeys.all, 'available-drivers'],
@@ -112,7 +129,7 @@ export function TripDetailPage() {
                 {trip.regionName}{trip.clusterName ? ` · ${trip.clusterName}` : ''} · {trip.scheduledDate} · {trip.timeSlot}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
               {trip.status === 'scheduled' && !trip.driverId && (
                 <Button variant="primary" size="sm" leftIcon={<User size={14} />} onClick={() => setAssignModal({ open: true, driverId: 0, driverName: '' })}>
                   {t('trips.detail.assignButton')}
@@ -126,6 +143,26 @@ export function TripDetailPage() {
               {trip.status === 'in_progress' && (
                 <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={completeTrip.isPending} onClick={() => completeTrip.mutate(trip.id)}>
                   {t('trips.list.complete')}
+                </Button>
+              )}
+              {trip.status === 'pickup_pending' && (
+                <Button variant="primary" size="sm" leftIcon={<PackageCheck size={14} />} onClick={() => setPickupModal(true)}>
+                  {t('trips.detail.confirmPickup')}
+                </Button>
+              )}
+              {trip.status === 'closure_pending' && (
+                <>
+                  <Button variant="primary" size="sm" leftIcon={<ClipboardCheck size={14} />} onClick={() => setClosureModal(true)}>
+                    {t('trips.detail.advanceClosure')}
+                  </Button>
+                  <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} onClick={() => setConfirmCloseModal(true)}>
+                    {t('trips.detail.closeTrip')}
+                  </Button>
+                </>
+              )}
+              {trip.manifestVersion > 0 && (
+                <Button variant="secondary" size="sm" leftIcon={<RefreshCw size={14} />} isLoading={bumpManifest.isPending} onClick={() => bumpManifest.mutate(trip.id)}>
+                  {t('trips.detail.bumpManifest')}
                 </Button>
               )}
             </div>
@@ -206,6 +243,76 @@ export function TripDetailPage() {
         </div>
       </Card>
 
+      {/* Pickup Status */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-4">
+          <PackageCheck size={16} className="text-brand-primary" />
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.pickupStatus')}</h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.pickupStatus')}</p>
+            <p className="text-sm font-bold text-text-primary mt-1">{trip.pickupStatus ? t(`trips.pickupStatus.${trip.pickupStatus}`) : '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.manifestVersion')}</p>
+            <p className="text-sm font-bold text-text-primary mt-1">v{trip.manifestVersion}</p>
+          </div>
+          {trip.pickupStartedAt && (
+            <div>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.pickupStarted')}</p>
+              <p className="text-sm font-bold text-text-primary mt-1">{safeFormatDate(trip.pickupStartedAt, (d) => d.toLocaleString())}</p>
+            </div>
+          )}
+          {trip.pickupCompletedAt && (
+            <div>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.pickupCompleted')}</p>
+              <p className="text-sm font-bold text-text-primary mt-1">{safeFormatDate(trip.pickupCompletedAt, (d) => d.toLocaleString())}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-3 mt-4">
+          <Link to={ROUTES.PICKUP_ISSUES(trip.id)} className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:text-brand-accent font-body font-bold transition-colors">
+            <AlertTriangle size={14} /> {t('trips.detail.viewPickupIssues')}
+          </Link>
+        </div>
+      </Card>
+
+      {/* Closure Status */}
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-4">
+          <ClipboardCheck size={16} className="text-brand-primary" />
+          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.closureStatus')}</h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.closureStatus')}</p>
+            <p className="text-sm font-bold text-text-primary mt-1">{trip.closureStatus ? t(`trips.closureStatus.${trip.closureStatus}`) : '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.closureVersion')}</p>
+            <p className="text-sm font-bold text-text-primary mt-1">v{trip.closureVersion}</p>
+          </div>
+          {trip.closureStartedAt && (
+            <div>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.closureStarted')}</p>
+              <p className="text-sm font-bold text-text-primary mt-1">{safeFormatDate(trip.closureStartedAt, (d) => d.toLocaleString())}</p>
+            </div>
+          )}
+          {trip.closedAt && (
+            <div>
+              <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('trips.detail.closed')}</p>
+              <p className="text-sm font-bold text-text-primary mt-1">{safeFormatDate(trip.closedAt, (d) => d.toLocaleString())}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-3 mt-4">
+          <Link to={ROUTES.COD_HANDOVERS(trip.id)} className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:text-brand-accent font-body font-bold transition-colors">
+            <DollarSign size={14} /> {t('trips.detail.viewCodHandovers')}
+          </Link>
+        </div>
+      </Card>
+
       {/* Timeline */}
       <Card padding="lg">
         <div className="flex items-center gap-2 mb-5">
@@ -218,7 +325,11 @@ export function TripDetailPage() {
             { status: 'Scheduled', time: trip.createdAt, actor: 'System' },
             ...(trip.driverName ? [{ status: 'Driver Assigned', time: trip.updatedAt, actor: trip.driverName }] : []),
             ...(trip.startedAt ? [{ status: 'Started', time: trip.startedAt, actor: 'System' }] : []),
+            ...(trip.pickupStartedAt ? [{ status: 'Pickup Started', time: trip.pickupStartedAt, actor: 'System' }] : []),
+            ...(trip.pickupCompletedAt ? [{ status: 'Pickup Completed', time: trip.pickupCompletedAt, actor: 'System' }] : []),
+            ...(trip.closureStartedAt ? [{ status: 'Closure Started', time: trip.closureStartedAt, actor: 'System' }] : []),
             ...(trip.completedAt ? [{ status: 'Completed', time: trip.completedAt, actor: trip.driverName || 'System' }] : []),
+            ...(trip.closedAt ? [{ status: 'Closed', time: trip.closedAt, actor: 'System' }] : []),
           ].map((step, idx, arr) => (
             <div key={idx} className="relative pb-10 last:pb-0">
               <div className={cn(
@@ -306,6 +417,95 @@ export function TripDetailPage() {
               assignDriver.mutate({ tripId: trip.id, driverId: assignModal.driverId });
               setAssignModal({ ...assignModal, open: false });
             }}>{t('trips.detail.assignButton')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Confirm Pickup Modal */}
+      <Modal open={pickupModal} onClose={() => setPickupModal(false)} title={t('trips.detail.confirmPickupTitle')}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">{t('trips.detail.confirmPickupDescription')}</p>
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.detail.otpLabel')}</label>
+            <input
+              type="text"
+              value={pickupOtp}
+              onChange={(e) => setPickupOtp(e.target.value)}
+              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
+              placeholder="000000"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.detail.notesLabel')} ({t('common.optional')})</label>
+            <textarea
+              value={pickupNotes}
+              onChange={(e) => setPickupNotes(e.target.value)}
+              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all resize-none"
+              rows={3}
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setPickupModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={confirmPickup.isPending} onClick={() => {
+              confirmPickup.mutate({ tripId: trip.id, otp: pickupOtp, notes: pickupNotes || undefined });
+              setPickupModal(false);
+            }}>{t('trips.detail.confirmPickup')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Advance Closure Modal */}
+      <Modal open={closureModal} onClose={() => setClosureModal(false)} title={t('trips.detail.advanceClosureTitle')}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">{t('trips.detail.advanceClosureDescription')}</p>
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.detail.closureNotesLabel')} ({t('common.optional')})</label>
+            <textarea
+              value={closureNotes}
+              onChange={(e) => setClosureNotes(e.target.value)}
+              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all resize-none"
+              rows={3}
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setClosureModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={advanceClosure.isPending} onClick={() => {
+              advanceClosure.mutate({ tripId: trip.id });
+              setClosureModal(false);
+            }}>{t('trips.detail.advanceClosure')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Confirm Close Modal */}
+      <Modal open={confirmCloseModal} onClose={() => setConfirmCloseModal(false)} title={t('trips.detail.closeTripTitle')}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">{t('trips.detail.closeTripDescription')}</p>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="cod-confirmed"
+              checked={closureCodConfirmed}
+              onChange={(e) => setClosureCodConfirmed(e.target.checked)}
+              className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary-light"
+            />
+            <label htmlFor="cod-confirmed" className="text-sm font-body text-text-primary">{t('trips.detail.codConfirmedLabel')}</label>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.detail.notesLabel')} ({t('common.optional')})</label>
+            <textarea
+              value={closureNotes}
+              onChange={(e) => setClosureNotes(e.target.value)}
+              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all resize-none"
+              rows={3}
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setConfirmCloseModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={closeTrip.isPending} onClick={() => {
+              closeTrip.mutate({ tripId: trip.id, data: { cod_confirmed: closureCodConfirmed, notes: closureNotes || undefined } });
+              setConfirmCloseModal(false);
+            }}>{t('trips.detail.closeTrip')}</Button>
           </div>
         </div>
       </Modal>

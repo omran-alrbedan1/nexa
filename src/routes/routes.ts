@@ -21,6 +21,8 @@ export const ROUTES = {
   TRIPS: '/trips',
   TRIP_DETAIL: (tripId: number | string) => `/trips/${tripId}`,
   TRIP_CREATE: '/trips/create',
+  PICKUP_ISSUES: (tripId: number | string) => `/trips/${tripId}/pickup-issues`,
+  COD_HANDOVERS: (tripId: number | string) => `/trips/${tripId}/cod-handovers`,
 
   // Regions & delivery areas
   REGIONS: '/regions',

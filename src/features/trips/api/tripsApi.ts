@@ -1,8 +1,7 @@
 // ============================================================
 // Trips API Service
 // ============================================================
-// Backend tables: trips, trip_orders, trip_status_logs, driver_trip_rejections
-// Admin routes: ✅ BUILT (TripController)
+// Backend routes: ✅ BUILT (TripController + Pickup/Closure)
 //   GET    /api/v1/admin/trips
 //   GET    /api/v1/admin/trips/{id}
 //   POST   /api/v1/admin/trips
@@ -10,6 +9,15 @@
 //   POST   /api/v1/admin/trips/{id}/assign-driver
 //   POST   /api/v1/admin/trips/{id}/orders
 //   PUT    /api/v1/admin/trips/{id}/status
+//   POST   /api/v1/admin/trips/{id}/pickup/start
+//   POST   /api/v1/admin/trips/{id}/pickup/confirm
+//   POST   /api/v1/admin/trips/{id}/closure/advance
+//   POST   /api/v1/admin/trips/{id}/closure/close
+//   POST   /api/v1/admin/trips/{id}/bump-manifest
+//   GET    /api/v1/admin/trips/{id}/pickup/issues
+//   POST   /api/v1/admin/trips/{id}/pickup/issues/{issue}/resolve
+//   GET    /api/v1/admin/trips/{id}/cod-handovers
+//   POST   /api/v1/admin/trips/{id}/cod-handovers/{handover}/confirm
 // ============================================================
 
 import { apiClient } from '@/lib/axios';
@@ -49,6 +57,10 @@ export interface DashboardTrip {
   regionName: string;
   clusterName: string;
   status: TripStatus;
+  pickupStatus: string | null;
+  closureStatus: string | null;
+  manifestVersion: number;
+  closureVersion: number;
   scheduledDate: string;
   timeSlot: string;
   orderCount: number;
@@ -57,6 +69,13 @@ export interface DashboardTrip {
   failedOrders: number;
   startedAt: string | null;
   completedAt: string | null;
+  pickupStartedAt: string | null;
+  pickupCompletedAt: string | null;
+  closureStartedAt: string | null;
+  closureCompletedAt: string | null;
+  closedAt: string | null;
+  canConfirmPickup: boolean;
+  canCloseTrip: boolean;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -72,6 +91,8 @@ export interface TripsPageData {
     completed: number;
     cancelled: number;
     failed: number;
+    pickupPending: number;
+    closurePending: number;
     totalOrders: number;
     totalValue: number;
     avgCompletionRate: number;
@@ -88,6 +109,10 @@ interface BackendTrip {
   warehouse_id: number;
   driver_id: number | null;
   status: string;
+  pickup_status: string | null;
+  closure_status: string | null;
+  manifest_version: number;
+  closure_version: number;
   assignment_type: string;
   planned_date: string;
   departure_time: string | null;
@@ -100,6 +125,13 @@ interface BackendTrip {
   completed_at: string | null;
   cancelled_at: string | null;
   cancellation_reason: string | null;
+  pickup_started_at: string | null;
+  pickup_completed_at: string | null;
+  closure_started_at: string | null;
+  closure_completed_at: string | null;
+  closed_at: string | null;
+  can_confirm_pickup: boolean;
+  can_close_trip: boolean;
   warehouse?: { id: number; name: string; code?: string } | null;
   driver?: { id: number; full_name: string; phone?: string } | null;
   zones?: { id: number; name: string }[];
@@ -136,6 +168,38 @@ interface BackendAvailableDriver {
   is_available: boolean;
 }
 
+// ── Pickup Issue Types ──
+
+export interface PickupIssue {
+  id: number;
+  trip_id: number;
+  order_id: number | null;
+  issue_type: string;
+  description: string;
+  status: string;
+  resolved_at: string | null;
+  resolution: string | null;
+  created_at: string;
+  updated_at: string;
+  order?: { id: number; order_number: string } | null;
+}
+
+// ── COD Handover Types ──
+
+export interface CodHandover {
+  id: number;
+  trip_id: number;
+  driver_id: number;
+  amount: number;
+  currency: string;
+  status: string;
+  confirmed_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  driver?: { id: number; full_name: string } | null;
+}
+
 // ── Mapping ──
 
 function mapBackendTrip(bt: BackendTrip): DashboardTrip {
@@ -159,6 +223,10 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     regionName: bt.warehouse?.name || '',
     clusterName: '',
     status: mapFromBackend(bt.status, TRIP_STATUS_BACKEND_TO_FRONTEND) as TripStatus,
+    pickupStatus: bt.pickup_status,
+    closureStatus: bt.closure_status,
+    manifestVersion: bt.manifest_version ?? 0,
+    closureVersion: bt.closure_version ?? 0,
     scheduledDate: bt.planned_date,
     timeSlot: bt.departure_time ? `${bt.departure_time}-${bt.expected_arrival || ''}` : '',
     orderCount: tripOrders.length,
@@ -167,6 +235,13 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     failedOrders: failed,
     startedAt: bt.started_at,
     completedAt: bt.completed_at || bt.cancelled_at,
+    pickupStartedAt: bt.pickup_started_at,
+    pickupCompletedAt: bt.pickup_completed_at,
+    closureStartedAt: bt.closure_started_at,
+    closureCompletedAt: bt.closure_completed_at,
+    closedAt: bt.closed_at,
+    canConfirmPickup: bt.can_confirm_pickup ?? false,
+    canCloseTrip: bt.can_close_trip ?? false,
     notes: bt.cancellation_reason,
     createdAt: bt.created_at,
     updatedAt: bt.updated_at,
@@ -189,6 +264,8 @@ export const tripsApi = {
         completed: trips.filter((t) => t.status === 'completed').length,
         cancelled: trips.filter((t) => t.status === 'cancelled').length,
         failed: trips.filter((t) => t.status === 'failed').length,
+        pickupPending: trips.filter((t) => t.status === 'pickup_pending').length,
+        closurePending: trips.filter((t) => t.status === 'closure_pending').length,
         totalOrders: trips.reduce((s, t) => s + t.orderCount, 0),
         totalValue: trips.reduce((s, t) => s + t.totalValue, 0),
         avgCompletionRate: 0,
@@ -251,6 +328,70 @@ export const tripsApi = {
   }): Promise<DashboardTrip> => {
     const response = await apiClient.post<ApiResponse<BackendTrip>>('/api/v1/admin/trips', data);
     return mapBackendTrip(response.data.data);
+  },
+
+  // ── Pickup ──
+
+  /** Start pickup process */
+  startPickup: async (tripId: number): Promise<DashboardTrip> => {
+    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/pickup/start`);
+    return mapBackendTrip(response.data.data);
+  },
+
+  /** Confirm pickup with OTP */
+  confirmPickup: async (tripId: number, data: { otp: string; notes?: string }): Promise<DashboardTrip> => {
+    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/pickup/confirm`, data);
+    return mapBackendTrip(response.data.data);
+  },
+
+  // ── Closure ──
+
+  /** Advance closure (mark orders as delivered/failed) */
+  advanceClosure: async (tripId: number, data?: { completed_order_ids?: number[]; failed_order_ids?: number[] }): Promise<DashboardTrip> => {
+    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/closure/advance`, data);
+    return mapBackendTrip(response.data.data);
+  },
+
+  /** Close trip (final) */
+  closeTrip: async (tripId: number, data?: { cod_confirmed?: boolean; notes?: string }): Promise<DashboardTrip> => {
+    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/closure/close`, data);
+    return mapBackendTrip(response.data.data);
+  },
+
+  // ── Manifest ──
+
+  /** Bump manifest version */
+  bumpManifest: async (tripId: number): Promise<{ manifest_version: number }> => {
+    const response = await apiClient.post<ApiResponse<{ manifest_version: number }>>(`/api/v1/admin/trips/${tripId}/bump-manifest`);
+    return response.data.data;
+  },
+
+  // ── Pickup Issues ──
+
+  /** Get pickup issues for a trip */
+  getPickupIssues: async (tripId: number): Promise<PickupIssue[]> => {
+    const response = await apiClient.get<ApiResponse<PickupIssue[]>>(`/api/v1/admin/trips/${tripId}/pickup/issues`);
+    return response.data.data ?? [];
+  },
+
+  /** Resolve a pickup issue */
+  resolvePickupIssue: async (tripId: number, issueId: number, data: { resolution: string; notes?: string }): Promise<PickupIssue> => {
+    const response = await apiClient.post<ApiResponse<PickupIssue>>(`/api/v1/admin/trips/${tripId}/pickup/issues/${issueId}/resolve`, data);
+    return response.data.data;
+  },
+
+  // ── COD Handovers ──
+
+  /** Get COD handovers for a trip */
+  getCodHandovers: async (tripId: number): Promise<CodHandover[]> => {
+    const response = await apiClient.get<ApiResponse<CodHandover[]>>(`/api/v1/admin/trips/${tripId}/cod-handovers`);
+    return response.data.data ?? [];
+  },
+
+  /** Confirm a COD handover */
+  confirmCodHandover: async (tripId: number, handoverId: number): Promise<CodHandover> => {
+    const response = await apiClient.post<ApiResponse<CodHandover>>(`/api/v1/admin/trips/${tripId}/cod-handovers/${handoverId}/confirm`, { confirmed: true });
+    return response.data.data;
   },
 };
 

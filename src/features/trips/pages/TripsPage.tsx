@@ -13,7 +13,7 @@ import { ListItem } from '@/components/ui/ListItem';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
+import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus, PackageCheck, ClipboardCheck } from 'lucide-react';
 import type { DashboardTrip } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
 
@@ -21,6 +21,8 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
   switch (status) {
     case 'completed': return 'green';
     case 'in_progress': return 'teal';
+    case 'pickup_pending': return 'teal';
+    case 'closure_pending': return 'teal';
     case 'assigned': return 'yellow';
     case 'scheduled': return 'purple';
     default: return 'red';
@@ -33,7 +35,9 @@ export function TripsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const STATUS_LABELS: Record<string, string> = {
-    scheduled: t('trips.statusLabels.scheduled'), assigned: t('trips.statusLabels.assigned'), accepted: t('trips.statusLabels.accepted'), in_progress: t('trips.statusLabels.in_progress'),
+    scheduled: t('trips.statusLabels.scheduled'), assigned: t('trips.statusLabels.assigned'), accepted: t('trips.statusLabels.accepted'),
+    in_progress: t('trips.statusLabels.in_progress'), pickup_pending: t('trips.statusLabels.pickup_pending'),
+    closure_pending: t('trips.statusLabels.closure_pending'),
     completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
   };
   const formatPrice = useFormatPrice();
@@ -82,6 +86,9 @@ export function TripsPage() {
     }
     if (trip.status === 'in_progress') {
       actions.push({ label: t('trips.list.complete'), onClick: () => completeTrip.mutate(trip.id), variant: 'primary', icon: <CheckCircle2 size={12} /> });
+    }
+    if (trip.status === 'pickup_pending' || trip.status === 'closure_pending') {
+      actions.push({ label: t('trips.list.view'), onClick: () => navigate(ROUTES.TRIP_DETAIL(trip.id)), variant: 'secondary', icon: <Navigation size={12} /> });
     }
     return actions;
   };
@@ -173,6 +180,8 @@ export function TripsPage() {
               <option value="scheduled">{t('trips.stats.scheduled')}</option>
               <option value="assigned">{t('trips.stats.assigned')}</option>
               <option value="in_progress">{t('trips.stats.inProgress')}</option>
+              <option value="pickup_pending">{t('trips.statusLabels.pickup_pending')}</option>
+              <option value="closure_pending">{t('trips.statusLabels.closure_pending')}</option>
               <option value="completed">{t('trips.stats.completed')}</option>
               <option value="cancelled">{STATUS_LABELS.cancelled}</option>
             </select>

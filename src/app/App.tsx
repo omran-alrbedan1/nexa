@@ -94,6 +94,12 @@ const TripDetailPage = lazy(() =>
 const CreateTripPage = lazy(() =>
   import('@/features/trips/pages/CreateTripPage').then((m) => ({ default: m.CreateTripPage }))
 );
+const PickupIssuesPage = lazy(() =>
+  import('@/features/trips/pages/PickupIssuesPage').then((m) => ({ default: m.PickupIssuesPage }))
+);
+const CodHandoversPage = lazy(() =>
+  import('@/features/trips/pages/CodHandoversPage').then((m) => ({ default: m.CodHandoversPage }))
+);
 
 // ── Drivers ──
 const DriversPage = lazy(() =>
@@ -330,6 +336,8 @@ export function App() {
                 <Route path={ROUTES.TRIPS} element={<TripsPage />} />
                 <Route path={ROUTES.TRIP_DETAIL(':tripId')} element={<TripDetailPage />} />
                 <Route path={ROUTES.TRIP_CREATE} element={<CreateTripPage />} />
+                <Route path={ROUTES.PICKUP_ISSUES(':tripId')} element={<PickupIssuesPage />} />
+                <Route path={ROUTES.COD_HANDOVERS(':tripId')} element={<CodHandoversPage />} />
                 <Route path={ROUTES.DRIVER_MONITOR} element={<DriverMonitorPage />} />
               </Route>
 
