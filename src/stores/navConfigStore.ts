@@ -36,6 +36,20 @@ function getDefaultItemOrder(): Record<string, string[]> {
 }
 
 /**
+ * Merge persisted group order with defaults so new nav groups (added after initial persist)
+ * are not silently dropped. Default groups are appended at the end if missing from persisted.
+ */
+function mergeGroupOrder(
+  persisted: string[] | undefined,
+  defaults: string[]
+): string[] {
+  if (!persisted) return defaults;
+  const existingSet = new Set(persisted);
+  const missing = defaults.filter((id) => !existingSet.has(id));
+  return [...persisted, ...missing];
+}
+
+/**
  * Merge persisted item order with defaults so new nav items (added after initial persist)
  * are not silently dropped. Default items are appended at the end if missing from persisted.
  */
@@ -89,7 +103,7 @@ export const useNavConfigStore = create<NavConfigStore>((set, get) => {
 
   return {
     customLabels: persisted?.customLabels ?? {},
-    groupOrder: persisted?.groupOrder ?? getDefaultGroupOrder(),
+    groupOrder: mergeGroupOrder(persisted?.groupOrder, getDefaultGroupOrder()),
     itemOrder: mergeItemOrder(persisted?.itemOrder, getDefaultItemOrder()),
     expandedGroups: [],
 
