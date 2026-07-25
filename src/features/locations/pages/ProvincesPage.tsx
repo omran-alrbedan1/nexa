@@ -14,8 +14,12 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { MapPin, Plus, Search, Globe, Pencil, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Search, Globe, Pencil, Trash2, CheckCircle2, Layers } from 'lucide-react';
 import { ProvinceForm } from '../components/ProvinceForm';
+
+function cn(...classes: (string | false | undefined | null)[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export function ProvincesPage() {
   const { t } = useTranslation();
@@ -43,6 +47,9 @@ export function ProvincesPage() {
   const provinces = data?.data ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
+
+  const activeProvinces = provinces.filter((p) => p.is_active).length;
+  const totalZones = provinces.reduce((sum, p) => sum + p.zones_count, 0);
 
   if (isError) {
     return (
@@ -75,6 +82,38 @@ export function ProvincesPage() {
             {t('locations.provinces.addProvince')}
           </Button>
         </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+        {[
+          { key: 'total', label: t('locations.provinces.stats.total'), icon: MapPin, variant: 'teal' as const },
+          { key: 'active', label: t('locations.provinces.stats.active'), icon: CheckCircle2, variant: 'success' as const },
+          { key: 'zones', label: t('locations.provinces.stats.zones'), icon: Layers, variant: 'purple' as const },
+        ].map((s) => {
+          const Icon = s.icon;
+          const val = s.key === 'total' ? total : s.key === 'active' ? activeProvinces : totalZones;
+          return (
+            <Card key={s.key} padding="md" hover>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{s.label}</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display mt-1">
+                    {isLoading ? <span className="inline-block w-10 h-6 bg-gray-200 rounded animate-pulse" /> : val ?? '—'}
+                  </p>
+                </div>
+                <div className={cn(
+                  'p-2.5 rounded-lg flex-shrink-0',
+                  s.variant === 'teal' ? 'bg-brand-primary-light text-brand-primary' :
+                  s.variant === 'success' ? 'bg-green-50 text-green-600' :
+                  'bg-purple-50 text-purple-600'
+                )}>
+                  <Icon size={18} />
+                </div>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* List */}

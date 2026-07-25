@@ -771,7 +771,13 @@
   "warehouses": {
     "title": "Warehouses",
     "description": "Manage warehouses, zones, and capacity",
+    "stats": {
+      "total": "Total Warehouses",
+      "active": "Active",
+      "capacity": "Total Capacity"
+    },
     "list": {
+      "title": "All Warehouses",
       "addFirst": "Add Warehouse",
       "searchPlaceholder": "Search by code or name...",
       "count": "{{count}} warehouses",
@@ -780,6 +786,7 @@
       "nameAr": "Name (AR)",
       "zone": "Zone",
       "capacity": "Capacity",
+      "noZone": "No zone",
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
@@ -1403,6 +1410,7 @@
       "totalRevenue": "{{amount}} total revenue",
       "noRegions": "No regions configured",
       "addFirstRegion": "Add your first delivery region to start operations",
+      "addRegion": "Add Region",
       "active": "Active",
       "inactive": "Inactive",
       "fee": "Fee: {{amount}}",
@@ -2386,6 +2394,11 @@
       "title": "Provinces / Cities",
       "description": "Manage provinces and cities under each country",
       "addProvince": "Add Province",
+      "stats": {
+        "total": "Total Provinces / Cities",
+        "active": "Active",
+        "zones": "Delivery Zones"
+      },
       "list": {
         "title": "All Provinces / Cities",
         "count": "{{count}} provinces/cities",
