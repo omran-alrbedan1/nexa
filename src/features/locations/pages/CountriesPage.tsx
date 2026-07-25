@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCountriesPage, useToggleCountryActive, useCreateCountry } from '../hooks/useCountries';
+import {
+  useCountriesPage,
+  useToggleCountryActive,
+  useCreateCountry,
+  useUpdateCountry,
+  useDeleteCountry,
+} from '../hooks/useCountries';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -9,7 +15,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { Globe, CheckCircle2, MapPin, Plus, Search } from 'lucide-react';
+import { Globe, CheckCircle2, MapPin, Plus, Search, Pencil, Trash2 } from 'lucide-react';
 import { CountryForm } from '../components/CountryForm';
 
 export function CountriesPage() {
@@ -18,9 +24,20 @@ export function CountriesPage() {
   const { data, isLoading, isError, error, refetch } = useCountriesPage();
   const toggleActive = useToggleCountryActive();
   const createCountry = useCreateCountry();
+  const updateCountry = useUpdateCountry();
+  const deleteCountry = useDeleteCountry();
 
   const [search, setSearch] = useState('');
   const [createModal, setCreateModal] = useState(false);
+  const [editCountry, setEditCountry] = useState<{
+    id: number;
+    name_ar: string;
+    name_en: string | null;
+    code: string;
+    dial_code: string | null;
+    is_active: boolean;
+  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
   if (isError) {
     return (
@@ -146,6 +163,33 @@ export function CountriesPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCountry({
+                        id: country.id,
+                        name_ar: country.name_ar,
+                        name_en: country.name_en,
+                        code: country.code,
+                        dial_code: country.dial_code,
+                        is_active: country.is_active,
+                      });
+                    }}
+                    className="p-1.5 rounded-md text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary transition-colors"
+                    title={t('common.edit')}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget({ id: country.id, name: country.name_ar });
+                    }}
+                    className="p-1.5 rounded-md text-text-secondary hover:bg-red-50 hover:text-red-500 transition-colors"
+                    title={t('common.delete')}
+                  >
+                    <Trash2 size={14} />
+                  </button>
                   <Button
                     variant={country.is_active ? 'secondary' : 'primary'}
                     size="sm"
@@ -168,6 +212,39 @@ export function CountriesPage() {
         onSave={(data) => createCountry.mutate(data, { onSuccess: () => setCreateModal(false) })}
         isSaving={createCountry.isPending}
       />
+
+      {/* Edit Country Modal */}
+      <CountryForm
+        open={!!editCountry}
+        onClose={() => setEditCountry(null)}
+        onSave={(data) => {
+          if (editCountry) {
+            updateCountry.mutate({ id: editCountry.id, data }, { onSuccess: () => setEditCountry(null) });
+          }
+        }}
+        isSaving={updateCountry.isPending}
+        editing={editCountry}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title={t('locations.countries.deleteTitle', { name: deleteTarget?.name || '' })}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">
+            {t('locations.countries.deleteConfirm', { name: deleteTarget?.name || '' })}
+          </p>
+          <p className="text-xs text-text-tertiary font-body">
+            {t('locations.countries.deleteWarning')}
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeleteTarget(null)}>{t('common.cancel')}</Button>
+            <Button variant="danger" size="sm" isLoading={deleteCountry.isPending} onClick={() => {
+              if (deleteTarget) {
+                deleteCountry.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
+              }
+            }}>{t('common.delete')}</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

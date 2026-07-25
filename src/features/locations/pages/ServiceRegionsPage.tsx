@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useServiceRegionsList, useCreateServiceRegion, useToggleServiceRegionActive, useDeleteServiceRegion } from '../hooks/useServiceRegions';
+import { useServiceRegionsList, useCreateServiceRegion, useUpdateServiceRegion, useToggleServiceRegionActive, useDeleteServiceRegion } from '../hooks/useServiceRegions';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

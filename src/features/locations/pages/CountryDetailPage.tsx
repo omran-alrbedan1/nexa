@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCountry, useToggleCountryActive, useUpdateCountry } from '../hooks/useCountries';
-import { useCreateProvince, useToggleProvinceActive } from '../hooks/useProvinces';
+import { useCreateProvince, useUpdateProvince, useToggleProvinceActive, useDeleteProvince } from '../hooks/useProvinces';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -26,10 +26,14 @@ export function CountryDetailPage() {
   const toggleActive = useToggleCountryActive();
   const updateCountry = useUpdateCountry();
   const createProvince = useCreateProvince();
+  const updateProvince = useUpdateProvince();
   const toggleProvince = useToggleProvinceActive();
+  const deleteProvince = useDeleteProvince();
 
   const [editModal, setEditModal] = useState(false);
   const [provinceModal, setProvinceModal] = useState(false);
+  const [editProvinceTarget, setEditProvinceTarget] = useState<{ id: number; data: { name_ar: string; name_en: string | null; is_active: boolean } } | null>(null);
+  const [deleteProvinceTarget, setDeleteProvinceTarget] = useState<{ id: number; name: string } | null>(null);
 
   const { data: country, isLoading, isError, error, refetch } = useCountry(id);
 
@@ -160,6 +164,27 @@ export function CountryDetailPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
+                    onClick={() => setEditProvinceTarget({
+                      id: province.id,
+                      data: {
+                        name_ar: province.name_ar,
+                        name_en: province.name_en,
+                        is_active: province.is_active,
+                      },
+                    })}
+                    className="p-1.5 rounded-md text-text-secondary hover:bg-brand-primary-light hover:text-brand-primary transition-all"
+                    title={t('common.edit')}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => setDeleteProvinceTarget({ id: province.id, name: province.name_ar })}
+                    className="p-1.5 rounded-md text-text-secondary hover:bg-red-50 hover:text-red-500 transition-all"
+                    title={t('common.delete')}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <button
                     onClick={() => toggleProvince.mutate(province.id)}
                     className="p-1.5 text-xs text-text-secondary hover:text-blue-600 rounded-lg hover:bg-bg-section-alt transition-all"
                   >
@@ -189,6 +214,40 @@ export function CountryDetailPage() {
         isSaving={createProvince.isPending}
         countryCode={country.code}
       />
+
+      {/* Edit Province Modal */}
+      <ProvinceForm
+        open={!!editProvinceTarget}
+        onClose={() => setEditProvinceTarget(null)}
+        onSave={(data) => {
+          if (editProvinceTarget) {
+            updateProvince.mutate({ id: editProvinceTarget.id, data }, { onSuccess: () => setEditProvinceTarget(null) });
+          }
+        }}
+        isSaving={updateProvince.isPending}
+        countryCode={country.code}
+        editing={editProvinceTarget?.data ?? null}
+      />
+
+      {/* Delete Province Confirmation */}
+      <Modal open={!!deleteProvinceTarget} onClose={() => setDeleteProvinceTarget(null)} title={t('locations.provinces.deleteTitle', { name: deleteProvinceTarget?.name || '' })}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">
+            {t('locations.provinces.deleteConfirm', { name: deleteProvinceTarget?.name || '' })}
+          </p>
+          <p className="text-xs text-text-tertiary font-body">{t('locations.provinces.deleteWarning')}</p>
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeleteProvinceTarget(null)}>{t('common.cancel')}</Button>
+            <Button variant="danger" size="sm" isLoading={deleteProvince.isPending} onClick={() => {
+              if (deleteProvinceTarget) {
+                deleteProvince.mutate(deleteProvinceTarget.id, {
+                  onSuccess: () => setDeleteProvinceTarget(null),
+                });
+              }
+            }}>{t('common.delete')}</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
