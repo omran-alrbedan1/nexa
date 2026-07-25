@@ -2,7 +2,7 @@ import {
   LayoutDashboard, ClipboardList, Truck, Warehouse,
   Users, Map, Megaphone, Package, FolderTree, Settings2,
   CreditCard, LifeBuoy, BarChart3, FileClock, Building2,
-  Clock,
+  Clock, Globe, MapPin, Layers,
   type LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from '@/routes/routes';
@@ -34,6 +34,9 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Warehouse,
   Users,
   Map,
+  Globe,
+  MapPin,
+  Layers,
   Megaphone,
   Package,
   FolderTree,
@@ -89,7 +92,6 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
       { id: 'trips', label: 'nav.trips', icon: 'Truck', type: 'item', to: ROUTES.TRIPS, roles: ['admin', 'operations'] },
       { id: 'driver-monitor', label: 'nav.driverMonitor', icon: 'Map', type: 'item', to: ROUTES.DRIVER_MONITOR, roles: ['admin', 'operations'] },
       { id: 'warehouse', label: 'nav.warehouse', icon: 'Warehouse', type: 'item', to: ROUTES.AGGREGATION, roles: ['admin', 'aggregation'] },
-      { id: 'warehouses', label: 'nav.warehouses', icon: 'Building2', type: 'item', to: ROUTES.WAREHOUSES, roles: ['admin'] },
     ],
   },
   {
@@ -102,8 +104,21 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
       { id: 'customers', label: 'nav.customers', icon: 'Users', type: 'item', to: ROUTES.CUSTOMERS, roles: ['admin', 'operations'] },
       { id: 'suppliers', label: 'nav.suppliers', icon: 'Users', type: 'item', to: ROUTES.SUPPLIERS, roles: ['admin', 'operations'] },
       { id: 'drivers', label: 'nav.drivers', icon: 'Truck', type: 'item', to: ROUTES.DRIVERS, roles: ['admin', 'operations'] },
-      { id: 'regions', label: 'nav.regions', icon: 'Map', type: 'item', to: ROUTES.REGIONS, roles: ['admin'] },
       { id: 'delivery-slots', label: 'nav.deliverySlots', icon: 'Clock', type: 'item', to: ROUTES.DELIVERY_SLOTS, roles: ['admin', 'operations'] },
+    ],
+  },
+  {
+    id: 'group-geography',
+    label: 'nav.groupGeography',
+    icon: 'Map',
+    type: 'group',
+    roles: ['admin'],
+    items: [
+      { id: 'countries', label: 'nav.countries', icon: 'Globe', type: 'item', to: ROUTES.COUNTRIES, roles: ['admin'] },
+      { id: 'provinces', label: 'nav.provinces', icon: 'MapPin', type: 'item', to: ROUTES.PROVINCES, roles: ['admin'] },
+      { id: 'regions', label: 'nav.regions', icon: 'Map', type: 'item', to: ROUTES.REGIONS, roles: ['admin'] },
+      { id: 'warehouses', label: 'nav.warehouses', icon: 'Building2', type: 'item', to: ROUTES.WAREHOUSES, roles: ['admin'] },
+      { id: 'service-regions', label: 'nav.serviceRegions', icon: 'Layers', type: 'item', to: ROUTES.SERVICE_REGIONS, roles: ['admin'] },
     ],
   },
   {

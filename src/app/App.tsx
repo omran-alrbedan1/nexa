@@ -214,6 +214,20 @@ const WarehouseFormPage = lazy(() =>
   import('@/features/warehouses/pages/WarehouseFormPage').then((m) => ({ default: m.WarehouseFormPage }))
 );
 
+// ── Geography & Locations ──
+const CountriesPage = lazy(() =>
+  import('@/features/locations/pages/CountriesPage').then((m) => ({ default: m.CountriesPage }))
+);
+const CountryDetailPage = lazy(() =>
+  import('@/features/locations/pages/CountryDetailPage').then((m) => ({ default: m.CountryDetailPage }))
+);
+const ProvincesPage = lazy(() =>
+  import('@/features/locations/pages/ProvincesPage').then((m) => ({ default: m.ProvincesPage }))
+);
+const ServiceRegionsPage = lazy(() =>
+  import('@/features/locations/pages/ServiceRegionsPage').then((m) => ({ default: m.ServiceRegionsPage }))
+);
+
 // ── Shared components ──
 
 function PageLoader() {
@@ -325,8 +339,13 @@ export function App() {
                 <Route path={ROUTES.DRIVER_DETAIL(':driverId')} element={<DriverDetailPage />} />
               </Route>
 
-              {/* Regions & settings — requires settings.manage */}
+              {/* Geography & Locations — requires settings.manage */}
               <Route element={<ProtectedRoute requiredPermissions={['settings.manage']} />}>
+                <Route path={ROUTES.LOCATIONS} element={<Navigate to={ROUTES.COUNTRIES} replace />} />
+                <Route path={ROUTES.COUNTRIES} element={<CountriesPage />} />
+                <Route path={ROUTES.COUNTRY_DETAIL(':countryId')} element={<CountryDetailPage />} />
+                <Route path={ROUTES.PROVINCES} element={<ProvincesPage />} />
+                <Route path={ROUTES.SERVICE_REGIONS} element={<ServiceRegionsPage />} />
                 <Route path={ROUTES.REGIONS} element={<RegionsPage />} />
                 <Route path={ROUTES.REGION_DETAIL(':regionId')} element={<RegionDetailPage />} />
                 <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />

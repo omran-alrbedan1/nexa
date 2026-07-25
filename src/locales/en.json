@@ -43,7 +43,11 @@
     "groupOrders": "Orders",
     "groupFulfillment": "Fulfillment",
     "groupLogistics": "Logistics",
-    "groupCatalog": "Catalog"
+    "groupCatalog": "Catalog",
+    "groupGeography": "Geography & Locations",
+    "countries": "Countries",
+    "provinces": "Provinces / Cities",
+    "serviceRegions": "Service Regions"
   },
   "settings": {
     "title": "Settings",
@@ -2325,6 +2329,128 @@
       "lastLogin": "Last Login",
       "poweredBy": "Powered by",
       "futureX": "FutureX"
+    }
+  },
+  "locations": {
+    "countries": {
+      "title": "Countries",
+      "description": "Manage countries, their codes, dial codes, and provinces",
+      "addCountry": "Add Country",
+      "stats": {
+        "total": "Total Countries",
+        "active": "Active",
+        "provinces": "Provinces / Cities"
+      },
+      "list": {
+        "title": "All Countries",
+        "count": "{{count}} countries",
+        "searchPlaceholder": "Search by name or code...",
+        "noCountries": "No countries found",
+        "tryDifferentSearch": "Try a different search term",
+        "addFirstCountry": "Add your first country",
+        "provincesCount": "{{count}} provinces/cities"
+      },
+      "detail": {
+        "back": "Back to Countries",
+        "errorTitle": "Failed to load country",
+        "code": "Country Code",
+        "provinces": "Provinces / Cities",
+        "dialCode": "Dial Code",
+        "provincesTitle": "Provinces / Cities",
+        "addProvince": "Add Province",
+        "noProvinces": "No provinces configured",
+        "edit": "Edit"
+      },
+      "form": {
+        "createTitle": "Add Country",
+        "editTitle": "Edit Country",
+        "nameAr": "Name (Arabic)",
+        "nameEn": "Name (English)",
+        "code": "Code",
+        "dialCode": "Dial Code",
+        "create": "Create"
+      },
+      "toast": {
+        "created": "Country created successfully",
+        "createFailed": "Failed to create country",
+        "updated": "Country updated successfully",
+        "updateFailed": "Failed to update country",
+        "enabled": "Country enabled",
+        "disabled": "Country disabled",
+        "toggleFailed": "Failed to toggle country",
+        "deleted": "Country deleted",
+        "deleteFailed": "Failed to delete country"
+      }
+    },
+    "provinces": {
+      "title": "Provinces / Cities",
+      "description": "Manage provinces and cities under each country",
+      "addProvince": "Add Province",
+      "list": {
+        "title": "All Provinces / Cities",
+        "count": "{{count}} provinces/cities",
+        "searchPlaceholder": "Search provinces...",
+        "noProvinces": "No provinces found",
+        "tryDifferentSearch": "Try a different search term",
+        "addFirstProvince": "Add your first province",
+        "allCountries": "All Countries",
+        "zonesCount": "{{count}} zones"
+      },
+      "form": {
+        "createTitle": "Add Province",
+        "editTitle": "Edit Province",
+        "nameAr": "Name (Arabic)",
+        "nameEn": "Name (English)",
+        "country": "Country",
+        "create": "Create"
+      },
+      "toast": {
+        "created": "Province created successfully",
+        "createFailed": "Failed to create province",
+        "updated": "Province updated successfully",
+        "updateFailed": "Failed to update province",
+        "toggled": "Province status changed",
+        "toggleFailed": "Failed to toggle province",
+        "deleted": "Province deleted",
+        "deleteFailed": "Failed to delete province"
+      }
+    },
+    "serviceRegions": {
+      "title": "Service Regions",
+      "description": "Manage service regions used for driver applications",
+      "addRegion": "Add Service Region",
+      "list": {
+        "title": "All Service Regions",
+        "count": "{{count}} service regions",
+        "searchPlaceholder": "Search by name or code...",
+        "noRegions": "No service regions found",
+        "tryDifferentSearch": "Try a different search term",
+        "addFirstRegion": "Add your first service region",
+        "countryCode": "Country: {{code}}",
+        "order": "Order: {{order}}"
+      },
+      "form": {
+        "createTitle": "Add Service Region",
+        "editTitle": "Edit Service Region",
+        "code": "Code",
+        "nameAr": "Name (Arabic)",
+        "nameEn": "Name (English)",
+        "countryCode": "Country Code",
+        "displayOrder": "Display Order",
+        "create": "Create"
+      },
+      "confirmDeleteTitle": "Delete Service Region",
+      "confirmDeleteMessage": "Are you sure you want to delete {{name}}?",
+      "toast": {
+        "created": "Service region created",
+        "createFailed": "Failed to create service region",
+        "updated": "Service region updated",
+        "updateFailed": "Failed to update service region",
+        "toggled": "Service region status changed",
+        "toggleFailed": "Failed to toggle service region",
+        "deleted": "Service region deleted",
+        "deleteFailed": "Failed to delete service region"
+      }
     }
   }
 }

@@ -43,7 +43,11 @@
     "groupOrders": "الطلبات",
     "groupFulfillment": "التوصيل",
     "groupLogistics": "اللوجستيات",
-    "groupCatalog": "الكتالوج"
+    "groupCatalog": "الكتالوج",
+    "groupGeography": "المواقع والجغرافيا",
+    "countries": "الدول",
+    "provinces": "المدن / المحافظات",
+    "serviceRegions": "مناطق الخدمة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -1501,5 +1505,127 @@
     "back": "رجوع",
     "select": "اختيار",
     "unknown": "غير معروف"
+  },
+  "locations": {
+    "countries": {
+      "title": "الدول",
+      "description": "إدارة الدول ورموزها ومفاتيح الاتصال والمحافظات",
+      "addCountry": "إضافة دولة",
+      "stats": {
+        "total": "إجمالي الدول",
+        "active": "النشطة",
+        "provinces": "المدن / المحافظات"
+      },
+      "list": {
+        "title": "جميع الدول",
+        "count": "{{count}} دولة",
+        "searchPlaceholder": "البحث بالاسم أو الرمز...",
+        "noCountries": "لم يتم العثور على دول",
+        "tryDifferentSearch": "جرب كلمة بحث مختلفة",
+        "addFirstCountry": "أضف أول دولة",
+        "provincesCount": "{{count}} مدينة/محافظة"
+      },
+      "detail": {
+        "back": "العودة إلى الدول",
+        "errorTitle": "فشل تحميل الدولة",
+        "code": "رمز الدولة",
+        "provinces": "المدن / المحافظات",
+        "dialCode": "مفتاح الاتصال",
+        "provincesTitle": "المدن / المحافظات",
+        "addProvince": "إضافة محافظة",
+        "noProvinces": "لا توجد محافظات مكونة",
+        "edit": "تعديل"
+      },
+      "form": {
+        "createTitle": "إضافة دولة",
+        "editTitle": "تعديل الدولة",
+        "nameAr": "الاسم (عربي)",
+        "nameEn": "الاسم (إنجليزي)",
+        "code": "الرمز",
+        "dialCode": "مفتاح الاتصال",
+        "create": "إنشاء"
+      },
+      "toast": {
+        "created": "تم إنشاء الدولة بنجاح",
+        "createFailed": "فشل إنشاء الدولة",
+        "updated": "تم تحديث الدولة بنجاح",
+        "updateFailed": "فشل تحديث الدولة",
+        "enabled": "تم تفعيل الدولة",
+        "disabled": "تم تعطيل الدولة",
+        "toggleFailed": "فشل تغيير حالة الدولة",
+        "deleted": "تم حذف الدولة",
+        "deleteFailed": "فشل حذف الدولة"
+      }
+    },
+    "provinces": {
+      "title": "المدن / المحافظات",
+      "description": "إدارة المدن والمحافظات تحت كل دولة",
+      "addProvince": "إضافة محافظة",
+      "list": {
+        "title": "جميع المدن / المحافظات",
+        "count": "{{count}} مدينة/محافظة",
+        "searchPlaceholder": "البحث عن محافظات...",
+        "noProvinces": "لم يتم العثور على محافظات",
+        "tryDifferentSearch": "جرب كلمة بحث مختلفة",
+        "addFirstProvince": "أضف أول محافظة",
+        "allCountries": "جميع الدول",
+        "zonesCount": "{{count}} منطقة"
+      },
+      "form": {
+        "createTitle": "إضافة محافظة",
+        "editTitle": "تعديل المحافظة",
+        "nameAr": "الاسم (عربي)",
+        "nameEn": "الاسم (إنجليزي)",
+        "country": "الدولة",
+        "create": "إنشاء"
+      },
+      "toast": {
+        "created": "تم إنشاء المحافظة بنجاح",
+        "createFailed": "فشل إنشاء المحافظة",
+        "updated": "تم تحديث المحافظة بنجاح",
+        "updateFailed": "فشل تحديث المحافظة",
+        "toggled": "تم تغيير حالة المحافظة",
+        "toggleFailed": "فشل تغيير حالة المحافظة",
+        "deleted": "تم حذف المحافظة",
+        "deleteFailed": "فشل حذف المحافظة"
+      }
+    },
+    "serviceRegions": {
+      "title": "مناطق الخدمة",
+      "description": "إدارة مناطق الخدمة المستخدمة لطلبات السائقين",
+      "addRegion": "إضافة منطقة خدمة",
+      "list": {
+        "title": "جميع مناطق الخدمة",
+        "count": "{{count}} منطقة خدمة",
+        "searchPlaceholder": "البحث بالاسم أو الرمز...",
+        "noRegions": "لم يتم العثور على مناطق خدمة",
+        "tryDifferentSearch": "جرب كلمة بحث مختلفة",
+        "addFirstRegion": "أضف أول منطقة خدمة",
+        "countryCode": "الدولة: {{code}}",
+        "order": "الترتيب: {{order}}"
+      },
+      "form": {
+        "createTitle": "إضافة منطقة خدمة",
+        "editTitle": "تعديل منطقة الخدمة",
+        "code": "الرمز",
+        "nameAr": "الاسم (عربي)",
+        "nameEn": "الاسم (إنجليزي)",
+        "countryCode": "رمز الدولة",
+        "displayOrder": "ترتيب العرض",
+        "create": "إنشاء"
+      },
+      "confirmDeleteTitle": "حذف منطقة الخدمة",
+      "confirmDeleteMessage": "هل أنت متأكد من حذف {{name}}؟",
+      "toast": {
+        "created": "تم إنشاء منطقة الخدمة",
+        "createFailed": "فشل إنشاء منطقة الخدمة",
+        "updated": "تم تحديث منطقة الخدمة",
+        "updateFailed": "فشل تحديث منطقة الخدمة",
+        "toggled": "تم تغيير حالة منطقة الخدمة",
+        "toggleFailed": "فشل تغيير حالة منطقة الخدمة",
+        "deleted": "تم حذف منطقة الخدمة",
+        "deleteFailed": "فشل حذف منطقة الخدمة"
+      }
+    }
   }
 }

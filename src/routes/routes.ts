@@ -26,6 +26,15 @@ export const ROUTES = {
   REGIONS: '/regions',
   REGION_DETAIL: (regionId: number | string) => `/regions/${regionId}`,
 
+  // Geography & Locations
+  COUNTRIES: '/locations/countries',
+  COUNTRY_DETAIL: (countryId: number | string) => `/locations/countries/${countryId}`,
+  PROVINCES: '/locations/provinces',
+  SERVICE_REGIONS: '/locations/service-regions',
+
+  // Geography main entry
+  LOCATIONS: '/locations',
+
   // Seasonal campaigns
   CAMPAIGNS: '/campaigns',
   CAMPAIGN_CREATE: '/campaigns/create',
