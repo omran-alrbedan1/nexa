@@ -29,8 +29,6 @@ export function ProductsPage() {
   const rejectProduct = useRejectProduct();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<number | ''>('');
-  const [showPendingTab, setShowPendingTab] = useState(false);
-
   // Fetch pending-approval products
   const { data: pendingProducts } = useQuery({
     queryKey: ['products', 'pending-approvals'],
@@ -119,48 +117,38 @@ export function ProductsPage() {
       {/* ── Pending Approvals Section ── */}
       {pendingProducts && pendingProducts.length > 0 && (
         <Card padding="lg">
-          <CardHeader
-            action={
-              <Button variant="primary" size="sm" onClick={() => setShowPendingTab(!showPendingTab)}>
-                {showPendingTab ? t('products.pendingApproval.hide') : t('products.pendingApproval.review', { count: pendingProducts.length })}
-              </Button>
-            }
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                <AlertTriangle size={16} className="text-amber-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-text-primary font-display">{t('products.pendingApproval.title')}</h3>
-                <p className="text-xs text-text-secondary font-body">{t('products.pendingApproval.count', { count: pendingProducts.length })}</p>
-              </div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <AlertTriangle size={16} className="text-amber-600" />
             </div>
-          </CardHeader>
-          {showPendingTab && (
-            <div className="space-y-2">
-              {pendingProducts.map((product) => (
-                <div key={product.id} className="rounded-xl border border-amber-100 bg-amber-50/30">
-                  <ListItem
-                    icon={<Package size={16} className="text-amber-600" />}
-                    iconClassName="bg-amber-100"
-                    title={<span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>}
-                    actions={<>
-                      <Button variant="primary" size="sm" leftIcon={<ThumbsUp size={12} />} isLoading={approveProduct.isPending} onClick={(e) => { e.stopPropagation(); approveProduct.mutate(product.id); }}>
-                        {t('products.pendingApproval.approve')}
-                      </Button>
-                      <Button variant="secondary" size="sm" leftIcon={<ThumbsDown size={12} />} isLoading={rejectProduct.isPending} onClick={(e) => { e.stopPropagation(); rejectProduct.mutate(product.id); }}>
-                        {t('products.pendingApproval.reject')}
-                      </Button>
-                    </>}
-                  >
-                    <p className="text-xs text-text-secondary font-body truncate">
-                      {product.supplierName || 'No supplier'} · {product.categoryName}
-                    </p>
-                  </ListItem>
-                </div>
-              ))}
+            <div>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('products.pendingApproval.title')}</h3>
+              <p className="text-xs text-text-secondary font-body">{t('products.pendingApproval.count', { count: pendingProducts.length })}</p>
             </div>
-          )}
+          </div>
+          <div className="space-y-2">
+            {pendingProducts.map((product) => (
+              <div key={product.id} className="rounded-xl border border-amber-100 bg-amber-50/30">
+                <ListItem
+                  icon={<Package size={16} className="text-amber-600" />}
+                  iconClassName="bg-amber-100"
+                  title={<span className="text-sm font-bold text-text-primary font-body truncate">{product.name}</span>}
+                  actions={<>
+                    <Button variant="primary" size="sm" leftIcon={<ThumbsUp size={12} />} isLoading={approveProduct.isPending} onClick={(e) => { e.stopPropagation(); approveProduct.mutate(product.id); }}>
+                      {t('products.pendingApproval.approve')}
+                    </Button>
+                    <Button variant="secondary" size="sm" leftIcon={<ThumbsDown size={12} />} isLoading={rejectProduct.isPending} onClick={(e) => { e.stopPropagation(); rejectProduct.mutate(product.id); }}>
+                      {t('products.pendingApproval.reject')}
+                    </Button>
+                  </>}
+                >
+                  <p className="text-xs text-text-secondary font-body truncate">
+                    {product.supplierName || 'No supplier'} · {product.categoryName}
+                  </p>
+                </ListItem>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 
