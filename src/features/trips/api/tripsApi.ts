@@ -342,8 +342,8 @@ export const tripsApi = {
 
   /** Get pickup issues for a trip */
   getPickupIssues: async (tripId: number): Promise<PickupIssue[]> => {
-    const response = await apiClient.get<ApiResponse<PickupIssue[]>>(`/api/v1/admin/trips/${tripId}/pickup/issues`);
-    return response.data.data ?? [];
+    const response = await apiClient.get<ApiResponse<{ issues: PickupIssue[] }>>(`/api/v1/admin/trips/${tripId}/pickup/issues`);
+    return response.data.data?.issues ?? [];
   },
 
   /** Resolve a pickup issue */
