@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useWarehouse, useCreateWarehouse, useUpdateWarehouse } from '../hooks/useWarehouses';
@@ -7,8 +7,10 @@ import { useToastStore } from '@/stores/toastStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/routes/routes';
-import { ArrowLeft, Warehouse, Save, MapPin, Clock, User } from 'lucide-react';
+import { ArrowLeft, Warehouse, Save, MapPin, Clock, User, Map, Navigation } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { GOOGLE_MAPS_LOADER_OPTIONS, DEFAULT_MAP_CENTER } from '@/config/googleMaps';
 
 export function WarehouseFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,8 +41,24 @@ export function WarehouseFormPage() {
     isActive: true,
     openingTime: '07:00',
     closingTime: '23:00',
+    latitude: '',
+    longitude: '',
   });
   const [selectedZones, setSelectedZones] = useState<number[]>([]);
+
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
+
+  const mapCenter = form.latitude && form.longitude
+    ? { lat: Number(form.latitude), lng: Number(form.longitude) }
+    : DEFAULT_MAP_CENTER;
+
+  const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    const lat = e.latLng?.lat();
+    const lng = e.latLng?.lng();
+    if (lat !== undefined && lng !== undefined) {
+      setForm((prev) => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
+    }
+  }, []);
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -54,6 +72,8 @@ export function WarehouseFormPage() {
         isActive: existing.isActive,
         openingTime: existing.workingHours?.opening || '07:00',
         closingTime: existing.workingHours?.closing || '23:00',
+        latitude: existing.latitude ? String(existing.latitude) : '',
+        longitude: existing.longitude ? String(existing.longitude) : '',
       });
       setSelectedZones(existing.zones.map((z) => z.id));
     }
@@ -82,6 +102,8 @@ export function WarehouseFormPage() {
       isActive: form.isActive,
       workingHours: { opening: form.openingTime, closing: form.closingTime },
       zoneIds: selectedZones,
+      latitude: form.latitude ? Number(form.latitude) : null,
+      longitude: form.longitude ? Number(form.longitude) : null,
     };
 
     if (isEdit) {
@@ -168,6 +190,42 @@ export function WarehouseFormPage() {
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.address')}</label>
             <textarea value={form.address} onChange={(e) => handleChange('address', e.target.value)} rows={2} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-2 flex items-center gap-1.5">
+              <Map size={14} className="text-purple-600" />
+              Location (click on map or enter coordinates)
+            </label>
+            {isLoaded ? (
+              <div className="rounded-xl overflow-hidden border border-border-default/60 mb-3" style={{ height: '260px' }}>
+                <GoogleMap
+                  mapContainerStyle={{ width: '100%', height: '100%' }}
+                  center={mapCenter}
+                  zoom={12}
+                  options={{ streetViewControl: false, mapTypeControl: false, fullscreenControl: false }}
+                  onClick={handleMapClick}
+                >
+                  {form.latitude && form.longitude && (
+                    <Marker position={{ lat: Number(form.latitude), lng: Number(form.longitude) }} />
+                  )}
+                </GoogleMap>
+              </div>
+            ) : (
+              <div className="h-[260px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-text-secondary mb-3">
+                Loading map...
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Latitude</label>
+                <input type="number" step="any" value={form.latitude} onChange={(e) => handleChange('latitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. 24.713552" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">Longitude</label>
+                <input type="number" step="any" value={form.longitude} onChange={(e) => handleChange('longitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. 46.675297" />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

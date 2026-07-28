@@ -22,6 +22,8 @@ export interface WarehouseFormData {
   isActive?: boolean;
   workingHours?: Record<string, string> | null;
   zoneIds?: number[];
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Warehouse {
@@ -121,6 +123,8 @@ export const warehousesApi = {
       is_active: form.isActive ?? true,
       working_hours: form.workingHours || undefined,
       zone_ids: form.zoneIds || [],
+      latitude: form.latitude ?? undefined,
+      longitude: form.longitude ?? undefined,
     });
     return mapWarehouse(response.data.data);
   },
@@ -137,6 +141,8 @@ export const warehousesApi = {
     if (form.isActive !== undefined) body.is_active = form.isActive;
     if (form.workingHours !== undefined) body.working_hours = form.workingHours;
     if (form.zoneIds !== undefined) body.zone_ids = form.zoneIds;
+    if (form.latitude !== undefined) body.latitude = form.latitude;
+    if (form.longitude !== undefined) body.longitude = form.longitude;
     const response = await apiClient.put<ApiResponse<BackendWarehouse>>(`/api/v1/admin/warehouses/${id}`, body);
     return mapWarehouse(response.data.data);
   },
