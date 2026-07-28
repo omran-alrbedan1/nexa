@@ -16,6 +16,7 @@ import { ArrowLeft, AlertTriangle, CheckCircle2 } from 'lucide-react';
 const ISSUE_BADGE: Record<string, 'yellow' | 'red' | 'green' | 'teal'> = {
   open: 'red',
   resolved: 'green',
+  approved_exception: 'teal',
 };
 
 function cn(...classes: (string | false | undefined | null)[]) {
@@ -30,8 +31,8 @@ export function PickupIssuesPage() {
 
   const resolveIssue = useResolvePickupIssue();
 
-  const [resolveModal, setResolveModal] = useState<{ open: boolean; issue: PickupIssue | null; resolution: string; notes: string }>({
-    open: false, issue: null, resolution: '', notes: '',
+  const [resolveModal, setResolveModal] = useState<{ open: boolean; issue: PickupIssue | null }>({
+    open: false, issue: null,
   });
 
   const { data: issues = [], isLoading, isError, error, refetch } = useQuery({
@@ -40,8 +41,8 @@ export function PickupIssuesPage() {
     enabled: id > 0,
   });
 
-  const openIssues = issues.filter((i) => i.status === 'open');
-  const resolvedIssues = issues.filter((i) => i.status === 'resolved');
+  const openIssues = issues.filter((i) => i.resolution_state === 'open');
+  const resolvedIssues = issues.filter((i) => i.resolution_state === 'resolved');
 
   if (isError) {
     return (
@@ -91,13 +92,13 @@ export function PickupIssuesPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge variant={ISSUE_BADGE[issue.status] || 'red'} size="sm">{issue.status}</Badge>
-                      {issue.order && <span className="text-xs font-bold text-text-secondary">{issue.order.order_number}</span>}
+                      <Badge variant={ISSUE_BADGE[issue.resolution_state] || 'red'} size="sm">{issue.resolution_state}</Badge>
+                      {issue.order_number && <span className="text-xs font-bold text-text-secondary">{issue.order_number}</span>}
                     </div>
                     <p className="text-sm font-bold text-text-primary">{issue.issue_type}</p>
-                    <p className="text-xs text-text-secondary mt-0.5">{issue.description}</p>
+                    <p className="text-xs text-text-secondary mt-0.5">{issue.note}</p>
                   </div>
-                  <Button variant="primary" size="sm" onClick={() => setResolveModal({ open: true, issue, resolution: '', notes: '' })}>
+                  <Button variant="primary" size="sm" onClick={() => setResolveModal({ open: true, issue })}>
                     {t('trips.pickupIssues.resolve')}
                   </Button>
                 </div>
@@ -118,14 +119,14 @@ export function PickupIssuesPage() {
             {resolvedIssues.map((issue) => (
               <div key={issue.id} className="p-4 rounded-xl border border-border-default bg-gray-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant={ISSUE_BADGE[issue.status] || 'green'} size="sm">{issue.status}</Badge>
-                  {issue.order && <span className="text-xs font-bold text-text-secondary">{issue.order.order_number}</span>}
+                  <Badge variant={ISSUE_BADGE[issue.resolution_state] || 'green'} size="sm">{issue.resolution_state}</Badge>
+                  {issue.order_number && <span className="text-xs font-bold text-text-secondary">{issue.order_number}</span>}
                 </div>
                 <p className="text-sm font-bold text-text-primary">{issue.issue_type}</p>
-                <p className="text-xs text-text-secondary mt-0.5">{issue.description}</p>
-                {issue.resolution && (
+                <p className="text-xs text-text-secondary mt-0.5">{issue.note}</p>
+                {issue.resolved_at && (
                   <div className="mt-2 flex items-center gap-1.5 text-xs text-green-600">
-                    <CheckCircle2 size={12} /> {issue.resolution}
+                    <CheckCircle2 size={12} /> {t('trips.pickupIssues.resolvedOn')} {new Date(issue.resolved_at).toLocaleDateString()}
                   </div>
                 )}
               </div>
@@ -137,30 +138,11 @@ export function PickupIssuesPage() {
       <Modal open={resolveModal.open} onClose={() => setResolveModal({ ...resolveModal, open: false })} title={t('trips.pickupIssues.resolveTitle')}>
         <div className="space-y-4">
           <p className="text-sm text-text-secondary font-body">{t('trips.pickupIssues.resolveDescription')}</p>
-          <div>
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.pickupIssues.resolutionLabel')}</label>
-            <input
-              type="text"
-              value={resolveModal.resolution}
-              onChange={(e) => setResolveModal({ ...resolveModal, resolution: e.target.value })}
-              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
-              placeholder={t('trips.pickupIssues.resolutionPlaceholder')}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-1 block">{t('trips.detail.notesLabel')} ({t('common.optional')})</label>
-            <textarea
-              value={resolveModal.notes}
-              onChange={(e) => setResolveModal({ ...resolveModal, notes: e.target.value })}
-              className="w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all resize-none"
-              rows={3}
-            />
-          </div>
           <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setResolveModal({ ...resolveModal, open: false })}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" disabled={!resolveModal.resolution} isLoading={resolveIssue.isPending} onClick={() => {
-              if (!resolveModal.issue || !resolveModal.resolution) return;
-              resolveIssue.mutate({ tripId: id, issueId: resolveModal.issue.id, data: { resolution: resolveModal.resolution, notes: resolveModal.notes || undefined } });
+            <Button variant="primary" size="sm" isLoading={resolveIssue.isPending} onClick={() => {
+              if (!resolveModal.issue) return;
+              resolveIssue.mutate({ tripId: id, issueId: resolveModal.issue.id });
               setResolveModal({ ...resolveModal, open: false });
             }}>{t('trips.pickupIssues.resolve')}</Button>
           </div>

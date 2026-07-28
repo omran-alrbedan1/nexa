@@ -98,8 +98,8 @@ export function useResolvePickupIssue() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ tripId, issueId, data }: { tripId: number; issueId: number; data: { resolution: string; notes?: string } }) =>
-      tripsApi.resolvePickupIssue(tripId, issueId, data),
+    mutationFn: ({ tripId, issueId }: { tripId: number; issueId: number }) =>
+      tripsApi.resolvePickupIssue(tripId, issueId),
     onSuccess: (_data, { tripId }) => {
       queryClient.invalidateQueries({ queryKey: tripKeys.pickupIssues(tripId) });
       invalidateTripQueries(queryClient, tripId);

@@ -172,16 +172,28 @@ interface BackendAvailableDriver {
 
 export interface PickupIssue {
   id: number;
-  trip_id: number;
-  order_id: number | null;
+  trip_order_id: number | null;
+  order_number: string | null;
   issue_type: string;
-  description: string;
-  status: string;
+  note: string | null;
+  resolution_state: string;
+  reported_by: string | null;
+  reported_at: string | null;
+  resolved_by: string | null;
   resolved_at: string | null;
-  resolution: string | null;
-  created_at: string;
-  updated_at: string;
-  order?: { id: number; order_number: string } | null;
+}
+
+interface BackendPickupIssue {
+  id: number;
+  trip_order_id: number | null;
+  order_number: string | null;
+  issue_type: string;
+  note: string | null;
+  resolution_state: string;
+  reported_by: string | null;
+  reported_at: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
 }
 
 // ── COD Handover Types ──
@@ -342,13 +354,13 @@ export const tripsApi = {
 
   /** Get pickup issues for a trip */
   getPickupIssues: async (tripId: number): Promise<PickupIssue[]> => {
-    const response = await apiClient.get<ApiResponse<{ issues: PickupIssue[] }>>(`/api/v1/admin/trips/${tripId}/pickup/issues`);
+    const response = await apiClient.get<ApiResponse<{ issues: BackendPickupIssue[] }>>(`/api/v1/admin/trips/${tripId}/pickup/issues`);
     return response.data.data?.issues ?? [];
   },
 
   /** Resolve a pickup issue */
-  resolvePickupIssue: async (tripId: number, issueId: number, data: { resolution: string; notes?: string }): Promise<PickupIssue> => {
-    const response = await apiClient.put<ApiResponse<PickupIssue>>(`/api/v1/admin/trips/${tripId}/pickup-issues/${issueId}/resolve`, data);
+  resolvePickupIssue: async (tripId: number, issueId: number): Promise<PickupIssue> => {
+    const response = await apiClient.put<ApiResponse<BackendPickupIssue>>(`/api/v1/admin/trips/${tripId}/pickup-issues/${issueId}/resolve`, { resolution_state: 'resolved' });
     return response.data.data;
   },
 
