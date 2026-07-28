@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/routes/routes';
 import {
   GOOGLE_MAPS_LOADER_OPTIONS,
@@ -12,7 +13,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_OPTIONS,
 } from '@/config/googleMaps';
-import { MapPin, Navigation, Truck } from 'lucide-react';
+import { MapPin, Navigation, Truck, ExternalLink } from 'lucide-react';
 
 export default function DriverMonitorPage() {
   const { t } = useTranslation();
@@ -32,7 +33,6 @@ export default function DriverMonitorPage() {
     [pageData],
   );
 
-  // Uses the shared loader options -- identical across the entire app
   const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
 
   const selectedTrip = activeTrips.find((trip) => trip.id === selectedTripId);
@@ -73,10 +73,7 @@ export default function DriverMonitorPage() {
             {activeTrips.map((trip) => (
               <button
                 key={trip.id}
-                onClick={() => {
-                  setSelectedTripId(trip.id);
-                  navigate(`${ROUTES.TRIPS}/${trip.id}`);
-                }}
+                onClick={() => setSelectedTripId(trip.id)}
                 className={`w-full text-left p-3 rounded-xl border transition-all ${
                   selectedTripId === trip.id
                     ? 'border-brand-primary bg-brand-primary/5'
@@ -99,7 +96,7 @@ export default function DriverMonitorPage() {
             ))}
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-4">
             <div className="rounded-xl overflow-hidden border border-border-default/60" style={{ height: '500px' }}>
               {isLoaded ? (
                 <GoogleMap
@@ -120,10 +117,7 @@ export default function DriverMonitorPage() {
                         strokeColor: '#FFFFFF',
                         strokeWeight: 3,
                       }}
-                      onClick={() => {
-                        setSelectedTripId(trip.id);
-                        navigate(`${ROUTES.TRIPS}/${trip.id}`);
-                      }}
+                      onClick={() => setSelectedTripId(trip.id)}
                     >
                       {selectedTripId === trip.id && (
                         <InfoWindow onCloseClick={() => setSelectedTripId(null)}>
@@ -146,6 +140,23 @@ export default function DriverMonitorPage() {
                 </div>
               )}
             </div>
+
+            {selectedTrip && (
+              <div className="p-4 rounded-xl border border-border-default/60 bg-white flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
+                    <span className="text-xs font-bold text-text-primary">#{selectedTrip.tripNumber}</span>
+                  </div>
+                  <span className="text-xs text-text-secondary">{selectedTrip.driverName || t('drivers.monitor.unassigned')}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary-light text-brand-primary font-bold">{selectedTrip.status}</span>
+                  <span className="text-xs text-text-tertiary">{t('drivers.monitor.ordersCount', { count: selectedTrip.orderCount })}</span>
+                </div>
+                <Button variant="primary" size="sm" leftIcon={<ExternalLink size={14} />} onClick={() => navigate(`${ROUTES.TRIPS}/${selectedTrip.id}`)}>
+                  {t('drivers.monitor.viewTrip')}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

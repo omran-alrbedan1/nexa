@@ -1077,7 +1077,8 @@
       "closureStarted": "Закрытие начато",
       "closed": "Закрыто",
       "viewPickupIssues": "Просмотреть проблемы загрузки",
-      "viewCodHandovers": "Просмотреть передачи COD"
+      "viewCodHandovers": "Просмотреть передачи COD",
+      "viewDriverMonitor": "Открыть мониторинг водителей"
     },
     "pickupIssues": {
       "title": "Проблемы загрузки",
@@ -1194,7 +1195,8 @@
       "noActiveTrips": "Сейчас нет активных поездок.",
       "activeTrips": "{{count}} активных поездок",
       "unassigned": "Не назначен",
-      "ordersCount": "{{count}} заказов"
+      "ordersCount": "{{count}} заказов",
+      "viewTrip": "Просмотр поездки"
     }
   },
   "payments": {

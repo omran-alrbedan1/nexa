@@ -338,18 +338,33 @@ export function TripDetailPage() {
         </Card>
       )}
 
-      {/* Live Driver Map */}
-      {trip.driverName && trip.tripOrders && trip.tripOrders.length > 0 && (
+      {/* Monitoring Map */}
+      {trip.driverName && (
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <MapPin size={16} className="text-brand-accent" />
             <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.detail.driverTracking')}</h3>
           </div>
-          <GoogleDriverTrackingMap
-            orderId={trip.tripOrders[0].orderId}
-            height="300px"
-            follow
-          />
+          <div className="rounded-xl overflow-hidden border border-border-default/60 mb-4">
+            <GoogleDriverTrackingMap
+              orderId={trip.tripOrders?.[0]?.orderId ?? 0}
+              height="400px"
+              follow
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
+                <span className="text-xs font-bold text-text-primary">#{trip.tripNumber}</span>
+              </div>
+              <span className="text-xs text-text-secondary">{trip.driverName}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary-light text-brand-primary font-bold">{trip.status}</span>
+            </div>
+            <Link to={ROUTES.DRIVER_MONITOR} className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:text-brand-accent font-bold font-body transition-colors">
+              <MapPin size={14} /> {t('trips.detail.viewDriverMonitor')}
+            </Link>
+          </div>
         </Card>
       )}
 

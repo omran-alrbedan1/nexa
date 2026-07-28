@@ -1568,7 +1568,8 @@
       "closureStarted": "Closure Started",
       "closed": "Closed",
       "viewPickupIssues": "View Pickup Issues",
-      "viewCodHandovers": "View COD Handovers"
+      "viewCodHandovers": "View COD Handovers",
+      "viewDriverMonitor": "Open Driver Monitor"
     },
     "pickupIssues": {
       "title": "Pickup Issues",
@@ -1751,7 +1752,8 @@
       "noActiveTrips": "No active trips right now.",
       "activeTrips": "{{count}} Active Trips",
       "unassigned": "Unassigned",
-      "ordersCount": "{{count}} orders"
+      "ordersCount": "{{count}} orders",
+      "viewTrip": "View Trip"
     },
     "toast": {
       "markedAvailable": "Driver marked available",

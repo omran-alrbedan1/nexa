@@ -1077,7 +1077,8 @@
       "closureStarted": "סגירה התחילה",
       "closed": "סגור",
       "viewPickupIssues": "צפה בבעיות איסוף",
-      "viewCodHandovers": "צפה בהעברות COD"
+      "viewCodHandovers": "צפה בהעברות COD",
+      "viewDriverMonitor": "פתח מוניטור נהגים"
     },
     "pickupIssues": {
       "title": "בעיות איסוף",
@@ -1194,7 +1195,8 @@
       "noActiveTrips": "אין נסיעות פעילות כרגע.",
       "activeTrips": "{{count}} נסיעות פעילות",
       "unassigned": "לא משויך",
-      "ordersCount": "{{count}} הזמנות"
+      "ordersCount": "{{count}} הזמנות",
+      "viewTrip": "צפה בטיול"
     }
   },
   "payments": {

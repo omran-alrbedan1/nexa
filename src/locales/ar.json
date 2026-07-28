@@ -1117,7 +1117,8 @@
       "closureStarted": "بدء الإغلاق",
       "closed": "مغلق",
       "viewPickupIssues": "عرض مشاكل التحميل",
-      "viewCodHandovers": "عرض تسليم COD"
+      "viewCodHandovers": "عرض تسليم COD",
+      "viewDriverMonitor": "فتح مراقبة السائقين"
     },
     "pickupIssues": {
       "title": "مشاكل التحميل",
@@ -1256,7 +1257,8 @@
       "noActiveTrips": "لا توجد رحلات نشطة حالياً.",
       "activeTrips": "{{count}} رحلة نشطة",
       "unassigned": "غير مسند",
-      "ordersCount": "{{count}} طلب"
+      "ordersCount": "{{count}} طلب",
+      "viewTrip": "عرض الرحلة"
     }
   },
   "payments": {
