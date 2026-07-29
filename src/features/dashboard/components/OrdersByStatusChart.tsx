@@ -8,42 +8,45 @@ interface StatusCount {
   color: string;
 }
 
-const DEFAULT_STATUS_DATA: StatusCount[] = [
-  { label: 'Delivered', count: 47, color: '#22C55E' },
-  { label: 'Out for Delivery', count: 9, color: '#2A9D8F' },
-  { label: 'Confirmed', count: 8, color: '#8B5CF6' },
-  { label: 'Pending Aggregation', count: 6, color: '#F59E0B' },
-  { label: 'New', count: 5, color: '#9CA3AF' },
-  { label: 'Pending Pricing', count: 3, color: '#E76F51' },
-  { label: 'Failed Delivery', count: 2, color: '#EF4444' },
-];
+const STATUS_COLORS = ['#22C55E', '#2A9D8F', '#8B5CF6', '#F59E0B', '#9CA3AF', '#E76F51', '#EF4444'] as const;
 
-// ── Build status data from real dashboard stats ──
+const PIPELINE_STAGES = ['in_supply', 'in_aggregation', 'ready_to_ship', 'out_for_delivery', 'delivered_today'] as const;
 
-function buildStatusData(ordersByType?: Record<string, number>, pipeline?: Record<string, number>): StatusCount[] {
+const PIPELINE_COLORS: Record<string, string> = {
+  in_supply: '#F59E0B',
+  in_aggregation: '#3B82F6',
+  ready_to_ship: '#8B5CF6',
+  out_for_delivery: '#2A9D8F',
+  delivered_today: '#22C55E',
+};
+
+function buildStatusData(t: (key: string) => string, ordersByType?: Record<string, number>, pipeline?: Record<string, number>): StatusCount[] {
   if (ordersByType && Object.keys(ordersByType).length > 0) {
     const fromTypes: StatusCount[] = Object.entries(ordersByType).map(([type, count], i) => ({
-      label: type.charAt(0).toUpperCase() + type.slice(1),
+      label: t(`dashboard.ordersByStatus.types.${type}`),
       count,
-      color: ['#22C55E', '#2A9D8F', '#8B5CF6', '#F59E0B', '#9CA3AF', '#E76F51', '#EF4444'][i % 7],
+      color: STATUS_COLORS[i % STATUS_COLORS.length],
     }));
     if (pipeline) {
-      const pipelineLabels: Record<string, { label: string; color: string }> = {
-        in_supply: { label: 'In Supply', color: '#F59E0B' },
-        in_aggregation: { label: 'In Aggregation', color: '#3B82F6' },
-        ready_to_ship: { label: 'Ready to Ship', color: '#8B5CF6' },
-        out_for_delivery: { label: 'Out for Delivery', color: '#2A9D8F' },
-        delivered_today: { label: 'Delivered', color: '#22C55E' },
-      };
-      return Object.entries(pipeline).map(([stage, count]) => ({
-        label: pipelineLabels[stage]?.label || stage,
-        count,
-        color: pipelineLabels[stage]?.color || '#9CA3AF',
-      }));
+      return PIPELINE_STAGES
+        .filter((stage) => pipeline[stage] !== undefined)
+        .map((stage) => ({
+          label: t(`dashboard.ordersByStatus.pipeline.${stage}`),
+          count: pipeline[stage] ?? 0,
+          color: PIPELINE_COLORS[stage] || '#9CA3AF',
+        }));
     }
     return fromTypes;
   }
-  return DEFAULT_STATUS_DATA;
+  return [
+    { label: t('dashboard.ordersByStatus.statusLabels.delivered'), count: 47, color: '#22C55E' },
+    { label: t('dashboard.ordersByStatus.statusLabels.outForDelivery'), count: 9, color: '#2A9D8F' },
+    { label: t('dashboard.ordersByStatus.statusLabels.confirmed'), count: 8, color: '#8B5CF6' },
+    { label: t('dashboard.ordersByStatus.statusLabels.pendingAggregation'), count: 6, color: '#F59E0B' },
+    { label: t('dashboard.ordersByStatus.statusLabels.new'), count: 5, color: '#9CA3AF' },
+    { label: t('dashboard.ordersByStatus.statusLabels.pendingPricing'), count: 3, color: '#E76F51' },
+    { label: t('dashboard.ordersByStatus.statusLabels.failedDelivery'), count: 2, color: '#EF4444' },
+  ];
 }
 
 function ConicDonut({ data, total: totalCount }: { data: StatusCount[]; total: number }) {
@@ -84,7 +87,7 @@ interface OrdersByStatusChartProps {
 
 export function OrdersByStatusChart({ pipeline, ordersByType }: OrdersByStatusChartProps) {
   const { t } = useTranslation();
-  const STATUS_DATA = buildStatusData(ordersByType, pipeline);
+  const STATUS_DATA = buildStatusData(t, ordersByType, pipeline);
   const total = STATUS_DATA.reduce((sum, s) => sum + s.count, 0);
 
   return (

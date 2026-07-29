@@ -40,7 +40,6 @@ export function DashboardPage() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const [filters, setFilters] = useState<DashboardFilterState>(getDefaultFilters);
-  const [isExpanded, setIsExpanded] = useState(false);
   const formatPrice = useFormatPrice();
 
   // Merge partial filter updates into full state (no data loss)
@@ -117,9 +116,7 @@ export function DashboardPage() {
           isLoading={isLoading}
           filters={filters}
           onFilterChange={handleFilterChange}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded((p) => !p)}
-          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+          onResetFilters={() => { setFilters(getDefaultFilters()); }}
         />
       )}
       {role === 'operations' && (
@@ -128,9 +125,7 @@ export function DashboardPage() {
           isLoading={isLoading}
           filters={filters}
           onFilterChange={handleFilterChange}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded((p) => !p)}
-          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+          onResetFilters={() => { setFilters(getDefaultFilters()); }}
         />
       )}
       {role === 'aggregation' && (
@@ -139,9 +134,7 @@ export function DashboardPage() {
           isLoading={isLoading}
           filters={filters}
           onFilterChange={handleFilterChange}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded((p) => !p)}
-          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+          onResetFilters={() => { setFilters(getDefaultFilters()); }}
         />
       )}
 
@@ -151,9 +144,7 @@ export function DashboardPage() {
           isLoading={isLoading}
           filters={filters}
           onFilterChange={handleFilterChange}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded((p) => !p)}
-          onResetFilters={() => { setFilters(getDefaultFilters()); setIsExpanded(false); }}
+          onResetFilters={() => { setFilters(getDefaultFilters()); }}
         />
       )}
     </div>

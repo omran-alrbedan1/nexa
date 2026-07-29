@@ -24,12 +24,10 @@ interface AdminDashboardProps {
   isLoading: boolean;
   filters: DashboardFilterState;
   onFilterChange: (filters: Partial<DashboardFilterState>) => void;
-  isExpanded: boolean;
-  onToggleExpanded: () => void;
   onResetFilters: () => void;
 }
 
-export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: AdminDashboardProps) {
+export function AdminDashboard({ data, isLoading, filters, onFilterChange, onResetFilters }: AdminDashboardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const formatPrice = useFormatPrice();
@@ -41,8 +39,6 @@ export function AdminDashboard({ data, isLoading, filters, onFilterChange, isExp
         filters={filters}
         onFilterChange={onFilterChange}
         onReset={onResetFilters}
-        expanded={isExpanded}
-        onToggleExpanded={onToggleExpanded}
       />
 
       {/* ═══ Bento Stats Grid — 4 cards ═══ */}

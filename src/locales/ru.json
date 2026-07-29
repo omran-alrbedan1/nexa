@@ -304,7 +304,28 @@
     "ordersByStatus": {
       "title": "Заказы по статусу",
       "subtitle": "Разбивка за сегодня",
-      "today": "Сегодня"
+      "today": "Сегодня",
+      "statusLabels": {
+        "delivered": "Доставлено",
+        "outForDelivery": "В доставке",
+        "confirmed": "Подтверждено",
+        "pendingAggregation": "Ожидает агрегации",
+        "new": "Новый",
+        "pendingPricing": "Ожидает ценообразования",
+        "failedDelivery": "Ошибка доставки"
+      },
+      "pipeline": {
+        "in_supply": "В поставке",
+        "in_aggregation": "В агрегации",
+        "ready_to_ship": "Готов к отгрузке",
+        "out_for_delivery": "В доставке",
+        "delivered_today": "Доставлено"
+      },
+      "types": {
+        "regular": "Обычный",
+        "special": "Специальный",
+        "seasonal": "Сезонный"
+      }
     },
     "recentOrders": {
       "title": "Последние заказы",
@@ -349,8 +370,9 @@
     },
     "topSuppliers": {
       "title": "Лучшие поставщики",
-      "subtitle": "По объёму заказов и уровню принятия",
-      "orders": "{{count}} заказов"
+      "subtitle": "По объёму заказов и рейтингу",
+      "orders": "{{count}} заказов",
+      "empty": "Данных о поставщиках пока нет"
     },
     "topAreas": {
       "title": "Лучшие районы",

@@ -336,7 +336,28 @@
     "ordersByStatus": {
       "title": "الطلبات حسب الحالة",
       "subtitle": "تفصيل اليوم",
-      "today": "اليوم"
+      "today": "اليوم",
+      "statusLabels": {
+        "delivered": "تم التوصيل",
+        "outForDelivery": "في التوصيل",
+        "confirmed": "مؤكد",
+        "pendingAggregation": "بانتظار التجميع",
+        "new": "جديد",
+        "pendingPricing": "بانتظار التسعير",
+        "failedDelivery": "توصيل فاشل"
+      },
+      "pipeline": {
+        "in_supply": "قيد التوريد",
+        "in_aggregation": "قيد التجميع",
+        "ready_to_ship": "جاهز للشحن",
+        "out_for_delivery": "في التوصيل",
+        "delivered_today": "تم التوصيل"
+      },
+      "types": {
+        "regular": "عادي",
+        "special": "خاص",
+        "seasonal": "موسمي"
+      }
     },
     "recentOrders": {
       "title": "آخر الطلبات",
@@ -382,7 +403,8 @@
     "topSuppliers": {
       "title": "أفضل الموردين",
       "subtitle": "حجم الطلبات ومعدل القبول",
-      "orders": "{{count}} طلب"
+      "orders": "{{count}} طلب",
+      "empty": "لا توجد بيانات موردين حتى الآن"
     },
     "topAreas": {
       "title": "أفضل المناطق",

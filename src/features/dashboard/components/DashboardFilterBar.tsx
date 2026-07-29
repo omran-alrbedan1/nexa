@@ -1,32 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/utils/cn';
-import { Filter, CalendarDays, ChevronDown, RotateCcw } from 'lucide-react';
-import { regionsApi } from '@/features/regions/api/regionsApi';
-import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
-import { suppliersApi } from '@/features/suppliers/api/suppliersApi';
+import { CalendarDays, RotateCcw } from 'lucide-react';
 
 export interface DashboardFilterState {
   preset: 'today' | 'this_week' | 'this_month' | 'custom';
   dateFrom: string;
   dateTo: string;
-  region: string | null;
-  warehouse: string | null;
-  supplier: string | null;
-  orderType: string | null;
-  status: string | null;
 }
 
 interface DashboardFilterBarProps {
   filters: DashboardFilterState;
   onFilterChange: (filters: Partial<DashboardFilterState>) => void;
   onReset: () => void;
-  expanded: boolean;
-  onToggleExpanded: () => void;
 }
-
-const ORDER_TYPES = ['regular', 'special', 'seasonal'];
-const STATUSES = ['new', 'confirmed', 'pending_supply', 'pending_aggregation', 'ready_to_ship', 'out_for_delivery', 'delivered', 'failed_delivery', 'cancelled'];
 
 function computePresetRange(preset: DashboardFilterState['preset']): { dateFrom: string; dateTo: string } {
   const today = new Date().toISOString().split('T')[0];
@@ -50,33 +36,11 @@ export function getDefaultFilters(): DashboardFilterState {
     preset: 'today',
     dateFrom: today,
     dateTo: today,
-    region: null,
-    warehouse: null,
-    supplier: null,
-    orderType: null,
-    status: null,
   };
 }
 
-export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded, onToggleExpanded }: DashboardFilterBarProps) {
+export function DashboardFilterBar({ filters, onFilterChange, onReset }: DashboardFilterBarProps) {
   const { t } = useTranslation();
-
-  // Fetch real backend data for filter dropdowns
-  const { data: regions } = useQuery({
-    queryKey: ['dashboard-filters', 'regions'],
-    queryFn: () => regionsApi.getPageData().then((d) => d.regions),
-    staleTime: 60_000,
-  });
-  const { data: warehouses } = useQuery({
-    queryKey: ['dashboard-filters', 'warehouses'],
-    queryFn: () => aggregationApi.getWarehouses(),
-    staleTime: 60_000,
-  });
-  const { data: suppliers } = useQuery({
-    queryKey: ['dashboard-filters', 'suppliers'],
-    queryFn: () => suppliersApi.getPageData().then((d) => d.suppliers),
-    staleTime: 60_000,
-  });
 
   const DATE_PRESETS = [
     { key: 'today' as const, label: t('dashboard.filters.today') },
@@ -101,8 +65,6 @@ export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded,
   const handleDateToChange = (value: string) => {
     onFilterChange({ dateTo: value, preset: 'custom' });
   };
-
-  const isAllOptions = (arr: unknown[] | undefined | null): arr is [] => !arr || arr.length === 0;
 
   return (
     <div className="bg-white rounded-xl border border-border-default/60 shadow-card">
@@ -151,90 +113,8 @@ export function DashboardFilterBar({ filters, onFilterChange, onReset, expanded,
           >
             <RotateCcw size={14} />
           </button>
-          <button
-            onClick={onToggleExpanded}
-            className="flex items-center gap-1 text-xs font-bold text-text-secondary hover:text-text-primary transition-colors font-body px-2.5 py-1.5 hover:bg-bg-section-alt rounded-lg"
-          >
-            <Filter size={14} />
-            <span>{t('dashboard.filters.filters')}</span>
-            <ChevronDown size={12} className={cn('transition-transform', expanded && 'rotate-180')} />
-          </button>
         </div>
       </div>
-
-      {expanded && (
-        <div className="border-t border-border-default/60 p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <FilterSelect
-            label={t('dashboard.filters.region')}
-            placeholder={t('dashboard.filters.allRegions')}
-            value={filters.region || ''}
-            onChange={(v) => onFilterChange({ region: v || null })}
-            options={regions?.map((r) => r.name) || []}
-          />
-          <FilterSelect
-            label={t('dashboard.filters.warehouse')}
-            placeholder={t('dashboard.filters.allWarehouses')}
-            value={filters.warehouse || ''}
-            onChange={(v) => onFilterChange({ warehouse: v || null })}
-            options={warehouses?.map((w) => w.name) || []}
-          />
-          <FilterSelect
-            label={t('dashboard.filters.supplier')}
-            placeholder={t('dashboard.filters.allSuppliers')}
-            value={filters.supplier || ''}
-            onChange={(v) => onFilterChange({ supplier: v || null })}
-            options={suppliers?.map((s) => s.name) || []}
-            disabled={isAllOptions(suppliers)}
-          />
-          <FilterSelect
-            label={t('dashboard.filters.orderType')}
-            placeholder={t('dashboard.filters.allTypes')}
-            value={filters.orderType || ''}
-            onChange={(v) => onFilterChange({ orderType: v || null })}
-            options={ORDER_TYPES.map((o) => t('dashboard.filters.' + o))}
-          />
-          <FilterSelect
-            label={t('dashboard.filters.status')}
-            placeholder={t('dashboard.filters.allStatuses')}
-            value={filters.status || ''}
-            onChange={(v) => onFilterChange({ status: v || null })}
-            options={STATUSES.map((s) => t('orders.status.' + s))}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FilterSelect({
-  label,
-  placeholder,
-  value,
-  onChange,
-  options,
-  disabled,
-}: {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: string[];
-  disabled?: boolean;
-}) {
-  return (
-    <div>
-      <label className="block text-[11px] font-bold text-text-tertiary uppercase tracking-wider mb-1.5 font-body">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        className="w-full px-2.5 py-2 border border-border-default rounded-lg text-xs font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <option value="">{placeholder}</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt.toLowerCase()}>{opt}</option>
-        ))}
-      </select>
     </div>
   );
 }

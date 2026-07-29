@@ -11,7 +11,8 @@ interface BestSuppliersWidgetProps {
 
 export function BestSuppliersWidget({ suppliers, isLoading }: BestSuppliersWidgetProps) {
   const { t } = useTranslation();
-  const maxOrders = Math.max(...suppliers.map((s) => s.orderCount), 1);
+  const sorted = [...suppliers].sort((a, b) => b.orderCount - a.orderCount).slice(0, 5);
+  const maxOrders = Math.max(...sorted.map((s) => s.orderCount), 1);
 
   return (
     <Card padding="lg" hover>
@@ -33,19 +34,21 @@ export function BestSuppliersWidget({ suppliers, isLoading }: BestSuppliersWidge
             <div key={i} className="h-14 bg-gray-100 rounded-lg" />
           ))}
         </div>
+      ) : sorted.length === 0 ? (
+        <p className="text-sm text-text-tertiary text-center py-6 font-body">{t('dashboard.topSuppliers.empty')}</p>
       ) : (
         <div className="space-y-3">
-          {suppliers.map((supplier, idx) => {
+          {sorted.map((supplier, idx) => {
             const rankColor = idx === 0 ? 'text-brand-primary' : idx === 1 ? 'text-brand-accent' : idx === 2 ? 'text-amber-600' : 'text-text-tertiary';
             return (
               <div key={supplier.id} className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className={`text-xs font-extrabold font-mono w-5 ${rankColor}`}>#{idx + 1}</span>
-                    <span className="text-sm font-bold text-text-primary font-body">{supplier.name}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className={`text-xs font-extrabold font-mono w-5 flex-shrink-0 ${rankColor}`}>#{idx + 1}</span>
+                    <span className="text-sm font-bold text-text-primary font-body truncate">{supplier.name}</span>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs text-text-secondary font-body">{t('dashboard.topSuppliers.orders', { count: supplier.orderCount })}</span>
+                  <div className="flex items-center gap-2.5 flex-shrink-0">
+                    <span className="text-xs text-text-secondary font-body whitespace-nowrap">{t('dashboard.topSuppliers.orders', { count: supplier.orderCount })}</span>
                     <Badge
                       variant={supplier.acceptanceRate >= 90 ? 'green' : supplier.acceptanceRate >= 80 ? 'yellow' : 'red'}
                       size="sm"

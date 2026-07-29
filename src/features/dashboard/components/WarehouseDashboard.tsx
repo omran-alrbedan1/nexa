@@ -14,12 +14,10 @@ interface WarehouseDashboardProps {
   isLoading: boolean;
   filters: DashboardFilterState;
   onFilterChange: (filters: Partial<DashboardFilterState>) => void;
-  isExpanded: boolean;
-  onToggleExpanded: () => void;
   onResetFilters: () => void;
 }
 
-export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: WarehouseDashboardProps) {
+export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, onResetFilters }: WarehouseDashboardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -30,8 +28,6 @@ export function WarehouseDashboard({ data, isLoading, filters, onFilterChange, i
         filters={filters}
         onFilterChange={onFilterChange}
         onReset={onResetFilters}
-        expanded={isExpanded}
-        onToggleExpanded={onToggleExpanded}
       />
 
       {/* ═══ Stats grid — warehouse focused ═══ */}

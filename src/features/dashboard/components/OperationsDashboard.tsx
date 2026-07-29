@@ -18,12 +18,10 @@ interface OperationsDashboardProps {
   isLoading: boolean;
   filters: DashboardFilterState;
   onFilterChange: (filters: Partial<DashboardFilterState>) => void;
-  isExpanded: boolean;
-  onToggleExpanded: () => void;
   onResetFilters: () => void;
 }
 
-export function OperationsDashboard({ data, isLoading, filters, onFilterChange, isExpanded, onToggleExpanded, onResetFilters }: OperationsDashboardProps) {
+export function OperationsDashboard({ data, isLoading, filters, onFilterChange, onResetFilters }: OperationsDashboardProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -34,8 +32,6 @@ export function OperationsDashboard({ data, isLoading, filters, onFilterChange, 
         filters={filters}
         onFilterChange={onFilterChange}
         onReset={onResetFilters}
-        expanded={isExpanded}
-        onToggleExpanded={onToggleExpanded}
       />
 
       {/* ═══ Stats grid — operations focused ═══ */}

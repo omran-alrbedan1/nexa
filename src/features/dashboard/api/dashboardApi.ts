@@ -305,12 +305,13 @@ async function fetchTopSuppliers(): Promise<TopSupplier[]> {
   try {
     const result = await suppliersApi.getPageData();
     return result.suppliers
-      .filter((s) => s.acceptanceRate > 0 || s.rating > 0)
+      .filter((s) => s.totalOrders > 0 || s.acceptanceRate > 0)
+      .sort((a, b) => b.totalOrders - a.totalOrders)
       .slice(0, 5)
       .map((s) => ({
         id: s.id,
         name: s.name,
-        orderCount: 0,
+        orderCount: s.totalOrders,
         acceptanceRate: s.acceptanceRate,
       }));
   } catch {

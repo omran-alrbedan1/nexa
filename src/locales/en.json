@@ -411,7 +411,28 @@
     "ordersByStatus": {
       "title": "Orders by Status",
       "subtitle": "Today's breakdown",
-      "today": "Today"
+      "today": "Today",
+      "statusLabels": {
+        "delivered": "Delivered",
+        "outForDelivery": "Out for Delivery",
+        "confirmed": "Confirmed",
+        "pendingAggregation": "Pending Aggregation",
+        "new": "New",
+        "pendingPricing": "Pending Pricing",
+        "failedDelivery": "Failed Delivery"
+      },
+      "pipeline": {
+        "in_supply": "In Supply",
+        "in_aggregation": "In Aggregation",
+        "ready_to_ship": "Ready to Ship",
+        "out_for_delivery": "Out for Delivery",
+        "delivered_today": "Delivered"
+      },
+      "types": {
+        "regular": "Regular",
+        "special": "Special",
+        "seasonal": "Seasonal"
+      }
     },
     "recentOrders": {
       "title": "Recent Orders",
@@ -473,7 +494,8 @@
     "topSuppliers": {
       "title": "Top Suppliers",
       "subtitle": "By order volume and acceptance rate",
-      "orders": "{{count}} orders"
+      "orders": "{{count}} orders",
+      "empty": "No supplier data yet"
     },
     "topAreas": {
       "title": "Top Areas",

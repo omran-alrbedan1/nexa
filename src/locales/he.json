@@ -304,7 +304,28 @@
     "ordersByStatus": {
       "title": "הזמנות לפי סטטוס",
       "subtitle": "פילוח היום",
-      "today": "היום"
+      "today": "היום",
+      "statusLabels": {
+        "delivered": "נמסר",
+        "outForDelivery": "בהפצה",
+        "confirmed": "מאושר",
+        "pendingAggregation": "ממתין לאיגום",
+        "new": "חדש",
+        "pendingPricing": "ממתין לתמחור",
+        "failedDelivery": "מסירה נכשלה"
+      },
+      "pipeline": {
+        "in_supply": "באספקה",
+        "in_aggregation": "באיגום",
+        "ready_to_ship": "מוכן למשלוח",
+        "out_for_delivery": "בהפצה",
+        "delivered_today": "נמסר"
+      },
+      "types": {
+        "regular": "רגיל",
+        "special": "מיוחד",
+        "seasonal": "עונתי"
+      }
     },
     "recentOrders": {
       "title": "הזמנות אחרונות",
@@ -350,7 +371,8 @@
     "topSuppliers": {
       "title": "הספקים המובילים",
       "subtitle": "לפי נפח הזמנות ושיעור קבלה",
-      "orders": "{{count}} הזמנות"
+      "orders": "{{count}} הזמנות",
+      "empty": "אין עדיין נתוני ספקים"
     },
     "topAreas": {
       "title": "האזורים המובילים",
