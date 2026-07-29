@@ -1320,6 +1320,12 @@
     "allTickets": "جميع التذاكر",
     "searchPlaceholder": "البحث بالموضوع أو رقم التذكرة...",
     "allStatuses": "جميع الحالات",
+    "tabs": {
+      "all": "الكل",
+      "customers": "العملاء",
+      "suppliers": "الموردين",
+      "drivers": "السائقين"
+    },
     "noTickets": "لا توجد تذاكر",
     "allResolved": "تم حل جميع التذاكر",
     "assign": "إسناد",

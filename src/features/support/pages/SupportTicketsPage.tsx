@@ -33,6 +33,7 @@ export function SupportTicketsPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const [assignModal, setAssignModal] = useState<{ open: boolean; ticketId: number; staffId: string }>({ open: false, ticketId: 0, staffId: '' });
+  const [userTab, setUserTab] = useState<'all' | 'customer' | 'supplier' | 'driver'>('all');
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['support-tickets'],
@@ -67,7 +68,12 @@ export function SupportTicketsPage() {
   const tickets = (data?.tickets || []).filter((t: any) => {
     const matchesSearch = !search || t.subject?.toLowerCase().includes(search.toLowerCase()) || t.ticket_number?.includes(search);
     const matchesStatus = !statusFilter || t.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesUserTab =
+      userTab === 'all' ||
+      (userTab === 'customer' && t.customer != null) ||
+      (userTab === 'supplier' && t.supplier != null) ||
+      (userTab === 'driver' && t.driver != null);
+    return matchesSearch && matchesStatus && matchesUserTab;
   });
 
   if (isError) {
@@ -92,6 +98,26 @@ export function SupportTicketsPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* User-type Tabs */}
+      <div className="flex gap-1 p-1 rounded-xl bg-gray-100 w-fit">
+        {(['all', 'customer', 'supplier', 'driver'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setUserTab(tab)}
+            className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${
+              userTab === tab
+                ? 'bg-white text-text-primary shadow-sm'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {tab === 'all' ? t('support.tabs.all') :
+             tab === 'customer' ? t('support.tabs.customers') :
+             tab === 'supplier' ? t('support.tabs.suppliers') :
+             t('support.tabs.drivers')}
+          </button>
+        ))}
       </div>
 
       <Card padding="lg">

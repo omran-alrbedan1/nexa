@@ -1826,6 +1826,12 @@
     "allTickets": "All Tickets",
     "searchPlaceholder": "Search by subject or ticket number...",
     "allStatuses": "All Statuses",
+    "tabs": {
+      "all": "All",
+      "customers": "Customers",
+      "suppliers": "Suppliers",
+      "drivers": "Drivers"
+    },
     "noTickets": "No tickets found",
     "allResolved": "All tickets have been resolved",
     "assign": "Assign",

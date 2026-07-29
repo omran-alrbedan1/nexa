@@ -46,6 +46,8 @@ export interface SupportTicketListItem {
   status: string;
   priority: string;
   customer: SupportTicketUser | null;
+  supplier: SupportTicketUser | null;
+  driver: SupportTicketUser | null;
   assignee: SupportTicketUser | null;
   created_at: string;
   messages?: SupportTicketMessage[];
