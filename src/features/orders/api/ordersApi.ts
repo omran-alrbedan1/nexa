@@ -19,6 +19,7 @@ import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/typ
 // ──────────────────────────────────────────────
 
 export type DeliveryType = 'home_delivery' | 'pickup';
+export type DeliveryUrgency = 'fast' | 'scheduled';
 
 export interface OrderItem {
   id: number;
@@ -61,6 +62,7 @@ export interface OrderDetail {
   orderNumber: string;
   orderType: OrderType;
   deliveryType: DeliveryType;
+  deliveryUrgency: DeliveryUrgency | null;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
@@ -98,6 +100,7 @@ export interface OrderSummary {
   customerPhone: string;
   type: OrderType;
   deliveryType: DeliveryType;
+  deliveryUrgency: DeliveryUrgency | null;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   itemCount: number;
@@ -205,6 +208,7 @@ interface BackendOrder {
   order_number: string;
   order_type: string;
   delivery_type: string | null;
+  delivery_urgency: string | null;
   status: string;
   payment_status: string;
   total: string;
@@ -248,6 +252,7 @@ function mapBackendOrderToSummary(bo: BackendOrder): OrderSummary {
     customerPhone: bo.customer?.phone || '',
     type: mapFromBackend(bo.order_type, ORDER_TYPE_BACKEND_TO_FRONTEND) as OrderType,
     deliveryType: (bo.delivery_type || 'home_delivery') as DeliveryType,
+    deliveryUrgency: (bo.delivery_urgency || null) as DeliveryUrgency | null,
     status: mapFromBackend(bo.status, ORDER_STATUS_BACKEND_TO_FRONTEND) as OrderStatus,
     paymentStatus: mapFromBackend(bo.payment_status, PAYMENT_STATUS_BACKEND_TO_FRONTEND) as PaymentStatus,
     itemCount: bo.items?.length || 0,
@@ -265,6 +270,7 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
     orderNumber: bo.order_number,
     orderType: mapFromBackend(bo.order_type, ORDER_TYPE_BACKEND_TO_FRONTEND) as OrderType,
     deliveryType: (bo.delivery_type || 'home_delivery') as DeliveryType,
+    deliveryUrgency: (bo.delivery_urgency || null) as DeliveryUrgency | null,
     status: mapFromBackend(bo.status, ORDER_STATUS_BACKEND_TO_FRONTEND) as OrderStatus,
     paymentStatus: mapFromBackend(bo.payment_status, PAYMENT_STATUS_BACKEND_TO_FRONTEND) as PaymentStatus,
     paymentMethod: mapPaymentMethod(bo.payments?.[0]?.method || '') as PaymentMethod,
@@ -408,6 +414,12 @@ export const ordersApi = {
   /** Update delivery type */
   updateDeliveryType: async (orderId: number, deliveryType: DeliveryType): Promise<OrderDetail> => {
     const response = await apiClient.post<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/delivery-type`, { delivery_type: deliveryType });
+    return mapBackendOrderToDetail(unwrap(response.data));
+  },
+
+  /** Update delivery urgency (fast / scheduled) */
+  updateDeliveryUrgency: async (orderId: number, deliveryUrgency: DeliveryUrgency): Promise<OrderDetail> => {
+    const response = await apiClient.post<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/delivery-urgency`, { delivery_urgency: deliveryUrgency });
     return mapBackendOrderToDetail(unwrap(response.data));
   },
 

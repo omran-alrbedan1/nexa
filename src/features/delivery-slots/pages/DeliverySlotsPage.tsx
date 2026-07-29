@@ -29,6 +29,7 @@ export function DeliverySlotsPage() {
       <div>
         <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('deliverySlots.title')}</h1>
         <p className="text-sm text-text-secondary font-body mt-1">{t('deliverySlots.description')}</p>
+        <p className="text-xs text-text-tertiary font-body mt-0.5">Internal logistics use only. Customers no longer select slots at checkout.</p>
       </div>
       <ErrorState title={t('common.error')} message={error instanceof Error ? error.message : t('common.error')} onRetry={() => refetch()} />
     </div>

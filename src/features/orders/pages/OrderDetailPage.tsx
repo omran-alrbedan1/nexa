@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder, useUpdateDeliveryType } from '../hooks/useOrders';
+import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder, useUpdateDeliveryType, useUpdateDeliveryUrgency } from '../hooks/useOrders';
+import type { DeliveryUrgency } from '../api/ordersApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -96,6 +97,9 @@ export function OrderDetailPage() {
   const updateDeliveryType = useUpdateDeliveryType();
   const [deliveryTypeModal, setDeliveryTypeModal] = useState(false);
   const [deliveryTypeSelection, setDeliveryTypeSelection] = useState<DeliveryType>('home_delivery');
+  const updateDeliveryUrgency = useUpdateDeliveryUrgency();
+  const [deliveryUrgencyModal, setDeliveryUrgencyModal] = useState(false);
+  const [deliveryUrgencySelection, setDeliveryUrgencySelection] = useState<DeliveryUrgency>('fast');
 
   const [rescheduleModal, setRescheduleModal] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -159,6 +163,10 @@ export function OrderDetailPage() {
         setTransferReason('');
         setTransferModal(true);
       }, variant: 'secondary', icon: <ArrowRightLeft size={14} /> });
+      actions.push({ label: 'Set Urgency', onClick: () => {
+        setDeliveryUrgencySelection(o.deliveryUrgency || 'fast');
+        setDeliveryUrgencyModal(true);
+      }, variant: 'secondary', icon: <Clock size={14} /> });
       actions.push({ label: t('orders.detail.changeDeliveryType', 'Change Delivery Type'), onClick: () => {
         setDeliveryTypeSelection(o.deliveryType);
         setDeliveryTypeModal(true);
@@ -189,6 +197,11 @@ export function OrderDetailPage() {
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{order.orderNumber}</h1>
                 <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{order.orderType}</Badge>
                 <Badge variant={order.deliveryType === 'pickup' ? 'coral' : 'teal'} size="sm">{order.deliveryType === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</Badge>
+                {order.deliveryUrgency && (
+                  <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
+                    {order.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled'}
+                  </Badge>
+                )}
                 <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1">
@@ -231,12 +244,12 @@ export function OrderDetailPage() {
         <OrderInfoCard icon={<Truck size={16} />} label={t('orders.detail.delivery')}>
           <p className="text-xs">{order.warehouseName || order.deliveryZone || '—'}{order.deliveryZone && order.warehouseName ? ` · ${order.deliveryZone}` : ''}</p>
           {order.supplierName && <p className="text-xs text-text-secondary">Supplier: {order.supplierName}</p>}
-          {order.scheduledDate ? (
-            <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
-              <Clock size={10} />{safeFormatDate(order.scheduledDate, (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}
+          {order.deliveryUrgency ? (
+            <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5 font-bold">
+              {order.deliveryUrgency === 'fast' ? 'Fast Delivery' : 'Scheduled (1-2 days)'}
             </p>
           ) : (
-            <p className="text-xs text-text-tertiary">{t('orders.detail.notScheduled')}</p>
+            <p className="text-xs text-text-tertiary">Urgency not set</p>
           )}
         </OrderInfoCard>
 
@@ -515,6 +528,48 @@ export function OrderDetailPage() {
             <Button variant="accent" size="sm" isLoading={updateDeliveryType.isPending} onClick={() => {
               updateDeliveryType.mutate({ orderId: order.id, deliveryType: deliveryTypeSelection });
               setDeliveryTypeModal(false);
+            }}>
+              {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delivery Urgency Modal */}
+      <Modal open={deliveryUrgencyModal} onClose={() => setDeliveryUrgencyModal(false)} title="Set Delivery Urgency">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50 border border-purple-100">
+            <Clock size={18} className="text-purple-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-purple-700 font-body">
+              Set whether this order should be delivered urgently (fast) or scheduled (1-2 days).
+            </p>
+          </div>
+          <div className="space-y-2">
+            {(['fast', 'scheduled'] as DeliveryUrgency[]).map((u) => (
+              <label key={u} className="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors hover:bg-bg-section-alt"
+                style={{ borderColor: deliveryUrgencySelection === u ? 'var(--color-brand-primary)' : 'var(--color-border-default)' }}>
+                <input
+                  type="radio"
+                  name="deliveryUrgency"
+                  value={u}
+                  checked={deliveryUrgencySelection === u}
+                  onChange={() => setDeliveryUrgencySelection(u)}
+                  className="text-brand-primary focus:ring-brand-primary/30"
+                />
+                <div>
+                  <p className="text-sm font-bold text-text-primary">{u === 'fast' ? 'Fast (فوري)' : 'Scheduled (1-2 days)'}</p>
+                  <p className="text-xs text-text-tertiary">
+                    {u === 'fast' ? 'Deliver as soon as possible, same day typically' : 'Deliver within 1 to 2 days'}
+                  </p>
+                </div>
+              </label>
+            ))}
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeliveryUrgencyModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="accent" size="sm" isLoading={updateDeliveryUrgency.isPending} onClick={() => {
+              updateDeliveryUrgency.mutate({ orderId: order.id, deliveryUrgency: deliveryUrgencySelection });
+              setDeliveryUrgencyModal(false);
             }}>
               {t('common.save')}
             </Button>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ordersApi, type DeliveryType, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
+import { ordersApi, type DeliveryType, type DeliveryUrgency, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
 import { useToastStore } from '@/stores/toastStore';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 
@@ -103,6 +103,25 @@ export function useUpdateDeliveryType() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       addToast('success', t('orders.toast.deliveryTypeUpdated', 'Delivery type updated'));
+    },
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
+    },
+  });
+}
+
+export function useUpdateDeliveryUrgency() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ orderId, deliveryUrgency }: { orderId: number; deliveryUrgency: DeliveryUrgency }) =>
+      ordersApi.updateDeliveryUrgency(orderId, deliveryUrgency),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+      const label = variables.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled';
+      addToast('success', `Delivery urgency set to ${label}`);
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));

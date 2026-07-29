@@ -300,6 +300,11 @@ export function OrdersPage() {
                   badges={<>
                     <Badge variant={TYPE_BADGE[order.type]} size="sm">{t(`orders.list.${order.type}`)}</Badge>
                     <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
+                    {order.deliveryUrgency && (
+                      <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
+                        {order.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled'}
+                      </Badge>
+                    )}
                   </>}
                   actions={<>
                     <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : t('orders.list.tbd')}</span>
