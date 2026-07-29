@@ -1244,6 +1244,12 @@
     "allTickets": "כל הכרטיסים",
     "searchPlaceholder": "חיפוש לפי נושא או מספר כרטיס...",
     "allStatuses": "כל הסטטוסים",
+    "tabs": {
+      "all": "הכל",
+      "customers": "לקוחות",
+      "suppliers": "ספקים",
+      "drivers": "נהגים"
+    },
     "noTickets": "לא נמצאו כרטיסים",
     "allResolved": "כל הכרטיסים נפתרו",
     "assign": "שייך",

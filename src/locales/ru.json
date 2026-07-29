@@ -1244,6 +1244,12 @@
     "allTickets": "Все тикеты",
     "searchPlaceholder": "Поиск по теме или номеру тикета...",
     "allStatuses": "Все статусы",
+    "tabs": {
+      "all": "Все",
+      "customers": "Клиенты",
+      "suppliers": "Поставщики",
+      "drivers": "Водители"
+    },
     "noTickets": "Тикеты не найдены",
     "allResolved": "Все тикеты решены",
     "assign": "Назначить",
