@@ -75,6 +75,11 @@ interface BackendSupplierZone {
   name: string;
 }
 
+interface BackendCategoryRef {
+  id: number;
+  name: string;
+}
+
 interface BackendSupplier {
   id: number;
   business_name: string;
@@ -99,6 +104,7 @@ interface BackendSupplier {
   total_revenue: number;
   approved_at: string | null;
   rejection_reason: string | null;
+  categories: BackendCategoryRef[] | null;
   user: BackendSupplierUser;
   zone: BackendSupplierZone | null;
 }
@@ -171,7 +177,7 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     totalOrders: Number(bs.total_orders ?? 0),
     totalRevenue: Number(bs.total_revenue ?? 0),
     acceptanceRate: Number(bs.acceptance_rate),
-    categories: [],
+    categories: bs.categories?.map((c) => c.name) || [],
     regions: bs.zone ? [bs.zone.name] : [],
     contactPerson: bs.user?.full_name || '',
     contactPhone: bs.user?.phone || '',
@@ -281,6 +287,24 @@ export const suppliersApi = {
   suspendSupplier: async (id: number, reason: string): Promise<Supplier> => {
     const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/reject`, { reason });
     return mapBackendSupplier(response.data.data);
+  },
+
+  /** Fetch supplier categories */
+  getSupplierCategories: async (supplierId: number): Promise<number[]> => {
+    const response = await apiClient.get<ApiResponse<{ category_ids: number[] }>>(`/api/v1/admin/suppliers/${supplierId}/categories`);
+    return response.data.data?.category_ids ?? [];
+  },
+
+  /** Sync supplier categories */
+  syncSupplierCategories: async (supplierId: number, categoryIds: number[]): Promise<Supplier> => {
+    const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${supplierId}/categories`, { category_ids: categoryIds });
+    return mapBackendSupplier(response.data.data);
+  },
+
+  /** Fetch all product categories */
+  getAllCategories: async (): Promise<Array<{ id: number; name: string }>> => {
+    const response = await apiClient.get<ApiResponse<{ categories: Array<{ id: number; name_ar: string; name_en: string | null }> }>>('/api/v1/admin/categories');
+    return (response.data.data?.categories || []).map((bc) => ({ id: bc.id, name: bc.name_en || bc.name_ar }));
   },
 };
 

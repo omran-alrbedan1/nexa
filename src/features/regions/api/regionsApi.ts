@@ -35,6 +35,7 @@ export interface Region {
   minimumOrder: number;
   freeDeliveryThreshold: number | null;
   isActive: boolean;
+  boundaries: { lat: number; lng: number }[][] | null;
   clusters: Cluster[];
   timeSlots: TimeSlot[];
   totalOrders: number;
@@ -72,6 +73,7 @@ interface BackendDeliveryZone {
   name_en: string | null;
   province_id: number;
   is_active: boolean;
+  boundaries: { lat: number; lng: number }[][] | null;
   default_warehouse_id: number | null;
   province?: { id: number; name: string } | null;
   created_at: string;
@@ -92,12 +94,13 @@ interface BackendZonesResponse {
 function mapBackendZone(z: BackendDeliveryZone): Region {
   return {
     id: z.id,
-    name: z.name_ar || z.name_en || '', // Arabic first for Saudi app
+    name: z.name_ar || z.name_en || '',
     nameAr: z.name_ar,
     deliveryFee: 0,
     minimumOrder: 0,
     freeDeliveryThreshold: null,
     isActive: z.is_active,
+    boundaries: z.boundaries ?? null,
     clusters: [],
     timeSlots: [],
     totalOrders: 0,
@@ -150,13 +153,13 @@ export const regionsApi = {
   },
 
   /** Create a new zone */
-  createZone: async (data: { name_ar: string; name_en?: string; code?: string }): Promise<Region> => {
+  createZone: async (data: { name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
     const response = await apiClient.post<ApiResponse<BackendDeliveryZone>>('/api/v1/admin/zones', data);
     return mapBackendZone(response.data.data);
   },
 
   /** Update an existing zone */
-  updateZone: async (id: number, data: { name_ar?: string; name_en?: string; code?: string }): Promise<Region> => {
+  updateZone: async (id: number, data: { name_ar?: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
     const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}`, data);
     return mapBackendZone(response.data.data);
   },

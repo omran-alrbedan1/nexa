@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { productKeys } from '../hooks/useProductsAdmin';
+import { VariantsSection } from '../components/VariantsSection';
 import {
   ArrowLeft, Package, Star, ShoppingCart, TrendingUp, Building2,
   Tag, Hash, Ruler, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users,
@@ -252,6 +253,11 @@ export function ProductDetailPage() {
           </div>
         </Card>
       </div>
+
+      {/* Variants */}
+      <Card padding="lg">
+        <VariantsSection productId={product.id} />
+      </Card>
 
       {/* Description */}
       {(product.description || product.descriptionAr) && (

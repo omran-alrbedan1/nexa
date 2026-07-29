@@ -130,7 +130,22 @@ function mapBackendCustomer(bc: BackendCustomer): Customer {
   };
 }
 
+/** Create a new customer */
+interface CreateCustomerData {
+  firstName: string;
+  lastName?: string;
+  phone: string;
+  email?: string;
+  password?: string;
+}
+
 export const customersApi = {
+  /** Create a new customer */
+  createCustomer: async (data: CreateCustomerData): Promise<Customer> => {
+    const response = await apiClient.post<ApiResponse<BackendCustomer>>('/api/v1/admin/customers', data);
+    return mapBackendCustomer(response.data.data);
+  },
+
   /** Fetch all customers page data (stats + list) */
   getPageData: async (): Promise<CustomersPageData> => {
     try {

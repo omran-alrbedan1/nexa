@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApproveSupplier, useSuspendSupplier, useSupplierProducts } from '../hooks/useSuppliers';
+import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories } from '../hooks/useSuppliers';
 import { suppliersApi } from '../api/suppliersApi';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -11,10 +11,10 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2,
-  Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle,
+  Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Layers, Pencil,
 } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
 import type { Supplier } from '../api/suppliersApi';
@@ -260,6 +260,22 @@ export function SupplierDetailPage() {
   const [suspendingId, setSuspendingId] = useState<number | null>(null);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
 
+  const { data: selectedCategoryIds } = useSupplierCategories(id);
+  const syncCategories = useSyncSupplierCategories(id);
+  const [catModal, setCatModal] = useState(false);
+  const [catSelection, setCatSelection] = useState<number[]>([]);
+  const { data: allCategories } = useQuery({
+    queryKey: ['categories', 'all'],
+    queryFn: () => suppliersApi.getAllCategories(),
+    staleTime: 60_000,
+  });
+
+  useEffect(() => {
+    if (selectedCategoryIds) {
+      setCatSelection(selectedCategoryIds);
+    }
+  }, [selectedCategoryIds]);
+
   const STAT_CONFIG = [
     { key: 'totalOrders', label: t('suppliers.detail.totalOrders'), icon: ShoppingCart, variant: 'teal' as const },
     { key: 'totalRevenue', label: t('suppliers.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '' },
@@ -452,14 +468,20 @@ export function SupplierDetailPage() {
           </div>
           {/* Categories & Regions */}
           <div className="mt-5">
-            {supplier.categories.length > 0 && (
-              <div className="mb-2">
-                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">{t('suppliers.detail.categories')}</p>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}
-                </div>
+            <div className="mb-2">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('suppliers.detail.categories')}</p>
+                <Button variant="ghost" size="sm" leftIcon={<Pencil size={12} />} onClick={() => setCatModal(true)}>
+                  {t('common.manage', 'Manage')}
+                </Button>
               </div>
-            )}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {supplier.categories.length > 0
+                  ? supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)
+                  : <span className="text-xs text-text-tertiary">{t('suppliers.detail.noCategories', 'No categories')}</span>
+                }
+              </div>
+            </div>
             {supplier.regions.length > 0 && (
               <div>
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body mb-2">{t('suppliers.detail.deliveryRegions')}</p>
@@ -476,6 +498,40 @@ export function SupplierDetailPage() {
 
       {/* Recent Orders */}
       <RecentOrdersSection supplierId={id} t={t} totalOrders={supplier.totalOrders} />
+
+      {/* Category Modal */}
+      <Modal open={catModal} onClose={() => setCatModal(false)} title={t('suppliers.detail.manageCategories', 'Manage Categories')}>
+        <div className="space-y-3">
+          {allCategories?.length === 0 && (
+            <p className="text-sm text-text-secondary">{t('suppliers.detail.noCategoriesAvailable', 'No categories available')}</p>
+          )}
+          <div className="max-h-64 overflow-y-auto space-y-2">
+            {allCategories?.map((cat) => (
+              <label key={cat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={catSelection.includes(cat.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setCatSelection([...catSelection, cat.id]);
+                    } else {
+                      setCatSelection(catSelection.filter((id) => id !== cat.id));
+                    }
+                  }}
+                  className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary/30"
+                />
+                <span className="text-sm font-body text-text-primary">{cat.name}</span>
+              </label>
+            ))}
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="secondary" size="sm" onClick={() => setCatModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={syncCategories.isPending} onClick={() => {
+              syncCategories.mutate(catSelection, { onSuccess: () => setCatModal(false) });
+            }}>{t('common.save')}</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Suspend Modal */}
       <Modal open={suspendModal.open} onClose={() => setSuspendModal({ ...suspendModal, open: false })} title={t('suppliers.list.suspendTitle', { name: supplier.name })}>

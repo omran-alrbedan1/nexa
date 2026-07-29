@@ -59,3 +59,27 @@ export function useSuspendSupplier() {
     onError: () => addToast('error', t('suppliers.toast.suspendFailed')),
   });
 }
+
+export function useSupplierCategories(supplierId: number) {
+  return useQuery({
+    queryKey: [...supplierKeys.detail(supplierId), 'categories'],
+    queryFn: () => suppliersApi.getSupplierCategories(supplierId),
+    enabled: supplierId > 0,
+    staleTime: 30_000,
+  });
+}
+
+export function useSyncSupplierCategories(supplierId: number) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (categoryIds: number[]) => suppliersApi.syncSupplierCategories(supplierId, categoryIds),
+    onSuccess: (_, __, ctx) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(supplierId) });
+      queryClient.invalidateQueries({ queryKey: [...supplierKeys.detail(supplierId), 'categories'] });
+      addToast('success', t('suppliers.toast.categoriesUpdated', 'Categories updated'));
+    },
+    onError: () => addToast('error', t('suppliers.toast.categoriesUpdateFailed', 'Failed to update categories')),
+  });
+}

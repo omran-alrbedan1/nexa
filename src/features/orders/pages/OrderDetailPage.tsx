@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder } from '../hooks/useOrders';
+import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder, useUpdateDeliveryType } from '../hooks/useOrders';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -15,9 +15,9 @@ import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
   CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
-  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock, Navigation,
+  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock, Navigation, MapPinHouse,
 } from 'lucide-react';
-import type { OrderDetail } from '../api/ordersApi';
+import type { DeliveryType, OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { safeFormatDate, isDateValid } from '@/utils/date';
@@ -93,6 +93,10 @@ export function OrderDetailPage() {
   const formatPrice = useFormatPrice();
   void useDeliveryStage(id);
   const [cancelModal, setCancelModal] = useState(false);
+  const updateDeliveryType = useUpdateDeliveryType();
+  const [deliveryTypeModal, setDeliveryTypeModal] = useState(false);
+  const [deliveryTypeSelection, setDeliveryTypeSelection] = useState<DeliveryType>('home_delivery');
+
   const [rescheduleModal, setRescheduleModal] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
@@ -155,6 +159,10 @@ export function OrderDetailPage() {
         setTransferReason('');
         setTransferModal(true);
       }, variant: 'secondary', icon: <ArrowRightLeft size={14} /> });
+      actions.push({ label: t('orders.detail.changeDeliveryType', 'Change Delivery Type'), onClick: () => {
+        setDeliveryTypeSelection(o.deliveryType);
+        setDeliveryTypeModal(true);
+      }, variant: 'secondary', icon: <MapPinHouse size={14} /> });
       actions.push({ label: t('orders.detail.cancelOrder'), onClick: () => setCancelModal(true), variant: 'danger', icon: <XCircle size={14} /> });
     }
     return actions;
@@ -180,6 +188,7 @@ export function OrderDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{order.orderNumber}</h1>
                 <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{order.orderType}</Badge>
+                <Badge variant={order.deliveryType === 'pickup' ? 'coral' : 'teal'} size="sm">{order.deliveryType === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</Badge>
                 <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1">
@@ -474,6 +483,44 @@ export function OrderDetailPage() {
           ))}
         </Card>
       )}
+
+      {/* Delivery Type Modal */}
+      <Modal open={deliveryTypeModal} onClose={() => setDeliveryTypeModal(false)} title={t('orders.detail.deliveryTypeModalTitle', 'Change Delivery Type')}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+            <MapPinHouse size={18} className="text-blue-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-blue-700 font-body">{t('orders.detail.deliveryTypeModalDesc', 'Changing the delivery type may affect how this order is fulfilled and delivered.')}</p>
+          </div>
+          <div className="space-y-2">
+            {(['home_delivery', 'pickup'] as DeliveryType[]).map((dt) => (
+              <label key={dt} className="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors hover:bg-bg-section-alt"
+                style={{ borderColor: deliveryTypeSelection === dt ? 'var(--color-brand-primary)' : 'var(--color-border-default)' }}>
+                <input
+                  type="radio"
+                  name="deliveryType"
+                  value={dt}
+                  checked={deliveryTypeSelection === dt}
+                  onChange={() => setDeliveryTypeSelection(dt)}
+                  className="text-brand-primary focus:ring-brand-primary/30"
+                />
+                <div>
+                  <p className="text-sm font-bold text-text-primary">{dt === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</p>
+                  <p className="text-xs text-text-tertiary">{dt === 'pickup' ? t('orders.deliveryType.pickupDesc', 'Customer collects from warehouse') : t('orders.deliveryType.homeDeliveryDesc', 'Delivered to customer\'s address')}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeliveryTypeModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="accent" size="sm" isLoading={updateDeliveryType.isPending} onClick={() => {
+              updateDeliveryType.mutate({ orderId: order.id, deliveryType: deliveryTypeSelection });
+              setDeliveryTypeModal(false);
+            }}>
+              {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Cancel Modal */}
       <Modal open={cancelModal} onClose={() => setCancelModal(false)} title={t('orders.detail.cancelModalTitle', { number: order.orderNumber })}>

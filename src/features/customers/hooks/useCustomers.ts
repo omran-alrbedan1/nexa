@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { customersApi, type CustomersPageData, type CustomerStatus } from '../api/customersApi';
+import { customersApi, type CreateCustomerData, type CustomersPageData, type CustomerStatus } from '../api/customersApi';
 
 export const customerKeys = {
   all: ['customers'] as const,
@@ -51,6 +51,20 @@ export function useUpdateCustomerStatus() {
       addToast('success', t('customers.toast.statusUpdated'));
     },
     onError: () => addToast('error', t('customers.toast.statusUpdateFailed')),
+  });
+}
+
+export function useCreateCustomer() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (data: CreateCustomerData) => customersApi.createCustomer(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: customerKeys.pageData() });
+      addToast('success', t('customers.toast.created'));
+    },
+    onError: () => addToast('error', t('customers.toast.createFailed')),
   });
 }
 

@@ -317,4 +317,54 @@ export const productsApi = {
   },
 };
 
+// ── Product Variants ──
+
+export interface ProductVariant {
+  id: number;
+  product_id: number;
+  sku: string | null;
+  name_ar: string;
+  name_en: string | null;
+  price: number;
+  stock_quantity: number;
+  available_stock: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export type VariantFormData = {
+  name_ar: string;
+  name_en?: string;
+  sku?: string;
+  price: number;
+  stock_quantity: number;
+  is_active?: boolean;
+};
+
+export const productVariantsApi = {
+  list: async (productId: number): Promise<ProductVariant[]> => {
+    const response = await apiClient.get<ApiResponse<{ variants: ProductVariant[] }>>(`/api/v1/admin/products/${productId}/variants`);
+    return response.data.data?.variants ?? [];
+  },
+
+  create: async (productId: number, data: VariantFormData): Promise<ProductVariant> => {
+    const response = await apiClient.post<ApiResponse<ProductVariant>>(`/api/v1/admin/products/${productId}/variants`, data);
+    return response.data.data;
+  },
+
+  update: async (productId: number, id: number, data: Partial<VariantFormData>): Promise<ProductVariant> => {
+    const response = await apiClient.put<ApiResponse<ProductVariant>>(`/api/v1/admin/products/${productId}/variants/${id}`, data);
+    return response.data.data;
+  },
+
+  toggle: async (productId: number, id: number): Promise<ProductVariant> => {
+    const response = await apiClient.post<ApiResponse<ProductVariant>>(`/api/v1/admin/products/${productId}/variants/${id}/toggle`);
+    return response.data.data;
+  },
+
+  delete: async (productId: number, id: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/admin/products/${productId}/variants/${id}`);
+  },
+};
+
 export type ProductsApi = typeof productsApi;

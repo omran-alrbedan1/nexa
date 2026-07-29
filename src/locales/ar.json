@@ -245,10 +245,24 @@
       "suspendDescription": "سيتم إيقاف حساب العميل. لن يتمكن من تقديم طلبات جديدة.",
       "activateTitle": "تفعيل {{name}}",
       "activateDescription": "سيتم إعادة تفعيل حساب العميل. سيتمكن من تقديم الطلبات مرة أخرى.",
-      "confirmSuspend": "تأكيد الإيقاف",
-      "confirmActivate": "تأكيد التفعيل"
-    },
-    "detail": {
+    "addCustomer": "إضافة عميل",
+    "confirmSuspend": "تأكيد الإيقاف",
+    "confirmActivate": "تأكيد التفعيل"
+  },
+  "create": {
+    "title": "إضافة عميل جديد",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "phone": "رقم الهاتف",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "إنشاء العميل"
+  },
+  "toast": {
+    "created": "تم إنشاء العميل بنجاح",
+    "createFailed": "فشل إنشاء العميل"
+  },
+  "detail": {
       "back": "العودة إلى العملاء",
       "errorTitle": "فشل تحميل بيانات العميل",
       "contactInfo": "معلومات الاتصال",

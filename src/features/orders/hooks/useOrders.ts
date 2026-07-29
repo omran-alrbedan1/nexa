@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ordersApi, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
+import { ordersApi, type DeliveryType, type OrderDetail, type OrdersPageData, type OrderListParams } from '../api/ordersApi';
 import { useToastStore } from '@/stores/toastStore';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 
@@ -85,6 +85,24 @@ export function useRescheduleOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
       addToast('success', t('orders.toast.orderRescheduled'));
+    },
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
+    },
+  });
+}
+
+export function useUpdateDeliveryType() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: ({ orderId, deliveryType }: { orderId: number; deliveryType: DeliveryType }) =>
+      ordersApi.updateDeliveryType(orderId, deliveryType),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+      addToast('success', t('orders.toast.deliveryTypeUpdated', 'Delivery type updated'));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));

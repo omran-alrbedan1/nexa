@@ -311,10 +311,24 @@
       "suspendDescription": "This will suspend the customer's account. They will not be able to place new orders.",
       "activateTitle": "Activate {{name}}",
       "activateDescription": "This will reactivate the customer's account. They will be able to place orders again.",
-      "confirmSuspend": "Confirm Suspend",
-      "confirmActivate": "Confirm Activate"
-    },
-    "detail": {
+    "addCustomer": "Add Customer",
+    "confirmSuspend": "Confirm Suspend",
+    "confirmActivate": "Confirm Activate"
+  },
+  "create": {
+    "title": "Add New Customer",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Create Customer"
+  },
+  "toast": {
+    "created": "Customer created successfully",
+    "createFailed": "Failed to create customer"
+  },
+  "detail": {
       "back": "Back to Customers",
       "errorTitle": "Failed to load customer",
       "contactInfo": "Contact Information",

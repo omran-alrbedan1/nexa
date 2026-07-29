@@ -10,8 +10,9 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { Search, Filter, Users, UserCheck, UserX, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert } from 'lucide-react';
+import { Search, Filter, Users, UserCheck, UserX, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus } from 'lucide-react';
 import type { CustomerStatus } from '../api/customersApi';
+import { useCreateCustomer } from '../hooks/useCustomers';
 
 const STATUS_BADGE: Record<CustomerStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green',
@@ -35,6 +36,9 @@ export function CustomersPage() {
   };
   const { data, isLoading, isError, error, refetch } = useCustomersPage();
   const updateStatus = useUpdateCustomerStatus();
+  const createCustomer = useCreateCustomer();
+  const [createModal, setCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '' });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | ''>('');
   const [confirmModal, setConfirmModal] = useState<{
@@ -143,7 +147,13 @@ export function CustomersPage() {
 
       {/* Customers List */}
       <Card padding="lg">
-        <CardHeader>
+        <CardHeader
+          action={
+            <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setCreateModal(true)}>
+              {t('customers.list.addCustomer')}
+            </Button>
+          }
+        >
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('customers.list.allCustomers')}</h3>
             <p className="text-xs text-text-secondary font-body mt-0.5">{t('customers.list.registered', { count: customers.length })}</p>
@@ -244,6 +254,45 @@ export function CustomersPage() {
           </div>
         )}
       </Card>
+
+      {/* Create Customer Modal */}
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('customers.create.title')}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.firstName')}</label>
+              <input value={createForm.firstName} onChange={(e) => setCreateForm({ ...createForm, firstName: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.lastName')}</label>
+              <input value={createForm.lastName} onChange={(e) => setCreateForm({ ...createForm, lastName: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.phone')}</label>
+            <input value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.email')}</label>
+            <input type="email" value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.password')}</label>
+            <input type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="secondary" size="sm" onClick={() => setCreateModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={createCustomer.isPending} onClick={() => {
+              createCustomer.mutate(createForm, {
+                onSuccess: () => {
+                  setCreateModal(false);
+                  setCreateForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
+                },
+              });
+            }}>{t('customers.create.submit')}</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Confirm Status Change Modal */}
       <Modal
