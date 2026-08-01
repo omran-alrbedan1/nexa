@@ -81,7 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authApi
       .me()
       .then((res) => {
-        const backendUser = res.data as unknown as Record<string, unknown>;
+        const payload = res as unknown as Record<string, unknown>;
+        const data = payload.data as Record<string, unknown> | undefined;
+        const backendUser = ((data?.user ?? data) ?? payload) as Record<string, unknown>;
         setUser(mapBackendUser(backendUser));
       })
       .catch(() => {

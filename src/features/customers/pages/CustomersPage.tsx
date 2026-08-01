@@ -36,6 +36,10 @@ export function CustomersPage() {
     suspended: t('customers.status.suspended'),
     blocked: t('customers.status.blocked'),
   };
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [statusFilter, setStatusFilter] = useState<CustomerStatus | ''>('');
+  const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useCustomersPage({
     page,
     search: debouncedSearch || undefined,
@@ -45,10 +49,6 @@ export function CustomersPage() {
   const createCustomer = useCreateCustomer();
   const [createModal, setCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '' });
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search, 300);
-  const [statusFilter, setStatusFilter] = useState<CustomerStatus | ''>('');
-  const [page, setPage] = useState(1);
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
     customerId: number;

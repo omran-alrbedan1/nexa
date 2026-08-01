@@ -42,6 +42,8 @@ export function TripsPage() {
     completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
   };
   const formatPrice = useFormatPrice();
+  const [statusFilter, setStatusFilter] = useState<TripStatus | ''>('');
+  const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useTripsPage({
     page,
     status: statusFilter || undefined,
@@ -58,9 +60,7 @@ export function TripsPage() {
   const [assignModal, setAssignModal] = useState<{
     open: boolean; trip: DashboardTrip | null; driverId: number; driverName: string;
   }>({ open: false, trip: null, driverId: 0, driverName: '' });
-  const [statusFilter, setStatusFilter] = useState<TripStatus | ''>('');
   const [scheduleView, setScheduleView] = useState(false);
-  const [page, setPage] = useState(1);
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
