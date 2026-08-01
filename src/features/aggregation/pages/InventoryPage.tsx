@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useToastStore } from '@/stores/toastStore';
 import { ListItem } from '@/components/ui/ListItem';
 import {
@@ -31,15 +33,17 @@ function cn(...classes: (string | false | undefined | null)[]) {
 export function InventoryPage() {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: productKeys.pageData(),
-    queryFn: () => productsApi.getPageData(),
+    queryKey: [...productKeys.pageData(), { page, search: debouncedSearch || undefined }],
+    queryFn: () => productsApi.getPageData({ page, search: debouncedSearch || undefined }),
     staleTime: 30_000,
   });
 
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
-  const [search, setSearch] = useState('');
   const [stockModal, setStockModal] = useState<{ open: boolean; product: DashboardProduct | null; adjustment: number; reason: string }>({
     open: false, product: null, adjustment: 0, reason: '',
   });
@@ -63,11 +67,7 @@ export function InventoryPage() {
   }
 
   const products = data?.products ?? [];
-  const filtered = products.filter((p) => {
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return p.name.toLowerCase().includes(q) || (p.supplierName || '').toLowerCase().includes(q);
-  });
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const stats = {
     total: products.length,
@@ -151,24 +151,24 @@ export function InventoryPage() {
         <CardHeader>
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('aggregation.inventory.stockOverviewTitle')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('aggregation.inventory.productCount', { count: filtered.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('aggregation.inventory.productCount', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
         <div className="flex items-center gap-3 mb-5">
           <div className="w-full sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('aggregation.inventory.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder={t('aggregation.inventory.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
         </div>
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
-        ) : filtered.length === 0 ? (
+        ) : products.length === 0 ? (
           <EmptyState title={t('aggregation.inventory.noProducts')} description={search ? t('aggregation.inventory.tryDifferentSearch') : t('aggregation.inventory.noProductsInInventory')} />
         ) : (
           <div className="space-y-2">
-            {filtered.map((product) => {
+            {products.map((product) => {
               const maxEst = Math.max(product.stockQuantity, 50);
               const stockPercent = Math.min((product.stockQuantity / maxEst) * 100, 100);
               const isLow = product.isAvailable && product.stockQuantity > 0 && product.stockQuantity < 20;
@@ -201,6 +201,16 @@ export function InventoryPage() {
             })}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       <Modal open={stockModal.open} onClose={() => setStockModal({ ...stockModal, open: false })} title={t('aggregation.inventory.adjustStockTitle', { name: stockModal.product?.name })}>

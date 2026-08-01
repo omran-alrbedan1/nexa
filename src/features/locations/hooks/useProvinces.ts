@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { provincesApi, type Province } from '../api/provincesApi';
+import { provincesApi, type ProvincesPageData } from '../api/provincesApi';
 
 export const provinceKeys = {
   all: ['provinces'] as const,
@@ -10,7 +10,7 @@ export const provinceKeys = {
 };
 
 export function useProvincesList(params?: { country_id?: number; search?: string; page?: number }) {
-  return useQuery<{ data: Province[]; total: number }>({
+  return useQuery<ProvincesPageData>({
     queryKey: provinceKeys.list(params),
     queryFn: () => provincesApi.getAll(params),
     staleTime: 30_000,

@@ -73,6 +73,12 @@ export interface DriversPageData {
     pendingApproval: number;
   };
   drivers: Driver[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types (matching DriverResource from backend) ──
@@ -222,22 +228,34 @@ export const driversApi = {
     return mapBackendDriver(response.data.data);
   },
 
-  /** Fetch all drivers (optional approval_status filter) */
-  getPageData: async (filters?: { approval_status?: DriverApprovalStatus }): Promise<DriversPageData> => {
-    const params: Record<string, string> = {};
-    if (filters?.approval_status) params.approval_status = filters.approval_status;
-    const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers', { params });
+  /** Fetch all drivers (optional filters) */
+  getPageData: async (filters?: { approval_status?: DriverApprovalStatus; search?: string; page?: number }): Promise<DriversPageData> => {
+    const response = await apiClient.get<ApiResponse<BackendDriversResponse>>('/api/v1/admin/drivers', {
+      params: {
+        page: filters?.page ?? 1,
+        per_page: 15,
+        approval_status: filters?.approval_status || undefined,
+        search: filters?.search || undefined,
+      },
+    });
     const backendData = response.data.data;
     const drivers = backendData.drivers.map(mapBackendDriver);
+    const meta = backendData.meta;
     return {
       stats: {
-        total: drivers.length,
+        total: meta.total ?? drivers.length,
         available: drivers.filter((d) => d.isAvailable).length,
         onTrip: drivers.filter((d) => !d.isAvailable).length,
         inactive: 0,
         pendingApproval: drivers.filter((d) => d.approvalStatus === 'pending').length,
       },
       drivers,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? drivers.length,
+      },
     };
   },
 

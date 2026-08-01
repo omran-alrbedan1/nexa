@@ -5,6 +5,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
 import { useConfirmReceipt } from '../hooks/useAggregation';
 import type { WarehouseSupplyItem, SupplyStatus } from '../api/aggregationApi';
 
@@ -20,9 +21,11 @@ const STATUS_COLORS: Record<SupplyStatus, 'green' | 'yellow' | 'blue' | 'orange'
 interface SupplyReceivingSectionProps {
   items: WarehouseSupplyItem[];
   isLoading: boolean;
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+  onPageChange: (page: number) => void;
 }
 
-export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSectionProps) {
+export function SupplyReceivingSection({ items, isLoading, meta, onPageChange }: SupplyReceivingSectionProps) {
   const { t } = useTranslation();
   const STATUS_LABELS: Record<SupplyStatus, string> = {
     pending: t('warehouse.supplyReceiving.pending'),
@@ -150,6 +153,14 @@ export function SupplyReceivingSection({ items, isLoading }: SupplyReceivingSect
           </span>
         </div>
       )}
+
+      <Pagination
+        currentPage={meta.currentPage}
+        lastPage={meta.lastPage}
+        total={meta.total}
+        perPage={15}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

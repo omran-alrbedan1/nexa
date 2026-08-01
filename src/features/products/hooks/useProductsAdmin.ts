@@ -10,10 +10,10 @@ export const productKeys = {
   detail: (id: number) => [...productKeys.all, 'detail', id] as const,
 };
 
-export function useProductsPage() {
+export function useProductsPage(params: { page?: number; search?: string } = {}) {
   return useQuery<ProductsPageData>({
-    queryKey: productKeys.pageData(),
-    queryFn: () => productsApi.getPageData(),
+    queryKey: [...productKeys.pageData(), params],
+    queryFn: () => productsApi.getPageData(params),
     staleTime: 30_000,
   });
 }

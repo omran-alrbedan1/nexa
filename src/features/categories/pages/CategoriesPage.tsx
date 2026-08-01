@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { Tabs } from '@/components/ui/Tabs';
 import { useToastStore } from '@/stores/toastStore';
 import { ROUTES } from '@/routes/routes';
@@ -32,10 +33,11 @@ export function CategoriesPage() {
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; category: Category | null }>({ open: false, category: null });
   const [deleteBusinessModal, setDeleteBusinessModal] = useState<{ open: boolean; category: BusinessCategory | null }>({ open: false, category: null });
+  const [page, setPage] = useState(1);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => categoriesApi.list(),
+    queryKey: ['categories', page],
+    queryFn: () => categoriesApi.getPageData({ page }),
     enabled: tab === 'product',
   });
 
@@ -46,8 +48,8 @@ export function CategoriesPage() {
     error: businessError,
     refetch: businessRefetch,
   } = useQuery({
-    queryKey: ['business-categories'],
-    queryFn: () => businessCategoriesApi.list(),
+    queryKey: ['business-categories', page],
+    queryFn: () => businessCategoriesApi.getPageData({ page }),
     enabled: tab === 'business',
   });
 
@@ -76,13 +78,16 @@ export function CategoriesPage() {
   });
 
   const setTab = (tabId: string) => {
+    setPage(1);
     setSearchParams(tabId === 'product' ? {} : { tab: tabId });
   };
 
   const categories = data?.categories ?? [];
+  const productMeta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
   const topLevelCategories = categories.filter((c) => !c.parentId);
 
   const businessCategories = businessData?.businessCategories ?? [];
+  const businessMeta = businessData?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const stats = {
     total: categories.length,
@@ -175,7 +180,7 @@ export function CategoriesPage() {
                 >
                   <div>
                     <h3 className="text-sm font-bold text-text-primary font-display">{t('categories.list.allCategories')}</h3>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{categories.length} {t('common.items')}</p>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">{productMeta.total} {t('common.items')}</p>
                   </div>
                 </CardHeader>
 
@@ -200,6 +205,16 @@ export function CategoriesPage() {
                     ))}
                   </div>
                 )}
+                <Pagination
+                  currentPage={productMeta.currentPage}
+                  lastPage={productMeta.lastPage}
+                  total={productMeta.total}
+                  perPage={15}
+                  onPageChange={(p) => {
+                    setPage(p);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
               </Card>
 
               {/* Delete Modal */}
@@ -287,7 +302,7 @@ export function CategoriesPage() {
                 >
                   <div>
                     <h3 className="text-sm font-bold text-text-primary font-display">{t('categories.list.allBusinessCategories')}</h3>
-                    <p className="text-xs text-text-secondary font-body mt-0.5">{businessCategories.length} {t('common.items')}</p>
+                    <p className="text-xs text-text-secondary font-body mt-0.5">{businessMeta.total} {t('common.items')}</p>
                   </div>
                 </CardHeader>
 
@@ -311,6 +326,16 @@ export function CategoriesPage() {
                     ))}
                   </div>
                 )}
+                <Pagination
+                  currentPage={businessMeta.currentPage}
+                  lastPage={businessMeta.lastPage}
+                  total={businessMeta.total}
+                  perPage={15}
+                  onPageChange={(p) => {
+                    setPage(p);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
               </Card>
 
               {/* Delete Modal */}

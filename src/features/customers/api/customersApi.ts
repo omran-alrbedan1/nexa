@@ -51,6 +51,12 @@ export interface CustomersPageData {
     totalOrders: number;
   };
   customers: Customer[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types ──
@@ -147,9 +153,16 @@ export const customersApi = {
   },
 
   /** Fetch all customers page data (stats + list) */
-  getPageData: async (): Promise<CustomersPageData> => {
+  getPageData: async (params: { page?: number; search?: string; status?: string } = {}): Promise<CustomersPageData> => {
     try {
-      const response = await apiClient.get<ApiResponse<BackendCustomersResponse>>('/api/v1/admin/customers');
+      const response = await apiClient.get<ApiResponse<BackendCustomersResponse>>('/api/v1/admin/customers', {
+        params: {
+          page: params.page ?? 1,
+          per_page: 15,
+          search: params.search || undefined,
+          status: params.status || undefined,
+        },
+      });
       const backendData = response.data.data;
       const customers = backendData.customers.map(mapBackendCustomer);
       const active = customers.filter((c) => c.status === 'active').length;
@@ -159,9 +172,10 @@ export const customersApi = {
       const avgRating = ratings.length > 0
         ? ratings.reduce((sum, c) => sum + c.ratingAvg, 0) / ratings.length
         : 0;
+      const meta = backendData.meta;
       return {
         stats: {
-          total: customers.length,
+          total: meta.total ?? customers.length,
           active,
           suspended,
           blocked,
@@ -169,11 +183,18 @@ export const customersApi = {
           totalOrders: customers.reduce((sum, c) => sum + c.ordersCount, 0),
         },
         customers,
+        meta: {
+          currentPage: meta.current_page ?? 1,
+          lastPage: meta.last_page ?? 1,
+          perPage: 15,
+          total: meta.total ?? customers.length,
+        },
       };
     } catch {
       return {
         stats: { total: 0, active: 0, suspended: 0, blocked: 0, avgRating: 0, totalOrders: 0 },
         customers: [],
+        meta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 },
       };
     }
   },

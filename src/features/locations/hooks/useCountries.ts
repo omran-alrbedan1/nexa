@@ -9,10 +9,10 @@ export const countryKeys = {
   detail: (id: number) => [...countryKeys.all, 'detail', id] as const,
 };
 
-export function useCountriesPage() {
+export function useCountriesPage(params: { page?: number; search?: string } = {}) {
   return useQuery<CountriesPageData>({
-    queryKey: countryKeys.pageData(),
-    queryFn: () => countriesApi.getPageData(),
+    queryKey: [...countryKeys.pageData(), params],
+    queryFn: () => countriesApi.getPageData({ ...params, perPage: params.page ? 15 : undefined }),
     staleTime: 30_000,
   });
 }

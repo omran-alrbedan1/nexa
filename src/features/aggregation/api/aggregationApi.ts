@@ -95,6 +95,16 @@ export interface AggregationPageData {
   aggregationQueue: AggregationOrder[];
   readyToShip: ReadyToShipItem[];
   throughput: WarehouseThroughput;
+  supplyMeta: { currentPage: number; lastPage: number; perPage: number; total: number };
+  queueMeta: { currentPage: number; lastPage: number; perPage: number; total: number };
+  shipMeta: { currentPage: number; lastPage: number; perPage: number; total: number };
+}
+
+export interface AggregationPageParams {
+  warehouseId?: number;
+  supplyPage?: number;
+  queuePage?: number;
+  shipPage?: number;
 }
 
 export interface SupplyReceivingParams {
@@ -350,26 +360,34 @@ function mapBackendThroughput(t: BackendThroughput): WarehouseThroughput {
 
 /** Helper: extract paginated items from a backend response with a dynamic key */
 function extractPaginated<T>(response: ApiResponse<Record<string, unknown>> | null, key: string, map: (raw: unknown) => T): { items: T[]; meta: { current_page: number; last_page: number; total: number } } {
-  if (!response) return { items: [], meta: { current_page: 1, last_page: 1, per_page: 20, total: 0 } };
+  if (!response) return { items: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } };
   try {
     const data = unwrap(response);
     const rawItems = (data[key] as unknown[]) || [];
     return { items: rawItems.map(map), meta: data.meta as { current_page: number; last_page: number; total: number } || { current_page: 1, last_page: 1, total: rawItems.length } };
   } catch {
-    return { items: [], meta: { current_page: 1, last_page: 1, per_page: 20, total: 0 } };
+    return { items: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } };
   }
 }
 
 export const aggregationApi = {
   /** Fetch all warehouse/aggregation page data */
-  getPageData: async (warehouseId?: number): Promise<AggregationPageData> => {
+  getPageData: async (params: AggregationPageParams = {}): Promise<AggregationPageData> => {
+    const buildListQs = (page?: number) => {
+      const qp = new URLSearchParams();
+      if (params.warehouseId) qp.set('warehouse_id', String(params.warehouseId));
+      qp.set('per_page', '15');
+      if (page) qp.set('page', String(page));
+      const s = qp.toString();
+      return s ? `?${s}` : '';
+    };
     try {
-      const whParam = warehouseId ? `?warehouse_id=${warehouseId}` : '';
+      const throughputQs = params.warehouseId ? `?warehouse_id=${params.warehouseId}` : '';
       const [supplyRes, queueRes, readyRes, throughputRes] = await Promise.all([
-        apiClient.get<ApiResponse<BackendSupplyReceivingResponse>>(`/api/v1/admin/aggregation/supply-receiving${whParam}`).then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendAggregationQueueResponse>>(`/api/v1/admin/aggregation/queue${whParam}`).then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendReadyToShipResponse>>(`/api/v1/admin/aggregation/ready-to-ship${whParam}`).then((r) => r.data).catch(() => null),
-        apiClient.get<ApiResponse<BackendThroughput>>(`/api/v1/admin/aggregation/throughput${whParam}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendSupplyReceivingResponse>>(`/api/v1/admin/aggregation/supply-receiving${buildListQs(params.supplyPage)}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendAggregationQueueResponse>>(`/api/v1/admin/aggregation/queue${buildListQs(params.queuePage)}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendReadyToShipResponse>>(`/api/v1/admin/aggregation/ready-to-ship${buildListQs(params.shipPage)}`).then((r) => r.data).catch(() => null),
+        apiClient.get<ApiResponse<BackendThroughput>>(`/api/v1/admin/aggregation/throughput${throughputQs}`).then((r) => r.data).catch(() => null),
       ]);
 
       // Backend keys: supply-receiving→supply_records, queue→items, ready-to-ship→orders
@@ -377,13 +395,36 @@ export const aggregationApi = {
       const queueResult = extractPaginated(queueRes, 'items', mapBackendQueueItem);
       const readyResult = extractPaginated(readyRes, 'orders', mapBackendReadyToShip);
 
+      const toMeta = (m: { current_page: number; last_page: number; total: number }) => ({
+        currentPage: m.current_page ?? 1,
+        lastPage: m.last_page ?? 1,
+        perPage: 15,
+        total: m.total ?? 0,
+      });
+
       const throughput = throughputRes
         ? mapBackendThroughput(unwrap(throughputRes))
         : { itemsReceived: 0, itemsProcessed: 0, itemsShipped: 0, activeWorkers: 0, pendingReceiving: 0, avgProcessingTime: 0 };
 
-      return { supplyReceiving: supplyResult.items, aggregationQueue: queueResult.items, readyToShip: readyResult.items, throughput };
+      return {
+        supplyReceiving: supplyResult.items,
+        aggregationQueue: queueResult.items,
+        readyToShip: readyResult.items,
+        throughput,
+        supplyMeta: toMeta(supplyResult.meta),
+        queueMeta: toMeta(queueResult.meta),
+        shipMeta: toMeta(readyResult.meta),
+      };
     } catch {
-      return { supplyReceiving: [], aggregationQueue: [], readyToShip: [], throughput: { itemsReceived: 0, itemsProcessed: 0, itemsShipped: 0, activeWorkers: 0, pendingReceiving: 0, avgProcessingTime: 0 } };
+      return {
+        supplyReceiving: [],
+        aggregationQueue: [],
+        readyToShip: [],
+        throughput: { itemsReceived: 0, itemsProcessed: 0, itemsShipped: 0, activeWorkers: 0, pendingReceiving: 0, avgProcessingTime: 0 },
+        supplyMeta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 },
+        queueMeta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 },
+        shipMeta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 },
+      };
     }
   },
 
@@ -405,9 +446,9 @@ export const aggregationApi = {
       );
       const backendData = unwrap(response.data);
       const items = backendData.supply_records.map(mapBackendSupplyRecord);
-      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
+      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 15, total: backendData.meta.total } };
     } catch {
-      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 20, total: 0 } };
+      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 } };
     }
   },
 
@@ -426,9 +467,9 @@ export const aggregationApi = {
       );
       const backendData = unwrap(response.data);
       const items = backendData.items.map(mapBackendQueueItem);
-      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
+      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 15, total: backendData.meta.total } };
     } catch {
-      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 20, total: 0 } };
+      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 } };
     }
   },
 
@@ -494,9 +535,9 @@ export const aggregationApi = {
       );
       const backendData = unwrap(response.data);
       const items = backendData.orders.map(mapBackendReadyToShip);
-      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 20, total: backendData.meta.total } };
+      return { data: items, meta: { currentPage: backendData.meta.current_page, lastPage: backendData.meta.last_page, perPage: params?.perPage || 15, total: backendData.meta.total } };
     } catch {
-      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 20, total: 0 } };
+      return { data: [], meta: { currentPage: 1, lastPage: 1, perPage: 15, total: 0 } };
     }
   },
 

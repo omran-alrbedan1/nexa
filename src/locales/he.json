@@ -1550,5 +1550,10 @@
     "back": "חזרה",
     "select": "בחר",
     "unknown": "לא ידוע"
+  },
+  "pagination": {
+    "showingTo": "מציג {{from}} עד {{to}} מתוך {{total}} תוצאות",
+    "previous": "הקודם",
+    "next": "הבא"
   }
 }

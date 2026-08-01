@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { getEcho } from '@/lib/echo'
+import { supportTicketKeys } from './useSupportTicket'
 
 export function useSupportRealtime(ticketId: number) {
   const queryClient = useQueryClient()
@@ -14,11 +15,11 @@ export function useSupportRealtime(ticketId: number) {
     const channel = echo.private(`customer.support-ticket.${ticketId}`)
 
     const handleMessageCreated = () => {
-      queryClient.invalidateQueries({ queryKey: ['support-ticket', ticketId] })
+      queryClient.invalidateQueries({ queryKey: supportTicketKeys.detail(ticketId) })
     }
 
     const handleTicketUpdated = () => {
-      queryClient.invalidateQueries({ queryKey: ['support-ticket', ticketId] })
+      queryClient.invalidateQueries({ queryKey: supportTicketKeys.detail(ticketId) })
     }
 
     channel.listen('.support.message.created', handleMessageCreated)

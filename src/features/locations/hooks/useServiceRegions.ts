@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { serviceRegionsApi, type ServiceRegion } from '../api/serviceRegionsApi';
+import { serviceRegionsApi, type ServiceRegionsPageData } from '../api/serviceRegionsApi';
 
 export const serviceRegionKeys = {
   all: ['service-regions'] as const,
@@ -9,7 +9,7 @@ export const serviceRegionKeys = {
 };
 
 export function useServiceRegionsList(params?: { search?: string; page?: number }) {
-  return useQuery<{ data: ServiceRegion[]; total: number }>({
+  return useQuery<ServiceRegionsPageData>({
     queryKey: serviceRegionKeys.list(params),
     queryFn: () => serviceRegionsApi.getAll(params),
     staleTime: 30_000,

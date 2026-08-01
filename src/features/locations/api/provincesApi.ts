@@ -41,6 +41,11 @@ interface BackendProvincesResponse {
   meta: { current_page: number; last_page: number; total: number };
 }
 
+export interface ProvincesPageData {
+  data: Province[];
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+}
+
 // ── Mapping ──
 
 function mapBackendProvince(bp: BackendProvince): Province {
@@ -58,16 +63,24 @@ function mapBackendProvince(bp: BackendProvince): Province {
 
 export const provincesApi = {
   /** Fetch provinces with optional filters */
-  getAll: async (params?: { country_id?: number; search?: string; page?: number; perPage?: number }): Promise<{ data: Province[]; total: number }> => {
+  getAll: async (params?: { country_id?: number; search?: string; page?: number; perPage?: number }): Promise<ProvincesPageData> => {
     const queryParams = new URLSearchParams();
     if (params?.country_id) queryParams.set('country_id', String(params.country_id));
     if (params?.search) queryParams.set('search', params.search);
-    if (params?.page) queryParams.set('page', String(params.page));
-    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    queryParams.set('page', String(params?.page ?? 1));
+    queryParams.set('per_page', String(params?.perPage ?? 15));
     const qs = queryParams.toString();
     const response = await apiClient.get<ApiResponse<BackendProvincesResponse>>(`/api/v1/admin/provinces${qs ? '?' + qs : ''}`);
     const data = response.data.data;
-    return { data: data.provinces.map(mapBackendProvince), total: data.meta.total };
+    return {
+      data: data.provinces.map(mapBackendProvince),
+      meta: {
+        currentPage: data.meta.current_page ?? 1,
+        lastPage: data.meta.last_page ?? 1,
+        perPage: params?.perPage ?? 15,
+        total: data.meta.total ?? 0,
+      },
+    };
   },
 
   /** Get single province */

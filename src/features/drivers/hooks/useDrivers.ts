@@ -5,11 +5,11 @@ import { useToastStore } from '@/stores/toastStore';
 
 export const driverKeys = {
   all: ['drivers'] as const,
-  pageData: (filters?: { approval_status?: DriverApprovalStatus }) => [...driverKeys.all, 'page-data', filters ?? {}] as const,
+  pageData: (filters?: { approval_status?: DriverApprovalStatus; search?: string; page?: number }) => [...driverKeys.all, 'page-data', filters ?? {}] as const,
   detail: (id: number) => [...driverKeys.all, 'detail', id] as const,
 };
 
-export function useDriversPage(filters?: { approval_status?: DriverApprovalStatus }) {
+export function useDriversPage(filters?: { approval_status?: DriverApprovalStatus; search?: string; page?: number }) {
   return useQuery<DriversPageData>({
     queryKey: driverKeys.pageData(filters),
     queryFn: () => driversApi.getPageData(filters),

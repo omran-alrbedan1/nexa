@@ -57,13 +57,45 @@ function buildFormData(data: Record<string, any>): FormData {
   return fd;
 }
 
+export interface CategoriesPageData {
+  categories: Category[];
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+}
+
+interface BackendListMeta {
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
 export const categoriesApi = {
-  list: async (): Promise<{ categories: Category[]; meta: any }> => {
-    const response = await apiClient.get<ApiResponse<{ categories: BackendCategory[]; meta: any }>>('/api/v1/admin/categories');
+  list: async (): Promise<{ categories: Category[]; meta: BackendListMeta }> => {
+    const response = await apiClient.get<ApiResponse<{ categories: BackendCategory[]; meta: BackendListMeta }>>('/api/v1/admin/categories');
     const data = response.data.data;
     return {
       categories: data.categories.map(mapBackendCategory),
       meta: data.meta,
+    };
+  },
+
+  getPageData: async (params: { page?: number; search?: string } = {}): Promise<CategoriesPageData> => {
+    const response = await apiClient.get<ApiResponse<{ categories: BackendCategory[]; meta: BackendListMeta }>>('/api/v1/admin/categories', {
+      params: {
+        page: params.page ?? 1,
+        per_page: 15,
+        search: params.search || undefined,
+      },
+    });
+    const data = response.data.data;
+    const meta = data.meta || {};
+    return {
+      categories: data.categories.map(mapBackendCategory),
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? data.categories.length,
+      },
     };
   },
 

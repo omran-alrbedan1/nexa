@@ -12,10 +12,10 @@ export const tripKeys = {
   codHandovers: (tripId: number) => [...tripKeys.all, 'cod-handovers', tripId] as const,
 };
 
-export function useTripsPage() {
+export function useTripsPage(params: { page?: number; status?: string; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}) {
   return useQuery<TripsPageData>({
-    queryKey: tripKeys.pageData(),
-    queryFn: () => tripsApi.getPageData(),
+    queryKey: [...tripKeys.pageData(), params],
+    queryFn: () => tripsApi.getPageData(params),
     staleTime: 30_000,
   });
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -11,6 +12,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { Building2, Users, CheckCircle2, AlertTriangle, Star, Search, Filter, Plus } from 'lucide-react';
 import type { SupplierStatus } from '../api/suppliersApi';
 
@@ -18,15 +20,30 @@ const STATUS_BADGE: Record<SupplierStatus, 'green' | 'yellow' | 'red' | 'purple'
   active: 'green', inactive: 'yellow', suspended: 'red', pending_approval: 'purple',
 };
 
+const STATUS_TO_BACKEND: Record<SupplierStatus, { approval_status?: string; status?: string }> = {
+  active: { approval_status: 'approved' },
+  inactive: { status: 'inactive' },
+  suspended: { status: 'suspended' },
+  pending_approval: { approval_status: 'pending' },
+};
+
 export function SuppliersPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
-  const { data, isLoading, isError, error, refetch } = useSuppliersPage();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [statusFilter, setStatusFilter] = useState<SupplierStatus | ''>('');
+  const [page, setPage] = useState(1);
+  const backendStatus = statusFilter ? STATUS_TO_BACKEND[statusFilter] : undefined;
+  const { data, isLoading, isError, error, refetch } = useSuppliersPage({
+    page,
+    search: debouncedSearch || undefined,
+    approval_status: backendStatus?.approval_status,
+    status: backendStatus?.status,
+  });
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<SupplierStatus | ''>('');
   const [approvingId, setApprovingId] = useState<number | null>(null);
   const [suspendingId, setSuspendingId] = useState<number | null>(null);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; supplierId: number; supplierName: string; reason: string }>({ open: false, supplierId: 0, supplierName: '', reason: '' });
@@ -42,11 +59,8 @@ export function SuppliersPage() {
   );
 
   const stats = data?.stats;
-  const suppliers = (data?.suppliers ?? []).filter((s) => {
-    const matchesSearch = !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = !statusFilter || s.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const suppliers = data?.suppliers ?? [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -114,7 +128,7 @@ export function SuppliersPage() {
         >
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.list.allSuppliers')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('suppliers.list.registered', { count: suppliers.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('suppliers.list.registered', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
@@ -123,7 +137,10 @@ export function SuppliersPage() {
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder={t('suppliers.list.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
             />
@@ -132,7 +149,10 @@ export function SuppliersPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as SupplierStatus | '')}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as SupplierStatus | '');
+                setPage(1);
+              }}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('suppliers.list.allStatuses')}</option>
@@ -194,6 +214,16 @@ export function SuppliersPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Suspend Modal */}

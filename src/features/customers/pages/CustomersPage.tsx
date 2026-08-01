@@ -10,6 +10,8 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Search, Filter, Users, UserCheck, UserX, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus } from 'lucide-react';
 import type { CustomerStatus } from '../api/customersApi';
 import { useCreateCustomer } from '../hooks/useCustomers';
@@ -34,13 +36,19 @@ export function CustomersPage() {
     suspended: t('customers.status.suspended'),
     blocked: t('customers.status.blocked'),
   };
-  const { data, isLoading, isError, error, refetch } = useCustomersPage();
+  const { data, isLoading, isError, error, refetch } = useCustomersPage({
+    page,
+    search: debouncedSearch || undefined,
+    status: statusFilter || undefined,
+  });
   const updateStatus = useUpdateCustomerStatus();
   const createCustomer = useCreateCustomer();
   const [createModal, setCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '' });
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | ''>('');
+  const [page, setPage] = useState(1);
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
     customerId: number;
@@ -65,15 +73,8 @@ export function CustomersPage() {
   }
 
   const stats = data?.stats;
-  const customers = (data?.customers ?? []).filter((c) => {
-    const matchesSearch =
-      !search ||
-      c.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search);
-    const matchesStatus = !statusFilter || c.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const customers = data?.customers ?? [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const handleStatusChange = (customerId: number, customerName: string, newStatus: CustomerStatus) => {
     setConfirmModal({ open: true, customerId, customerName, newStatus });
@@ -156,7 +157,7 @@ export function CustomersPage() {
         >
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('customers.list.allCustomers')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('customers.list.registered', { count: customers.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('customers.list.registered', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
@@ -165,7 +166,10 @@ export function CustomersPage() {
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder={t('customers.list.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
             />
@@ -174,7 +178,10 @@ export function CustomersPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as CustomerStatus | '')}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as CustomerStatus | '');
+                setPage(1);
+              }}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('customers.list.allStatuses')}</option>
@@ -253,6 +260,16 @@ export function CustomersPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create Customer Modal */}

@@ -25,7 +25,7 @@ export function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   const logs = data?.data || [];
-  const meta = data?.meta || { currentPage: 1, lastPage: 1, perPage: 20, total: 0 };
+  const meta = data?.meta || { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   if (isError) {
     return (
@@ -111,6 +111,7 @@ export function AuditLogsPage() {
                   currentPage={page}
                   lastPage={meta.lastPage}
                   total={meta.total}
+                  perPage={15}
                   onPageChange={setPage}
                 />
               </div>

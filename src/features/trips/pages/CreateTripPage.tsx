@@ -19,10 +19,11 @@ export function CreateTripPage() {
   const navigate = useNavigate();
   const formatPrice = useFormatPrice();
   const addToast = useToastStore((s) => s.addToast);
+  const today = new Date().toLocaleDateString('en-CA');
   const [form, setForm] = useState({
     tripCode: '', warehouseId: '1', deliveryZone: '1', cluster: '1',
     plannedDate: '', departureTime: '', cutoffTime: '',
-    expectedArrival: '', minOrders: '1', maxCapacity: '20',
+    expectedArrival: '', minOrders: '1', maxCapacity: '200',
     assignmentType: 'manual', deliveryFeeOverride: '',
   });
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
@@ -74,6 +75,10 @@ export function CreateTripPage() {
       addToast('error', t('trips.create.validationRequired'));
       return;
     }
+    if (form.plannedDate < today) {
+      addToast('error', t('trips.create.validationDate'));
+      return;
+    }
     // Try real backend, fall back to dummy
     try {
       await tripsApi.createTrip?.({
@@ -123,7 +128,7 @@ export function CreateTripPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.plannedDate')}</label>
-              <input type="date" value={form.plannedDate} onChange={(e) => handleChange('plannedDate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <input type="date" min={today} value={form.plannedDate} onChange={(e) => handleChange('plannedDate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.departureTime')}</label>

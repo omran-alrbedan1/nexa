@@ -6,6 +6,8 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { ROUTES } from '@/routes/routes';
 import { FileClock, Search, Filter, ArrowRight, User, Phone } from 'lucide-react';
 
@@ -35,8 +37,15 @@ export function SpecialOrdersPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, isError, error, refetch } = useSpecialOrdersList({ status: statusFilter || undefined, search: search || undefined });
+  const { data, isLoading, isError, error, refetch } = useSpecialOrdersList({
+    status: statusFilter || undefined,
+    search: debouncedSearch || undefined,
+    page,
+    perPage: 15,
+  });
 
   if (isError) {
     return (
@@ -47,6 +56,7 @@ export function SpecialOrdersPage() {
   }
 
   const orders = data?.data || [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
   const stats = {
     pending_admin: orders.filter((o) => o.status === 'pending_admin').length,
     pending_pricing: orders.filter((o) => o.status === 'pending_pricing').length,
@@ -75,19 +85,19 @@ export function SpecialOrdersPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card padding="md" hover onClick={() => setStatusFilter('')}>
+        <Card padding="md" hover onClick={() => { setStatusFilter(''); setPage(1); }}>
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('specialOrders.total')}</p>
-          <p className="text-xl font-extrabold text-text-primary font-display mt-1">{orders.length}</p>
+          <p className="text-xl font-extrabold text-text-primary font-display mt-1">{meta.total}</p>
         </Card>
-        <Card padding="md" hover onClick={() => setStatusFilter('pending_admin')}>
+        <Card padding="md" hover onClick={() => { setStatusFilter('pending_admin'); setPage(1); }}>
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('specialOrders.pendingAdmin')}</p>
           <p className="text-xl font-extrabold text-amber-600 font-display mt-1">{stats.pending_admin}</p>
         </Card>
-        <Card padding="md" hover onClick={() => setStatusFilter('pending_pricing')}>
+        <Card padding="md" hover onClick={() => { setStatusFilter('pending_pricing'); setPage(1); }}>
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('specialOrders.pendingPricing')}</p>
           <p className="text-xl font-extrabold text-purple-600 font-display mt-1">{stats.pending_pricing}</p>
         </Card>
-        <Card padding="md" hover onClick={() => setStatusFilter('approved')}>
+        <Card padding="md" hover onClick={() => { setStatusFilter('approved'); setPage(1); }}>
           <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{t('specialOrders.approved')}</p>
           <p className="text-xl font-extrabold text-green-600 font-display mt-1">{stats.approved}</p>
         </Card>
@@ -98,7 +108,7 @@ export function SpecialOrdersPage() {
           <div className="flex items-center justify-between w-full">
             <div>
               <h3 className="text-sm font-bold text-text-primary font-display">{t('specialOrders.allRequests')}</h3>
-              <p className="text-xs text-text-secondary font-body mt-0.5">{orders.length} {t('common.items')}</p>
+              <p className="text-xs text-text-secondary font-body mt-0.5">{meta.total} {t('common.items')}</p>
             </div>
           </div>
         </CardHeader>
@@ -107,11 +117,11 @@ export function SpecialOrdersPage() {
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('specialOrders.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder={t('specialOrders.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
           <div className="relative">
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.key} value={opt.key}>{opt.label}</option>
               ))}
@@ -161,6 +171,16 @@ export function SpecialOrdersPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
     </div>
   );

@@ -62,6 +62,12 @@ export interface RegionsPageData {
     avgDeliveryFee: number;
   };
   regions: Region[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types (matching delivery_zones table — predicted API) ──
@@ -112,10 +118,15 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
 
 export const regionsApi = {
   /** Fetch all regions page data */
-  getPageData: async (): Promise<RegionsPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendZonesResponse>>('/api/v1/admin/zones');
+  getPageData: async (params: { page?: number; search?: string; perPage?: number } = {}): Promise<RegionsPageData> => {
+    const requestParams: Record<string, string | number> = {};
+    if (params.page) requestParams.page = params.page;
+    if (params.perPage) requestParams.per_page = params.perPage;
+    if (params.search) requestParams.search = params.search;
+    const response = await apiClient.get<ApiResponse<BackendZonesResponse>>('/api/v1/admin/zones', { params: requestParams });
     const backendData = response.data.data;
     const regions = backendData.zones.map(mapBackendZone);
+    const meta = backendData.meta || {};
     return {
       stats: {
         totalRegions: regions.length,
@@ -126,6 +137,12 @@ export const regionsApi = {
         avgDeliveryFee: 0,
       },
       regions,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? regions.length,
+      },
     };
   },
 

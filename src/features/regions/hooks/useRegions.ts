@@ -9,10 +9,10 @@ export const regionKeys = {
   detail: (id: number) => [...regionKeys.all, 'detail', id] as const,
 };
 
-export function useRegionsPage() {
+export function useRegionsPage(params: { page?: number; search?: string } = {}) {
   return useQuery<RegionsPageData>({
-    queryKey: regionKeys.pageData(),
-    queryFn: () => regionsApi.getPageData(),
+    queryKey: [...regionKeys.pageData(), params],
+    queryFn: () => regionsApi.getPageData({ ...params, perPage: params.page ? 15 : undefined }),
     staleTime: 30_000,
   });
 }

@@ -8,12 +8,14 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
 import type { Banner } from '../api/settingsApi';
 
 export function BannersPage() {
   const { t } = useTranslation();
-  const { data: banners, isLoading, isError, error, refetch } = useBanners();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useBanners(page);
   const createBanner = useCreateBanner();
   const updateBanner = useUpdateBanner();
   const deleteBanner = useDeleteBanner();
@@ -64,6 +66,9 @@ export function BannersPage() {
       setDeleteModal({ open: false, banner: null });
     }
   };
+
+  const banners = data?.banners ?? [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const toggleActive = (banner: Banner) => {
     updateBanner.mutate({ id: banner.id, data: { isActive: !banner.isActive } });
@@ -138,6 +143,16 @@ export function BannersPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create/Edit Banner Modal */}

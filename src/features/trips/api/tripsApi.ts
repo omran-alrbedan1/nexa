@@ -99,6 +99,12 @@ export interface TripsPageData {
   };
   trips: DashboardTrip[];
   availableDrivers: { id: number; name: string; regionName: string; isAvailable: boolean }[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types (matching DB schema — predicted API response) ──
@@ -263,13 +269,25 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
 
 export const tripsApi = {
   /** Fetch all trips page data */
-  getPageData: async (): Promise<TripsPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendTripsResponse>>('/api/v1/admin/trips');
+  getPageData: async (params: { page?: number; status?: string; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}): Promise<TripsPageData> => {
+    const response = await apiClient.get<ApiResponse<BackendTripsResponse>>('/api/v1/admin/trips', {
+      params: {
+        page: params.page ?? 1,
+        per_page: 15,
+        status: params.status || undefined,
+        search: params.search || undefined,
+        warehouse_id: params.warehouseId || undefined,
+        driver_id: params.driverId || undefined,
+        from_date: params.fromDate || undefined,
+        to_date: params.toDate || undefined,
+      },
+    });
     const backendData = response.data.data;
     const trips = backendData.trips.map(mapBackendTrip);
+    const meta = backendData.meta;
     return {
       stats: {
-        total: trips.length,
+        total: meta.total ?? trips.length,
         scheduled: trips.filter((t) => t.status === 'scheduled').length,
         assigned: trips.filter((t) => t.status === 'assigned').length,
         inProgress: trips.filter((t) => t.status === 'in_progress').length,
@@ -284,6 +302,12 @@ export const tripsApi = {
       },
       trips,
       availableDrivers: [], // backend doesn't serve this yet
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? trips.length,
+      },
     };
   },
 

@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
@@ -41,7 +42,10 @@ export function TripsPage() {
     completed: t('trips.statusLabels.completed'), cancelled: t('trips.statusLabels.cancelled'), failed: t('trips.statusLabels.failed'),
   };
   const formatPrice = useFormatPrice();
-  const { data, isLoading, isError, error, refetch } = useTripsPage();
+  const { data, isLoading, isError, error, refetch } = useTripsPage({
+    page,
+    status: statusFilter || undefined,
+  });
   const { data: driversData } = useQuery({
     queryKey: [...tripKeys.all, 'available-drivers'],
     queryFn: () => tripsApi.getAvailableDrivers(),
@@ -56,6 +60,7 @@ export function TripsPage() {
   }>({ open: false, trip: null, driverId: 0, driverName: '' });
   const [statusFilter, setStatusFilter] = useState<TripStatus | ''>('');
   const [scheduleView, setScheduleView] = useState(false);
+  const [page, setPage] = useState(1);
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -68,10 +73,12 @@ export function TripsPage() {
   );
 
   const stats = data?.stats;
-  const trips = (data?.trips ?? []).filter((t) => !statusFilter || t.status === statusFilter);
+  const trips = data?.trips ?? [];
+  // schedule view sorting is client-side and applies to the current page only
   const displayTrips = scheduleView
     ? [...trips].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
     : trips;
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
   const availableDrivers = driversData ?? [];
 
   const getActions = (trip: DashboardTrip) => {
@@ -173,7 +180,10 @@ export function TripsPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as TripStatus | '')}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as TripStatus | '');
+                setPage(1);
+              }}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('trips.list.allStatuses')}</option>
@@ -227,6 +237,16 @@ export function TripsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Assign Driver Modal */}

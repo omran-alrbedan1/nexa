@@ -31,6 +31,12 @@ export interface CountriesPageData {
     totalProvinces: number;
   };
   countries: Country[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types ──
@@ -82,10 +88,15 @@ function mapBackendCountry(bc: BackendCountry): Country {
 
 export const countriesApi = {
   /** Fetch all countries page data */
-  getPageData: async (): Promise<CountriesPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendCountriesResponse>>('/api/v1/admin/countries');
+  getPageData: async (params: { page?: number; search?: string; perPage?: number } = {}): Promise<CountriesPageData> => {
+    const requestParams: Record<string, string | number> = {};
+    if (params.page) requestParams.page = params.page;
+    if (params.perPage) requestParams.per_page = params.perPage;
+    if (params.search) requestParams.search = params.search;
+    const response = await apiClient.get<ApiResponse<BackendCountriesResponse>>('/api/v1/admin/countries', { params: requestParams });
     const backendData = response.data.data;
     const countries = backendData.countries.map(mapBackendCountry);
+    const meta = backendData.meta || {};
     return {
       stats: {
         totalCountries: countries.length,
@@ -93,6 +104,12 @@ export const countriesApi = {
         totalProvinces: countries.reduce((sum, c) => sum + c.provinces_count, 0),
       },
       countries,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? countries.length,
+      },
     };
   },
 

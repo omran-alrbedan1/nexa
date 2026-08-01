@@ -1753,5 +1753,10 @@
         "deleteFailed": "فشل حذف منطقة الخدمة"
       }
     }
+  },
+  "pagination": {
+    "showingTo": "عرض {{from}} إلى {{to}} من أصل {{total}} نتيجة",
+    "previous": "السابق",
+    "next": "التالي"
   }
 }

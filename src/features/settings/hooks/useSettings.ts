@@ -54,10 +54,10 @@ export function useUpdateRolePermissions() {
 
 // ── Staff ──
 
-export function useStaff() {
+export function useStaff(params: { page?: number; search?: string; status?: string } = {}) {
   return useQuery({
-    queryKey: settingsKeys.staff(),
-    queryFn: () => settingsApi.getStaff(),
+    queryKey: [...settingsKeys.staff(), params],
+    queryFn: () => settingsApi.getStaff(params),
     staleTime: 30_000,
   });
 }
@@ -149,10 +149,10 @@ export function useBulkUpdateSettings() {
 
 // ── Banners ──
 
-export function useBanners() {
-  return useQuery<Banner[]>({
-    queryKey: settingsKeys.banners(),
-    queryFn: () => settingsApi.getBanners(),
+export function useBanners(page: number = 1) {
+  return useQuery({
+    queryKey: [...settingsKeys.banners(), page],
+    queryFn: () => settingsApi.getBanners(page),
     staleTime: 30_000,
   });
 }
@@ -199,10 +199,10 @@ export function useDeleteBanner() {
 
 // ── Notifications ──
 
-export function useAdminNotifications() {
+export function useAdminNotifications(params: { page?: number; userId?: number; type?: string; channel?: string; read?: boolean } = {}) {
   return useQuery({
-    queryKey: settingsKeys.notifications(),
-    queryFn: () => settingsApi.getAdminNotifications(),
+    queryKey: [...settingsKeys.notifications(), params],
+    queryFn: () => settingsApi.getAdminNotifications(params),
     staleTime: 30_000,
   });
 }

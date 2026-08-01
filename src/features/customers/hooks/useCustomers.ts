@@ -11,10 +11,10 @@ export const customerKeys = {
   orders: (id: number) => [...customerKeys.all, 'orders', id] as const,
 };
 
-export function useCustomersPage() {
+export function useCustomersPage(params: { page?: number; search?: string; status?: string } = {}) {
   return useQuery<CustomersPageData>({
-    queryKey: customerKeys.pageData(),
-    queryFn: () => customersApi.getPageData(),
+    queryKey: [...customerKeys.pageData(), params],
+    queryFn: () => customersApi.getPageData(params),
     staleTime: 30_000,
   });
 }

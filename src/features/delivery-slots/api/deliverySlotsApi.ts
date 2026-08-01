@@ -25,6 +25,12 @@ export interface DeliverySlotsPageData {
     todaySlots: number;
   };
   slots: DeliverySlot[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 interface BackendDeliverySlot {
@@ -71,10 +77,16 @@ export const deliverySlotsApi = {
       .map((z) => ({ id: z.id, name: z.name_ar || z.name_en || '' }));
   },
 
-  getPageData: async (): Promise<DeliverySlotsPageData> => {
-    const response = await apiClient.get<ApiResponse<{ delivery_slots: BackendDeliverySlot[]; meta: Record<string, unknown> }>>('/api/v1/admin/delivery-slots');
+  getPageData: async (params: { page?: number; perPage?: number } = {}): Promise<DeliverySlotsPageData> => {
+    const response = await apiClient.get<ApiResponse<{ delivery_slots: BackendDeliverySlot[]; meta: Record<string, unknown> }>>('/api/v1/admin/delivery-slots', {
+      params: {
+        page: params.page ?? 1,
+        per_page: params.perPage ?? 15,
+      },
+    });
     const backendData = response.data.data;
     const slots = (backendData.delivery_slots || []).map(mapBackendSlot);
+    const meta = backendData.meta || {};
 
     const today = new Date().toISOString().split('T')[0];
     const totalCapacity = slots.reduce((sum, s) => sum + s.max_capacity, 0);
@@ -90,6 +102,12 @@ export const deliverySlotsApi = {
         todaySlots: slots.filter((s) => s.trip_date === today).length,
       },
       slots,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? slots.length,
+      },
     };
   },
 

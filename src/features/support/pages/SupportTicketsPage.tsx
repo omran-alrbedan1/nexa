@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
 import { apiClient } from '@/lib/axios';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -10,10 +10,13 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { LifeBuoy, Search, Filter, UserCheck, Clock, ArrowRight } from 'lucide-react';
-import type { ApiResponse } from '@/types/common';
 import { ROUTES } from '@/routes/routes';
 import { useNavigate } from 'react-router-dom';
+import { useTicketsPage, supportTicketKeys } from '../hooks/useSupportTicket';
+import type { SupportTicketListItem, SupportTicketMessage } from '../api/supportApi';
 
 const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'green'> = {
   urgent: 'red', high: 'red', medium: 'yellow', low: 'green',
@@ -29,26 +32,25 @@ export function SupportTicketsPage() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const [assignModal, setAssignModal] = useState<{ open: boolean; ticketId: number; staffId: string }>({ open: false, ticketId: 0, staffId: '' });
   const [userTab, setUserTab] = useState<'all' | 'customer' | 'supplier' | 'driver'>('all');
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['support-tickets'],
-    queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ tickets: any[]; meta: any }>>('/api/v1/admin/support-tickets');
-      return response.data.data;
-    },
-    staleTime: 30_000,
+  const { data, isLoading, isError, error, refetch } = useTicketsPage({
+    page,
+    search: debouncedSearch || undefined,
+    status: statusFilter || undefined,
   });
 
   const assignMutation = useMutation({
     mutationFn: ({ ticketId, staffId }: { ticketId: number; staffId: number }) =>
       apiClient.post(`/api/v1/admin/support-tickets/${ticketId}/assign`, { staff_id: staffId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+      queryClient.invalidateQueries({ queryKey: supportTicketKeys.pageData() });
       addToast('success', 'Ticket assigned');
       setAssignModal({ open: false, ticketId: 0, staffId: '' });
     },
@@ -59,22 +61,21 @@ export function SupportTicketsPage() {
     mutationFn: ({ ticketId, status }: { ticketId: number; status: string }) =>
       apiClient.put(`/api/v1/admin/support-tickets/${ticketId}/status`, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+      queryClient.invalidateQueries({ queryKey: supportTicketKeys.pageData() });
       addToast('success', 'Ticket status updated');
     },
     onError: () => addToast('error', 'Failed to update ticket status'),
   });
 
-  const tickets = (data?.tickets || []).filter((t: any) => {
-    const matchesSearch = !search || t.subject?.toLowerCase().includes(search.toLowerCase()) || t.ticket_number?.includes(search);
-    const matchesStatus = !statusFilter || t.status === statusFilter;
-    const matchesUserTab =
+  // Customer/supplier/driver tabs are client-side only (backend has no user-type filter) — applies to the current page only.
+  const tickets: SupportTicketListItem[] = (data?.tickets || []).filter(
+    (t) =>
       userTab === 'all' ||
       (userTab === 'customer' && t.customer != null) ||
       (userTab === 'supplier' && t.supplier != null) ||
-      (userTab === 'driver' && t.driver != null);
-    return matchesSearch && matchesStatus && matchesUserTab;
-  });
+      (userTab === 'driver' && t.driver != null)
+  );
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   if (isError) {
     return (
@@ -105,7 +106,10 @@ export function SupportTicketsPage() {
         {(['all', 'customer', 'supplier', 'driver'] as const).map((tab) => (
           <button
             key={tab}
-            onClick={() => setUserTab(tab)}
+            onClick={() => {
+              setUserTab(tab);
+              setPage(1);
+            }}
             className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${
               userTab === tab
                 ? 'bg-white text-text-primary shadow-sm'
@@ -131,11 +135,11 @@ export function SupportTicketsPage() {
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('support.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder={t('support.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
           <div className="relative">
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               <option value="">{t('support.allStatuses')}</option>
               <option value="open">Open</option>
               <option value="in_progress">In Progress</option>
@@ -151,7 +155,7 @@ export function SupportTicketsPage() {
           <EmptyState title={t('support.noTickets')} description={t('support.allResolved')} />
         ) : (
           <div className="space-y-2">
-            {tickets.map((ticket: any) => (
+            {tickets.map((ticket) => (
               <div key={ticket.id} className="rounded-xl border border-border-default/60 overflow-hidden">
                 <ListItem
                   onClick={() => setExpandedId(expandedId === ticket.id ? null : ticket.id)}
@@ -193,7 +197,7 @@ export function SupportTicketsPage() {
                 {expandedId === ticket.id && ticket.messages && ticket.messages.length > 0 && (
                   <div className="border-t border-border-default/50 px-4 py-3 bg-bg-section-alt/50">
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {ticket.messages.map((msg: any) => (
+                      {ticket.messages.map((msg: SupportTicketMessage) => (
                         <div key={msg.id} className={`p-3 rounded-xl text-sm ${msg.is_internal ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-border-default/60'}`}>
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-bold text-text-secondary">{msg.user?.full_name || t('support.system')}</span>
@@ -212,6 +216,16 @@ export function SupportTicketsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Assign Modal */}

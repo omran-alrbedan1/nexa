@@ -75,6 +75,11 @@ interface BackendListResponse {
   meta: { current_page: number; last_page: number; total: number };
 }
 
+export interface WarehouseListPageData {
+  data: Warehouse[];
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+}
+
 function mapWarehouse(bw: BackendWarehouse): Warehouse {
   return {
     id: bw.id,
@@ -95,15 +100,23 @@ function mapWarehouse(bw: BackendWarehouse): Warehouse {
 }
 
 export const warehousesApi = {
-  getAll: async (params?: { search?: string; page?: number; perPage?: number }): Promise<{ data: Warehouse[]; total: number }> => {
+  getAll: async (params?: { search?: string; page?: number; perPage?: number }): Promise<WarehouseListPageData> => {
     const queryParams = new URLSearchParams();
     if (params?.search) queryParams.set('search', params.search);
-    if (params?.page) queryParams.set('page', String(params.page));
-    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    queryParams.set('page', String(params?.page ?? 1));
+    queryParams.set('per_page', String(params?.perPage ?? 15));
     const qs = queryParams.toString();
     const response = await apiClient.get<ApiResponse<BackendListResponse>>(`/api/v1/admin/warehouses${qs ? '?' + qs : ''}`);
     const data = response.data.data;
-    return { data: data.warehouses.map(mapWarehouse), total: data.meta.total };
+    return {
+      data: data.warehouses.map(mapWarehouse),
+      meta: {
+        currentPage: data.meta.current_page ?? 1,
+        lastPage: data.meta.last_page ?? 1,
+        perPage: params?.perPage ?? 15,
+        total: data.meta.total ?? 0,
+      },
+    };
   },
 
   getById: async (id: number): Promise<Warehouse> => {

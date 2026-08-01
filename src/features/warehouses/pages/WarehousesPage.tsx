@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { ROUTES } from '@/routes/routes';
 import { Warehouse, Plus, Search, Pencil, Trash2, X, CheckCircle2, Building2, Package } from 'lucide-react';
 
@@ -40,10 +41,9 @@ export function WarehousesPage() {
     });
   };
 
-  const totalPages = data ? Math.ceil(data.total / 20) : 1;
-
   const warehouses = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
+  const total = meta.total;
   const activeWarehouses = warehouses.filter((w) => w.isActive).length;
   const totalCapacity = warehouses.reduce((sum, w) => sum + (w.capacity || 0), 0);
 
@@ -171,20 +171,18 @@ export function WarehousesPage() {
                 </div>
               </ListItem>
             ))}
-
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
-                <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="px-3 py-1.5 text-xs rounded-lg border border-border-default hover:bg-bg-section-alt disabled:opacity-30 disabled:cursor-not-allowed font-body">
-                  {t('common.previous')}
-                </button>
-                <span className="text-xs text-text-secondary font-body">{page} / {totalPages}</span>
-                <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="px-3 py-1.5 text-xs rounded-lg border border-border-default hover:bg-bg-section-alt disabled:opacity-30 disabled:cursor-not-allowed font-body">
-                  {t('common.next')}
-                </button>
-              </div>
-            )}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title={t('warehouses.list.confirmDeleteTitle')}>

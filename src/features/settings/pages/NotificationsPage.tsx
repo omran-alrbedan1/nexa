@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { Pagination } from '@/components/ui/Pagination';
 
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -16,7 +17,8 @@ function cn(...classes: (string | false | undefined | null)[]) {
 
 export function NotificationsPage() {
   const { t } = useTranslation();
-  const { data: notifData, isLoading, isError, error, refetch } = useAdminNotifications();
+  const [page, setPage] = useState(1);
+  const { data: notifData, isLoading, isError, error, refetch } = useAdminNotifications({ page });
   const sendNotification = useSendNotification();
   const broadcastNotification = useBroadcastNotification();
 
@@ -27,6 +29,7 @@ export function NotificationsPage() {
   const [broadcastForm, setBroadcastForm] = useState({ title: '', body: '', channel: 'in_app', userType: 'customer' });
 
   const notifications = notifData?.data || [];
+  const meta = notifData?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const handleSend = () => {
     sendNotification.mutate({
@@ -129,6 +132,16 @@ export function NotificationsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Send Modal */}

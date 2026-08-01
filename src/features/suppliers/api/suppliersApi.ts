@@ -58,6 +58,12 @@ export interface SuppliersPageData {
     totalRevenue: number;
   };
   suppliers: Supplier[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Type (matches GET /api/v1/admin/suppliers response) ──
@@ -190,8 +196,16 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
 
 export const suppliersApi = {
   /** Fetch all suppliers page data (stats + list) */
-  getPageData: async (): Promise<SuppliersPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers');
+  getPageData: async (params: { page?: number; search?: string; approval_status?: string; status?: string } = {}): Promise<SuppliersPageData> => {
+    const response = await apiClient.get<ApiResponse<BackendSuppliersResponse>>('/api/v1/admin/suppliers', {
+      params: {
+        page: params.page ?? 1,
+        per_page: 15,
+        search: params.search || undefined,
+        approval_status: params.approval_status || undefined,
+        status: params.status || undefined,
+      },
+    });
     const backendData = response.data.data;
     const suppliers = backendData.suppliers.map(mapBackendSupplier);
     const active = suppliers.filter((s) => s.status === 'active').length;
@@ -201,9 +215,10 @@ export const suppliersApi = {
     const avgRating = ratings.length > 0
       ? ratings.reduce((sum, s) => sum + s.rating, 0) / ratings.length
       : 0;
+    const meta = backendData.meta;
     return {
       stats: {
-        total: suppliers.length,
+        total: meta.total ?? suppliers.length,
         active,
         pendingApproval: pending,
         suspended,
@@ -212,6 +227,12 @@ export const suppliersApi = {
         totalRevenue: suppliers.reduce((sum, s) => sum + s.totalRevenue, 0),
       },
       suppliers,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? suppliers.length,
+      },
     };
   },
 
@@ -225,7 +246,7 @@ export const suppliersApi = {
       meta: {
         currentPage: backendData.meta.current_page,
         lastPage: backendData.meta.last_page,
-        perPage: 20,
+        perPage: 15,
         total: backendData.meta.total,
       },
     };

@@ -53,15 +53,45 @@ export interface SupportTicketListItem {
   messages?: SupportTicketMessage[];
 }
 
-interface SupportListResponse {
+export interface SupportListResponse {
   tickets: SupportTicketListItem[];
-  meta: { current_page: number; last_page: number; total: number };
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
+}
+
+interface BackendSupportListResponse {
+  tickets: SupportTicketListItem[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    total: number;
+  };
 }
 
 export const supportApi = {
-  list: async (params?: Record<string, string>): Promise<SupportListResponse> => {
-    const res = await apiClient.get<ApiResponse<SupportListResponse>>('/api/v1/admin/support-tickets', { params });
-    return unwrap(res.data);
+  list: async (params: { page?: number; search?: string; status?: string } = {}): Promise<SupportListResponse> => {
+    const res = await apiClient.get<ApiResponse<BackendSupportListResponse>>('/api/v1/admin/support-tickets', {
+      params: {
+        page: params.page ?? 1,
+        per_page: 15,
+        search: params.search || undefined,
+        status: params.status || undefined,
+      },
+    });
+    const data = unwrap(res.data);
+    return {
+      tickets: data.tickets,
+      meta: {
+        currentPage: data.meta.current_page ?? 1,
+        lastPage: data.meta.last_page ?? 1,
+        perPage: 15,
+        total: data.meta.total ?? data.tickets.length,
+      },
+    };
   },
 
   get: async (id: number): Promise<SupportTicketDetail> => {

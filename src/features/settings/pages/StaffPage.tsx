@@ -8,12 +8,14 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { Users, UserPlus, Shield, Mail, Clock } from 'lucide-react';
 import type { StaffMember } from '../api/settingsApi';
 
 export function StaffPage() {
   const { t } = useTranslation();
-  const { data: staffData, isLoading, isError, error, refetch } = useStaff();
+  const [page, setPage] = useState(1);
+  const { data: staffData, isLoading, isError, error, refetch } = useStaff({ page });
   const { data: roles } = useRoles();
   const createStaff = useCreateStaff();
   const updateRoles = useUpdateStaffRoles();
@@ -28,6 +30,7 @@ export function StaffPage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', roleIds: [] as number[] });
 
   const staff = staffData?.data || [];
+  const meta = staffData?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const openRoleModal = (member: StaffMember) => {
     setRoleModal({
@@ -139,6 +142,16 @@ export function StaffPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create Staff Modal */}

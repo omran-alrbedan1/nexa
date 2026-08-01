@@ -235,6 +235,12 @@ interface BackendAuditLog {
   created_at: string;
 }
 
+interface BackendListMeta {
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
 function mapAuditLog(a: BackendAuditLog): AuditLog {
   return {
     id: a.id,
@@ -285,13 +291,26 @@ export const settingsApi = {
   },
 
   // ── Staff ──
-  getStaff: async (): Promise<PaginatedResponse<StaffMember>> => {
+  getStaff: async (params: { page?: number; search?: string; status?: string } = {}): Promise<PaginatedResponse<StaffMember>> => {
     try {
-      const response = await apiClient.get<ApiResponse<{ staff: BackendStaffMember[]; meta: any }>>('/api/v1/admin/staff');
+      const response = await apiClient.get<ApiResponse<{ staff: BackendStaffMember[]; meta: BackendListMeta }>>('/api/v1/admin/staff', {
+        params: {
+          page: params.page ?? 1,
+          per_page: 15,
+          search: params.search || undefined,
+          status: params.status || undefined,
+        },
+      });
       const data = response.data.data;
+      const meta = data.meta;
       return {
         data: (data.staff || []).map(mapStaff),
-        meta: data.meta || { currentPage: 1, lastPage: 1, perPage: 20, total: 0 },
+        meta: {
+          currentPage: meta?.current_page ?? 1,
+          lastPage: meta?.last_page ?? 1,
+          perPage: 15,
+          total: meta?.total ?? 0,
+        },
       };
     } catch {
       throw new Error('Failed to fetch staff');
@@ -371,10 +390,22 @@ export const settingsApi = {
   },
 
   // ── Banners ──
-  getBanners: async (): Promise<Banner[]> => {
+  getBanners: async (page: number = 1): Promise<{ banners: Banner[]; meta: { currentPage: number; lastPage: number; perPage: number; total: number } }> => {
     try {
-      const response = await apiClient.get<ApiResponse<{ banners: BackendBanner[] }>>('/api/v1/admin/banners');
-      return (response.data.data?.banners || []).map(mapBanner);
+      const response = await apiClient.get<ApiResponse<{ banners: BackendBanner[]; meta: BackendListMeta }>>('/api/v1/admin/banners', {
+        params: { page, per_page: 15 },
+      });
+      const data = response.data.data;
+      const meta = data.meta || {};
+      return {
+        banners: (data.banners || []).map(mapBanner),
+        meta: {
+          currentPage: meta.current_page ?? 1,
+          lastPage: meta.last_page ?? 1,
+          perPage: 15,
+          total: meta.total ?? data.banners?.length ?? 0,
+        },
+      };
     } catch {
       throw new Error('Failed to fetch banners');
     }
@@ -422,13 +453,28 @@ export const settingsApi = {
   },
 
   // ── Notifications ──
-  getAdminNotifications: async (): Promise<PaginatedResponse<AdminNotification>> => {
+  getAdminNotifications: async (params: { page?: number; userId?: number; type?: string; channel?: string; read?: boolean } = {}): Promise<PaginatedResponse<AdminNotification>> => {
     try {
-      const response = await apiClient.get<ApiResponse<{ notifications: BackendAdminNotification[]; meta: any }>>('/api/v1/admin/notifications');
+      const response = await apiClient.get<ApiResponse<{ notifications: BackendAdminNotification[]; meta: BackendListMeta }>>('/api/v1/admin/notifications', {
+        params: {
+          page: params.page ?? 1,
+          per_page: 15,
+          user_id: params.userId || undefined,
+          type: params.type || undefined,
+          channel: params.channel || undefined,
+          read: params.read,
+        },
+      });
       const data = response.data.data;
+      const meta = data.meta;
       return {
         data: (data.notifications || []).map(mapNotification),
-        meta: data.meta || { currentPage: 1, lastPage: 1, perPage: 20, total: 0 },
+        meta: {
+          currentPage: meta?.current_page ?? 1,
+          lastPage: meta?.last_page ?? 1,
+          perPage: 15,
+          total: meta?.total ?? 0,
+        },
       };
     } catch {
       throw new Error('Failed to fetch notifications');
@@ -465,11 +511,18 @@ export const settingsApi = {
   // ── Audit Logs ──
   getAuditLogs: async (page: number = 1): Promise<PaginatedResponse<AuditLog>> => {
     try {
-      const response = await apiClient.get<ApiResponse<{ audit_logs: BackendAuditLog[]; meta: any }>>(`/api/v1/admin/audit-logs?page=${page}`);
+      const response = await apiClient.get<ApiResponse<{ audit_logs: BackendAuditLog[]; meta: BackendListMeta }>>('/api/v1/admin/audit-logs', {
+        params: { page: page ?? 1, per_page: 15 },
+      });
       const data = response.data.data;
       return {
         data: (data.audit_logs || []).map(mapAuditLog),
-        meta: data.meta || { currentPage: 1, lastPage: 1, perPage: 20, total: 0 },
+        meta: {
+          currentPage: data.meta?.current_page ?? 1,
+          lastPage: data.meta?.last_page ?? 1,
+          perPage: 15,
+          total: data.meta?.total ?? 0,
+        },
       };
     } catch {
       throw new Error('Failed to fetch audit logs');

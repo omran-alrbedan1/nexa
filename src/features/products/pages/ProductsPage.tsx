@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useToastStore } from '@/stores/toastStore';
 import { ListItem } from '@/components/ui/ListItem';
 import { Package, CheckCircle2, AlertTriangle, Layers, Users, TrendingUp, Plus, Search, Filter, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -23,12 +25,17 @@ export function ProductsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
-  const { data, isLoading, isError, error, refetch } = useProductsPage();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [categoryFilter, setCategoryFilter] = useState<number | ''>('');
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useProductsPage({
+    page,
+    search: debouncedSearch || undefined,
+  });
   const toggleAvailability = useToggleProductAvailability();
   const approveProduct = useApproveProduct();
   const rejectProduct = useRejectProduct();
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<number | ''>('');
   // Fetch pending-approval products
   const { data: pendingProducts } = useQuery({
     queryKey: ['products', 'pending-approvals'],
@@ -48,11 +55,9 @@ export function ProductsPage() {
 
   const stats = data?.stats;
   const categories = data?.categories ?? [];
-  const products = (data?.products ?? []).filter((p) => {
-    const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.supplierName?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = !categoryFilter || p.categoryId === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  // Category filter is client-side only (backend does not support it) — applies to the current page only.
+  const products = (data?.products ?? []).filter((p) => !categoryFilter || p.categoryId === categoryFilter);
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const allCategories = Array.isArray(categories) ? categories.flatMap((c) => [c, ...(c.children || [])]) : [];
   const hasLowStock = products.filter((p) => p.isAvailable && p.stockQuantity < 20).length;
@@ -167,7 +172,7 @@ export function ProductsPage() {
               {hasLowStock > 0 ? (
                 <span className="text-status-warning font-bold">{t('products.catalog.lowStock', { count: hasLowStock })}</span>
               ) : (
-                <>{t('products.catalog.productCount', { count: products.length })}</>
+                <>{t('products.catalog.productCount', { count: meta.total })}</>
               )}
             </p>
           </div>
@@ -178,7 +183,10 @@ export function ProductsPage() {
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder={t('products.catalog.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all"
             />
@@ -187,7 +195,10 @@ export function ProductsPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value ? Number(e.target.value) : '')}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value ? Number(e.target.value) : '');
+                setPage(1);
+              }}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('products.catalog.allCategories')}</option>
@@ -245,6 +256,16 @@ export function ProductsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
     </div>
   );

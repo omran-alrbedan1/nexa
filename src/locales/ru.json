@@ -1550,5 +1550,10 @@
     "back": "Назад",
     "select": "Выбрать",
     "unknown": "Неизвестно"
+  },
+  "pagination": {
+    "showingTo": "Показано с {{from}} по {{to}} из {{total}}",
+    "previous": "Назад",
+    "next": "Далее"
   }
 }

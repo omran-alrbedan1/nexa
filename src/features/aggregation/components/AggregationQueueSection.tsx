@@ -5,6 +5,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
 import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
@@ -19,9 +20,11 @@ const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'pu
 interface AggregationQueueSectionProps {
   items: AggregationOrder[];
   isLoading: boolean;
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+  onPageChange: (page: number) => void;
 }
 
-export function AggregationQueueSection({ items, isLoading }: AggregationQueueSectionProps) {
+export function AggregationQueueSection({ items, isLoading, meta, onPageChange }: AggregationQueueSectionProps) {
   const { t } = useTranslation();
   const STATUS_LABELS: Record<AggregationStatus, string> = {
     queued: t('warehouse.aggregationQueue.queued'),
@@ -204,6 +207,14 @@ export function AggregationQueueSection({ items, isLoading }: AggregationQueueSe
           ))}
         </div>
       )}
+
+      <Pagination
+        currentPage={meta.currentPage}
+        lastPage={meta.lastPage}
+        total={meta.total}
+        perPage={15}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

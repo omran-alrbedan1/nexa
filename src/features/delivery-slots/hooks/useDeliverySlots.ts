@@ -26,10 +26,10 @@ export function useZones() {
   });
 }
 
-export function useDeliverySlotsPage() {
+export function useDeliverySlotsPage(params: { page?: number } = {}) {
   return useQuery<DeliverySlotsPageData>({
-    queryKey: deliverySlotKeys.pageData(),
-    queryFn: () => deliverySlotsApi.getPageData(),
+    queryKey: [...deliverySlotKeys.pageData(), params],
+    queryFn: () => deliverySlotsApi.getPageData(params),
     staleTime: 30_000,
   });
 }

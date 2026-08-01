@@ -58,6 +58,12 @@ export interface ProductsPageData {
   };
   categories: ProductCategory[];
   products: DashboardProduct[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types (matches GET /api/v1/admin/products response) ──
@@ -191,9 +197,15 @@ function buildProductFormData(data: Record<string, any>): FormData {
 
 export const productsApi = {
   /** Fetch all products page data (stats + categories + products) */
-  getPageData: async (): Promise<ProductsPageData> => {
+  getPageData: async (params: { page?: number; search?: string } = {}): Promise<ProductsPageData> => {
       const [productsRes, categoriesRes] = await Promise.all([
-        apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products'),
+        apiClient.get<ApiResponse<BackendProductsResponse>>('/api/v1/admin/products', {
+          params: {
+            page: params.page ?? 1,
+            per_page: 15,
+            search: params.search || undefined,
+          },
+        }),
         apiClient.get<ApiResponse<{ categories: BackendCategory[] }>>('/api/v1/admin/categories').catch(() => null),
       ]);
       const backendData = productsRes.data.data; // { products: [...], meta: {...} }
@@ -206,9 +218,10 @@ export const productsApi = {
       const avgPrice = prices.length > 0
         ? Math.round((prices.reduce((a, b) => a + b, 0) / prices.length) * 100) / 100
         : 0;
+      const meta = backendData.meta;
       return {
         stats: {
-          totalProducts: products.length,
+          totalProducts: meta.total ?? products.length,
           available,
           outOfStock,
           categories: categories.length,
@@ -217,6 +230,12 @@ export const productsApi = {
         },
         categories,
         products,
+        meta: {
+          currentPage: meta.current_page ?? 1,
+          lastPage: meta.last_page ?? 1,
+          perPage: 15,
+          total: meta.total ?? products.length,
+        },
       };
   },
 
@@ -230,7 +249,7 @@ export const productsApi = {
         meta: {
           currentPage: backendData.meta.current_page,
           lastPage: backendData.meta.last_page,
-          perPage: 20,
+          perPage: 15,
           total: backendData.meta.total,
         },
       };

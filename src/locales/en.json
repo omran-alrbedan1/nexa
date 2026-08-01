@@ -1631,6 +1631,7 @@
     },
     "create": {
       "validationRequired": "Planned date and departure time are required",
+      "validationDate": "Planned date cannot be in the past",
       "successTitle": "Trip created successfully",
       "successDummy": "Trip created (dummy — backend route not yet available)",
       "back": "Back to Trips",
@@ -2575,5 +2576,10 @@
         "deleteFailed": "Failed to delete service region"
       }
     }
+  },
+  "pagination": {
+    "showingTo": "Showing {{from}} to {{to}} of {{total}} results",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

@@ -355,7 +355,7 @@ export const ordersApi = {
     if (params?.status) queryParams.set('status', ORDER_STATUS_FRONTEND_TO_BACKEND[params.status] ?? params.status.toUpperCase());
     if (params?.type) queryParams.set('order_type', params.type.toUpperCase());
     if (params?.search) queryParams.set('search', params.search);
-    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    queryParams.set('per_page', String(params?.perPage ?? 15));
     if (params?.page) queryParams.set('page', String(params.page));
     if (params?.dateFrom) queryParams.set('from_date', params.dateFrom);
     if (params?.dateTo) queryParams.set('to_date', params.dateTo);
@@ -377,7 +377,7 @@ export const ordersApi = {
       pagination: {
         currentPage: backendData.meta.current_page,
         lastPage: backendData.meta.last_page,
-        perPage: 20,
+        perPage: 15,
         total: backendData.meta.total,
       },
     };

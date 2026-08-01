@@ -11,7 +11,7 @@ export const specialOrderKeys = {
 
 // ── Queries ──
 
-export function useSpecialOrdersList(params?: { status?: string; page?: number; search?: string }) {
+export function useSpecialOrdersList(params?: { status?: string; page?: number; perPage?: number; search?: string }) {
   return useQuery({
     queryKey: specialOrderKeys.list(params),
     queryFn: () => specialOrdersApi.getList(params),

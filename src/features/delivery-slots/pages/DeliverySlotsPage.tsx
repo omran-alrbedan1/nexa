@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
 import { Clock, CalendarDays, Truck, Users, Plus, CheckCircle2, Calendar, Package, MapPin } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { DeliverySlotForm } from '../components/DeliverySlotForm';
@@ -14,7 +15,8 @@ import type { DeliverySlot } from '../api/deliverySlotsApi';
 export function DeliverySlotsPage() {
   const { t } = useTranslation();
   const formatPrice = useFormatPrice();
-  const { data, isLoading, isError, error, refetch } = useDeliverySlotsPage();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useDeliverySlotsPage({ page });
   const createSlot = useCreateDeliverySlot();
   const updateSlot = useUpdateDeliverySlot();
 
@@ -23,6 +25,7 @@ export function DeliverySlotsPage() {
 
   const stats = data?.stats;
   const slots = data?.slots ?? [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -103,7 +106,7 @@ export function DeliverySlotsPage() {
         <CardHeader>
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('deliverySlots.list.title')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('deliverySlots.list.subtitle', { count: slots.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('deliverySlots.list.subtitle', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
@@ -179,6 +182,16 @@ export function DeliverySlotsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create Modal */}

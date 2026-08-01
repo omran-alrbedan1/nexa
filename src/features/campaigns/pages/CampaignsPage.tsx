@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { useToastStore } from '@/stores/toastStore';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
@@ -22,10 +23,14 @@ const STATUS_BADGE: Record<CampaignStatus, 'green' | 'teal' | 'yellow' | 'purple
 export function CampaignsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { data, isLoading, isError, error, refetch } = useCampaignsPage();
   const campaignAction = useCampaignAction();
 
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useCampaignsPage({
+    page,
+    status: statusFilter || undefined,
+  });
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -38,7 +43,8 @@ export function CampaignsPage() {
   );
 
   const stats = data?.stats;
-  const campaigns = (data?.campaigns ?? []).filter((c) => !statusFilter || c.status === statusFilter);
+  const campaigns = data?.campaigns ?? [];
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const getActions = (status: CampaignStatus) => {
     const actions: Array<{ label: string; action: 'activate' | 'end' | 'cancel'; variant: 'primary' | 'danger' | 'secondary' }> = [];
@@ -115,7 +121,7 @@ export function CampaignsPage() {
         >
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.list.allCampaigns')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('campaigns.list.count', { count: campaigns.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('campaigns.list.count', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
@@ -124,7 +130,10 @@ export function CampaignsPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as CampaignStatus | '')}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as CampaignStatus | '');
+                setPage(1);
+              }}
               className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
             >
               <option value="">{t('campaigns.list.allStatuses')}</option>
@@ -176,6 +185,16 @@ export function CampaignsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
     </div>
   );

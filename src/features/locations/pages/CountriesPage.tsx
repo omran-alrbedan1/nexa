@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { ROUTES } from '@/routes/routes';
 import { Globe, CheckCircle2, MapPin, Plus, Search, Pencil, Trash2 } from 'lucide-react';
 import { CountryForm } from '../components/CountryForm';
@@ -21,13 +23,18 @@ import { CountryForm } from '../components/CountryForm';
 export function CountriesPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { data, isLoading, isError, error, refetch } = useCountriesPage();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useCountriesPage({
+    page,
+    search: debouncedSearch || undefined,
+  });
   const toggleActive = useToggleCountryActive();
   const createCountry = useCreateCountry();
   const updateCountry = useUpdateCountry();
   const deleteCountry = useDeleteCountry();
 
-  const [search, setSearch] = useState('');
   const [createModal, setCreateModal] = useState(false);
   const [editCountry, setEditCountry] = useState<{
     id: number;
@@ -53,13 +60,7 @@ export function CountriesPage() {
 
   const stats = data?.stats;
   const countries = data?.countries ?? [];
-  const filtered = search
-    ? countries.filter((c) =>
-        c.name_ar.toLowerCase().includes(search.toLowerCase()) ||
-        c.name_en?.toLowerCase().includes(search.toLowerCase()) ||
-        c.code.toLowerCase().includes(search.toLowerCase())
-      )
-    : countries;
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -118,7 +119,7 @@ export function CountriesPage() {
         <CardHeader>
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('locations.countries.list.title')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('locations.countries.list.count', { count: countries.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('locations.countries.list.count', { count: meta.total })}</p>
           </div>
         </CardHeader>
 
@@ -127,7 +128,10 @@ export function CountriesPage() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder={t('locations.countries.list.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 text-sm bg-bg-input border border-border-default rounded-lg outline-none focus:border-brand-primary"
             />
@@ -136,11 +140,11 @@ export function CountriesPage() {
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
-        ) : filtered.length === 0 ? (
+        ) : countries.length === 0 ? (
           <EmptyState title={t('locations.countries.list.noCountries')} description={search ? t('locations.countries.list.tryDifferentSearch') : t('locations.countries.list.addFirstCountry')} />
         ) : (
           <div className="space-y-2">
-            {filtered.map((country) => (
+            {countries.map((country) => (
               <div
                 key={country.id}
                 onClick={() => navigate(ROUTES.COUNTRY_DETAIL(country.id))}
@@ -203,6 +207,16 @@ export function CountriesPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create Country Modal */}

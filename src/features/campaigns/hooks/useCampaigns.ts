@@ -9,10 +9,10 @@ export const campaignKeys = {
   detail: (id: number) => [...campaignKeys.all, 'detail', id] as const,
 };
 
-export function useCampaignsPage() {
+export function useCampaignsPage(params: { page?: number; status?: string } = {}) {
   return useQuery<CampaignsPageData>({
-    queryKey: campaignKeys.pageData(),
-    queryFn: () => campaignsApi.getPageData(),
+    queryKey: [...campaignKeys.pageData(), params],
+    queryFn: () => campaignsApi.getPageData(params),
     staleTime: 30_000,
   });
 }

@@ -11,7 +11,7 @@ const warehouseKeys = {
 export function useWarehousesList(search?: string, page?: number) {
   return useQuery({
     queryKey: warehouseKeys.list({ search, page }),
-    queryFn: () => warehousesApi.getAll({ search, page, perPage: 20 }),
+    queryFn: () => warehousesApi.getAll({ search, page, perPage: 15 }),
     staleTime: 30_000,
   });
 }

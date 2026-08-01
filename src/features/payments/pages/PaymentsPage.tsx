@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
-import { apiClient } from '@/lib/axios';
+import { paymentsApi } from '../api/paymentsApi';
+import { usePaymentsPage, paymentKeys } from '../hooks/usePayments';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -10,21 +11,10 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
+import { Pagination } from '@/components/ui/Pagination';
 import { DollarSign, Search, Filter, CreditCard, ArrowLeftRight, Ban } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import type { ApiResponse, PaginatedResponse } from '@/types/common';
-
-interface Payment {
-  id: number;
-  amount: number;
-  status: string;
-  transactionId: string;
-  paidAt: string | null;
-  createdAt: string;
-  order?: { id: number; orderNumber: string; customer?: { id: number; fullName: string } };
-  paymentMethod?: { id: number; nameAr: string };
-  refunds?: { id: number; amount: number; reason: string; status: string; processedAt: string }[];
-}
+import type { Payment } from '../api/paymentsApi';
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple'> = {
   paid: 'green', pending: 'yellow', failed: 'red', refunded: 'purple', partial_refunded: 'purple',
@@ -41,35 +31,32 @@ export function PaymentsPage() {
   const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
   const [refundModal, setRefundModal] = useState<{ open: boolean; paymentId: number; amount: string; reason: string }>({
     open: false, paymentId: 0, amount: '', reason: '',
   });
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['payments'],
-    queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ payments: any[]; meta: any }>>('/api/v1/admin/payments');
-      return response.data.data;
-    },
-    staleTime: 30_000,
+  const { data, isLoading, isError, error, refetch } = usePaymentsPage({
+    page,
+    status: statusFilter || undefined,
   });
 
   const refundMutation = useMutation({
     mutationFn: ({ id, amount, reason }: { id: number; amount: number; reason: string }) =>
-      apiClient.post(`/api/v1/admin/payments/${id}/refund`, { amount, reason }),
+      paymentsApi.refund(id, amount, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: paymentKeys.pageData() });
       addToast('success', 'Refund processed');
       setRefundModal({ open: false, paymentId: 0, amount: '', reason: '' });
     },
     onError: () => addToast('error', 'Failed to process refund'),
   });
 
-  const payments: Payment[] = (data?.payments || []).filter((p: any) => {
-    const matchesSearch = !search || p.transaction_id?.toLowerCase().includes(search.toLowerCase()) || p.order?.order_number?.includes(search);
-    const matchesStatus = !statusFilter || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Transaction/order search is client-side only (backend has no free-text search for payments) — applies to the current page only.
+  const payments: Payment[] = (data?.payments || []).filter((p) =>
+    !search || p.transactionId?.toLowerCase().includes(search.toLowerCase()) || p.order?.orderNumber?.includes(search)
+  );
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
@@ -132,18 +119,18 @@ export function PaymentsPage() {
         <CardHeader>
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('payments.allPayments')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{payments.length} {t('common.items')}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{meta.total} {t('common.items')}</p>
           </div>
         </CardHeader>
 
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           <div className="w-full sm:flex-1 sm:max-w-xs relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('payments.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder={t('payments.searchPlaceholder')} className="w-full pl-9 pr-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
           </div>
           <div className="relative">
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               <option value="">{t('payments.allStatuses')}</option>
               <option value="paid">Paid</option>
               <option value="pending">Pending</option>
@@ -159,7 +146,7 @@ export function PaymentsPage() {
           <EmptyState title={t('payments.noPayments')} description={t('payments.noPaymentsDescription')} />
         ) : (
           <div className="space-y-2">
-            {payments.map((payment: any) => (
+            {payments.map((payment) => (
               <ListItem
                 key={payment.id}
                 icon={<DollarSign size={16} className="text-green-600" />}
@@ -173,15 +160,25 @@ export function PaymentsPage() {
                 )}
               >
                 <div className="flex items-center gap-3 text-xs text-text-tertiary font-body flex-wrap">
-                  <span>{payment.transaction_id}</span>
-                  {payment.order && <span>Order #{payment.order.order_number}</span>}
-                  {payment.payment_method && <span>{payment.payment_method.name_ar}</span>}
-                  <span>{new Date(payment.created_at).toLocaleDateString()}</span>
+                  <span>{payment.transactionId}</span>
+                  {payment.order && <span>Order #{payment.order.orderNumber}</span>}
+                  {payment.paymentMethod && <span>{payment.paymentMethod.nameAr}</span>}
+                  <span>{new Date(payment.createdAt).toLocaleDateString()}</span>
                 </div>
               </ListItem>
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Refund Modal */}

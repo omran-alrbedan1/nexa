@@ -7,6 +7,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { Pagination } from '@/components/ui/Pagination';
 import { useAssignToTrip } from '../hooks/useAggregation';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import type { ReadyToShipItem, ShipmentStatus } from '../api/aggregationApi';
@@ -21,9 +22,11 @@ const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'gree
 interface ReadyToShipSectionProps {
   items: ReadyToShipItem[];
   isLoading: boolean;
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+  onPageChange: (page: number) => void;
 }
 
-export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps) {
+export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: ReadyToShipSectionProps) {
   const { t } = useTranslation();
   const STATUS_LABELS: Record<ShipmentStatus, string> = {
     pending_trip: t('warehouse.readyToShip.pendingTrip'),
@@ -166,6 +169,14 @@ export function ReadyToShipSection({ items, isLoading }: ReadyToShipSectionProps
             ))}
           </div>
         )}
+
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={onPageChange}
+        />
       </Card>
 
       {/* Assign to Trip Modal */}

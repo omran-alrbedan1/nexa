@@ -90,6 +90,12 @@ export interface CampaignsPageData {
     totalBudget: number;
   };
   campaigns: Campaign[];
+  meta: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
 }
 
 // ── Backend Raw Types (matching seasonal_campaigns DB table) ──
@@ -198,15 +204,28 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
   };
 }
 
+// Backend has no 'cancelled' campaign status — cancelled campaigns are stored as 'archived'
+const CAMPAIGN_FILTER_FRONTEND_TO_BACKEND: Record<string, string> = {
+  ...CAMPAIGN_STATUS_FRONTEND_TO_BACKEND,
+  cancelled: 'archived',
+};
+
 export const campaignsApi = {
   /** Fetch all campaigns page data */
-  getPageData: async (): Promise<CampaignsPageData> => {
-    const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/campaigns');
+  getPageData: async (params: { page?: number; status?: string } = {}): Promise<CampaignsPageData> => {
+    const response = await apiClient.get<ApiResponse<BackendCampaignsResponse>>('/api/v1/admin/campaigns', {
+      params: {
+        page: params.page ?? 1,
+        per_page: 15,
+        status: params.status ? CAMPAIGN_FILTER_FRONTEND_TO_BACKEND[params.status] : undefined,
+      },
+    });
     const backendData = response.data.data;
     const campaigns = backendData.campaigns.map(mapBackendCampaign);
+    const meta = backendData.meta;
     return {
       stats: {
-        total: campaigns.length,
+        total: meta.total ?? campaigns.length,
         active: campaigns.filter((c) => c.status === 'active').length,
         scheduled: campaigns.filter((c) => c.status === 'scheduled').length,
         draft: campaigns.filter((c) => c.status === 'draft').length,
@@ -216,6 +235,12 @@ export const campaignsApi = {
         totalBudget: 0,
       },
       campaigns,
+      meta: {
+        currentPage: meta.current_page ?? 1,
+        lastPage: meta.last_page ?? 1,
+        perPage: 15,
+        total: meta.total ?? campaigns.length,
+      },
     };
   },
 

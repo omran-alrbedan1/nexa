@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 
 interface PaginationProps {
@@ -15,6 +16,8 @@ export function Pagination({
   onPageChange,
   perPage,
 }: PaginationProps) {
+  const { t } = useTranslation();
+
   if (lastPage <= 1) return null;
 
   const from = (currentPage - 1) * (perPage || 1) + 1;
@@ -51,9 +54,7 @@ export function Pagination({
   return (
     <div className="flex items-center justify-between pt-4">
       <p className="text-sm text-gray-600">
-        Showing <span className="font-medium">{from}</span> to{' '}
-        <span className="font-medium">{to}</span> of{' '}
-        <span className="font-medium">{total}</span> results
+        {t('pagination.showingTo', { from, to, total })}
       </p>
 
       <nav className="flex items-center gap-1" aria-label="Pagination">
@@ -67,9 +68,8 @@ export function Pagination({
           )}
           aria-label="Previous page"
         >
-          Previous
+          {t('pagination.previous')}
         </button>
-
         {getPageNumbers().map((page, idx) =>
           page === 'ellipsis' ? (
             <span key={`ellipsis-${idx}`} className="px-2 text-gray-400">
@@ -103,7 +103,7 @@ export function Pagination({
           )}
           aria-label="Next page"
         >
-          Next
+          {t('pagination.next')}
         </button>
       </nav>
     </div>

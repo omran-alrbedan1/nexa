@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/toastStore';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Pagination } from '@/components/ui/Pagination';
+import { useDebounce } from '@/hooks/useDebounce';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 import { Save, Plus, Pencil, Trash2, GripVertical, HelpCircle, X, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ApiResponse } from '@/types/common';
@@ -48,6 +50,8 @@ export function FaqSettingsPage() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<FaqForm>(emptyForm);
@@ -55,10 +59,14 @@ export function FaqSettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['faqs', search],
+    queryKey: ['faqs', debouncedSearch, page],
     queryFn: async () => {
-      const params = search ? `?search=${encodeURIComponent(search)}` : '';
-      const res = await apiClient.get<ApiResponse<{ faqs: any[]; meta: any }>>(`/api/v1/admin/faqs${params}`);
+      const params = new URLSearchParams({
+        page: String(page),
+        per_page: '15',
+      });
+      if (debouncedSearch) params.set('search', debouncedSearch);
+      const res = await apiClient.get<ApiResponse<{ faqs: any[]; meta: any }>>(`/api/v1/admin/faqs?${params.toString()}`);
       return res.data.data;
     },
     staleTime: 30_000,
@@ -68,6 +76,8 @@ export function FaqSettingsPage() {
     ...f,
     is_active: Boolean(f.is_active),
   }));
+
+  const meta = data?.meta ?? { current_page: 1, last_page: 1, total: 0 };
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['faqs'] });
@@ -169,7 +179,10 @@ export function FaqSettingsPage() {
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder={t('settings.faq.searchPlaceholder')}
               className="w-full sm:w-64 px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
             />
@@ -267,6 +280,16 @@ export function FaqSettingsPage() {
             ))}
           </div>
         )}
+        <Pagination
+          currentPage={meta.current_page ?? 1}
+          lastPage={meta.last_page ?? 1}
+          total={meta.total ?? faqs.length}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create/Edit Modal */}

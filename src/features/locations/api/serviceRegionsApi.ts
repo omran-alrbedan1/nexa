@@ -34,6 +34,11 @@ interface BackendServiceRegionsResponse {
   meta: { current_page: number; last_page: number; total: number };
 }
 
+export interface ServiceRegionsPageData {
+  data: ServiceRegion[];
+  meta: { currentPage: number; lastPage: number; perPage: number; total: number };
+}
+
 // ── Mapping ──
 
 function mapBackendServiceRegion(br: BackendServiceRegion): ServiceRegion {
@@ -51,15 +56,23 @@ function mapBackendServiceRegion(br: BackendServiceRegion): ServiceRegion {
 
 export const serviceRegionsApi = {
   /** Fetch service regions with optional filters */
-  getAll: async (params?: { search?: string; page?: number; perPage?: number }): Promise<{ data: ServiceRegion[]; total: number }> => {
+  getAll: async (params?: { search?: string; page?: number; perPage?: number }): Promise<ServiceRegionsPageData> => {
     const queryParams = new URLSearchParams();
     if (params?.search) queryParams.set('search', params.search);
-    if (params?.page) queryParams.set('page', String(params.page));
-    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    queryParams.set('page', String(params?.page ?? 1));
+    queryParams.set('per_page', String(params?.perPage ?? 15));
     const qs = queryParams.toString();
     const response = await apiClient.get<ApiResponse<BackendServiceRegionsResponse>>(`/api/v1/admin/service-regions${qs ? '?' + qs : ''}`);
     const data = response.data.data;
-    return { data: data.service_regions.map(mapBackendServiceRegion), total: data.meta.total };
+    return {
+      data: data.service_regions.map(mapBackendServiceRegion),
+      meta: {
+        currentPage: data.meta.current_page ?? 1,
+        lastPage: data.meta.last_page ?? 1,
+        perPage: params?.perPage ?? 15,
+        total: data.meta.total ?? 0,
+      },
+    };
   },
 
   /** Create a new service region */

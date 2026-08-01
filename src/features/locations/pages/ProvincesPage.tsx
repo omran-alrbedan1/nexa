@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { Pagination } from '@/components/ui/Pagination';
 import { MapPin, Plus, Search, Globe, Pencil, Trash2, CheckCircle2, Layers } from 'lucide-react';
 import { ProvinceForm } from '../components/ProvinceForm';
 
@@ -45,8 +46,8 @@ export function ProvincesPage() {
   const deleteProvince = useDeleteProvince();
 
   const provinces = data?.data ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.ceil(total / 20);
+  const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
+  const total = meta.total;
 
   const activeProvinces = provinces.filter((p) => p.is_active).length;
   const totalZones = provinces.reduce((sum, p) => sum + p.zones_count, 0);
@@ -209,17 +210,16 @@ export function ProvincesPage() {
           </div>
         )}
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="px-3 py-1.5 text-xs rounded-lg border border-border-default hover:bg-bg-section-alt disabled:opacity-30 disabled:cursor-not-allowed font-body">
-              {t('common.previous')}
-            </button>
-            <span className="text-xs text-text-secondary font-body">{page} / {totalPages}</span>
-            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="px-3 py-1.5 text-xs rounded-lg border border-border-default hover:bg-bg-section-alt disabled:opacity-30 disabled:cursor-not-allowed font-body">
-              {t('common.next')}
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={meta.currentPage}
+          lastPage={meta.lastPage}
+          total={meta.total}
+          perPage={15}
+          onPageChange={(p) => {
+            setPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       </Card>
 
       {/* Create Province Modal */}

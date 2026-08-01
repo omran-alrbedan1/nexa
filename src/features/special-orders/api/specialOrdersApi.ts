@@ -259,18 +259,23 @@ function mapSummary(bo: BackendSpecialOrder): SpecialOrderSummary {
 
 export const specialOrdersApi = {
   /** Fetch paginated special orders list */
-  getList: async (params?: { status?: string; page?: number; perPage?: number; search?: string }): Promise<{ data: SpecialOrderSummary[]; total: number }> => {
+  getList: async (params?: { status?: string; page?: number; perPage?: number; search?: string }): Promise<{ data: SpecialOrderSummary[]; meta: { currentPage: number; lastPage: number; perPage: number; total: number } }> => {
     const queryParams = new URLSearchParams();
     if (params?.status) queryParams.set('status', params.status);
-    if (params?.page) queryParams.set('page', String(params.page));
-    if (params?.perPage) queryParams.set('per_page', String(params.perPage));
+    queryParams.set('page', String(params?.page ?? 1));
+    queryParams.set('per_page', String(params?.perPage ?? 15));
     if (params?.search) queryParams.set('search', params.search);
     const qs = queryParams.toString();
     const response = await apiClient.get<ApiResponse<BackendListResponse>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
     const data = response.data.data;
     return {
       data: data.special_orders.map(mapSummary),
-      total: data.meta.total,
+      meta: {
+        currentPage: data.meta.current_page ?? 1,
+        lastPage: data.meta.last_page ?? 1,
+        perPage: 15,
+        total: data.meta.total ?? 0,
+      },
     };
   },
 

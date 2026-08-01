@@ -16,12 +16,17 @@ const TABS = [
   { key: 'ship', labelKey: 'warehouse.readyToShip.title', icon: Truck },
 ];
 
+const DEFAULT_META = { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
+
 export function AggregationPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
-  const { data, isLoading, error, refetch } = useAggregationPage(warehouseId);
+  const [supplyPage, setSupplyPage] = useState(1);
+  const [queuePage, setQueuePage] = useState(1);
+  const [shipPage, setShipPage] = useState(1);
+  const { data, isLoading, error, refetch } = useAggregationPage({ warehouseId, supplyPage, queuePage, shipPage });
   const { data: warehousesData } = useWarehousesList(undefined, 1);
   const [activeTab, setActiveTab] = useState('supply');
 
@@ -52,7 +57,12 @@ export function AggregationPage() {
               <Building2 size={16} className="text-text-tertiary" />
               <select
                 value={warehouseId ?? ''}
-                onChange={(e) => setWarehouseId(e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(e) => {
+                  setWarehouseId(e.target.value ? Number(e.target.value) : undefined);
+                  setSupplyPage(1);
+                  setQueuePage(1);
+                  setShipPage(1);
+                }}
                 className="px-3 py-1.5 text-sm bg-white border border-border-default rounded-lg outline-none focus:border-brand-primary font-body"
               >
                 <option value="">{t('warehouse.allWarehouses')}</option>
@@ -121,13 +131,37 @@ export function AggregationPage() {
 
       {/* Tab content */}
       {activeTab === 'supply' && (
-        <SupplyReceivingSection items={data?.supplyReceiving ?? []} isLoading={isLoading} />
+        <SupplyReceivingSection
+          items={data?.supplyReceiving ?? []}
+          isLoading={isLoading}
+          meta={data?.supplyMeta ?? DEFAULT_META}
+          onPageChange={(p) => {
+            setSupplyPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       )}
       {activeTab === 'queue' && (
-        <AggregationQueueSection items={data?.aggregationQueue ?? []} isLoading={isLoading} />
+        <AggregationQueueSection
+          items={data?.aggregationQueue ?? []}
+          isLoading={isLoading}
+          meta={data?.queueMeta ?? DEFAULT_META}
+          onPageChange={(p) => {
+            setQueuePage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       )}
       {activeTab === 'ship' && (
-        <ReadyToShipSection items={data?.readyToShip ?? []} isLoading={isLoading} />
+        <ReadyToShipSection
+          items={data?.readyToShip ?? []}
+          isLoading={isLoading}
+          meta={data?.shipMeta ?? DEFAULT_META}
+          onPageChange={(p) => {
+            setShipPage(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
       )}
     </div>
   );

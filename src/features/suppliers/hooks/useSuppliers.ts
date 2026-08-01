@@ -12,10 +12,10 @@ export const supplierKeys = {
   products: (id: number) => [...supplierKeys.all, 'products', id] as const,
 };
 
-export function useSuppliersPage() {
+export function useSuppliersPage(params: { page?: number; search?: string; approval_status?: string; status?: string } = {}) {
   return useQuery<SuppliersPageData>({
-    queryKey: supplierKeys.pageData(),
-    queryFn: () => suppliersApi.getPageData(),
+    queryKey: [...supplierKeys.pageData(), params],
+    queryFn: () => suppliersApi.getPageData(params),
     staleTime: 30_000,
   });
 }
