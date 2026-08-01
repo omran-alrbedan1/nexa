@@ -168,18 +168,22 @@ export function CreateTripPage() {
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.plannedDate')}</label>
               <input type="date" min={today} value={form.plannedDate} onChange={(e) => handleChange('plannedDate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.plannedDateHint')}</p>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.departureTime')}</label>
               <input type="time" value={form.departureTime} onChange={(e) => handleChange('departureTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.departureTimeHint')}</p>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cutoffTime')}</label>
               <input type="time" value={form.cutoffTime} onChange={(e) => handleChange('cutoffTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.cutoffTimeHint')}</p>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.expectedArrival')}</label>
               <input type="time" value={form.expectedArrival} onChange={(e) => handleChange('expectedArrival', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.expectedArrivalHint')}</p>
             </div>
           </div>
         </Card>
