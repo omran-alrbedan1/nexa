@@ -93,6 +93,24 @@ export interface PickupOrderGroup {
   }[];
 }
 
+interface BackendPickupOrderGroup {
+  supplier: {
+    id: number;
+    business_name: string;
+    latitude: string | null;
+    longitude: string | null;
+    zone_id: number | null;
+  };
+  orders: {
+    id: number;
+    order_number: string;
+    customer_name: string | null;
+    total: number | string;
+    items_count: number;
+    ready_for_pickup_at: string | null;
+  }[];
+}
+
 export interface DashboardTrip {
   id: number;
   tripNumber: string;
@@ -480,14 +498,31 @@ export const tripsApi = {
 
   /** Get orders ready for supplier pickup, grouped by supplier */
   getPickupOrders: async (params: { warehouseId?: number; supplierId?: number; search?: string } = {}): Promise<PickupOrderGroup[]> => {
-    const response = await apiClient.get<ApiResponse<PickupOrderGroup[]>>('/api/v1/admin/aggregation/pickup-orders', {
+    const response = await apiClient.get<ApiResponse<{ suppliers: BackendPickupOrderGroup[] }>>('/api/v1/admin/aggregation/pickup-orders', {
       params: {
         warehouse_id: params.warehouseId || undefined,
         supplier_id: params.supplierId || undefined,
         search: params.search || undefined,
       },
     });
-    return response.data.data ?? [];
+    const groups = response.data.data?.suppliers ?? [];
+    return groups.map((g) => ({
+      supplier: {
+        id: g.supplier.id,
+        businessName: g.supplier.business_name,
+        latitude: g.supplier.latitude,
+        longitude: g.supplier.longitude,
+        zoneId: g.supplier.zone_id,
+      },
+      orders: g.orders.map((o) => ({
+        id: o.id,
+        orderNumber: o.order_number,
+        customerName: o.customer_name,
+        total: parseFloat(String(o.total ?? '0')) || 0,
+        itemsCount: o.items_count ?? 0,
+        readyForPickupAt: o.ready_for_pickup_at,
+      })),
+    }));
   },
 
   // ── Manifest ──
