@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { tripsApi, type TripsPageData } from '../api/tripsApi';
+import { tripsApi, type TripType, type TripsPageData } from '../api/tripsApi';
 
 export const tripKeys = {
   all: ['trips'] as const,
@@ -10,12 +10,21 @@ export const tripKeys = {
   detail: (id: number) => [...tripKeys.all, 'detail', id] as const,
   pickupIssues: (tripId: number) => [...tripKeys.all, 'pickup-issues', tripId] as const,
   codHandovers: (tripId: number) => [...tripKeys.all, 'cod-handovers', tripId] as const,
+  pickupOrders: () => [...tripKeys.all, 'pickup-orders'] as const,
 };
 
-export function useTripsPage(params: { page?: number; status?: string; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}) {
+export function useTripsPage(params: { page?: number; status?: string; type?: TripType; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}) {
   return useQuery<TripsPageData>({
     queryKey: [...tripKeys.pageData(), params],
     queryFn: () => tripsApi.getPageData(params),
+    staleTime: 30_000,
+  });
+}
+
+export function usePickupOrders(params: { warehouseId?: number; supplierId?: number; search?: string } = {}) {
+  return useQuery({
+    queryKey: [...tripKeys.pickupOrders(), params],
+    queryFn: () => tripsApi.getPickupOrders(params),
     staleTime: 30_000,
   });
 }
@@ -122,5 +131,49 @@ export function useConfirmCodHandover() {
       addToast('success', t('trips.toast.handoverConfirmed'));
     },
     onError: () => addToast('error', t('trips.toast.handoverConfirmFailed')),
+  });
+}
+
+export function useOptimizeRoute() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (tripId: number) => tripsApi.optimizeRoute(tripId),
+    onSuccess: (_data, tripId) => {
+      invalidateTripQueries(queryClient, tripId);
+      addToast('success', t('trips.toast.routeOptimized'));
+    },
+    onError: () => addToast('error', t('trips.toast.routeOptimizeFailed')),
+  });
+}
+
+export function useRemoveOrderFromTrip() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ tripId, orderId }: { tripId: number; orderId: number }) =>
+      tripsApi.removeOrderFromTrip(tripId, orderId),
+    onSuccess: (_data, { tripId }) => {
+      invalidateTripQueries(queryClient, tripId);
+      addToast('success', t('trips.toast.orderRemoved'));
+    },
+    onError: () => addToast('error', t('trips.toast.orderRemoveFailed')),
+  });
+}
+
+export function useCreateTrip() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (data: Parameters<typeof tripsApi.createTrip>[0]) => tripsApi.createTrip(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tripKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: tripKeys.pickupOrders() });
+      addToast('success', t('trips.toast.tripCreated'));
+    },
+    onError: () => addToast('error', t('trips.toast.tripCreateFailed')),
   });
 }

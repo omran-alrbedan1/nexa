@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { tripsApi, type DashboardTrip } from '../api/tripsApi';
+import { tripsApi } from '../api/tripsApi';
 import {
   useAssignDriver, useStartTrip, useCompleteTrip, useTripDetail,
-  useBumpManifest, tripKeys,
+  useBumpManifest, useOptimizeRoute, useRemoveOrderFromTrip, tripKeys,
 } from '../hooks/useTrips';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -19,7 +19,7 @@ import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap'
 import {
   ArrowLeft, Navigation, Truck, User, Calendar, Clock, MapPin,
   CheckCircle2, ShoppingCart, Warehouse, PackageCheck, ClipboardCheck,
-  AlertTriangle, DollarSign, RefreshCw, ExternalLink,
+  AlertTriangle, DollarSign, RefreshCw, Trash2, Route as RouteIcon,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
@@ -52,6 +52,8 @@ export function TripDetailPage() {
   const startTrip = useStartTrip();
   const completeTrip = useCompleteTrip();
   const bumpManifest = useBumpManifest();
+  const optimizeRoute = useOptimizeRoute();
+  const removeOrder = useRemoveOrderFromTrip();
 
   const { data: trip, isLoading, isError, error, refetch } = useTripDetail(id);
 
@@ -108,6 +110,7 @@ export function TripDetailPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{trip.tripNumber}</h1>
+                <Badge variant={trip.type === 'supplier_pickup' ? 'teal' : 'gray'} size="sm">{trip.type === 'supplier_pickup' ? t('trips.types.supplierPickup') : t('trips.types.delivery')}</Badge>
                 <Badge variant={STATUS_BADGE[trip.status] || 'purple'} size="sm">{STATUS_LABELS[trip.status]}</Badge>
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 truncate">
@@ -201,20 +204,95 @@ export function TripDetailPage() {
 
       {/* Orders on Trip */}
       <Card padding="lg">
-        <div className="flex items-center gap-2 mb-4">
-          <ShoppingCart size={16} className="text-brand-primary" />
-          <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.ordersOnTrip')}</h3>
-          <span className="text-xs text-text-tertiary">{t('trips.detail.total', { count: trip.orderCount })}</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ShoppingCart size={16} className="text-brand-primary" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.ordersOnTrip')}</h3>
+            <span className="text-xs text-text-tertiary">{t('trips.detail.total', { count: trip.orderCount })}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" leftIcon={<RouteIcon size={14} />} isLoading={optimizeRoute.isPending} onClick={() => optimizeRoute.mutate(trip.id)}>
+              {t('trips.detail.optimizeRoute')}
+            </Button>
+          </div>
         </div>
-        <p className="text-sm text-text-secondary font-body">
-          {t('trips.detail.orderDetailsPlaceholder')}
-        </p>
+        {trip.tripOrders.length === 0 ? (
+          <p className="text-sm text-text-secondary font-body">{t('trips.detail.noOrdersOnTrip')}</p>
+        ) : (
+          <div className="space-y-2">
+            {trip.tripOrders.map((order) => (
+              <div key={order.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-default/60">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-text-primary font-body">{order.customerName ?? '—'}</p>
+                  <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.deliveryStatus}</p>
+                </div>
+                <span className="text-sm font-extrabold text-text-primary font-display">{formatPrice(order.total)}</span>
+                {trip.status !== 'completed' && trip.status !== 'cancelled' && (
+                  <button
+                    title={t('trips.detail.removeOrder')}
+                    onClick={() => removeOrder.mutate({ tripId: trip.id, orderId: order.orderId })}
+                    className="p-1.5 rounded-lg text-text-tertiary hover:text-status-error hover:bg-red-50 transition-all"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
         <div className="mt-3 flex items-center gap-4 text-xs text-text-tertiary font-body">
           <span className="font-bold text-text-primary">{t('trips.detail.delivered', { count: trip.completedOrders })}</span>
           <span>{t('trips.detail.failed', { count: trip.failedOrders })}</span>
           <span>{t('trips.detail.pending', { count: trip.orderCount - trip.completedOrders - trip.failedOrders })}</span>
         </div>
       </Card>
+
+      {/* Stops (supplier pickup trips) */}
+      {trip.type === 'supplier_pickup' && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin size={16} className="text-brand-primary" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.detail.stops')}</h3>
+            <span className="text-xs text-text-tertiary">{t('trips.detail.total', { count: trip.stops.length })}</span>
+          </div>
+          {trip.stops.length === 0 ? (
+            <p className="text-sm text-text-secondary font-body">{t('trips.detail.noStops')}</p>
+          ) : (
+            <div className="space-y-3">
+              {trip.stops.map((stop) => (
+                <div key={stop.id} className="p-3 rounded-xl border border-border-default/60">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <Badge variant={stop.status === 'collected' ? 'green' : stop.status === 'arrived' ? 'teal' : 'yellow'} size="sm">
+                        {t(`trips.stopStatus.${stop.status}`)}
+                      </Badge>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-text-primary font-body">
+                        {t('trips.detail.stopSequence', { seq: stop.sequence })} · {stop.supplier?.businessName ?? '—'}
+                      </p>
+                      <p className="text-xs text-text-secondary font-body">
+                        {stop.orders.length} {t('trips.create.ordersLabel')}
+                        {stop.arrivedAt ? ` · ${t('trips.detail.arrivedAt', { time: safeFormatDate(stop.arrivedAt, (d) => d.toLocaleTimeString()) })}` : ''}
+                        {stop.collectedAt ? ` · ${t('trips.detail.collectedAt', { time: safeFormatDate(stop.collectedAt, (d) => d.toLocaleTimeString()) })}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  {stop.orders.length > 0 && (
+                    <div className="mt-2 pl-4 border-l-2 border-border-default/60 space-y-1">
+                      {stop.orders.map((o) => (
+                        <p key={o.id} className="text-xs text-text-secondary font-body">
+                          {o.orderNumber} · {o.customerName ?? '—'}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Pickup Status */}
       <Card padding="lg">

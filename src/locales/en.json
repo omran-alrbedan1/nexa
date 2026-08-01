@@ -1540,6 +1540,15 @@
       "delivered": "Delivered",
       "failed": "Failed"
     },
+    "types": {
+      "delivery": "Delivery",
+      "supplierPickup": "Supplier Pickup"
+    },
+    "stopStatus": {
+      "pending": "Pending",
+      "arrived": "Arrived",
+      "collected": "Collected"
+    },
     "stats": {
       "totalTrips": "Total Trips",
       "scheduled": "Scheduled",
@@ -1552,6 +1561,7 @@
       "totalValue": "{{amount}} total value",
       "avgCompletion": "{{rate}}% avg completion",
       "allStatuses": "All Statuses",
+      "allTypes": "All Types",
       "scheduleView": "Schedule View",
       "listView": "List View",
       "newTrip": "New Trip",
@@ -1580,6 +1590,14 @@
       "stats": "Stats",
       "ordersOnTrip": "Orders on This Trip",
       "total": "{{count}} Total",
+      "noOrdersOnTrip": "No orders on this trip yet.",
+      "optimizeRoute": "Optimize Route",
+      "removeOrder": "Remove order",
+      "stops": "Supplier Stops",
+      "noStops": "No stops for this trip yet.",
+      "stopSequence": "Stop {{seq}}",
+      "arrivedAt": "arrived {{time}}",
+      "collectedAt": "collected {{time}}",
       "orderDetailsPlaceholder": "Order details for this trip will appear here when the backend provides order data.",
       "delivered": "{{count}} Delivered",
       "failed": "{{count}} Failed",
@@ -1662,6 +1680,16 @@
       "feePlaceholder": "Leave empty for default",
       "assignOrders": "Assign Orders",
       "assignOrdersDesc": "Select orders ready to ship in this zone",
+      "assignOrdersPickupDesc": "Select orders the driver will collect from suppliers",
+      "tripType": "Trip Type",
+      "typeDelivery": "Delivery",
+      "typeDeliveryDesc": "Warehouse pickup, deliver to customers",
+      "typePickup": "Supplier Pickup",
+      "typePickupDesc": "Collect orders from suppliers, drop off at warehouse",
+      "ordersLabel": "orders",
+      "noPickupOrders": "No orders are ready for pickup yet",
+      "noPickupOrdersSelected": "Select at least one order",
+      "noOrdersSelected": "Select at least one order",
       "selectedCount": "{{count}} selected",
       "noOrdersReady": "No orders ready to ship in this zone",
       "tbd": "TBD",
@@ -1683,7 +1711,13 @@
       "issueResolved": "Pickup issue resolved",
       "issueResolveFailed": "Failed to resolve pickup issue",
       "handoverConfirmed": "COD handover confirmed",
-      "handoverConfirmFailed": "Failed to confirm COD handover"
+      "handoverConfirmFailed": "Failed to confirm COD handover",
+      "routeOptimized": "Route optimized",
+      "routeOptimizeFailed": "Failed to optimize route",
+      "orderRemoved": "Order removed from trip",
+      "orderRemoveFailed": "Failed to remove order",
+      "tripCreated": "Trip created",
+      "tripCreateFailed": "Failed to create trip"
     }
   },
   "drivers": {

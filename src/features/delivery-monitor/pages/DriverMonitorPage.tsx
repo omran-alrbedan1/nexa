@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { tripsApi } from '@/features/trips/api/tripsApi';
+import { useTripsMonitor } from '@/hooks/useTripsMonitor';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/routes/routes';
@@ -13,7 +14,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_OPTIONS,
 } from '@/config/googleMaps';
-import { MapPin, Navigation, Truck, ExternalLink } from 'lucide-react';
+import { Navigation, Truck, ExternalLink } from 'lucide-react';
 
 export default function DriverMonitorPage() {
   const { t } = useTranslation();
@@ -26,6 +27,8 @@ export default function DriverMonitorPage() {
     refetchInterval: 30_000,
   });
 
+  const liveLocations = useTripsMonitor();
+
   const activeTrips = useMemo(
     () => (pageData?.trips ?? []).filter((trip) =>
       ['assigned', 'accepted', 'in_progress'].includes(trip.status)
@@ -36,6 +39,14 @@ export default function DriverMonitorPage() {
   const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
 
   const selectedTrip = activeTrips.find((trip) => trip.id === selectedTripId);
+
+  const markerPosition = (tripId: number): { lat: number; lng: number } | null => {
+    const live = liveLocations.get(tripId);
+    if (live) {
+      return { lat: live.latitude, lng: live.longitude };
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -105,31 +116,41 @@ export default function DriverMonitorPage() {
                   zoom={11}
                   options={DEFAULT_MAP_OPTIONS}
                 >
-                  {activeTrips.map((trip) => (
-                    <Marker
-                      key={trip.id}
-                      position={DEFAULT_MAP_CENTER}
-                      icon={{
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: selectedTripId === trip.id ? 12 : 8,
-                        fillColor: selectedTripId === trip.id ? '#2563EB' : '#6B7280',
-                        fillOpacity: 1,
-                        strokeColor: '#FFFFFF',
-                        strokeWeight: 3,
-                      }}
-                      onClick={() => setSelectedTripId(trip.id)}
-                    >
-                      {selectedTripId === trip.id && (
-                        <InfoWindow onCloseClick={() => setSelectedTripId(null)}>
-                          <div className="text-xs">
-                            <p className="font-bold text-sm mb-1">#{trip.tripNumber}</p>
-                            <p>{trip.driverName || '---'}</p>
-                            <p className="text-text-secondary mt-1">{trip.status}</p>
-                          </div>
-                        </InfoWindow>
-                      )}
-                    </Marker>
-                  ))}
+                  {activeTrips.map((trip) => {
+                    const position = markerPosition(trip.id);
+                    return (
+                      <Marker
+                        key={trip.id}
+                        position={position ?? DEFAULT_MAP_CENTER}
+                        icon={position ? {
+                          path: google.maps.SymbolPath.CIRCLE,
+                          scale: selectedTripId === trip.id ? 12 : 8,
+                          fillColor: selectedTripId === trip.id ? '#2563EB' : '#6B7280',
+                          fillOpacity: 1,
+                          strokeColor: '#FFFFFF',
+                          strokeWeight: 3,
+                        } : undefined}
+                        onClick={() => setSelectedTripId(trip.id)}
+                      >
+                        {selectedTripId === trip.id && (
+                          <InfoWindow onCloseClick={() => setSelectedTripId(null)}>
+                            <div className="text-xs">
+                              <p className="font-bold text-sm mb-1">#{trip.tripNumber}</p>
+                              <p>{trip.driverName || '---'}</p>
+                              <p className="text-text-secondary mt-1">{trip.status}</p>
+                              {position && (
+                                <p className="text-text-tertiary mt-1">
+                                  {liveLocations.get(trip.id)?.recordedAt
+                                    ? new Date(liveLocations.get(trip.id)!.recordedAt!).toLocaleTimeString()
+                                    : ''}
+                                </p>
+                              )}
+                            </div>
+                          </InfoWindow>
+                        )}
+                      </Marker>
+                    );
+                  })}
                 </GoogleMap>
               ) : (
                 <div className="flex items-center justify-center h-full bg-gray-100">

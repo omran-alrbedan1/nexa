@@ -49,9 +49,54 @@ export interface TripOrderDetail {
   total: number;
 }
 
+export type TripType = 'delivery' | 'supplier_pickup';
+
+export interface TripStop {
+  id: number;
+  sequence: number;
+  status: 'pending' | 'arrived' | 'collected';
+  arrivedAt: string | null;
+  collectedAt: string | null;
+  supplier: {
+    id: number;
+    businessName: string;
+    phone: string | null;
+    latitude: string | null;
+    longitude: string | null;
+    address?: string | null;
+    zoneId?: number | null;
+  } | null;
+  orders: {
+    id: number;
+    orderId: number;
+    orderNumber: string | null;
+    deliveryStatus: string | null;
+    customerName: string | null;
+  }[];
+}
+
+export interface PickupOrderGroup {
+  supplier: {
+    id: number;
+    businessName: string;
+    latitude: string | null;
+    longitude: string | null;
+    zoneId: number | null;
+  };
+  orders: {
+    id: number;
+    orderNumber: string;
+    customerName: string | null;
+    total: number;
+    itemsCount: number;
+    readyForPickupAt: string | null;
+  }[];
+}
+
 export interface DashboardTrip {
   id: number;
   tripNumber: string;
+  type: TripType;
   driverId: number | null;
   driverName: string | null;
   regionName: string;
@@ -80,6 +125,7 @@ export interface DashboardTrip {
   createdAt: string;
   updatedAt: string;
   tripOrders: TripOrderDetail[];
+  stops: TripStop[];
 }
 
 export interface TripsPageData {
@@ -112,6 +158,7 @@ export interface TripsPageData {
 interface BackendTrip {
   id: number;
   trip_number: string;
+  type: TripType | null;
   warehouse_id: number;
   driver_id: number | null;
   status: string;
@@ -154,6 +201,29 @@ interface BackendTrip {
     } | null;
   }[];
   trip_orders_count?: number;
+  stops?: {
+    id: number;
+    sequence: number;
+    status: string;
+    arrived_at: string | null;
+    collected_at: string | null;
+    supplier: {
+      id: number;
+      business_name: string;
+      phone: string | null;
+      latitude: string | null;
+      longitude: string | null;
+      address?: string | null;
+      zone_id?: number | null;
+    } | null;
+    orders: {
+      id: number;
+      order_id: number;
+      order_number: string | null;
+      delivery_status: string | null;
+      customer_name: string | null;
+    }[];
+  }[];
   created_at: string;
   updated_at: string;
 }
@@ -233,9 +303,36 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
   const completed = tripOrders.filter((o) => o.deliveryStatus === 'delivered').length;
   const failed = tripOrders.filter((o) => o.deliveryStatus === 'failed').length;
 
+  const stops: TripStop[] = (bt.stops || []).map((s) => ({
+    id: s.id,
+    sequence: s.sequence,
+    status: (s.status as TripStop['status']) || 'pending',
+    arrivedAt: s.arrived_at,
+    collectedAt: s.collected_at,
+    supplier: s.supplier
+      ? {
+          id: s.supplier.id,
+          businessName: s.supplier.business_name,
+          phone: s.supplier.phone,
+          latitude: s.supplier.latitude,
+          longitude: s.supplier.longitude,
+          address: s.supplier.address,
+          zoneId: s.supplier.zone_id,
+        }
+      : null,
+    orders: (s.orders || []).map((o) => ({
+      id: o.id,
+      orderId: o.order_id,
+      orderNumber: o.order_number,
+      deliveryStatus: o.delivery_status,
+      customerName: o.customer_name,
+    })),
+  }));
+
   return {
     id: bt.id,
     tripNumber: bt.trip_number,
+    type: bt.type ?? 'delivery',
     driverId: bt.driver_id || null,
     driverName: bt.driver?.full_name || null,
     regionName: bt.warehouse?.name || '',
@@ -264,17 +361,19 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     createdAt: bt.created_at,
     updatedAt: bt.updated_at,
     tripOrders,
+    stops,
   };
 }
 
 export const tripsApi = {
   /** Fetch all trips page data */
-  getPageData: async (params: { page?: number; status?: string; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}): Promise<TripsPageData> => {
+  getPageData: async (params: { page?: number; status?: string; type?: TripType; search?: string; warehouseId?: number; driverId?: number; fromDate?: string; toDate?: string } = {}): Promise<TripsPageData> => {
     const response = await apiClient.get<ApiResponse<BackendTripsResponse>>('/api/v1/admin/trips', {
       params: {
         page: params.page ?? 1,
         per_page: 15,
         status: params.status || undefined,
+        type: params.type || undefined,
         search: params.search || undefined,
         warehouse_id: params.warehouseId || undefined,
         driver_id: params.driverId || undefined,
@@ -350,6 +449,7 @@ export const tripsApi = {
 
   /** Create a new trip */
   createTrip: async (data: {
+    type?: TripType;
     warehouse_id: number;
     planned_date: string;
     departure_time: string;
@@ -364,6 +464,30 @@ export const tripsApi = {
   }): Promise<DashboardTrip> => {
     const response = await apiClient.post<ApiResponse<BackendTrip>>('/api/v1/admin/trips', data);
     return mapBackendTrip(response.data.data);
+  },
+
+  /** Optimize stop/order route for a trip */
+  optimizeRoute: async (tripId: number): Promise<DashboardTrip> => {
+    const response = await apiClient.post<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/optimize-route`);
+    return mapBackendTrip(response.data.data);
+  },
+
+  /** Remove an order from a trip */
+  removeOrderFromTrip: async (tripId: number, orderId: number): Promise<DashboardTrip> => {
+    const response = await apiClient.delete<ApiResponse<BackendTrip>>(`/api/v1/admin/trips/${tripId}/orders/${orderId}`);
+    return mapBackendTrip(response.data.data);
+  },
+
+  /** Get orders ready for supplier pickup, grouped by supplier */
+  getPickupOrders: async (params: { warehouseId?: number; supplierId?: number; search?: string } = {}): Promise<PickupOrderGroup[]> => {
+    const response = await apiClient.get<ApiResponse<PickupOrderGroup[]>>('/api/v1/admin/aggregation/pickup-orders', {
+      params: {
+        warehouse_id: params.warehouseId || undefined,
+        supplier_id: params.supplierId || undefined,
+        search: params.search || undefined,
+      },
+    });
+    return response.data.data ?? [];
   },
 
   // ── Manifest ──

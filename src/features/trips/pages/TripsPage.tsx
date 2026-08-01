@@ -14,8 +14,8 @@ import { Pagination } from '@/components/ui/Pagination';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus, PackageCheck, ClipboardCheck } from 'lucide-react';
-import type { DashboardTrip } from '../api/tripsApi';
+import { Truck, Calendar, Zap, Users, CheckCircle2, ShoppingCart, Plus, Filter, Navigation, UserPlus } from 'lucide-react';
+import type { DashboardTrip, TripType } from '../api/tripsApi';
 import type { TripStatus } from '@/types/marketplace';
 
 function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple' | 'red' {
@@ -28,6 +28,10 @@ function getStatusVariant(status: string): 'green' | 'teal' | 'yellow' | 'purple
     case 'scheduled': return 'purple';
     default: return 'red';
   }
+}
+
+function getTypeVariant(type: TripType): 'teal' | 'gray' {
+  return type === 'supplier_pickup' ? 'teal' : 'gray';
 }
 
 
@@ -43,10 +47,12 @@ export function TripsPage() {
   };
   const formatPrice = useFormatPrice();
   const [statusFilter, setStatusFilter] = useState<TripStatus | ''>('');
+  const [typeFilter, setTypeFilter] = useState<TripType | ''>('');
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useTripsPage({
     page,
     status: statusFilter || undefined,
+    type: typeFilter || undefined,
   });
   const { data: driversData } = useQuery({
     queryKey: [...tripKeys.all, 'available-drivers'],
@@ -196,6 +202,21 @@ export function TripsPage() {
               <option value="cancelled">{STATUS_LABELS.cancelled}</option>
             </select>
           </div>
+          <div className="relative">
+            <Truck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <select
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value as TripType | '');
+                setPage(1);
+              }}
+              className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
+            >
+              <option value="">{t('trips.list.allTypes')}</option>
+              <option value="delivery">{t('trips.types.delivery')}</option>
+              <option value="supplier_pickup">{t('trips.types.supplierPickup')}</option>
+            </select>
+          </div>
         </div>
 
         {isLoading ? (
@@ -209,7 +230,7 @@ export function TripsPage() {
                 key={trip.id}
                 onClick={() => navigate(ROUTES.TRIP_DETAIL(trip.id))}
                 icon={<Truck size={16} className="text-brand-primary" />}
-                title={<span className="text-sm font-bold text-text-primary font-body truncate">{trip.tripNumber}</span>}
+                title={<span className="text-sm font-bold text-text-primary font-body truncate flex items-center gap-2">{trip.tripNumber}<Badge variant={getTypeVariant(trip.type)} size="sm">{trip.type === 'supplier_pickup' ? t('trips.types.supplierPickup') : t('trips.types.delivery')}</Badge></span>}
                 badges={<Badge variant={getStatusVariant(trip.status)} size="sm">{STATUS_LABELS[trip.status]}</Badge>}
                 actions={getActions(trip).map((action, i) => (
                   <Button key={i} variant={action.variant} size="sm" leftIcon={action.icon} onClick={(e) => { e.stopPropagation(); action.onClick(); }}>

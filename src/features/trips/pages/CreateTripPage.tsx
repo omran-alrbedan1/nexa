@@ -12,7 +12,9 @@ import { aggregationApi } from '@/features/aggregation/api/aggregationApi';
 import { regionsApi } from '@/features/regions/api/regionsApi';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { tripsApi } from '../api/tripsApi';
-import { ArrowLeft, Truck, Save, User } from 'lucide-react';
+import { usePickupOrders } from '../hooks/useTrips';
+import type { TripType } from '../api/tripsApi';
+import { ArrowLeft, Truck, Save, User, Warehouse } from 'lucide-react';
 
 export function CreateTripPage() {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ export function CreateTripPage() {
   const formatPrice = useFormatPrice();
   const addToast = useToastStore((s) => s.addToast);
   const today = new Date().toLocaleDateString('en-CA');
+  const [tripType, setTripType] = useState<TripType>('delivery');
   const [form, setForm] = useState({
     tripCode: '', warehouseId: '1', deliveryZone: '1', cluster: '1',
     plannedDate: '', departureTime: '', cutoffTime: '',
@@ -35,6 +38,9 @@ export function CreateTripPage() {
     queryFn: () => ordersApi.getOrders({ status: 'ready_to_ship' }),
     staleTime: 15_000,
   });
+
+  // Fetch orders ready for supplier pickup, grouped by supplier
+  const { data: pickupGroups, isLoading: pickupLoading } = usePickupOrders();
 
   // Fetch available drivers
   const { data: driversData, isLoading: driversLoading } = useQuery({
@@ -61,6 +67,7 @@ export function CreateTripPage() {
   const availableDrivers = driversData ?? [];
   const warehouses = warehousesData ?? [];
   const zones = zonesData ?? [];
+  const isPickup = tripType === 'supplier_pickup';
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -68,6 +75,11 @@ export function CreateTripPage() {
 
   const toggleOrder = (id: number) => {
     setSelectedOrders((prev) => prev.includes(id) ? prev.filter((o) => o !== id) : [...prev, id]);
+  };
+
+  const switchType = (type: TripType) => {
+    setTripType(type);
+    setSelectedOrders([]);
   };
 
   const handleSubmit = async () => {
@@ -79,9 +91,14 @@ export function CreateTripPage() {
       addToast('error', t('trips.create.validationDate'));
       return;
     }
+    if (selectedOrders.length === 0) {
+      addToast('error', t(isPickup ? 'trips.create.noPickupOrdersSelected' : 'trips.create.noOrdersSelected'));
+      return;
+    }
     // Try real backend, fall back to dummy
     try {
       await tripsApi.createTrip?.({
+        type: tripType,
         warehouse_id: Number(form.warehouseId),
         planned_date: form.plannedDate,
         departure_time: form.departureTime,
@@ -120,6 +137,28 @@ export function CreateTripPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg">
+          <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('trips.create.tripType')}</h3>
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <button
+              type="button"
+              onClick={() => switchType('delivery')}
+              className={`p-3 rounded-xl border text-left transition-all ${tripType === 'delivery' ? 'border-brand-primary bg-brand-primary-light' : 'border-border-default/60 hover:border-brand-primary/20'}`}
+            >
+              <Truck size={18} className={`mb-1.5 ${tripType === 'delivery' ? 'text-brand-primary' : 'text-text-secondary'}`} />
+              <p className="text-sm font-bold text-text-primary font-body">{t('trips.create.typeDelivery')}</p>
+              <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.create.typeDeliveryDesc')}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchType('supplier_pickup')}
+              className={`p-3 rounded-xl border text-left transition-all ${isPickup ? 'border-brand-primary bg-brand-primary-light' : 'border-border-default/60 hover:border-brand-primary/20'}`}
+            >
+              <Warehouse size={18} className={`mb-1.5 ${isPickup ? 'text-brand-primary' : 'text-text-secondary'}`} />
+              <p className="text-sm font-bold text-text-primary font-body">{t('trips.create.typePickup')}</p>
+              <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.create.typePickupDesc')}</p>
+            </button>
+          </div>
+
           <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('trips.create.tripDetails')}</h3>
           <div className="space-y-4">
             <div>
@@ -158,36 +197,40 @@ export function CreateTripPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.deliveryZone')}</label>
-              <select value={form.deliveryZone} onChange={(e) => handleChange('deliveryZone', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                {zones.length === 0 ? (
-                  <>
-                    <option value="1">{t('trips.create.riyadhNorth')}</option>
-                    <option value="2">{t('trips.create.riyadhSouth')}</option>
-                    <option value="3">{t('trips.create.jeddahCentral')}</option>
-                  </>
-                ) : zones.map((z) => (
-                  <option key={z.id} value={z.id}>{z.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cluster')}</label>
-              <select value={form.cluster} onChange={(e) => handleChange('cluster', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                {(() => {
-                  const zoneId = Number(form.deliveryZone);
-                  const zone = zones.find((z) => z.id === zoneId);
-                  const clusters = zone?.clusters?.filter((c) => c.isActive) ?? [];
-                  if (clusters.length === 0) {
-                    return <option value="1">{t('trips.create.generalCluster')}</option>;
-                  }
-                  return clusters.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ));
-                })()}
-              </select>
-            </div>
+            {!isPickup && (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.deliveryZone')}</label>
+                  <select value={form.deliveryZone} onChange={(e) => handleChange('deliveryZone', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
+                    {zones.length === 0 ? (
+                      <>
+                        <option value="1">{t('trips.create.riyadhNorth')}</option>
+                        <option value="2">{t('trips.create.riyadhSouth')}</option>
+                        <option value="3">{t('trips.create.jeddahCentral')}</option>
+                      </>
+                    ) : zones.map((z) => (
+                      <option key={z.id} value={z.id}>{z.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cluster')}</label>
+                  <select value={form.cluster} onChange={(e) => handleChange('cluster', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
+                    {(() => {
+                      const zoneId = Number(form.deliveryZone);
+                      const zone = zones.find((z) => z.id === zoneId);
+                      const clusters = zone?.clusters?.filter((c) => c.isActive) ?? [];
+                      if (clusters.length === 0) {
+                        return <option value="1">{t('trips.create.generalCluster')}</option>;
+                      }
+                      return clusters.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ));
+                    })()}
+                  </select>
+                </div>
+              </>
+            )}
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.assignmentType')}</label>
               <select value={form.assignmentType} onChange={(e) => handleChange('assignmentType', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
@@ -218,13 +261,44 @@ export function CreateTripPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.create.assignOrders')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('trips.create.assignOrdersDesc')}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{isPickup ? t('trips.create.assignOrdersPickupDesc') : t('trips.create.assignOrdersDesc')}</p>
           </div>
           {selectedCount > 0 && (
-            <Badge variant="teal">{t('trips.create.selectedCount', { count: selectedCount })} · {formatPrice(selectedTotal)}</Badge>
+            <Badge variant="teal">{t('trips.create.selectedCount', { count: selectedCount })} {!isPickup && `· ${formatPrice(selectedTotal)}`}</Badge>
           )}
         </div>
-        {ordersLoading ? (
+
+        {isPickup ? (
+          pickupLoading ? (
+            <div className="space-y-2 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-xl" />)}</div>
+          ) : (pickupGroups ?? []).length === 0 ? (
+            <p className="text-sm text-text-secondary font-body py-4 text-center">{t('trips.create.noPickupOrders')}</p>
+          ) : (
+            <div className="space-y-4">
+              {(pickupGroups ?? []).map((group) => (
+                <div key={group.supplier.id} className="rounded-xl border border-border-default/60 overflow-hidden">
+                  <div className="px-3 py-2 bg-bg-section-alt flex items-center gap-2">
+                    <Warehouse size={14} className="text-brand-primary" />
+                    <p className="text-sm font-bold text-text-primary font-body flex-1">{group.supplier.businessName}</p>
+                    <Badge variant="gray">{group.orders.length} {t('trips.create.ordersLabel')}</Badge>
+                  </div>
+                  <div className="divide-y divide-border-default/60">
+                    {group.orders.map((order) => (
+                      <label key={order.id} className="flex items-center gap-3 p-3 hover:bg-bg-section-alt/60 cursor-pointer transition-all">
+                        <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-text-primary font-body">{order.customerName ?? '—'}</p>
+                          <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemsCount} {t('common.items')}</p>
+                        </div>
+                        <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? formatPrice(order.total) : t('trips.create.tbd')}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        ) : ordersLoading ? (
           <div className="space-y-2 animate-pulse">{[1,2,3].map((i) => <div key={i} className="h-14 bg-gray-100 rounded-xl" />)}</div>
         ) : availableOrders.length === 0 ? (
           <p className="text-sm text-text-secondary font-body py-4 text-center">{t('trips.create.noOrdersReady')}</p>
