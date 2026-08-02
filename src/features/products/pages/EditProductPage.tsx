@@ -2,10 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { productsApi, type ProductCategory } from '../api/productsApi';
+import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
+import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
+import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
@@ -28,10 +31,12 @@ export function EditProductPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [form, setForm] = useState({
-    name: '', nameAr: '', description: '', descriptionAr: '',
     price: '', unit: 'kg', stockQuantity: '',
-    categoryId: '', supplierId: '', source: 'supplier',
+    categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
 
   useEffect(() => {
@@ -39,12 +44,25 @@ export function EditProductPage() {
     setLoading(true);
     Promise.all([
       productsApi.getProduct(id),
+      productVariantsApi.list(id).catch(() => []),
       productsApi.getCategories().catch(() => [] as ProductCategory[]),
       productsApi.getSuppliersList().catch(() => []),
-    ]).then(([p, cats, supps]) => {
+    ]).then(([p, variantList, cats, supps]) => {
+      setNames({ ar: p.nameAr, en: p.name, he: p.nameHe ?? '', ru: p.nameRu ?? '' });
+      setDescriptions({ ar: p.descriptionAr, en: p.descriptionEn ?? '', he: p.descriptionHe ?? '', ru: p.descriptionRu ?? '' });
+      setVariants(variantList.map((v) => ({
+        id: v.id,
+        name_ar: v.name_ar,
+        name_en: v.name_en ?? undefined,
+        name_he: v.name_he ?? undefined,
+        name_ru: v.name_ru ?? undefined,
+        sku: v.sku ?? undefined,
+        price: v.price,
+        stock_quantity: v.stock_quantity,
+        is_active: v.is_active,
+      })));
       setForm({
-        name: p.name, nameAr: p.nameAr, description: p.description,
-        descriptionAr: p.descriptionAr, price: String(p.price), unit: p.unit,
+        price: String(p.price), unit: p.unit,
         stockQuantity: String(p.stockQuantity), categoryId: String(p.categoryId),
         supplierId: p.supplierId ? String(p.supplierId) : '',
         source: p.source,
@@ -76,23 +94,33 @@ export function EditProductPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.nameAr || !form.price) {
+    if (!names.ar?.trim() || !form.price) {
       addToast('error', t('products.edit.validationRequired'));
       return;
     }
     setSaving(true);
     try {
       await productsApi.updateProduct(id, {
-        name: form.name, nameAr: form.nameAr, description: form.description,
-        descriptionAr: form.descriptionAr, price: parseFloat(form.price) || 0,
-        unit: form.unit, stockQuantity: parseInt(form.stockQuantity) || 0,
+        name: names.en ?? '',
+        nameAr: names.ar ?? '',
+        nameHe: names.he,
+        nameRu: names.ru,
+        description: descriptions.ar ?? '',
+        descriptionAr: descriptions.ar,
+        descriptionEn: descriptions.en,
+        descriptionHe: descriptions.he,
+        descriptionRu: descriptions.ru,
+        price: parseFloat(form.price) || 0,
+        unit: form.unit,
+        stockQuantity: parseInt(form.stockQuantity) || 0,
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
-        source: form.source as any,
+        source: form.source,
+        variants: variants.length > 0 ? variants : undefined,
         image: imageFile || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      addToast('success', 'Product updated successfully');
+      addToast('success', t('products.edit.successMessage'));
       navigate(ROUTES.PRODUCT_DETAIL(id));
     } catch (error) {
       addToast('error', extractErrorMessage(error));
@@ -132,7 +160,7 @@ export function EditProductPage() {
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('products.edit.title')}</h1>
-            <p className="text-sm text-text-secondary font-body">{form.name}</p>
+            <p className="text-sm text-text-secondary font-body">{names.ar}</p>
           </div>
         </div>
       </div>
@@ -166,22 +194,20 @@ export function EditProductPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.edit.basicInfo')}</h3>
           <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.nameEn')}</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.nameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" dir="rtl" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.descriptionEn')}</label>
-              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.descriptionAr')}</label>
-              <textarea value={form.descriptionAr} onChange={(e) => handleChange('descriptionAr', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" dir="rtl" />
-            </div>
+            <TranslatedField
+              label={t('products.edit.name')}
+              values={names}
+              onChange={(key, value) => setNames({ ...names, [key]: value })}
+              placeholder={t('products.edit.namePlaceholder')}
+              required
+            />
+            <TranslatedField
+              label={t('products.edit.description')}
+              values={descriptions}
+              onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })}
+              placeholder={t('products.edit.descriptionPlaceholder')}
+              textarea
+            />
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.source')}</label>
               <select value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
@@ -237,6 +263,10 @@ export function EditProductPage() {
           </div>
         </Card>
       </div>
+
+      <Card padding="lg">
+        <VariantEditor value={variants} onChange={setVariants} />
+      </Card>
 
       <div className="flex items-center gap-3">
         <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.edit.saveChanges')}</Button>

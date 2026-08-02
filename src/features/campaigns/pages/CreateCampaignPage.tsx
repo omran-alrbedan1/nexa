@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi } from '../api/campaignsApi';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { categoriesApi, type Category } from '@/features/categories/api/categoriesApi';
 import { ArrowLeft, Megaphone, Save, Plus, X, Package, Tag, Clock } from 'lucide-react';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 
 interface CampaignFormItem {
   key: number;
-  nameAr: string;
-  nameEn: string;
-  description: string;
+  names: Partial<Record<TranslatedLang, string>>;
+  descriptions: Partial<Record<TranslatedLang, string>>;
   categoryId: string;
   unit: string;
   price: string;
@@ -28,14 +28,16 @@ export function CreateCampaignPage() {
   const addToast = useToastStore((s) => s.addToast);
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
-    name: '', nameAr: '', subtitleAr: '', subtitleEn: '',
-    description: '', descriptionEn: '', targetRegion: '1',
+    targetRegion: '1',
     startDate: '', endDate: '', orderingClosesAt: '',
     deliveryLeadTimeMinDays: '', deliveryLeadTimeMaxDays: '',
     isStockLimited: false, stockTotalQuantity: '', stockReservedQuantity: '',
     stockSoldQuantity: '0', stockLowStockThreshold: '', stockUnit: 'item',
     status: 'draft',
   });
+  const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [subtitles, setSubtitles] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [items, setItems] = useState<CampaignFormItem[]>([]);
   const nextKey = useRef(0);
 
@@ -57,7 +59,7 @@ export function CreateCampaignPage() {
   const addItem = () => {
     const key = ++nextKey.current;
     setItems((prev) => [...prev, {
-      key, nameAr: '', nameEn: '', description: '',
+      key, names: {}, descriptions: {},
       categoryId: '', unit: '', price: '', stockQuantity: '',
     }]);
   };
@@ -70,14 +72,27 @@ export function CreateCampaignPage() {
     setItems((prev) => prev.map((i) => i.key === key ? { ...i, [field]: value } : i));
   };
 
+  const updateItemNames = (key: number, lang: TranslatedLang, value: string) => {
+    setItems((prev) => prev.map((i) => i.key === key ? { ...i, names: { ...i.names, [lang]: value } } : i));
+  };
+
+  const updateItemDescriptions = (key: number, lang: TranslatedLang, value: string) => {
+    setItems((prev) => prev.map((i) => i.key === key ? { ...i, descriptions: { ...i.descriptions, [lang]: value } } : i));
+  };
+
   const createCampaign = useMutation({
     mutationFn: () => campaignsApi.createCampaign({
-      name: form.name,
-      nameAr: form.nameAr || undefined,
-      subtitleAr: form.subtitleAr || undefined,
-      subtitleEn: form.subtitleEn || undefined,
-      description: form.description || undefined,
-      descriptionEn: form.descriptionEn || undefined,
+      name: names.en ?? '',
+      nameAr: names.ar || undefined,
+      nameHe: names.he,
+      nameRu: names.ru,
+      subtitleAr: subtitles.ar || undefined,
+      subtitleEn: subtitles.en || undefined,
+      subtitleHe: subtitles.he,
+      subtitleRu: subtitles.ru,
+      description: descriptions.ar || undefined,
+      descriptionEn: descriptions.en || undefined,
+      descriptionHe: descriptions.he,
       zoneId: parseInt(form.targetRegion, 10),
       startsAt: form.startDate,
       endsAt: form.endDate,
@@ -92,9 +107,12 @@ export function CreateCampaignPage() {
       stockUnit: form.stockUnit || 'item',
       status: form.status,
       items: items.map((item) => ({
-        nameAr: item.nameAr,
-        nameEn: item.nameEn || undefined,
-        description: item.description || undefined,
+        nameAr: item.names.ar ?? '',
+        nameEn: item.names.en || undefined,
+        nameHe: item.names.he,
+        nameRu: item.names.ru,
+        description: item.descriptions.ar || undefined,
+        descriptionHe: item.descriptions.he,
         categoryId: parseInt(item.categoryId, 10),
         unit: item.unit,
         price: parseFloat(item.price),
@@ -112,11 +130,11 @@ export function CreateCampaignPage() {
   });
 
   const handleSubmit = () => {
-    if (!form.name || !form.startDate || !form.endDate) {
+    if (!names.ar?.trim() || !form.startDate || !form.endDate) {
       addToast('error', t('campaigns.create.requiredValidation'));
       return;
     }
-    if (items.some((i) => !i.nameAr || !i.categoryId || !i.unit || !i.price)) {
+    if (items.some((i) => !i.names.ar?.trim() || !i.categoryId || !i.unit || !i.price)) {
       addToast('error', t('campaigns.create.itemsValidation'));
       return;
     }
@@ -165,28 +183,30 @@ export function CreateCampaignPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <label className={labelClass}>{t('campaigns.create.nameEn')}</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className={inputClass} placeholder="Summer Fruits Festival" />
+              <TranslatedField
+                label={t('campaigns.create.name')}
+                values={names}
+                onChange={(key, value) => setNames({ ...names, [key]: value })}
+                placeholder={t('campaigns.create.namePlaceholder')}
+                required
+              />
             </div>
             <div>
-              <label className={labelClass}>{t('campaigns.create.nameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className={inputClass} placeholder="مهرجان الفواكه الصيفية" dir="rtl" />
+              <TranslatedField
+                label={t('campaigns.create.subtitle')}
+                values={subtitles}
+                onChange={(key, value) => setSubtitles({ ...subtitles, [key]: value })}
+                placeholder={t('campaigns.create.subtitlePlaceholder')}
+              />
             </div>
-            <div>
-              <label className={labelClass}>{t('campaigns.create.subtitleAr')}</label>
-              <input value={form.subtitleAr} onChange={(e) => handleChange('subtitleAr', e.target.value)} className={inputClass} placeholder="عروض الصيف" dir="rtl" />
-            </div>
-            <div>
-              <label className={labelClass}>{t('campaigns.create.subtitleEn')}</label>
-              <input value={form.subtitleEn} onChange={(e) => handleChange('subtitleEn', e.target.value)} className={inputClass} placeholder="Summer deals" />
-            </div>
-            <div>
-              <label className={labelClass}>{t('campaigns.create.description')}</label>
-              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder="Campaign description..." />
-            </div>
-            <div>
-              <label className={labelClass}>Description (EN)</label>
-              <textarea value={form.descriptionEn} onChange={(e) => handleChange('descriptionEn', e.target.value)} rows={3} className={inputClass + " resize-none"} placeholder="English description..." />
+            <div className="md:col-span-2">
+              <TranslatedField
+                label={t('campaigns.create.description')}
+                values={descriptions}
+                onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })}
+                placeholder={t('campaigns.create.descriptionPlaceholder')}
+                textarea
+              />
             </div>
             <div className="md:col-span-2">
               <label className={labelClass}>{t('campaigns.create.targetZone')}</label>
@@ -340,13 +360,14 @@ export function CreateCampaignPage() {
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.itemNameAr')}</label>
-                    <input value={item.nameAr} onChange={(e) => updateItem(item.key, 'nameAr', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="اسم المنتج" dir="rtl" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.itemNameEn')}</label>
-                    <input value={item.nameEn} onChange={(e) => updateItem(item.key, 'nameEn', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="Product name" />
+                  <div className="sm:col-span-2">
+                    <TranslatedField
+                      label={t('campaigns.create.itemName')}
+                      values={item.names}
+                      onChange={(key, value) => updateItemNames(item.key, key, value)}
+                      placeholder={t('campaigns.create.itemNamePlaceholder')}
+                      required
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.itemCategory')}</label>
@@ -370,8 +391,12 @@ export function CreateCampaignPage() {
                     <input type="number" min="0" value={item.stockQuantity} onChange={(e) => updateItem(item.key, 'stockQuantity', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="0" />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.description')}</label>
-                    <input value={item.description} onChange={(e) => updateItem(item.key, 'description', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="Item description (optional)" />
+                    <TranslatedField
+                      label={t('campaigns.create.description')}
+                      values={item.descriptions}
+                      onChange={(key, value) => updateItemDescriptions(item.key, key, value)}
+                      placeholder={t('campaigns.create.itemDescriptionPlaceholder')}
+                    />
                   </div>
                 </div>
               </div>

@@ -35,8 +35,12 @@ export interface CampaignItem {
   id: number;
   nameAr: string;
   nameEn: string | null;
+  nameHe: string | null;
+  nameRu: string | null;
   description: string | null;
+  descriptionHe: string | null;
   categoryId: number;
+  productId: number | null;
   unit: string;
   price: number;
   stockQuantity: number;
@@ -52,10 +56,15 @@ export interface Campaign {
   zoneId: number;
   name: string;
   nameAr: string;
+  nameHe: string | null;
+  nameRu: string | null;
   subtitleAr: string | null;
   subtitleEn: string | null;
+  subtitleHe: string | null;
+  subtitleRu: string | null;
   description: string;
   descriptionEn: string | null;
+  descriptionHe: string | null;
   status: CampaignStatus;
   startDate: string;
   endDate: string;
@@ -104,8 +113,12 @@ interface BackendCampaignItem {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   description: string | null;
+  description_he: string | null;
   category_id: number;
+  product_id: number | null;
   unit: string;
   price: number;
   stock_quantity: number;
@@ -120,10 +133,15 @@ interface BackendCampaign {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   subtitle_ar: string | null;
   subtitle_en: string | null;
+  subtitle_he: string | null;
+  subtitle_ru: string | null;
   description: string | null;
   description_en: string | null;
+  description_he: string | null;
   zone_id: number;
   starts_at: string;
   ends_at: string;
@@ -166,10 +184,15 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
     zoneId: c.zone_id,
     name: c.name_en || c.name_ar,
     nameAr: c.name_ar,
+    nameHe: c.name_he ?? null,
+    nameRu: c.name_ru ?? null,
     subtitleAr: c.subtitle_ar ?? null,
     subtitleEn: c.subtitle_en ?? null,
+    subtitleHe: c.subtitle_he ?? null,
+    subtitleRu: c.subtitle_ru ?? null,
     description: c.description || '',
     descriptionEn: c.description_en ?? null,
+    descriptionHe: c.description_he ?? null,
     status: mapFromBackend(c.status, CAMPAIGN_STATUS_BACKEND_TO_FRONTEND) as CampaignStatus,
     startDate: c.starts_at,
     endDate: c.ends_at,
@@ -187,8 +210,12 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
       id: i.id,
       nameAr: i.name_ar,
       nameEn: i.name_en,
+      nameHe: i.name_he ?? null,
+      nameRu: i.name_ru ?? null,
       description: i.description,
+      descriptionHe: i.description_he ?? null,
       categoryId: i.category_id,
+      productId: i.product_id ?? null,
       unit: i.unit,
       price: i.price,
       stockQuantity: i.stock_quantity,
@@ -254,10 +281,15 @@ export const campaignsApi = {
   createCampaign: async (data: {
     name: string;
     nameAr?: string;
+    nameHe?: string;
+    nameRu?: string;
     subtitleAr?: string;
     subtitleEn?: string;
+    subtitleHe?: string;
+    subtitleRu?: string;
     description?: string;
     descriptionEn?: string;
+    descriptionHe?: string;
     zoneId: number;
     startsAt: string;
     endsAt: string;
@@ -274,7 +306,10 @@ export const campaignsApi = {
     items?: Array<{
       nameAr: string;
       nameEn?: string;
+      nameHe?: string;
+      nameRu?: string;
       description?: string;
+      descriptionHe?: string;
       categoryId: number;
       unit: string;
       price: number;
@@ -284,10 +319,15 @@ export const campaignsApi = {
     const payload: Record<string, unknown> = {
       name_en: data.name,
       name_ar: data.nameAr || data.name,
+      name_he: data.nameHe ?? null,
+      name_ru: data.nameRu ?? null,
       subtitle_ar: data.subtitleAr ?? null,
       subtitle_en: data.subtitleEn ?? null,
+      subtitle_he: data.subtitleHe ?? null,
+      subtitle_ru: data.subtitleRu ?? null,
       description: data.description,
       description_en: data.descriptionEn ?? null,
+      description_he: data.descriptionHe ?? null,
       zone_id: data.zoneId,
       starts_at: data.startsAt,
       ends_at: data.endsAt,
@@ -306,7 +346,10 @@ export const campaignsApi = {
       payload.items = data.items.map((item) => ({
         name_ar: item.nameAr,
         name_en: item.nameEn ?? null,
+        name_he: item.nameHe ?? null,
+        name_ru: item.nameRu ?? null,
         description: item.description ?? null,
+        description_he: item.descriptionHe ?? null,
         category_id: item.categoryId,
         unit: item.unit,
         price: item.price,
@@ -327,10 +370,15 @@ export const campaignsApi = {
   updateCampaign: async (id: number, data: {
     name?: string;
     nameAr?: string;
+    nameHe?: string;
+    nameRu?: string;
     subtitleAr?: string;
     subtitleEn?: string;
+    subtitleHe?: string;
+    subtitleRu?: string;
     description?: string;
     descriptionEn?: string;
+    descriptionHe?: string;
     zoneId?: number;
     startsAt?: string;
     endsAt?: string;
@@ -348,7 +396,10 @@ export const campaignsApi = {
     items?: Array<{
       nameAr: string;
       nameEn?: string;
+      nameHe?: string;
+      nameRu?: string;
       description?: string;
+      descriptionHe?: string;
       categoryId: number;
       unit: string;
       price: number;
@@ -359,10 +410,15 @@ export const campaignsApi = {
     formData.append('_method', 'PUT');
     if (data.name) formData.append('name_en', data.name);
     if (data.nameAr) formData.append('name_ar', data.nameAr);
+    if (data.nameHe) formData.append('name_he', data.nameHe);
+    if (data.nameRu) formData.append('name_ru', data.nameRu);
     if (data.subtitleAr !== undefined) formData.append('subtitle_ar', data.subtitleAr);
     if (data.subtitleEn !== undefined) formData.append('subtitle_en', data.subtitleEn);
+    if (data.subtitleHe !== undefined) formData.append('subtitle_he', data.subtitleHe);
+    if (data.subtitleRu !== undefined) formData.append('subtitle_ru', data.subtitleRu);
     if (data.description !== undefined) formData.append('description', data.description);
     if (data.descriptionEn !== undefined) formData.append('description_en', data.descriptionEn);
+    if (data.descriptionHe !== undefined) formData.append('description_he', data.descriptionHe);
     if (data.zoneId) formData.append('zone_id', String(data.zoneId));
     if (data.startsAt) formData.append('starts_at', data.startsAt);
     if (data.endsAt) formData.append('ends_at', data.endsAt);
@@ -381,7 +437,10 @@ export const campaignsApi = {
       data.items.forEach((item, index) => {
         formData.append(`items[${index}][name_ar]`, item.nameAr);
         if (item.nameEn) formData.append(`items[${index}][name_en]`, item.nameEn);
+        if (item.nameHe) formData.append(`items[${index}][name_he]`, item.nameHe);
+        if (item.nameRu) formData.append(`items[${index}][name_ru]`, item.nameRu);
         if (item.description) formData.append(`items[${index}][description]`, item.description);
+        if (item.descriptionHe) formData.append(`items[${index}][description_he]`, item.descriptionHe);
         formData.append(`items[${index}][category_id]`, String(item.categoryId));
         formData.append(`items[${index}][unit]`, item.unit);
         formData.append(`items[${index}][price]`, String(item.price));
@@ -398,6 +457,14 @@ export const campaignsApi = {
     const endpoint = action === 'activate' ? 'activate' : action === 'end' ? 'close' : 'archive';
     const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}/${endpoint}`);
     return mapBackendCampaign(response.data.data);
+  },
+
+  /** Materialize a campaign item into a real seasonal product */
+  materializeItemProduct: async (campaignId: number, itemId: number): Promise<{ id: number }> => {
+    const response = await apiClient.post<ApiResponse<{ id: number }>>(
+      `/api/v1/admin/campaigns/${campaignId}/items/${itemId}/product`
+    );
+    return response.data.data;
   },
 };
 

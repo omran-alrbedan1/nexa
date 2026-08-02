@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { productsApi, type ProductCategory } from '../api/productsApi';
+import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
+import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
@@ -22,10 +25,12 @@ export function CreateProductPage() {
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
+  const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [form, setForm] = useState({
-    name: '', nameAr: '', description: '', descriptionAr: '',
     price: '', unit: 'kg', stockQuantity: '',
-    categoryId: '', supplierId: '', source: 'supplier',
+    categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
 
   useEffect(() => {
@@ -57,23 +62,29 @@ export function CreateProductPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.nameAr || !form.price) {
+    if (!names.ar?.trim() || !form.price) {
       addToast('error', t('products.create.validationRequired'));
       return;
     }
     setSaving(true);
     try {
       await productsApi.createProduct({
-        name: form.name,
-        nameAr: form.nameAr,
-        description: form.description,
-        descriptionAr: form.descriptionAr,
+        name: names.en ?? '',
+        nameAr: names.ar ?? '',
+        nameHe: names.he,
+        nameRu: names.ru,
+        description: descriptions.ar ?? '',
+        descriptionAr: descriptions.ar,
+        descriptionEn: descriptions.en,
+        descriptionHe: descriptions.he,
+        descriptionRu: descriptions.ru,
         price: parseFloat(form.price) || 0,
         unit: form.unit,
         stockQuantity: parseInt(form.stockQuantity) || 0,
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
-        source: form.source as 'supplier' | 'internal' | 'seasonal',
+        source: form.source,
+        variants: variants.length > 0 ? variants : undefined,
         image: imageFile || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
@@ -132,22 +143,20 @@ export function CreateProductPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.create.basicInfo')}</h3>
           <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.nameEn')}</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. Fresh Tomatoes" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.nameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="طماطم طازجة" dir="rtl" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.descriptionEn')}</label>
-              <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="Product description..." />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.descriptionAr')}</label>
-              <textarea value={form.descriptionAr} onChange={(e) => handleChange('descriptionAr', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="وصف المنتج..." dir="rtl" />
-            </div>
+            <TranslatedField
+              label={t('products.create.name')}
+              values={names}
+              onChange={(key, value) => setNames({ ...names, [key]: value })}
+              placeholder={t('products.create.namePlaceholder')}
+              required
+            />
+            <TranslatedField
+              label={t('products.create.description')}
+              values={descriptions}
+              onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })}
+              placeholder={t('products.create.descriptionPlaceholder')}
+              textarea
+            />
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.source')}</label>
               <select value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
@@ -203,6 +212,10 @@ export function CreateProductPage() {
           </div>
         </Card>
       </div>
+
+      <Card padding="lg">
+        <VariantEditor value={variants} onChange={setVariants} />
+      </Card>
 
       <div className="flex items-center gap-3">
         <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.create.save')}</Button>

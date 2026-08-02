@@ -32,3 +32,19 @@ export function useCampaignAction() {
     onError: () => addToast('error', t('campaigns.toast.updateFailed')),
   });
 }
+
+export function useMaterializeItemProduct(campaignId: number) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ itemId }: { itemId: number }) =>
+      campaignsApi.materializeItemProduct(campaignId, itemId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: campaignKeys.detail(campaignId) });
+      queryClient.invalidateQueries({ queryKey: campaignKeys.pageData() });
+      addToast('success', t('campaigns.toast.productCreated', { id: data.id }));
+    },
+    onError: () => addToast('error', t('campaigns.toast.productCreateFailed')),
+  });
+}

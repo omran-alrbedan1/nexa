@@ -30,8 +30,13 @@ export interface DashboardProduct {
   id: number;
   name: string;
   nameAr: string;
+  nameHe?: string;
+  nameRu?: string;
   description: string;
   descriptionAr: string;
+  descriptionEn?: string;
+  descriptionHe?: string;
+  descriptionRu?: string;
   price: number;
   unit: string;
   imageUrl: string | null;
@@ -83,6 +88,15 @@ interface BackendProduct {
   sku: string;
   name_ar: string;
   name_en?: string | null;
+  name_he?: string | null;
+  name_ru?: string | null;
+  description?: string | null;
+  description_ar?: string | null;
+  description_en?: string | null;
+  description_he?: string | null;
+  description_ru?: string | null;
+  product_type?: string | null;
+  campaign_id?: number | null;
   price: string;
   unit: string;
   stock_quantity: number;
@@ -93,6 +107,7 @@ interface BackendProduct {
   updated_at: string;
   supplier: BackendProductSupplier | null;
   category: BackendProductCategory | null;
+  variants?: ProductVariant[];
 }
 
 interface BackendCategory {
@@ -135,8 +150,13 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     id: bp.id,
     name: bp.name_en || bp.name_ar,
     nameAr: bp.name_ar,
-    description: '', // not available from backend
-    descriptionAr: '', // not available from backend
+    nameHe: bp.name_he ?? undefined,
+    nameRu: bp.name_ru ?? undefined,
+    description: bp.description ?? '',
+    descriptionAr: bp.description_ar ?? '',
+    descriptionEn: bp.description_en ?? '',
+    descriptionHe: bp.description_he ?? '',
+    descriptionRu: bp.description_ru ?? '',
     price: parseFloat(bp.price) || 0,
     unit: bp.unit || 'piece',
     imageUrl: bp.primary_image || null,
@@ -144,7 +164,7 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     categoryName: bp.category?.name || 'Uncategorized',
     supplierId: bp.supplier?.id || null,
     supplierName: bp.supplier?.business_name || null,
-    source: 'supplier', // default — not available from backend
+    source: (bp.product_type as ProductSource) || 'supplier',
     isAvailable: bp.is_active,
     stockQuantity: Number(bp.stock_quantity),
     totalOrders: 0, // not available from backend
@@ -159,14 +179,20 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
 const PRODUCT_FIELD_MAP: Record<string, string> = {
   name: 'name_en',
   nameAr: 'name_ar',
+  nameHe: 'name_he',
+  nameRu: 'name_ru',
   description: 'description',
   descriptionAr: 'description_ar',
+  descriptionEn: 'description_en',
+  descriptionHe: 'description_he',
+  descriptionRu: 'description_ru',
   price: 'price',
   unit: 'unit',
   stockQuantity: 'stock_quantity',
   categoryId: 'category_id',
   supplierId: 'supplier_id',
-  source: 'source',
+  campaignId: 'campaign_id',
+  source: 'product_type',
 };
 
 function toBackendFields(data: Record<string, any>): Record<string, any> {
@@ -182,15 +208,26 @@ function toBackendFields(data: Record<string, any>): Record<string, any> {
 
 function buildProductFormData(data: Record<string, any>): FormData {
   const fd = new FormData();
-  for (const [key, value] of Object.entries(data)) {
-    if (value === undefined || value === null) continue;
+  const append = (key: string, value: unknown) => {
+    if (value === undefined || value === null) return;
     if (value instanceof File) {
       fd.append(key, value);
     } else if (typeof value === 'boolean') {
       fd.append(key, value ? '1' : '0');
+    } else if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (typeof item === 'object' && item !== null) {
+          Object.entries(item).forEach(([subKey, subValue]) => append(`${key}[${index}][${subKey}]`, subValue));
+        } else {
+          append(`${key}[${index}]`, item);
+        }
+      });
     } else {
       fd.append(key, String(value));
     }
+  };
+  for (const [key, value] of Object.entries(data)) {
+    append(key, value);
   }
   return fd;
 }
@@ -262,7 +299,7 @@ export const productsApi = {
   },
 
   /** Create a new product */
-  createProduct: async (data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+  createProduct: async (data: Partial<DashboardProduct> & { image?: File; variants?: ProductVariantInput[] }): Promise<DashboardProduct> => {
       const backendData = toBackendFields(data);
       if (data.image instanceof File) {
         const formData = buildProductFormData(backendData);
@@ -275,7 +312,7 @@ export const productsApi = {
   },
 
   /** Update product */
-  updateProduct: async (id: number, data: Partial<DashboardProduct> & { image?: File }): Promise<DashboardProduct> => {
+  updateProduct: async (id: number, data: Partial<DashboardProduct> & { image?: File; variants?: ProductVariantInput[] }): Promise<DashboardProduct> => {
       const backendData = toBackendFields(data);
       if (data.image instanceof File) {
         const formData = buildProductFormData({ _method: 'PUT', ...backendData });
@@ -338,12 +375,27 @@ export const productsApi = {
 
 // ── Product Variants ──
 
+export interface ProductVariantInput {
+  id?: number;
+  name_ar: string;
+  name_en?: string;
+  name_he?: string;
+  name_ru?: string;
+  sku?: string;
+  price: number;
+  stock_quantity: number;
+  is_active?: boolean;
+  _delete?: boolean;
+}
+
 export interface ProductVariant {
   id: number;
   product_id: number;
   sku: string | null;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   price: number;
   stock_quantity: number;
   available_stock: number;
@@ -354,6 +406,8 @@ export interface ProductVariant {
 export type VariantFormData = {
   name_ar: string;
   name_en?: string;
+  name_he?: string;
+  name_ru?: string;
   sku?: string;
   price: number;
   stock_quantity: number;

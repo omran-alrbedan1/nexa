@@ -43,7 +43,11 @@
     "groupOrders": "Заказы",
     "groupFulfillment": "Доставка",
     "groupLogistics": "Логистика",
-    "groupCatalog": "Каталог"
+    "groupCatalog": "Каталог",
+    "countries": "Страны",
+    "groupGeography": "География и локации",
+    "provinces": "Провинции / города",
+    "serviceRegions": "Регионы обслуживания"
   },
   "settings": {
     "title": "Настройки",
@@ -56,7 +60,9 @@
       "notifications": "Уведомления",
       "audit": "Журнал аудита",
       "privacyPolicy": "Политика конфиденциальности",
-      "navigation": "Меню навигации"
+      "navigation": "Меню навигации",
+      "aboutNexa": "О NEXA",
+      "faq": "FAQ"
     },
     "navigation": {
       "title": "Меню навигации",
@@ -78,7 +84,6 @@
       "description": "Настройка общих системных предпочтений и значений по умолчанию",
       "noSettings": "Настройки ещё не настроены."
     },
-
     "roles": {
       "title": "Роли и разрешения",
       "description": "Управление ролями пользователей и назначение разрешений",
@@ -177,6 +182,98 @@
       "description": "Управление содержанием политики конфиденциальности для вашего мобильного приложения",
       "titleLabel": "Заголовок страницы",
       "contentLabel": "Содержание"
+    },
+    "about": {
+      "arabicContent": "Арабский контент",
+      "arabicContentHint": "Отредактируйте контент «О NEXA» на арабском",
+      "arabicTab": "Арабский",
+      "contentLabelAr": "Контент",
+      "contentLabelEn": "Контент",
+      "description": "Управление контентом раздела «О NEXA»",
+      "englishContent": "Английский контент",
+      "englishContentHint": "Отредактируйте контент «О NEXA» на английском",
+      "englishTab": "Английский",
+      "title": "О NEXA",
+      "titleLabelAr": "Заголовок",
+      "titleLabelEn": "Заголовок",
+      "titlePlaceholderAr": "عن NEXA",
+      "titlePlaceholderEn": "О NEXA"
+    },
+    "faq": {
+      "activate": "Активировать",
+      "active": "Активен",
+      "addFaq": "Добавить FAQ",
+      "addModalTitle": "Добавить FAQ",
+      "answerAr": "Ответ (AR)",
+      "answerArPlaceholder": "الإجابة بالعربية",
+      "answerEn": "Ответ (EN)",
+      "answerEnPlaceholder": "Ответ на английском",
+      "cancel": "Отмена",
+      "create": "Создать",
+      "createdLabel": "Создано:",
+      "createdToast": "FAQ создан",
+      "deactivate": "Деактивировать",
+      "delete": "Удалить",
+      "deleteModalDescription": "Вы уверены, что хотите удалить этот FAQ? Это действие нельзя отменить.",
+      "deleteModalTitle": "Удалить FAQ",
+      "deletedToast": "FAQ удалён",
+      "description": "Управление часто задаваемыми вопросами, отображаемыми в приложении",
+      "draft": "Черновик",
+      "editModalTitle": "Редактировать FAQ",
+      "emptyDescription": "Создайте первый FAQ, чтобы начать",
+      "emptyTitle": "FAQ пока нет",
+      "questionAr": "Вопрос (AR)",
+      "questionArPlaceholder": "السؤال بالعربية",
+      "questionEn": "Вопрос (EN)",
+      "questionEnPlaceholder": "Вопрос на английском",
+      "searchPlaceholder": "Поиск FAQ...",
+      "sortLabel": "Сортировка:",
+      "sortOrder": "Порядок сортировки",
+      "status": "Статус",
+      "title": "FAQ / Частые вопросы",
+      "update": "Обновить",
+      "updatedToast": "FAQ обновлён",
+      "validationRequired": "Вопрос и ответ на арабском обязательны"
+    },
+    "settingGroups": {
+      "about": "О NEXA",
+      "general": "Общие",
+      "legal": "Юридические",
+      "orders": "Заказы",
+      "support": "Поддержка",
+      "trips": "Рейсы"
+    },
+    "settingKeys": {
+      "about_content_ar": "Контент «О NEXA» (AR)",
+      "about_content_en": "Контент «О NEXA» (EN)",
+      "about_title_ar": "Заголовок «О NEXA» (AR)",
+      "about_title_en": "Заголовок «О NEXA» (EN)",
+      "app_name": "Название приложения",
+      "default_delivery_fee": "Плата за доставку по умолчанию",
+      "default_trip_capacity": "Вместимость рейса по умолчанию",
+      "min_order_amount": "Минимальная сумма заказа",
+      "privacy_policy_content_ar": "Контент политики конфиденциальности (AR)",
+      "privacy_policy_content_en": "Контент политики конфиденциальности (EN)",
+      "privacy_policy_title_ar": "Заголовок политики конфиденциальности (AR)",
+      "privacy_policy_title_en": "Заголовок политики конфиденциальности (EN)",
+      "supplier_accept_timeout_hours": "Таймаут принятия поставщиком (часы)",
+      "support_email": "Эл. почта поддержки",
+      "support_phone": "Телефон поддержки",
+      "trip_cutoff_hours_before": "Отсечка рейса (часов до)"
+    },
+    "toast": {
+      "permissionsUpdateFailed": "Не удалось обновить разрешения",
+      "permissionsUpdated": "Разрешения обновлены успешно",
+      "settingUpdateFailed": "Не удалось обновить настройку",
+      "settingUpdated": "Настройка обновлена",
+      "settingsUpdateFailed": "Не удалось обновить настройки",
+      "settingsUpdated": "Настройки обновлены",
+      "staffCreateFailed": "Не удалось создать сотрудника",
+      "staffCreated": "Сотрудник создан",
+      "staffRolesUpdateFailed": "Не удалось обновить роли сотрудника",
+      "staffRolesUpdated": "Роли сотрудника обновлены",
+      "staffStatusUpdateFailed": "Не удалось обновить статус сотрудника",
+      "staffStatusUpdated": "Статус сотрудника обновлён"
     }
   },
   "customers": {
@@ -214,7 +311,8 @@
       "activateTitle": "Активировать {{name}}",
       "activateDescription": "Это реактивирует учётную запись клиента. Он сможет снова размещать заказы.",
       "confirmSuspend": "Подтвердить приостановку",
-      "confirmActivate": "Подтвердить активацию"
+      "confirmActivate": "Подтвердить активацию",
+      "addCustomer": "Добавить клиента"
     },
     "detail": {
       "back": "Назад к клиентам",
@@ -253,6 +351,23 @@
       "inactive": "Неактивен",
       "suspended": "Приостановлен",
       "blocked": "Заблокирован"
+    },
+    "create": {
+      "email": "Эл. почта",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "password": "Пароль",
+      "phone": "Телефон",
+      "submit": "Создать клиента",
+      "title": "Добавить клиента"
+    },
+    "toast": {
+      "createFailed": "Не удалось создать клиента",
+      "created": "Клиент создан успешно",
+      "notesUpdateFailed": "Не удалось обновить заметки клиента",
+      "notesUpdated": "Заметки клиента обновлены",
+      "statusUpdateFailed": "Не удалось обновить статус клиента",
+      "statusUpdated": "Статус клиента обновлён"
     }
   },
   "dashboard": {
@@ -338,7 +453,9 @@
       "noPending": "Нет ожидающих одобрения",
       "allResolved": "Все одобрения обработаны",
       "pendingPricing": "Ожидание одобрения",
-      "setPrice": "Просмотр"
+      "setPrice": "Просмотр",
+      "pending_approval_product": "Товар — ожидает утверждения",
+      "pending_approval_supplier": "Поставщик — ожидает утверждения"
     },
     "drivers": {
       "title": "Водители",
@@ -351,11 +468,25 @@
     "actionRequired": {
       "title": "Требуется действие",
       "subtitle": "Элементы, требующие внимания",
-      "allClear": "Всё чисто — элементы не требуют внимания"
+      "allClear": "Всё чисто — элементы не требуют внимания",
+      "items": {
+        "failed_delivery": "Неудачная доставка",
+        "overdue_supply": "Просроченные поставки",
+        "pending_pricing": "Ожидает ценообразования",
+        "ready_no_trip": "Готово — нет рейса",
+        "trip_no_driver": "Рейс — нет водителя"
+      }
     },
     "pipeline": {
       "title": "Конвейер операций",
-      "subtitle": "Текущий поток заказов"
+      "subtitle": "Текущий поток заказов",
+      "stages": {
+        "delivered_today": "Доставлено сегодня",
+        "in_aggregation": "На агрегации",
+        "in_supply": "В поставке",
+        "in_trip": "В рейсе",
+        "ready_to_ship": "Готов к отправке"
+      }
     },
     "operationalKPIs": {
       "title": "Операционные KPI",
@@ -415,6 +546,9 @@
       "itemsReceived": "Товаров получено",
       "itemsProcessed": "Товаров обработано",
       "itemsShipped": "Товаров отгружено"
+    },
+    "statsCard": {
+      "vsLastPeriod": "к прошлому периоду"
     }
   },
   "operations": {
@@ -491,7 +625,31 @@
       "notes": "Примечания (необязательно)",
       "notesPlaceholder": "Добавьте примечания о ценообразовании, доступности и т.д.",
       "submitQuote": "Отправить предложение",
-      "enterValidPrice": "Пожалуйста, введите корректную цену"
+      "enterValidPrice": "Пожалуйста, введите корректную цену",
+      "approve": "Одобрить",
+      "assign": "Назначить",
+      "assignForPricing": "Назначить для ценообразования",
+      "assignModalDesc": "Назначьте этот запрос для ценообразования.",
+      "assignModalTitle": "Назначить {{orderNumber}}",
+      "assignedForPricing": "Назначено для ценообразования",
+      "assignedToDesc": "Назначено: {{name}}",
+      "assignedToLabel": "Назначено:",
+      "awaitingCustomerApproval": "ожидает одобрения клиента",
+      "backToOperations": "Назад к операциям",
+      "budgetAndPricing": "Бюджет и ценообразование",
+      "customerSubmittedRequest": "Клиент отправил запрос",
+      "errorMessage": "Произошла ошибка",
+      "errorTitle": "Не удалось загрузить запрос",
+      "pending": "В ожидании",
+      "priceInputLabel": "Цена",
+      "priceQuoteAwaitingDesc": "{{formattedPrice}} — ожидает одобрения клиента",
+      "priceQuoteSubmitted": "Ценовое предложение отправлено",
+      "pricingTimeline": "Хронология ценообразования",
+      "reject": "Отклонить",
+      "requestCreated": "Запрос создан",
+      "requestDetails": "Детали запроса",
+      "specialRequestLabel": "Особый запрос",
+      "staff": "сотрудник"
     },
     "complaints": {
       "title": "Жалобы и тикеты",
@@ -512,7 +670,53 @@
       "urgent": "срочно",
       "high": "высокий",
       "medium": "средний",
-      "low": "низкий"
+      "low": "низкий",
+      "assignModalDesc": "Назначьте эту жалобу себе, чтобы начать работу с ней.",
+      "assignModalTitle": "Назначить жалобу {{ticketNumber}}",
+      "back": "Назад к операциям",
+      "conversation": "Переписка",
+      "customer": "Клиент",
+      "description": "Описание",
+      "errorMessage": "Произошла ошибка",
+      "errorTitle": "Не удалось загрузить жалобу",
+      "messagePlaceholder": "Введите ответ...",
+      "noMessages": "Сообщений пока нет. Напишите ответ ниже.",
+      "resolve": "Решить",
+      "send": "Отправить"
+    },
+    "complaintStatus": {
+      "closed": "Закрыто",
+      "in_progress": "В обработке",
+      "open": "Открыто",
+      "resolved": "Решено",
+      "unknown": "Неизвестно"
+    },
+    "specialRequestStatus": {
+      "approved": "Одобрено",
+      "cancelled": "Отменено",
+      "pending_customer_approval": "Ожидает клиента",
+      "pending_management": "Ожидает руководства",
+      "pending_pricing": "Ожидает ценообразования",
+      "priced": "С ценой",
+      "rejected": "Отклонено"
+    },
+    "toast": {
+      "complaintAssignFailed": "Не удалось назначить жалобу",
+      "complaintAssigned": "Жалоба назначена вам",
+      "complaintResolveFailed": "Не удалось решить жалобу",
+      "complaintResolved": "Жалоба решена",
+      "orderStatusUpdateFailed": "Не удалось обновить статус заказа",
+      "orderStatusUpdated": "Заказ {{label}} успешно",
+      "priceQuoteSubmitFailed": "Не удалось отправить ценовое предложение",
+      "priceQuoteSubmitted": "Ценовое предложение отправлено — ожидает одобрения клиента",
+      "requestAssignFailed": "Не удалось назначить запрос",
+      "requestAssigned": "Запрос назначен для ценообразования",
+      "specialApproveFailed": "Не удалось одобрить особый заказ",
+      "specialApproved": "Особый заказ одобрен",
+      "specialConvertFailed": "Не удалось преобразовать особый заказ",
+      "specialConverted": "Особый заказ преобразован в обычный заказ",
+      "specialRejectFailed": "Не удалось отклонить особый заказ",
+      "specialRejected": "Особый заказ отклонён"
     }
   },
   "warehouse": {
@@ -618,7 +822,9 @@
       "noWarehouses": "Склады не найдены",
       "noWarehousesDescription": "Добавьте первый склад для начала работы",
       "confirmDeleteTitle": "Удалить склад",
-      "confirmDeleteMessage": "Вы уверены, что хотите удалить {{name}}? Это действие нельзя отменить."
+      "confirmDeleteMessage": "Вы уверены, что хотите удалить {{name}}? Это действие нельзя отменить.",
+      "noZone": "Нет зоны",
+      "title": "Все склады"
     },
     "form": {
       "backToList": "Назад к складам",
@@ -640,7 +846,16 @@
       "openingTime": "Время открытия",
       "closingTime": "Время закрытия",
       "save": "Сохранить склад",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "codeRequired": "Код обязателен",
+      "latitude": "Широта",
+      "latitudePlaceholder": "например 24.713552",
+      "loadingMap": "Загрузка карты...",
+      "location": "Расположение (кликните по карте или введите координаты)",
+      "longitude": "Долгота",
+      "longitudePlaceholder": "например 46.675297",
+      "nameRequired": "Название обязательно",
+      "zoneRequired": "Зона обязательна"
     },
     "toast": {
       "created": "Склад успешно создан",
@@ -649,6 +864,11 @@
       "updateFailed": "Не удалось обновить склад",
       "deleted": "Склад успешно удален",
       "deleteFailed": "Не удалось удалить склад"
+    },
+    "stats": {
+      "active": "Активные",
+      "capacity": "Общая вместимость",
+      "total": "Всего складов"
     }
   },
   "orders": {
@@ -700,7 +920,8 @@
       "tryDifferentSearch": "Попробуйте другой поисковый запрос",
       "noOrdersMatch": "Заказы не соответствуют выбранным фильтрам",
       "fromDate": "С даты",
-      "toDate": "По дату"
+      "toDate": "По дату",
+      "tbd": "TBD"
     },
     "detail": {
       "back": "Назад к заказам",
@@ -751,7 +972,12 @@
       "transferPlaceholder": "Почему этот заказ передаётся?",
       "transferWarning": "Передача перемещает заказ на другой склад. Это влияет на маршрут доставки и может изменить дату доставки.",
       "confirmTransfer": "Подтвердить передачу",
-      "by": "от {{actor}}"
+      "by": "от {{actor}}",
+      "driverTracking": "Отслеживание водителя",
+      "quoteHistory": "История ценовых предложений",
+      "specialOrderRef": "Особый заказ: {{reference}} ({{status}})",
+      "supplierLabel": "Поставщик",
+      "system": "Система"
     },
     "tracking": {
       "speed": "Скорость",
@@ -760,6 +986,20 @@
       "awaitingLocation": "Ожидание местоположения водителя...",
       "loadingMap": "Загрузка карты...",
       "mapLoadError": "Не удалось загрузить карту"
+    },
+    "deliveryStage": {
+      "delivered": "Доставлено",
+      "failed": "Неудача",
+      "out_for_delivery": "В доставке",
+      "pending": "Ожидание"
+    },
+    "toast": {
+      "orderRescheduled": "Заказ перенесён",
+      "orderTransferred": "Заказ передан",
+      "orderUpdated": "Заказ {{label}} успешно",
+      "receiptConfirmed": "Получение на складе подтверждено",
+      "statusUpdated": "Заказ {{label}} успешно",
+      "warehouseReceiptConfirmed": "Получение на складе подтверждено"
     }
   },
   "products": {
@@ -798,7 +1038,9 @@
       "disable": "Отключить",
       "supplier": "поставщик",
       "internal": "внутренний",
-      "seasonal": "сезонный"
+      "seasonal": "сезонный",
+      "noSupplier": "Нет поставщика",
+      "totalOrders": "{{count}} заказов"
     },
     "detail": {
       "back": "Назад к товарам",
@@ -828,6 +1070,146 @@
       "description": "Описание",
       "stockMovements": "Движение запасов",
       "stockMovementsPlaceholder": "История движения запасов появится здесь, когда бэкенд предоставит эти данные."
+    },
+    "create": {
+      "back": "Назад к товарам",
+      "basicInfo": "Основная информация",
+      "category": "Категория",
+      "changeImage": "Изменить изображение",
+      "description": "Создайте новый товар в каталоге",
+      "descriptionAr": "Описание (AR)",
+      "descriptionEn": "Описание (EN)",
+      "descriptionPlaceholder": "Описание товара...",
+      "imageHint": "JPG, PNG или WebP. Макс. 2 МБ.",
+      "imageTitle": "Изображение товара",
+      "name": "Название",
+      "nameAr": "Название товара (AR)",
+      "nameEn": "Название товара (EN) *",
+      "namePlaceholder": "Название товара",
+      "noSupplier": "Нет поставщика",
+      "preview": "Предпросмотр",
+      "price": "Цена *",
+      "pricingInventory": "Цена и запасы",
+      "removeImage": "Удалить",
+      "save": "Сохранить товар",
+      "selectCategory": "Выберите категорию",
+      "source": "Источник",
+      "sourceInternal": "Внутренний",
+      "sourceSeasonal": "Сезонный",
+      "sourceSupplier": "Поставщик",
+      "stockQuantity": "Количество на складе",
+      "subtitle": "Создайте новый товар в каталоге",
+      "successMessage": "Товар создан успешно",
+      "supplier": "Поставщик",
+      "title": "Добавить товар",
+      "unit": "Единица",
+      "unitBox": "Коробка",
+      "unitJar": "Банка",
+      "unitKg": "Килограмм (кг)",
+      "unitLoaf": "Буханка",
+      "unitPack": "Упаковка",
+      "unitPiece": "Штука",
+      "unitTub": "Контейнер",
+      "uploadImage": "Загрузить изображение",
+      "validationRequired": "Название товара (EN и AR) и цена обязательны"
+    },
+    "edit": {
+      "back": "Назад к товару",
+      "basicInfo": "Основная информация",
+      "box": "Коробка",
+      "cancel": "Отмена",
+      "category": "Категория",
+      "changeImage": "Изменить изображение",
+      "description": "Описание",
+      "descriptionAr": "Описание (AR)",
+      "descriptionEn": "Описание (EN)",
+      "descriptionPlaceholder": "Описание товара...",
+      "errorTitle": "Не удалось загрузить товар",
+      "imageFormatHint": "JPG, PNG или WebP. Макс. 2 МБ.",
+      "internalOption": "Внутренний",
+      "jar": "Банка",
+      "kg": "Килограмм (кг)",
+      "loaf": "Буханка",
+      "name": "Название",
+      "nameAr": "Название товара (AR)",
+      "nameEn": "Название товара (EN) *",
+      "namePlaceholder": "Название товара",
+      "noSupplier": "Нет поставщика",
+      "pack": "Упаковка",
+      "piece": "Штука",
+      "price": "Цена *",
+      "pricingInventory": "Цена и запасы",
+      "productImage": "Изображение товара",
+      "remove": "Удалить",
+      "saveChanges": "Сохранить изменения",
+      "seasonalOption": "Сезонный",
+      "selectCategory": "Выберите категорию",
+      "source": "Источник",
+      "stockQuantity": "Количество на складе",
+      "successMessage": "Товар обновлён успешно",
+      "supplier": "Поставщик",
+      "supplierOption": "Поставщик",
+      "title": "Редактировать товар",
+      "tub": "Контейнер",
+      "unit": "Единица",
+      "uploadImage": "Загрузить изображение",
+      "validationRequired": "Название товара (EN и AR) и цена обязательны"
+    },
+    "form": {
+      "basicInformation": "Основная информация",
+      "category": "Категория",
+      "changeImage": "Изменить изображение",
+      "descriptionAr": "Описание (AR)",
+      "descriptionArPlaceholder": "وصف المنتج...",
+      "descriptionEn": "Описание (EN)",
+      "descriptionEnPlaceholder": "Описание товара...",
+      "imageHint": "JPG, PNG или WebP. Макс. 2 МБ.",
+      "noSupplier": "Нет поставщика",
+      "price": "Цена *",
+      "pricingInventory": "Цена и запасы",
+      "productImage": "Изображение товара",
+      "productNameAr": "Название товара (AR)",
+      "productNameArPlaceholder": "طماطم طازجة",
+      "productNameEn": "Название товара (EN) *",
+      "productNameEnPlaceholder": "Например, свежие помидоры",
+      "remove": "Удалить",
+      "saveProduct": "Сохранить товар",
+      "selectCategory": "Выберите категорию",
+      "source": "Источник",
+      "sourceInternal": "Внутренний",
+      "sourceSeasonal": "Сезонный",
+      "sourceSupplier": "Поставщик",
+      "stockQuantity": "Количество на складе",
+      "supplierForm": "Поставщик",
+      "unit": "Единица",
+      "unitBox": "Коробка",
+      "unitJar": "Банка",
+      "unitKg": "Килограмм (кг)",
+      "unitLoaf": "Буханка",
+      "unitPack": "Упаковка",
+      "unitPiece": "Штука",
+      "unitTub": "Контейнер",
+      "uploadImage": "Загрузить изображение"
+    },
+    "toast": {
+      "approveFailed": "Не удалось одобрить товар",
+      "approved": "Товар одобрен",
+      "disabled": "Товар отключён",
+      "enabled": "Товар включён",
+      "failedToApprove": "Не удалось одобрить товар",
+      "failedToReject": "Не удалось отклонить товар",
+      "failedToUpdate": "Не удалось обновить товар",
+      "productApproved": "Товар одобрен",
+      "productDisabled": "Товар отключён",
+      "productEnabled": "Товар включён",
+      "productRejected": "Товар отклонён",
+      "rejectFailed": "Не удалось отклонить товар",
+      "rejected": "Товар отклонён",
+      "updateFailed": "Не удалось обновить товар"
+    },
+    "variants": {
+      "name": "Название",
+      "namePlaceholder": "Название варианта"
     }
   },
   "suppliers": {
@@ -886,7 +1268,10 @@
       "totalCount": "({{count}} всего)",
       "totalOrders": "Всего заказов",
       "revenue": "Выручка",
-      "acceptanceRate": "Уровень принятия"
+      "acceptanceRate": "Уровень принятия",
+      "documents": "Документы",
+      "documentsSubtitle": "Регистрационные документы, загруженные поставщиком",
+      "noDocuments": "Документы ещё не загружены"
     },
     "status": {
       "active": "Активен",
@@ -900,6 +1285,49 @@
       "net_30": "Нетто 30",
       "net_45": "Нетто 45",
       "prepaid": "Предоплата"
+    },
+    "create": {
+      "address": "Адрес",
+      "addressPlaceholder": "Эр-Рияд, промзона",
+      "back": "Назад к поставщикам",
+      "businessDetails": "Данные бизнеса",
+      "businessNameAr": "Название бизнеса (AR)",
+      "businessNameArPlaceholder": "المزرعة الطازجة",
+      "businessNameEn": "Название бизнеса (EN) *",
+      "businessNameEnPlaceholder": "Fresh Farm Co.",
+      "cancel": "Отмена",
+      "commercialRegister": "Торговый реестр",
+      "commercialRegisterPlaceholder": "CR-2025-001",
+      "commissionRate": "Ставка комиссии (%)",
+      "commissionRatePlaceholder": "10",
+      "contactInfo": "Контактная информация",
+      "contactPerson": "Контактное лицо",
+      "contactPersonPlaceholder": "Ахмед Аль-Мутайри",
+      "contactPhone": "Контактный телефон",
+      "contactPhonePlaceholder": "+966501234111",
+      "description": "Регистрация нового поставщика",
+      "email": "Эл. почта *",
+      "emailPlaceholder": "contact@supplier.com",
+      "failed": "Не удалось создать поставщика",
+      "paymentTermNet15": "Чистые 15",
+      "paymentTermNet30": "Чистые 30",
+      "paymentTermNet45": "Чистые 45",
+      "paymentTermPrepaid": "Предоплата",
+      "paymentTerms": "Условия оплаты",
+      "phone": "Телефон",
+      "phonePlaceholder": "+966501234001",
+      "required": "Название бизнеса и эл. почта обязательны",
+      "save": "Сохранить поставщика",
+      "success": "Поставщик создан успешно",
+      "taxNumber": "Налоговый номер",
+      "taxNumberPlaceholder": "TX-3001",
+      "title": "Добавить поставщика"
+    },
+    "toast": {
+      "approveFailed": "Не удалось одобрить поставщика",
+      "approved": "Поставщик одобрен успешно",
+      "suspendFailed": "Не удалось приостановить поставщика",
+      "suspended": "Поставщик приостановлен"
     }
   },
   "regions": {
@@ -924,7 +1352,12 @@
       "nameAr": "Название (араб.)",
       "nameEn": "Название (англ.)",
       "code": "Код",
-      "create": "Создать"
+      "create": "Создать",
+      "boundary": "Граница зоны",
+      "boundaryTitle": "Задать границу зоны",
+      "clickToAdd": "Нажмите на карту, чтобы добавить точки границы",
+      "drawBoundary": "Нарисовать границу",
+      "pointsCount": "{{count}} точек"
     },
     "clusters": {
       "title": "Кластеры",
@@ -979,7 +1412,8 @@
       "activate": "Активировать",
       "feeModalTitle": "Обновить плату за доставку — {{name}}",
       "deliveryFee": "Плата за доставку",
-      "update": "Обновить"
+      "update": "Обновить",
+      "addRegion": "Добавить регион"
     },
     "detail": {
       "back": "Назад к регионам",
@@ -1003,6 +1437,29 @@
       "edit": "Редактировать",
       "zoneInfo": "Информация о зоне",
       "activeSlotsCount": "Активные слоты"
+    },
+    "toast": {
+      "clusterCreateFailed": "Не удалось создать кластер",
+      "clusterCreated": "Кластер создан",
+      "clusterDeleteFailed": "Не удалось удалить кластер",
+      "clusterDeleted": "Кластер удалён",
+      "clusterUpdateFailed": "Не удалось обновить кластер",
+      "clusterUpdated": "Кластер обновлён",
+      "feeUpdateFailed": "Не удалось обновить плату за доставку",
+      "feeUpdated": "Плата за доставку обновлена",
+      "regionDisabled": "Регион отключён",
+      "regionEnabled": "Регион включён",
+      "slotCreateFailed": "Не удалось создать временной слот",
+      "slotCreated": "Временной слот создан",
+      "slotUpdateFailed": "Не удалось обновить временной слот",
+      "slotUpdated": "Временной слот обновлён",
+      "toggleFailed": "Не удалось изменить статус региона",
+      "workingDaysUpdateFailed": "Не удалось обновить рабочие дни",
+      "workingDaysUpdated": "Рабочие дни обновлены",
+      "zoneCreateFailed": "Не удалось создать зону",
+      "zoneCreated": "Зона создана",
+      "zoneUpdateFailed": "Не удалось обновить зону",
+      "zoneUpdated": "Зона обновлена"
     }
   },
   "trips": {
@@ -1196,7 +1653,13 @@
       "available": "Свободен",
       "onTrip": "В поездке",
       "saveTrip": "Сохранить поездку",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "checkingAvailability": "Проверка доступности…",
+      "driverBusy": "Этот водитель недоступен в выбранную дату",
+      "driverBusyExistingTrip": "У водителя уже есть рейс №{{tripNumber}} на {{date}}. Выберите другого водителя или дату.",
+      "driverBusyGeneric": "Выберите другого водителя или измените дату.",
+      "driverUnavailable": "Выбранный водитель занят в эту дату — выберите другого водителя или дату.",
+      "errorGeneric": "Не удалось создать рейс. Попробуйте ещё раз."
     },
     "toast": {
       "driverAssigned": "Водитель назначен на поездку",
@@ -1254,7 +1717,8 @@
       "pending": "Ожидает",
       "approved": "Одобрен",
       "rejected": "Отклонен",
-      "view": "Просмотр"
+      "view": "Просмотр",
+      "addDriver": "Добавить водителя"
     },
     "reject": {
       "title": "Отклонить {{name}}",
@@ -1286,7 +1750,10 @@
       "region": "Регион",
       "deliveredCount": "Доставлено: {{count}}",
       "noTripsYet": "Поездок пока нет",
-      "noTripsDescription": "Этот водитель ещё не совершил ни одной поездки."
+      "noTripsDescription": "Этот водитель ещё не совершил ни одной поездки.",
+      "documents": "Документы",
+      "documentsSubtitle": "Регистрационные документы, загруженные водителем",
+      "noDocuments": "Документы ещё не загружены"
     },
     "status": {
       "pending": "В ожидании",
@@ -1313,6 +1780,27 @@
       "unassigned": "Не назначен",
       "ordersCount": "{{count}} заказов",
       "viewTrip": "Просмотр поездки"
+    },
+    "create": {
+      "email": "Эл. почта",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "phone": "Телефон",
+      "submit": "Создать водителя",
+      "title": "Добавить водителя",
+      "vehiclePlate": "Номерной знак",
+      "vehicleType": "Тип транспортного средства"
+    },
+    "toast": {
+      "approveFailed": "Не удалось одобрить водителя",
+      "approved": "Водитель одобрен",
+      "createFailed": "Не удалось создать водителя",
+      "created": "Водитель создан успешно",
+      "markedAvailable": "Водитель отмечен как доступный",
+      "markedUnavailable": "Водитель отмечен как недоступный",
+      "rejectFailed": "Не удалось отклонить водителя",
+      "rejected": "Водитель отклонён",
+      "statusUpdateFailed": "Не удалось обновить статус водителя"
     }
   },
   "payments": {
@@ -1366,7 +1854,31 @@
     "messagePlaceholder": "Введите ваш ответ...",
     "internalPlaceholder": "Напишите внутреннюю заметку (не видна клиенту)...",
     "statusUpdated": "Статус тикета обновлён",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "attachmentOnly": "[Только вложение]",
+    "loadFailed": "Не удалось загрузить тикет",
+    "priority": {
+      "high": "Высокий",
+      "low": "Низкий",
+      "medium": "Средний",
+      "urgent": "Срочный"
+    },
+    "staffIdPlaceholder": "Введите ID сотрудника",
+    "switchToInternal": "Переключить на внутреннюю заметку",
+    "switchToPublic": "Переключить на публичный ответ",
+    "ticketStatus": {
+      "closed": "Закрыт",
+      "in_progress": "В обработке",
+      "open": "Открыт",
+      "resolved": "Решён",
+      "unknown": "Неизвестно"
+    },
+    "toast": {
+      "assignFailed": "Не удалось назначить тикет",
+      "assigned": "Тикет назначен",
+      "statusUpdateFailed": "Не удалось обновить статус тикета",
+      "statusUpdated": "Статус тикета обновлён"
+    }
   },
   "reports": {
     "title": "Отчёты",
@@ -1456,7 +1968,24 @@
       "priceQuoteNotes": "Примечания к цене",
       "priceQuoteNotesPlaceholder": "Добавьте детали о цене, доступности, сроках доставки...",
       "priceQuoteUpdateWarning": "У этого спецзаказа уже есть ценовое предложение. Отправка нового заменит его.",
-      "submitQuote": "Отправить предложение"
+      "submitQuote": "Отправить предложение",
+      "customerResponse": "Ответ клиента: {{note}}",
+      "deliveryFeeLabel": "Плата за доставку",
+      "loadingWarehouses": "Загрузка складов...",
+      "loadingZones": "Загрузка зон...",
+      "noSuppliers": "Поставщики не найдены",
+      "noWarehouses": "Склады не найдены",
+      "noZones": "Зоны не найдены",
+      "quoteAutoHint": "Промежуточный итог, итог и плата за доставку будут взяты из принятого ценового предложения автоматически.",
+      "searchSupplier": "Поиск по имени поставщика...",
+      "searchWarehouse": "Поиск склада...",
+      "searchZone": "Поиск зоны...",
+      "selectWarehouse": "Выберите склад",
+      "selectZone": "Выберите зону",
+      "selectZoneFirst": "Сначала выберите зону",
+      "subtotal": "Промежуточный итог",
+      "validUntil": "Действует до",
+      "warehouse": "Склад"
     },
     "statusLabels": {
       "pending_admin": "Ожидает администратора",
@@ -1498,6 +2027,27 @@
       "customer": "Клиент",
       "staff": "Сотрудник",
       "responseHint": "Чтобы ответить, создайте новое ценовое предложение с обновлёнными ценами."
+    },
+    "allStatuses": "Все статусы",
+    "assignedTo": "Назначено: {{name}}",
+    "itemsCount": "{{count}} позиций",
+    "toast": {
+      "approveFailed": "Не удалось одобрить",
+      "approved": "Особый заказ одобрен",
+      "convertFailed": "Не удалось преобразовать",
+      "converted": "Преобразовано в заказ",
+      "notesUpdateFailed": "Не удалось обновить заметки",
+      "notesUpdated": "Заметки обновлены",
+      "priceQuoteCreateFailed": "Не удалось создать ценовое предложение",
+      "priceQuoteCreated": "Ценовое предложение создано и отправлено клиенту",
+      "priceQuoteSubmitFailed": "Не удалось отправить ценовое предложение",
+      "priceQuoteSubmitted": "Ценовое предложение отправлено — ожидает одобрения клиента",
+      "rejectFailed": "Не удалось отклонить",
+      "rejected": "Особый заказ отклонён",
+      "staffAssignFailed": "Не удалось назначить сотрудника",
+      "staffAssigned": "Сотрудник назначен",
+      "supplierAssignFailed": "Не удалось назначить поставщика",
+      "supplierAssigned": "Поставщик назначен"
     }
   },
   "campaigns": {
@@ -1572,7 +2122,161 @@
       "reserved": "Зарезервировано",
       "orderingCloses": "Закрытие заказов",
       "deliveryLeadTime": "Срок доставки",
-      "subtitle": "Подзаголовок"
+      "subtitle": "Подзаголовок",
+      "assignedSupplier": "Назначенный поставщик",
+      "edit": "Редактировать",
+      "makeProduct": "Создать товар",
+      "product": "Товар",
+      "supplierId": "ID: {{id}}",
+      "table": {
+        "category": "Категория",
+        "nameAr": "Название (AR)",
+        "nameEn": "Название (EN)",
+        "price": "Цена",
+        "stock": "Запас",
+        "unit": "Единица"
+      },
+      "viewProduct": "Просмотреть товар"
+    },
+    "create": {
+      "addItem": "Добавить товар",
+      "back": "Назад к кампаниям",
+      "deliverySubtitle": "Ожидаемые сроки доставки",
+      "deliveryTitle": "Доставка",
+      "description": "Описание",
+      "descriptionEn": "Описание (EN)",
+      "descriptionPlaceholder": "Описание кампании...",
+      "detailsSubtitle": "Основная информация о кампании",
+      "detailsTitle": "Детали кампании",
+      "endDate": "Дата окончания *",
+      "initialStatus": "Начальный статус",
+      "itemCategory": "Категория *",
+      "itemDescriptionPlaceholder": "Описание товара (необязательно)",
+      "itemName": "Название товара",
+      "itemNameAr": "Название (AR) *",
+      "itemNameEn": "Название (EN)",
+      "itemNamePlaceholder": "Название товара",
+      "itemNumber": "Товар #{{number}}",
+      "itemPrice": "Цена *",
+      "itemStockQty": "Кол-во на складе",
+      "itemUnit": "Единица *",
+      "itemsSubtitle": "Товары, на которые поставщики могут делать ставки",
+      "itemsTitle": "Товары кампании",
+      "itemsValidation": "Для каждого товара кампании требуются название (AR), категория, единица и цена",
+      "maxDays": "Макс. дней",
+      "minDays": "Мин. дней",
+      "name": "Название",
+      "nameAr": "Название кампании (AR)",
+      "nameEn": "Название кампании (EN) *",
+      "namePlaceholder": "Название кампании",
+      "noItems": "Товары ещё не добавлены.",
+      "noItemsDesc": "Нажмите «Добавить товар», чтобы указать, на что поставщики могут делать ставки.",
+      "orderingClosesAt": "Приём заказов до",
+      "requiredValidation": "Название кампании, дата начала и дата окончания обязательны",
+      "save": "Сохранить кампанию",
+      "scheduleSubtitle": "Таймлайн кампании и окно приёма заказов",
+      "scheduleTitle": "Расписание",
+      "selectCategory": "Выберите категорию",
+      "startDate": "Дата начала *",
+      "statusDraft": "Черновик",
+      "statusScheduled": "Запланирована",
+      "stockLimited": "Склад ограничен",
+      "stockLowThreshold": "Порог низкого запаса",
+      "stockReserved": "Зарезервировано",
+      "stockSold": "Уже продано",
+      "stockSubtitle": "Настройте лимиты запасов на уровне кампании",
+      "stockTitle": "Управление запасами",
+      "stockTotal": "Общее количество",
+      "stockUnit": "Единица запаса",
+      "stockUnlimited": "Неограниченный запас",
+      "subtitle": "Создайте новую сезонную кампанию",
+      "subtitleAr": "Подзаголовок (AR)",
+      "subtitleEn": "Подзаголовок (EN)",
+      "subtitlePlaceholder": "Подзаголовок кампании",
+      "targetZone": "Целевая зона",
+      "title": "Создать кампанию"
+    },
+    "edit": {
+      "active": "Активна",
+      "addItem": "Добавить товар",
+      "alreadySold": "Уже продано",
+      "back": "Назад к кампании",
+      "campaignDetails": "Детали кампании",
+      "campaignDetailsDesc": "Основная информация о кампании",
+      "campaignImage": "Изображение кампании",
+      "campaignImageDesc": "Загрузите баннер для кампании",
+      "campaignItems": "Товары кампании",
+      "campaignItemsDesc": "Товары, на которые поставщики могут делать ставки",
+      "changeImage": "Изменить изображение",
+      "delivery": "Доставка",
+      "deliveryDesc": "Ожидаемые сроки доставки",
+      "description": "Описание",
+      "descriptionEn": "Описание (EN)",
+      "descriptionEnPlaceholder": "Описание на английском...",
+      "descriptionPlaceholder": "Описание кампании...",
+      "draft": "Черновик",
+      "dragDropHint": "Нажмите, чтобы выбрать, или перетащите файл",
+      "editDescription": "Обновите детали и настройки кампании",
+      "errorTitle": "Не удалось загрузить кампанию",
+      "itemCategory": "Категория *",
+      "itemDescription": "Описание",
+      "itemDescriptionPlaceholder": "Описание товара (необязательно)",
+      "itemName": "Название товара",
+      "itemNameAr": "Название (AR) *",
+      "itemNameArPlaceholder": "اسم المنتج",
+      "itemNameEn": "Название (EN)",
+      "itemNameEnPlaceholder": "Название товара",
+      "itemNamePlaceholder": "Название товара",
+      "itemPrice": "Цена *",
+      "itemPricePlaceholder": "0.00",
+      "itemStockQty": "Кол-во на складе",
+      "itemStockQtyPlaceholder": "0",
+      "itemUnit": "Единица *",
+      "itemUnitPlaceholder": "кг, коробка",
+      "loadFailed": "Не удалось загрузить кампанию",
+      "lowStockThreshold": "Порог низкого запаса",
+      "maxDays": "Макс. дней",
+      "minDays": "Мин. дней",
+      "name": "Название",
+      "nameAr": "Название кампании (AR)",
+      "nameArPlaceholder": "مهرجان الفواكه الصيفية",
+      "nameEn": "Название кампании (EN) *",
+      "nameEnPlaceholder": "Летний фруктовый фестиваль",
+      "namePlaceholder": "Название кампании",
+      "noItems": "Товары ещё не добавлены.",
+      "noItemsDesc": "Нажмите «Добавить товар», чтобы указать, на что поставщики могут делать ставки.",
+      "orderingClosesAt": "Приём заказов до",
+      "removeImage": "Удалить изображение",
+      "reserved": "Зарезервировано",
+      "saveCampaign": "Сохранить кампанию",
+      "schedule": "Расписание",
+      "scheduleDesc": "Таймлайн кампании и окно приёма заказов",
+      "scheduled": "Запланирована",
+      "selectCategory": "Выберите категорию",
+      "status": "Статус",
+      "stockLimited": "Склад ограничен",
+      "stockManagement": "Управление запасами",
+      "stockManagementDesc": "Настройте лимиты запасов на уровне кампании",
+      "stockUnit": "Единица запаса",
+      "stockUnitPlaceholder": "кг, коробка, штука",
+      "subtitle": "Подзаголовок",
+      "subtitleAr": "Подзаголовок (AR)",
+      "subtitleArPlaceholder": "عروض الصيف",
+      "subtitleEn": "Подзаголовок (EN)",
+      "subtitleEnPlaceholder": "Летние скидки",
+      "subtitlePlaceholder": "Подзаголовок кампании",
+      "targetZone": "Целевая зона",
+      "title": "Редактировать кампанию",
+      "totalQuantity": "Общее количество",
+      "unlimitedStock": "Неограниченный запас",
+      "uploadImage": "Загрузить изображение кампании",
+      "validationRequired": "Название кампании, дата начала и дата окончания обязательны"
+    },
+    "toast": {
+      "createFailed": "Не удалось создать кампанию",
+      "createdSuccessfully": "Кампания создана успешно",
+      "productCreateFailed": "Не удалось создать товар",
+      "productCreated": "Товар #{{id}} создан"
     }
   },
   "notifications": {
@@ -1615,6 +2319,12 @@
       "warehouse": "Склад",
       "zone": "Зона",
       "create": "Создать слот"
+    },
+    "toast": {
+      "slotCreateFailed": "Не удалось создать временной слот",
+      "slotCreated": "Временной слот создан",
+      "slotUpdateFailed": "Не удалось обновить временной слот",
+      "slotUpdated": "Временной слот обновлён"
     }
   },
   "common": {
@@ -1643,11 +2353,390 @@
     "deactivate": "Деактивировать",
     "back": "Назад",
     "select": "Выбрать",
-    "unknown": "Неизвестно"
+    "unknown": "Неизвестно",
+    "clear": "Очистить",
+    "undo": "Отменить",
+    "user": "пользователь"
   },
   "pagination": {
     "showingTo": "Показано с {{from}} по {{to}} из {{total}}",
     "previous": "Назад",
     "next": "Далее"
+  },
+  "categories": {
+    "businessForm": {
+      "active": "Активна",
+      "addDescription": "Создайте новую бизнес-категорию",
+      "addTitle": "Добавить бизнес-категорию",
+      "autoGeneratedDesc": "Автоматически создаётся из английского названия",
+      "autoGeneratedHint": "Автоматически из английского названия",
+      "back": "Назад к категориям",
+      "basicInfo": "Основная информация",
+      "businessCategoriesDesc": "Бизнес-категории используются для классификации поставщиков и магазинов. Каждому поставщику можно назначить бизнес-категорию.",
+      "cancel": "Отмена",
+      "categoryInfo": "Информация о категории",
+      "code": "Код",
+      "createCategory": "Создать бизнес-категорию",
+      "createFailed": "Не удалось создать бизнес-категорию",
+      "createSuccess": "Бизнес-категория создана успешно",
+      "editDescription": "Обновите данные бизнес-категории",
+      "editTitle": "Редактировать бизнес-категорию",
+      "errorLoading": "Не удалось загрузить бизнес-категорию",
+      "errorTitle": "Ошибка",
+      "nameAr": "Название (арабский) *",
+      "nameArPlaceholder": "اسم التصنيف التجاري",
+      "nameEn": "Название (английский) *",
+      "namePlaceholder": "Название бизнес-категории",
+      "saveChanges": "Сохранить изменения",
+      "sortOrder": "Порядок сортировки",
+      "supplierCount": "{{count}} поставщиков назначено в эту категорию",
+      "suppliers": "Поставщики",
+      "updateFailed": "Не удалось обновить бизнес-категорию",
+      "updateSuccess": "Бизнес-категория обновлена успешно",
+      "validationArRequired": "Название на арабском обязательно",
+      "validationCodeRequired": "Не удалось создать код из английского названия",
+      "validationEnRequired": "Название на английском обязательно",
+      "validationRequired": "Нет"
+    },
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "deleteBusinessConfirm": "Вы уверены, что хотите удалить <strong>{{name}}</strong>?",
+    "deleteBusinessTitle": "Удалить бизнес-категорию",
+    "deleteBusinessWarning": "С этой категорией связано {{count}} поставщиков.",
+    "deleteConfirm": "Вы уверены, что хотите удалить <strong>{{name}}</strong>?",
+    "deleteTitle": "Удалить «{{name}}»",
+    "deleteWarning": "С этой категорией связано {{count}} товаров.",
+    "description": "Управление категориями товаров и бизнеса",
+    "edit": "Редактировать",
+    "errorMessage": "Произошла непредвиденная ошибка",
+    "errorTitle": "Не удалось загрузить категории",
+    "form": {
+      "active": "Активна",
+      "addDescription": "Создайте новую категорию товаров",
+      "addTitle": "Добавить категорию",
+      "back": "Назад к категориям",
+      "basicInfo": "Основная информация",
+      "cancel": "Отмена",
+      "categoryImage": "Изображение категории",
+      "changeImage": "Изменить изображение",
+      "createCategory": "Создать категорию",
+      "createFailed": "Не удалось создать категорию",
+      "createSuccess": "Категория создана успешно",
+      "editDescription": "Обновите данные категории",
+      "editTitle": "Редактировать категорию",
+      "errorLoading": "Не удалось загрузить категорию",
+      "errorTitle": "Не удалось загрузить категорию",
+      "imageFormatHint": "JPG, PNG или WebP. Макс. 2 МБ.",
+      "nameAr": "Название (арабский) *",
+      "nameArPlaceholder": "اسم التصنيف",
+      "nameEn": "Название (английский)",
+      "namePlaceholder": "Название категории",
+      "noneTopLevel": "Нет (верхний уровень)",
+      "parentCategory": "Родительская категория",
+      "remove": "Удалить",
+      "saveChanges": "Сохранить изменения",
+      "sortOrder": "Порядок сортировки",
+      "updateFailed": "Не удалось обновить категорию",
+      "updateSuccess": "Категория обновлена успешно",
+      "uploadImage": "Загрузить изображение",
+      "validationRequired": "Название на арабском обязательно"
+    },
+    "list": {
+      "addBusinessCategory": "Добавить бизнес-категорию",
+      "addCategory": "Добавить категорию",
+      "allBusinessCategories": "Все бизнес-категории",
+      "allCategories": "Все категории",
+      "noBusinessCategories": "Бизнес-категорий пока нет",
+      "noBusinessCategoriesDescription": "Создайте первую бизнес-категорию, чтобы организовать поставщиков",
+      "noCategories": "Категорий пока нет",
+      "noCategoriesDescription": "Создайте первую категорию, чтобы организовать товары"
+    },
+    "productsCount": "{{count}} товаров",
+    "sortLabel": "Сортировка: {{order}}",
+    "stats": {
+      "active": "Активные",
+      "inactive": "Неактивные",
+      "total": "Всего категорий",
+      "totalBusiness": "Всего бизнес-категорий"
+    },
+    "sub": "{{count}} подкатег.",
+    "subLabel": "Подкатегория: {{name}}",
+    "suppliersCount": "{{count}} поставщиков",
+    "tabs": {
+      "business": "Бизнес-категории",
+      "product": "Категории товаров"
+    },
+    "title": "Категории",
+    "toast": {
+      "businessDeleteFailed": "Не удалось удалить бизнес-категорию",
+      "businessDeleteSuccess": "Бизнес-категория удалена успешно",
+      "deleteFailed": "Не удалось удалить категорию",
+      "deleteSuccess": "Категория удалена успешно"
+    }
+  },
+  "locations": {
+    "countries": {
+      "addCountry": "Добавить страну",
+      "description": "Управление странами, их кодами, телефонными кодами и провинциями",
+      "detail": {
+        "addProvince": "Добавить провинцию",
+        "back": "Назад к странам",
+        "code": "Код страны",
+        "dialCode": "Телефонный код",
+        "edit": "Редактировать",
+        "errorTitle": "Не удалось загрузить страну",
+        "noProvinces": "Провинции не настроены",
+        "provinces": "Провинции / города",
+        "provincesTitle": "Провинции / города"
+      },
+      "form": {
+        "code": "Код",
+        "create": "Создать",
+        "createTitle": "Добавить страну",
+        "dialCode": "Телефонный код",
+        "editTitle": "Редактировать страну",
+        "nameAr": "Название (арабский)",
+        "nameEn": "Название (английский)"
+      },
+      "list": {
+        "addFirstCountry": "Добавьте свою первую страну",
+        "count": "{{count}} стран",
+        "noCountries": "Страны не найдены",
+        "provincesCount": "{{count}} провинций/городов",
+        "searchPlaceholder": "Поиск по названию или коду...",
+        "title": "Все страны",
+        "tryDifferentSearch": "Попробуйте другой поисковый запрос"
+      },
+      "stats": {
+        "active": "Активные",
+        "provinces": "Провинции / города",
+        "total": "Всего стран"
+      },
+      "title": "Страны",
+      "toast": {
+        "createFailed": "Не удалось создать страну",
+        "created": "Страна создана успешно",
+        "deleteFailed": "Не удалось удалить страну",
+        "deleted": "Страна удалена",
+        "disabled": "Страна отключена",
+        "enabled": "Страна включена",
+        "toggleFailed": "Не удалось изменить статус страны",
+        "updateFailed": "Не удалось обновить страну",
+        "updated": "Страна обновлена успешно"
+      }
+    },
+    "provinces": {
+      "addProvince": "Добавить провинцию",
+      "description": "Управление провинциями и городами в каждой стране",
+      "form": {
+        "country": "Страна",
+        "create": "Создать",
+        "createTitle": "Добавить провинцию",
+        "editTitle": "Редактировать провинцию",
+        "nameAr": "Название (арабский)",
+        "nameEn": "Название (английский)"
+      },
+      "list": {
+        "addFirstProvince": "Добавьте свою первую провинцию",
+        "allCountries": "Все страны",
+        "count": "{{count}} провинций/городов",
+        "noProvinces": "Провинции не найдены",
+        "searchPlaceholder": "Поиск провинций...",
+        "title": "Все провинции / города",
+        "tryDifferentSearch": "Попробуйте другой поисковый запрос",
+        "zonesCount": "{{count}} зон"
+      },
+      "stats": {
+        "active": "Активные",
+        "total": "Всего провинций / городов",
+        "zones": "Зоны доставки"
+      },
+      "title": "Провинции / города",
+      "toast": {
+        "createFailed": "Не удалось создать провинцию",
+        "created": "Провинция создана успешно",
+        "deleteFailed": "Не удалось удалить провинцию",
+        "deleted": "Провинция удалена",
+        "toggleFailed": "Не удалось изменить статус провинции",
+        "toggled": "Статус провинции изменён",
+        "updateFailed": "Не удалось обновить провинцию",
+        "updated": "Провинция обновлена успешно"
+      }
+    },
+    "serviceRegions": {
+      "addRegion": "Добавить регион обслуживания",
+      "confirmDeleteMessage": "Вы уверены, что хотите удалить {{name}}?",
+      "confirmDeleteTitle": "Удалить регион обслуживания",
+      "description": "Управление регионами обслуживания для заявок водителей",
+      "form": {
+        "code": "Код",
+        "countryCode": "Код страны",
+        "create": "Создать",
+        "createTitle": "Добавить регион обслуживания",
+        "displayOrder": "Порядок отображения",
+        "editTitle": "Редактировать регион обслуживания",
+        "nameAr": "Название (арабский)",
+        "nameEn": "Название (английский)"
+      },
+      "list": {
+        "addFirstRegion": "Добавьте свой первый регион обслуживания",
+        "count": "{{count}} регионов обслуживания",
+        "countryCode": "Страна: {{code}}",
+        "noRegions": "Регионы обслуживания не найдены",
+        "order": "Порядок: {{order}}",
+        "searchPlaceholder": "Поиск по названию или коду...",
+        "title": "Все регионы обслуживания",
+        "tryDifferentSearch": "Попробуйте другой поисковый запрос"
+      },
+      "title": "Регионы обслуживания",
+      "toast": {
+        "createFailed": "Не удалось создать регион обслуживания",
+        "created": "Регион обслуживания создан",
+        "deleteFailed": "Не удалось удалить регион обслуживания",
+        "deleted": "Регион обслуживания удалён",
+        "toggleFailed": "Не удалось изменить статус региона",
+        "toggled": "Статус региона изменён",
+        "updateFailed": "Не удалось обновить регион обслуживания",
+        "updated": "Регион обслуживания обновлён"
+      }
+    }
+  },
+  "aggregation": {
+    "inventory": {
+      "add10": "Добавить 10",
+      "add50": "Добавить 50",
+      "addStock": "Добавить {{count}}",
+      "adjustStockTitle": "Изменить остаток — {{name}}",
+      "cancel": "Отмена",
+      "currentStock": "Текущий остаток: {{quantity}} {{unit}}",
+      "customAdjustment": "Своя корректировка",
+      "description": "Управление остатками, предупреждениями о низком запасе и корректировками",
+      "disabled": "Отключено",
+      "errorMessage": "Произошла ошибка",
+      "errorTitle": "Не удалось загрузить складские остатки",
+      "lowStock": "Низкий остаток",
+      "lowStockTitle": "Предупреждение о низком остатке",
+      "noProducts": "Товары не найдены",
+      "noProductsInInventory": "Нет товаров на складе",
+      "outOfStock": "Нет",
+      "productCount": "{{count}} товаров",
+      "reason": "Причина",
+      "reasonPlaceholder": "Пополнение, порча, корректировка...",
+      "remove10": "Убрать 10",
+      "remove50": "Убрать 50",
+      "removeStock": "Убрать {{count}}",
+      "restock": "Пополнить",
+      "searchPlaceholder": "Поиск товаров...",
+      "statInStock": "В наличии",
+      "statLowStock": "Низкий остаток (<20)",
+      "statOutOfStock": "Нет в наличии",
+      "statTotalSkus": "Всего SKU",
+      "stockOverviewTitle": "Обзор остатков",
+      "title": "Склад",
+      "tryDifferentSearch": "Попробуйте другой поисковый запрос"
+    },
+    "toast": {
+      "assignToTripFailed": "Не удалось назначить в рейс",
+      "assignedToTrip": "Заказ назначен в рейс успешно",
+      "packFailed": "Не удалось отметить как упакованный",
+      "packed": "Заказ упакован успешно",
+      "processingStartFailed": "Не удалось начать обработку",
+      "processingStarted": "Заказ обрабатывается",
+      "qualityFailed": "Контроль качества не пройден",
+      "qualityPassed": "Контроль качества пройден — заказ готов к отправке",
+      "receiptConfirmFailed": "Не удалось подтвердить получение",
+      "receiptConfirmed": "Получение подтверждено успешно"
+    },
+    "warehouseSettings": {
+      "active": "Активен",
+      "address": "Адрес",
+      "back": "Назад к складу",
+      "cancel": "Отмена",
+      "capacity": "Вместимость (заказов/день)",
+      "closingTime": "Время закрытия",
+      "description": "Настройка данных склада и назначения зон",
+      "nameAr": "Название (AR)",
+      "nameEn": "Название (EN)",
+      "openingTime": "Время открытия",
+      "save": "Сохранить настройки",
+      "title": "Настройки склада",
+      "warehouseInfo": "Информация о складе",
+      "workingHours": "Часы работы",
+      "zoneAssignments": "Назначение зон",
+      "zoneAssignmentsDesc": "Выберите зоны доставки, которые обслуживает этот склад"
+    }
+  },
+  "auth": {
+    "login": {
+      "adminLabel": "Админ",
+      "email": "Эл. почта",
+      "emailPlaceholder": "admin@nexa.local",
+      "forgotPassword": "Забыли пароль?",
+      "loginFailed": "Ошибка входа. Проверьте учётные данные.",
+      "loginToDashboard": "Вход в панель",
+      "opsLabel": "Операции",
+      "password": "Пароль",
+      "passwordPlaceholder": "Введите пароль",
+      "protectedData": "Защищённые коммерческие данные",
+      "quickLogin": "быстрый вход",
+      "rememberMe": "Запомнить меня",
+      "secureOperations": "Безопасные бизнес-операции",
+      "signInDescription": "Войдите в свою операционную панель.",
+      "signingIn": "Вход...",
+      "verifiedPlatform": "Проверенная платформа поставщиков",
+      "warehouseLabel": "Склад",
+      "welcomeBack": "С возвращением"
+    },
+    "loginPage": {
+      "activeSuppliers": "Активные поставщики",
+      "airFreightLabel": "Авиаперевозки",
+      "distributionLabel": "Дистрибуция",
+      "fulfillmentRate": "Уровень исполнения",
+      "hubLabel": "NEXA Hub",
+      "intelligentPlatform": "Интеллектуальная платформа поставок",
+      "monthlyRevenue": "Месячная выручка",
+      "platformDescription": "Управляйте заказами, запасами, закупками и координацией складов с одной интеллектуальной платформы.",
+      "poweringModern": "Современные<br />цепи поставок",
+      "regionalLabel": "Региональный",
+      "totalOrders": "Всего заказов"
+    },
+    "profile": {
+      "accountDetails": "Данные учётной записи",
+      "created": "Создан",
+      "email": "Эл. почта",
+      "futureX": "FutureX",
+      "lastLogin": "Последний вход",
+      "none": "Нет",
+      "permissions": "Разрешения",
+      "permissionsCount": "{{count}} разрешений",
+      "phone": "Телефон",
+      "poweredBy": "Работает на",
+      "role": "Роль",
+      "userType": "Тип пользователя"
+    },
+    "protected": {
+      "accessDenied": "Доступ запрещён",
+      "noPermission": "У вашей учётной записи нет необходимых разрешений для доступа к этому разделу.",
+      "signInDifferent": "Войти с другой учётной записью",
+      "signedInAs": "Вы вошли как <strong>{{role}}</strong>, но для этого раздела требуется одна из ролей: {{roles}}."
+    }
+  },
+  "documents": {
+    "expiresOn": "Истекает",
+    "open": "Открыть",
+    "types": {
+      "commercial_register": "Торговый реестр",
+      "id_back": "Удостоверение — оборот",
+      "id_front": "Удостоверение — лицевая",
+      "store_front": "Фото магазина",
+      "tax_card": "Налоговая карта"
+    },
+    "uploadedOn": "Загружен"
+  },
+  "langs": {
+    "ar": "العربية",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
   }
 }

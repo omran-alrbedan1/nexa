@@ -43,7 +43,11 @@
     "groupOrders": "הזמנות",
     "groupFulfillment": "מילוי",
     "groupLogistics": "לוגיסטיקה",
-    "groupCatalog": "קטלוג"
+    "groupCatalog": "קטלוג",
+    "countries": "מדינות",
+    "groupGeography": "גיאוגרפיה ומיקומים",
+    "provinces": "מחוזות / ערים",
+    "serviceRegions": "אזורי שירות"
   },
   "settings": {
     "title": "הגדרות",
@@ -56,7 +60,9 @@
       "notifications": "התראות",
       "audit": "יומן ביקורת",
       "privacyPolicy": "מדיניות פרטיות",
-      "navigation": "תפריט ניווט"
+      "navigation": "תפריט ניווט",
+      "aboutNexa": "אודות NEXA",
+      "faq": "FAQ"
     },
     "navigation": {
       "title": "תפריט ניווט",
@@ -78,7 +84,6 @@
       "description": "הגדרת העדפות מערכת כלליות וברירות מחדל",
       "noSettings": "עדיין לא הוגדרו הגדרות."
     },
-
     "roles": {
       "title": "תפקידים והרשאות",
       "description": "ניהול תפקידי משתמשים והקצאת הרשאות",
@@ -177,6 +182,98 @@
       "description": "ניהול תוכן מדיניות הפרטיות עבור אפליקציית המובייל שלך",
       "titleLabel": "כותרת העמוד",
       "contentLabel": "תוכן"
+    },
+    "about": {
+      "arabicContent": "תוכן בערבית",
+      "arabicContentHint": "ערוך את התוכן של «אודות NEXA» בערבית",
+      "arabicTab": "ערבית",
+      "contentLabelAr": "תוכן",
+      "contentLabelEn": "תוכן",
+      "description": "נהל את תוכן המדור «אודות NEXA»",
+      "englishContent": "תוכן באנגלית",
+      "englishContentHint": "ערוך את התוכן של «אודות NEXA» באנגלית",
+      "englishTab": "אנגלית",
+      "title": "אודות NEXA",
+      "titleLabelAr": "כותרת",
+      "titleLabelEn": "כותרת",
+      "titlePlaceholderAr": "عن NEXA",
+      "titlePlaceholderEn": "אודות NEXA"
+    },
+    "faq": {
+      "activate": "הפעל",
+      "active": "פעיל",
+      "addFaq": "הוסף FAQ",
+      "addModalTitle": "הוסף FAQ",
+      "answerAr": "תשובה (AR)",
+      "answerArPlaceholder": "الإجابة بالعربية",
+      "answerEn": "תשובה (EN)",
+      "answerEnPlaceholder": "תשובה באנגלית",
+      "cancel": "ביטול",
+      "create": "צור",
+      "createdLabel": "נוצר:",
+      "createdToast": "ה-FAQ נוצר",
+      "deactivate": "השבת",
+      "delete": "מחק",
+      "deleteModalDescription": "האם אתה בטוח שברצונך למחוק את ה-FAQ הזה? לא ניתן לבטל פעולה זו.",
+      "deleteModalTitle": "מחק FAQ",
+      "deletedToast": "ה-FAQ נמחק",
+      "description": "נהל שאלות נפוצות המוצגות באפליקציה",
+      "draft": "טיוטה",
+      "editModalTitle": "ערוך FAQ",
+      "emptyDescription": "צור את ה-FAQ הראשון שלך כדי להתחיל",
+      "emptyTitle": "אין עדיין FAQs",
+      "questionAr": "שאלה (AR)",
+      "questionArPlaceholder": "السؤال بالعربية",
+      "questionEn": "שאלה (EN)",
+      "questionEnPlaceholder": "שאלה באנגלית",
+      "searchPlaceholder": "חיפוש FAQs...",
+      "sortLabel": "מיון:",
+      "sortOrder": "סדר מיון",
+      "status": "סטטוס",
+      "title": "FAQ / שאלות נפוצות",
+      "update": "עדכן",
+      "updatedToast": "ה-FAQ עודכן",
+      "validationRequired": "שאלה ותשובה בערבית חובה"
+    },
+    "settingGroups": {
+      "about": "אודות NEXA",
+      "general": "כללי",
+      "legal": "חוקי",
+      "orders": "הזמנות",
+      "support": "תמיכה",
+      "trips": "רכבים"
+    },
+    "settingKeys": {
+      "about_content_ar": "תוכן אודות NEXA (AR)",
+      "about_content_en": "תוכן אודות NEXA (EN)",
+      "about_title_ar": "כותרת אודות NEXA (AR)",
+      "about_title_en": "כותרת אודות NEXA (EN)",
+      "app_name": "שם האפליקציה",
+      "default_delivery_fee": "דמי משלוח ברירת מחדל",
+      "default_trip_capacity": "קיבולת רכב ברירת מחדל",
+      "min_order_amount": "סכום הזמנה מינימלי",
+      "privacy_policy_content_ar": "תוכן מדיניות הפרטיות (AR)",
+      "privacy_policy_content_en": "תוכן מדיניות הפרטיות (EN)",
+      "privacy_policy_title_ar": "כותרת מדיניות הפרטיות (AR)",
+      "privacy_policy_title_en": "כותרת מדיניות הפרטיות (EN)",
+      "supplier_accept_timeout_hours": "זמן קצוב לקבלת ספק (שעות)",
+      "support_email": "אימייל תמיכה",
+      "support_phone": "טלפון תמיכה",
+      "trip_cutoff_hours_before": "סף רכב (שעות לפני)"
+    },
+    "toast": {
+      "permissionsUpdateFailed": "עדכון ההרשאות נכשל",
+      "permissionsUpdated": "ההרשאות עודכנו בהצלחה",
+      "settingUpdateFailed": "עדכון ההגדרה נכשל",
+      "settingUpdated": "ההגדרה עודכנה",
+      "settingsUpdateFailed": "עדכון ההגדרות נכשל",
+      "settingsUpdated": "ההגדרות עודכנו",
+      "staffCreateFailed": "יצירת איש הצוות נכשלה",
+      "staffCreated": "איש הצוות נוצר",
+      "staffRolesUpdateFailed": "עדכון תפקידי הצוות נכשל",
+      "staffRolesUpdated": "תפקידי הצוות עודכנו",
+      "staffStatusUpdateFailed": "עדכון סטטוס הצוות נכשל",
+      "staffStatusUpdated": "סטטוס הצוות עודכן"
     }
   },
   "customers": {
@@ -214,7 +311,8 @@
       "activateTitle": "הפעל את {{name}}",
       "activateDescription": "פעולה זו תפעיל מחדש את חשבון הלקוח. הוא יוכל לבצע הזמנות שוב.",
       "confirmSuspend": "אשר השעיה",
-      "confirmActivate": "אשר הפעלה"
+      "confirmActivate": "אשר הפעלה",
+      "addCustomer": "הוסף לקוח"
     },
     "detail": {
       "back": "חזרה ללקוחות",
@@ -253,6 +351,23 @@
       "inactive": "לא פעיל",
       "suspended": "מושעה",
       "blocked": "חסום"
+    },
+    "create": {
+      "email": "אימייל",
+      "firstName": "שם פרטי",
+      "lastName": "שם משפחה",
+      "password": "סיסמה",
+      "phone": "טלפון",
+      "submit": "צור לקוח",
+      "title": "הוסף לקוח חדש"
+    },
+    "toast": {
+      "createFailed": "יצירת הלקוח נכשלה",
+      "created": "הלקוח נוצר בהצלחה",
+      "notesUpdateFailed": "עדכון ההערות נכשל",
+      "notesUpdated": "הערות הלקוח עודכנו",
+      "statusUpdateFailed": "עדכון סטטוס הלקוח נכשל",
+      "statusUpdated": "סטטוס הלקוח עודכן"
     }
   },
   "dashboard": {
@@ -338,7 +453,9 @@
       "noPending": "אין אישורים ממתינים",
       "allResolved": "כל האישורים טופלו",
       "pendingPricing": "ממתין לאישור",
-      "setPrice": "סקירה"
+      "setPrice": "סקירה",
+      "pending_approval_product": "מוצר — ממתין לאישור",
+      "pending_approval_supplier": "ספק — ממתין לאישור"
     },
     "drivers": {
       "title": "נהגים",
@@ -351,11 +468,25 @@
     "actionRequired": {
       "title": "נדרשת פעולה",
       "subtitle": "פריטים הדורשים תשומת לב",
-      "allClear": "הכל בסדר — אין פריטים הדורשים תשומת לב"
+      "allClear": "הכל בסדר — אין פריטים הדורשים תשומת לב",
+      "items": {
+        "failed_delivery": "משלוח נכשל",
+        "overdue_supply": "אספקה באיחור",
+        "pending_pricing": "ממתין לתמחור",
+        "ready_no_trip": "מוכן — ללא רכב",
+        "trip_no_driver": "רכב — ללא נהג"
+      }
     },
     "pipeline": {
       "title": "צנרת תפעול",
-      "subtitle": "זרם הזמנות נוכחי"
+      "subtitle": "זרם הזמנות נוכחי",
+      "stages": {
+        "delivered_today": "נמסר היום",
+        "in_aggregation": "באגרגציה",
+        "in_supply": "באספקה",
+        "in_trip": "ברכב",
+        "ready_to_ship": "מוכן למשלוח"
+      }
     },
     "operationalKPIs": {
       "title": "KPI תפעוליים",
@@ -415,6 +546,9 @@
       "itemsReceived": "פריטים שהתקבלו",
       "itemsProcessed": "פריטים שעובדו",
       "itemsShipped": "פריטים שנשלחו"
+    },
+    "statsCard": {
+      "vsLastPeriod": "לעומת התקופה הקודמת"
     }
   },
   "operations": {
@@ -491,7 +625,31 @@
       "notes": "הערות (אופציונלי)",
       "notesPlaceholder": "הוסף הערות לגבי תמחור, זמינות וכו'.",
       "submitQuote": "שלח הצעת מחיר",
-      "enterValidPrice": "אנא הזן מחיר תקין"
+      "enterValidPrice": "אנא הזן מחיר תקין",
+      "approve": "אשר",
+      "assign": "שייך",
+      "assignForPricing": "שייך לתמחור",
+      "assignModalDesc": "שייך את הבקשה הזו לתמחור.",
+      "assignModalTitle": "שייך {{orderNumber}}",
+      "assignedForPricing": "הוקצה לתמחור",
+      "assignedToDesc": "הוקצה ל: {{name}}",
+      "assignedToLabel": "הוקצה ל:",
+      "awaitingCustomerApproval": "ממתין לאישור הלקוח",
+      "backToOperations": "חזרה לתפעול",
+      "budgetAndPricing": "תקציב ותמחור",
+      "customerSubmittedRequest": "הלקוח הגיש בקשה",
+      "errorMessage": "אירעה שגיאה",
+      "errorTitle": "טעינת הבקשה נכשלה",
+      "pending": "ממתין",
+      "priceInputLabel": "מחיר",
+      "priceQuoteAwaitingDesc": "{{formattedPrice}} — ממתין לאישור הלקוח",
+      "priceQuoteSubmitted": "הצעת המחיר נשלחה",
+      "pricingTimeline": "ציר זמן תמחור",
+      "reject": "דחה",
+      "requestCreated": "הבקשה נוצרה",
+      "requestDetails": "פרטי הבקשה",
+      "specialRequestLabel": "בקשה מיוחדת",
+      "staff": "צוות"
     },
     "complaints": {
       "title": "תלונות וכרטיסים",
@@ -512,7 +670,53 @@
       "urgent": "דחוף",
       "high": "גבוה",
       "medium": "בינוני",
-      "low": "נמוך"
+      "low": "נמוך",
+      "assignModalDesc": "שייך את התלונה הזו לעצמך כדי להתחיל לטפל בה.",
+      "assignModalTitle": "שייך תלונה {{ticketNumber}}",
+      "back": "חזרה לתפעול",
+      "conversation": "שיחה",
+      "customer": "לקוח",
+      "description": "תיאור",
+      "errorMessage": "אירעה שגיאה",
+      "errorTitle": "טעינת התלונה נכשלה",
+      "messagePlaceholder": "הקלד תשובה...",
+      "noMessages": "אין הודעות עדיין. כתוב תשובה למטה.",
+      "resolve": "סמן כטופל",
+      "send": "שלח"
+    },
+    "complaintStatus": {
+      "closed": "סגור",
+      "in_progress": "בטיפול",
+      "open": "פתוח",
+      "resolved": "טופל",
+      "unknown": "לא ידוע"
+    },
+    "specialRequestStatus": {
+      "approved": "אושר",
+      "cancelled": "בוטל",
+      "pending_customer_approval": "ממתין ללקוח",
+      "pending_management": "ממתין להנהלה",
+      "pending_pricing": "ממתין לתמחור",
+      "priced": "תומחר",
+      "rejected": "נדחה"
+    },
+    "toast": {
+      "complaintAssignFailed": "הקצאת התלונה נכשלה",
+      "complaintAssigned": "התלונה הוקצתה לך",
+      "complaintResolveFailed": "סימון התלונה כטופלה נכשל",
+      "complaintResolved": "התלונה טופלה",
+      "orderStatusUpdateFailed": "עדכון סטטוס ההזמנה נכשל",
+      "orderStatusUpdated": "ההזמנה {{label}} בהצלחה",
+      "priceQuoteSubmitFailed": "שליחת הצעת המחיר נכשלה",
+      "priceQuoteSubmitted": "הצעת המחיר נשלחה — ממתין לאישור הלקוח",
+      "requestAssignFailed": "הקצאת הבקשה נכשלה",
+      "requestAssigned": "הבקשה הוקצתה לתמחור",
+      "specialApproveFailed": "אישור ההזמנה המיוחדת נכשל",
+      "specialApproved": "ההזמנה המיוחדת אושרה",
+      "specialConvertFailed": "המרת ההזמנה המיוחדת נכשלה",
+      "specialConverted": "ההזמנה המיוחדת הומרה להזמנה רגילה",
+      "specialRejectFailed": "דחיית ההזמנה המיוחדת נכשלה",
+      "specialRejected": "ההזמנה המיוחדת נדחתה"
     }
   },
   "warehouse": {
@@ -618,7 +822,9 @@
       "noWarehouses": "לא נמצאו מחסנים",
       "noWarehousesDescription": "הוסף מחסן ראשון כדי להתחיל",
       "confirmDeleteTitle": "מחק מחסן",
-      "confirmDeleteMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? לא ניתן לבטל פעולה זו."
+      "confirmDeleteMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? לא ניתן לבטל פעולה זו.",
+      "noZone": "אין אזור",
+      "title": "כל המחסנים"
     },
     "form": {
       "backToList": "חזרה למחסנים",
@@ -640,7 +846,16 @@
       "openingTime": "שעת פתיחה",
       "closingTime": "שעת סגירה",
       "save": "שמור מחסן",
-      "cancel": "ביטול"
+      "cancel": "ביטול",
+      "codeRequired": "קוד חובה",
+      "latitude": "קו רוחב",
+      "latitudePlaceholder": "למשל 24.713552",
+      "loadingMap": "טוען מפה...",
+      "location": "מיקום (לחץ על המפה או הזן קואורדינטות)",
+      "longitude": "קו אורך",
+      "longitudePlaceholder": "למשל 46.675297",
+      "nameRequired": "שם חובה",
+      "zoneRequired": "אזור חובה"
     },
     "toast": {
       "created": "המחסן נוצר בהצלחה",
@@ -649,6 +864,11 @@
       "updateFailed": "נכשל בעדכון המחסן",
       "deleted": "המחסן נמחק בהצלחה",
       "deleteFailed": "נכשל במחיקת המחסן"
+    },
+    "stats": {
+      "active": "פעילים",
+      "capacity": "קיבולת כוללת",
+      "total": "סך כל המחסנים"
     }
   },
   "orders": {
@@ -700,7 +920,8 @@
       "tryDifferentSearch": "נסה מונח חיפוש אחר",
       "noOrdersMatch": "אין הזמנות התואמות את המסננים שנבחרו",
       "fromDate": "מתאריך",
-      "toDate": "עד תאריך"
+      "toDate": "עד תאריך",
+      "tbd": "TBD"
     },
     "detail": {
       "back": "חזרה להזמנות",
@@ -751,7 +972,12 @@
       "transferPlaceholder": "מדוע הזמנה זו מועברת?",
       "transferWarning": "העברה מעבירה הזמנה זו למחסן אחר. הדבר משפיע על מסלול המשלוח ועשוי לשנות את תאריך המשלוח.",
       "confirmTransfer": "אשר העברה",
-      "by": "על ידי {{actor}}"
+      "by": "על ידי {{actor}}",
+      "driverTracking": "מעקב נהג",
+      "quoteHistory": "היסטוריית הצעות מחיר",
+      "specialOrderRef": "הזמנה מיוחדת: {{reference}} ({{status}})",
+      "supplierLabel": "ספק",
+      "system": "מערכת"
     },
     "tracking": {
       "speed": "מהירות",
@@ -760,6 +986,20 @@
       "awaitingLocation": "ממתין למיקום הנהג...",
       "loadingMap": "טוען מפה...",
       "mapLoadError": "נכשל בטעינת המפה"
+    },
+    "deliveryStage": {
+      "delivered": "נמסר",
+      "failed": "נכשל",
+      "out_for_delivery": "יצא למשלוח",
+      "pending": "ממתין"
+    },
+    "toast": {
+      "orderRescheduled": "ההזמנה נקבעה מחדש",
+      "orderTransferred": "ההזמנה הועברה",
+      "orderUpdated": "ההזמנה {{label}} בהצלחה",
+      "receiptConfirmed": "קבלת המחסן אושרה",
+      "statusUpdated": "ההזמנה {{label}} בהצלחה",
+      "warehouseReceiptConfirmed": "קבלת המחסן אושרה"
     }
   },
   "products": {
@@ -798,7 +1038,9 @@
       "disable": "השבת",
       "supplier": "ספק",
       "internal": "פנימי",
-      "seasonal": "עונתי"
+      "seasonal": "עונתי",
+      "noSupplier": "אין ספק",
+      "totalOrders": "{{count}} הזמנות"
     },
     "detail": {
       "back": "חזרה למוצרים",
@@ -828,6 +1070,146 @@
       "description": "תיאור",
       "stockMovements": "תנועות מלאי",
       "stockMovementsPlaceholder": "היסטוריית תנועות מלאי תופיע כאן כאשר השרת יספק נתונים אלו."
+    },
+    "create": {
+      "back": "חזרה למוצרים",
+      "basicInfo": "מידע בסיסי",
+      "category": "קטגוריה",
+      "changeImage": "שנה תמונה",
+      "description": "צור מוצר חדש בקטלוג",
+      "descriptionAr": "תיאור (ערבית)",
+      "descriptionEn": "תיאור (אנגלית)",
+      "descriptionPlaceholder": "תיאור המוצר...",
+      "imageHint": "JPG, PNG או WebP. מקס. 2MB.",
+      "imageTitle": "תמונת מוצר",
+      "name": "שם",
+      "nameAr": "שם מוצר (ערבית)",
+      "nameEn": "שם מוצר (אנגלית) *",
+      "namePlaceholder": "שם המוצר",
+      "noSupplier": "אין ספק",
+      "preview": "תצוגה מקדימה",
+      "price": "מחיר *",
+      "pricingInventory": "מחיר ומלאי",
+      "removeImage": "הסר",
+      "save": "שמור מוצר",
+      "selectCategory": "בחר קטגוריה",
+      "source": "מקור",
+      "sourceInternal": "פנימי",
+      "sourceSeasonal": "עונתי",
+      "sourceSupplier": "ספק",
+      "stockQuantity": "כמות במלאי",
+      "subtitle": "צור מוצר חדש בקטלוג",
+      "successMessage": "המוצר נוצר בהצלחה",
+      "supplier": "ספק",
+      "title": "הוסף מוצר",
+      "unit": "יחידה",
+      "unitBox": "קופסה",
+      "unitJar": "צנצנת",
+      "unitKg": "קילוגרם (ק\"ג)",
+      "unitLoaf": "כיכר",
+      "unitPack": "חבילה",
+      "unitPiece": "יחידה",
+      "unitTub": "מיכל",
+      "uploadImage": "העלה תמונה",
+      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה"
+    },
+    "edit": {
+      "back": "חזרה למוצר",
+      "basicInfo": "מידע בסיסי",
+      "box": "קופסה",
+      "cancel": "ביטול",
+      "category": "קטגוריה",
+      "changeImage": "שנה תמונה",
+      "description": "תיאור",
+      "descriptionAr": "תיאור (ערבית)",
+      "descriptionEn": "תיאור (אנגלית)",
+      "descriptionPlaceholder": "תיאור המוצר...",
+      "errorTitle": "טעינת המוצר נכשלה",
+      "imageFormatHint": "JPG, PNG או WebP. מקס. 2MB.",
+      "internalOption": "פנימי",
+      "jar": "צנצנת",
+      "kg": "קילוגרם (ק\"ג)",
+      "loaf": "כיכר",
+      "name": "שם",
+      "nameAr": "שם מוצר (ערבית)",
+      "nameEn": "שם מוצר (אנגלית) *",
+      "namePlaceholder": "שם המוצר",
+      "noSupplier": "אין ספק",
+      "pack": "חבילה",
+      "piece": "יחידה",
+      "price": "מחיר *",
+      "pricingInventory": "מחיר ומלאי",
+      "productImage": "תמונת מוצר",
+      "remove": "הסר",
+      "saveChanges": "שמור שינויים",
+      "seasonalOption": "עונתי",
+      "selectCategory": "בחר קטגוריה",
+      "source": "מקור",
+      "stockQuantity": "כמות במלאי",
+      "successMessage": "המוצר עודכן בהצלחה",
+      "supplier": "ספק",
+      "supplierOption": "ספק",
+      "title": "ערוך מוצר",
+      "tub": "מיכל",
+      "unit": "יחידה",
+      "uploadImage": "העלה תמונה",
+      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה"
+    },
+    "form": {
+      "basicInformation": "מידע בסיסי",
+      "category": "קטגוריה",
+      "changeImage": "שנה תמונה",
+      "descriptionAr": "תיאור (ערבית)",
+      "descriptionArPlaceholder": "وصف المنتج...",
+      "descriptionEn": "תיאור (אנגלית)",
+      "descriptionEnPlaceholder": "תיאור המוצר...",
+      "imageHint": "JPG, PNG או WebP. מקס. 2MB.",
+      "noSupplier": "אין ספק",
+      "price": "מחיר *",
+      "pricingInventory": "מחיר ומלאי",
+      "productImage": "תמונת מוצר",
+      "productNameAr": "שם מוצר (ערבית)",
+      "productNameArPlaceholder": "طماطم طازجة",
+      "productNameEn": "שם מוצר (אנגלית) *",
+      "productNameEnPlaceholder": "למשל, עגבניות טריות",
+      "remove": "הסר",
+      "saveProduct": "שמור מוצר",
+      "selectCategory": "בחר קטגוריה",
+      "source": "מקור",
+      "sourceInternal": "פנימי",
+      "sourceSeasonal": "עונתי",
+      "sourceSupplier": "ספק",
+      "stockQuantity": "כמות במלאי",
+      "supplierForm": "ספק",
+      "unit": "יחידה",
+      "unitBox": "קופסה",
+      "unitJar": "צנצנת",
+      "unitKg": "קילוגרם (ק\"ג)",
+      "unitLoaf": "כיכר",
+      "unitPack": "חבילה",
+      "unitPiece": "יחידה",
+      "unitTub": "מיכל",
+      "uploadImage": "העלה תמונה"
+    },
+    "toast": {
+      "approveFailed": "אישור המוצר נכשל",
+      "approved": "המוצר אושר",
+      "disabled": "המוצר הושבת",
+      "enabled": "המוצר הופעל",
+      "failedToApprove": "אישור המוצר נכשל",
+      "failedToReject": "דחיית המוצר נכשלה",
+      "failedToUpdate": "עדכון המוצר נכשל",
+      "productApproved": "המוצר אושר",
+      "productDisabled": "המוצר הושבת",
+      "productEnabled": "המוצר הופעל",
+      "productRejected": "המוצר נדחה",
+      "rejectFailed": "דחיית המוצר נכשלה",
+      "rejected": "המוצר נדחה",
+      "updateFailed": "עדכון המוצר נכשל"
+    },
+    "variants": {
+      "name": "שם",
+      "namePlaceholder": "שם הווריאציה"
     }
   },
   "suppliers": {
@@ -886,7 +1268,10 @@
       "totalCount": "({{count}} סה״כ)",
       "totalOrders": "סך ההזמנות",
       "revenue": "הכנסות",
-      "acceptanceRate": "שיעור קבלה"
+      "acceptanceRate": "שיעור קבלה",
+      "documents": "מסמכים",
+      "documentsSubtitle": "מסמכי רישום שהועלו על ידי הספק",
+      "noDocuments": "טרם הועלו מסמכים"
     },
     "status": {
       "active": "פעיל",
@@ -900,6 +1285,49 @@
       "net_30": "נטו 30",
       "net_45": "נטו 45",
       "prepaid": "תשלום מראש"
+    },
+    "create": {
+      "address": "כתובת",
+      "addressPlaceholder": "ריאד, אזור תעשייה",
+      "back": "חזרה לספקים",
+      "businessDetails": "פרטי העסק",
+      "businessNameAr": "שם העסק (AR)",
+      "businessNameArPlaceholder": "المزرعة الطازجة",
+      "businessNameEn": "שם העסק (EN) *",
+      "businessNameEnPlaceholder": "Fresh Farm Co.",
+      "cancel": "ביטול",
+      "commercialRegister": "רישום מסחרי",
+      "commercialRegisterPlaceholder": "CR-2025-001",
+      "commissionRate": "אחוז עמלה (%)",
+      "commissionRatePlaceholder": "10",
+      "contactInfo": "פרטי התקשרות",
+      "contactPerson": "איש קשר",
+      "contactPersonPlaceholder": "אחמד אל-מטיירי",
+      "contactPhone": "טלפון קשר",
+      "contactPhonePlaceholder": "+966501234111",
+      "description": "הרשם ספק חדש",
+      "email": "אימייל *",
+      "emailPlaceholder": "contact@supplier.com",
+      "failed": "יצירת הספק נכשלה",
+      "paymentTermNet15": "נטו 15",
+      "paymentTermNet30": "נטו 30",
+      "paymentTermNet45": "נטו 45",
+      "paymentTermPrepaid": "תשלום מראש",
+      "paymentTerms": "תנאי תשלום",
+      "phone": "טלפון",
+      "phonePlaceholder": "+966501234001",
+      "required": "שם העסק והאימייל חובה",
+      "save": "שמור ספק",
+      "success": "הספק נוצר בהצלחה",
+      "taxNumber": "מספר מס",
+      "taxNumberPlaceholder": "TX-3001",
+      "title": "הוסף ספק"
+    },
+    "toast": {
+      "approveFailed": "אישור הספק נכשל",
+      "approved": "הספק אושר בהצלחה",
+      "suspendFailed": "השעיית הספק נכשלה",
+      "suspended": "הספק הושעה"
     }
   },
   "regions": {
@@ -924,7 +1352,12 @@
       "nameAr": "שם (ערבית)",
       "nameEn": "שם (אנגלית)",
       "code": "קוד",
-      "create": "צור"
+      "create": "צור",
+      "boundary": "גבול האזור",
+      "boundaryTitle": "הגדר גבול אזור",
+      "clickToAdd": "לחץ על המפה כדי להוסיף נקודות גבול",
+      "drawBoundary": "צייר גבול",
+      "pointsCount": "{{count}} נקודות"
     },
     "clusters": {
       "title": "אשכולות",
@@ -979,7 +1412,8 @@
       "activate": "הפעל",
       "feeModalTitle": "עדכן דמי משלוח — {{name}}",
       "deliveryFee": "דמי משלוח",
-      "update": "עדכן"
+      "update": "עדכן",
+      "addRegion": "הוסף אזור"
     },
     "detail": {
       "back": "חזרה לאזורים",
@@ -1003,6 +1437,29 @@
       "edit": "ערוך",
       "zoneInfo": "מידע על האזור",
       "activeSlotsCount": "משבצות פעילות"
+    },
+    "toast": {
+      "clusterCreateFailed": "יצירת הקבוצה נכשלה",
+      "clusterCreated": "הקבוצה נוצרה",
+      "clusterDeleteFailed": "מחיקת הקבוצה נכשלה",
+      "clusterDeleted": "הקבוצה נמחקה",
+      "clusterUpdateFailed": "עדכון הקבוצה נכשל",
+      "clusterUpdated": "הקבוצה עודכנה",
+      "feeUpdateFailed": "עדכון דמי המשלוח נכשל",
+      "feeUpdated": "דמי המשלוח עודכנו",
+      "regionDisabled": "האזור הושבת",
+      "regionEnabled": "האזור הופעל",
+      "slotCreateFailed": "יצירת משבצת הזמן נכשלה",
+      "slotCreated": "משבצת הזמן נוצרה",
+      "slotUpdateFailed": "עדכון משבצת הזמן נכשל",
+      "slotUpdated": "משבצת הזמן עודכנה",
+      "toggleFailed": "שינוי סטטוס האזור נכשל",
+      "workingDaysUpdateFailed": "עדכון ימי העבודה נכשל",
+      "workingDaysUpdated": "ימי העבודה עודכנו",
+      "zoneCreateFailed": "יצירת האזור נכשלה",
+      "zoneCreated": "האזור נוצר",
+      "zoneUpdateFailed": "עדכון האזור נכשל",
+      "zoneUpdated": "האזור עודכן"
     }
   },
   "trips": {
@@ -1196,7 +1653,13 @@
       "available": "זמין",
       "onTrip": "בנסיעה",
       "saveTrip": "שמור נסיעה",
-      "cancel": "ביטול"
+      "cancel": "ביטול",
+      "checkingAvailability": "בודק זמינות…",
+      "driverBusy": "הנהג הזה אינו זמין בתאריך שנבחר",
+      "driverBusyExistingTrip": "לנהג כבר יש רכב #{{tripNumber}} בתאריך {{date}}. בחר נהג או תאריך אחר.",
+      "driverBusyGeneric": "בחר נהג אחר או שנה את התאריך.",
+      "driverUnavailable": "הנהג שנבחר עסוק בתאריך זה — בחר נהג או תאריך אחר.",
+      "errorGeneric": "לא ניתן היה ליצור את הרכב. נסה שוב."
     },
     "toast": {
       "driverAssigned": "הנהג שויך לנסיעה",
@@ -1254,7 +1717,8 @@
       "pending": "ממתין",
       "approved": "מאושר",
       "rejected": "נדחה",
-      "view": "צפה"
+      "view": "צפה",
+      "addDriver": "הוסף נהג"
     },
     "reject": {
       "title": "דחה את {{name}}",
@@ -1286,7 +1750,10 @@
       "region": "אזור",
       "deliveredCount": "נמסרו: {{count}}",
       "noTripsYet": "עדיין אין נסיעות",
-      "noTripsDescription": "נהג זה עדיין לא ביצע נסיעות."
+      "noTripsDescription": "נהג זה עדיין לא ביצע נסיעות.",
+      "documents": "מסמכים",
+      "documentsSubtitle": "מסמכי רישום שהועלו על ידי הנהג",
+      "noDocuments": "טרם הועלו מסמכים"
     },
     "status": {
       "pending": "ממתין",
@@ -1313,6 +1780,27 @@
       "unassigned": "לא משויך",
       "ordersCount": "{{count}} הזמנות",
       "viewTrip": "צפה בטיול"
+    },
+    "create": {
+      "email": "אימייל",
+      "firstName": "שם פרטי",
+      "lastName": "שם משפחה",
+      "phone": "טלפון",
+      "submit": "צור נהג",
+      "title": "הוסף נהג חדש",
+      "vehiclePlate": "מספר רכב",
+      "vehicleType": "סוג רכב"
+    },
+    "toast": {
+      "approveFailed": "אישור הנהג נכשל",
+      "approved": "הנהג אושר",
+      "createFailed": "יצירת הנהג נכשלה",
+      "created": "הנהג נוצר בהצלחה",
+      "markedAvailable": "הנהג סומן כזמין",
+      "markedUnavailable": "הנהג סומן כלא זמין",
+      "rejectFailed": "דחיית הנהג נכשלה",
+      "rejected": "הנהג נדחה",
+      "statusUpdateFailed": "עדכון סטטוס הנהג נכשל"
     }
   },
   "payments": {
@@ -1366,7 +1854,31 @@
     "messagePlaceholder": "הקלד את תשובתך...",
     "internalPlaceholder": "כתוב הערה פנימית (לא גלויה ללקוח)...",
     "statusUpdated": "סטטוס הכרטיס עודכן",
-    "close": "סגור"
+    "close": "סגור",
+    "attachmentOnly": "[קובץ מצורף בלבד]",
+    "loadFailed": "טעינת הפנייה נכשלה",
+    "priority": {
+      "high": "גבוה",
+      "low": "נמוך",
+      "medium": "בינוני",
+      "urgent": "דחוף"
+    },
+    "staffIdPlaceholder": "הזן מזהה משתמש של צוות",
+    "switchToInternal": "עבור להערה פנימית",
+    "switchToPublic": "עבור לתשובה פומבית",
+    "ticketStatus": {
+      "closed": "סגור",
+      "in_progress": "בטיפול",
+      "open": "פתוח",
+      "resolved": "טופל",
+      "unknown": "לא ידוע"
+    },
+    "toast": {
+      "assignFailed": "הקצאת הפנייה נכשלה",
+      "assigned": "הפנייה הוקצתה",
+      "statusUpdateFailed": "עדכון סטטוס הפנייה נכשל",
+      "statusUpdated": "סטטוס הפנייה עודכן"
+    }
   },
   "reports": {
     "title": "דוחות",
@@ -1456,7 +1968,24 @@
       "priceQuoteNotes": "הערות תמחור",
       "priceQuoteNotesPlaceholder": "הוסף פרטים על תמחור, זמינות, לוח זמנים למשלוח...",
       "priceQuoteUpdateWarning": "להזמנה מיוחדת זו כבר יש הצעת מחיר. שליחת הצעה חדשה תחליף אותה.",
-      "submitQuote": "שלח הצעת מחיר"
+      "submitQuote": "שלח הצעת מחיר",
+      "customerResponse": "תגובת הלקוח: {{note}}",
+      "deliveryFeeLabel": "דמי משלוח",
+      "loadingWarehouses": "טוען מחסנים...",
+      "loadingZones": "טוען אזורים...",
+      "noSuppliers": "לא נמצאו ספקים",
+      "noWarehouses": "לא נמצאו מחסנים",
+      "noZones": "לא נמצאו אזורים",
+      "quoteAutoHint": "סכום ביניים, סה\"כ ודמי משלוח יילקחו אוטומטית מהצעת המחיר המקובלת.",
+      "searchSupplier": "חיפוש שם ספק...",
+      "searchWarehouse": "חיפוש מחסן...",
+      "searchZone": "חיפוש אזור...",
+      "selectWarehouse": "בחר מחסן",
+      "selectZone": "בחר אזור",
+      "selectZoneFirst": "בחר תחילה אזור",
+      "subtotal": "סכום ביניים",
+      "validUntil": "בתוקף עד",
+      "warehouse": "מחסן"
     },
     "statusLabels": {
       "pending_admin": "ממתין למנהל",
@@ -1498,6 +2027,27 @@
       "customer": "לקוח",
       "staff": "עובד",
       "responseHint": "כדי להגיב, צור הצעת מחיר חדשה עם תמחור מעודכן."
+    },
+    "allStatuses": "כל הסטטוסים",
+    "assignedTo": "הוקצה ל: {{name}}",
+    "itemsCount": "{{count}} פריטים",
+    "toast": {
+      "approveFailed": "האישור נכשל",
+      "approved": "ההזמנה המיוחדת אושרה",
+      "convertFailed": "ההמרה נכשלה",
+      "converted": "הומר להזמנה",
+      "notesUpdateFailed": "עדכון ההערות נכשל",
+      "notesUpdated": "ההערות עודכנו",
+      "priceQuoteCreateFailed": "יצירת הצעת המחיר נכשלה",
+      "priceQuoteCreated": "הצעת המחיר נוצרה ונשלחה ללקוח",
+      "priceQuoteSubmitFailed": "שליחת הצעת המחיר נכשלה",
+      "priceQuoteSubmitted": "הצעת המחיר נשלחה — ממתין לאישור הלקוח",
+      "rejectFailed": "הדחייה נכשלה",
+      "rejected": "ההזמנה המיוחדת נדחתה",
+      "staffAssignFailed": "הקצאת הצוות נכשלה",
+      "staffAssigned": "הצוות הוקצה",
+      "supplierAssignFailed": "הקצאת הספק נכשלה",
+      "supplierAssigned": "הספק הוקצה"
     }
   },
   "campaigns": {
@@ -1572,7 +2122,161 @@
       "reserved": "שמור",
       "orderingCloses": "סגירת הזמנות",
       "deliveryLeadTime": "זמן אספקה",
-      "subtitle": "כותרת משנה"
+      "subtitle": "כותרת משנה",
+      "assignedSupplier": "ספק מוקצה",
+      "edit": "ערוך",
+      "makeProduct": "צור מוצר",
+      "product": "מוצר",
+      "supplierId": "מזהה: {{id}}",
+      "table": {
+        "category": "קטגוריה",
+        "nameAr": "שם (ערבית)",
+        "nameEn": "שם (אנגלית)",
+        "price": "מחיר",
+        "stock": "מלאי",
+        "unit": "יחידה"
+      },
+      "viewProduct": "הצג מוצר"
+    },
+    "create": {
+      "addItem": "הוסף מוצר",
+      "back": "חזרה לקמפיינים",
+      "deliverySubtitle": "זמני אספקה צפויים",
+      "deliveryTitle": "משלוח",
+      "description": "תיאור",
+      "descriptionEn": "תיאור (אנגלית)",
+      "descriptionPlaceholder": "תיאור הקמפיין...",
+      "detailsSubtitle": "מידע בסיסי על הקמפיין",
+      "detailsTitle": "פרטי הקמפיין",
+      "endDate": "תאריך סיום *",
+      "initialStatus": "סטטוס התחלתי",
+      "itemCategory": "קטגוריה *",
+      "itemDescriptionPlaceholder": "תיאור מוצר (אופציונלי)",
+      "itemName": "שם מוצר",
+      "itemNameAr": "שם (ערבית) *",
+      "itemNameEn": "שם (אנגלית)",
+      "itemNamePlaceholder": "שם המוצר",
+      "itemNumber": "מוצר #{{number}}",
+      "itemPrice": "מחיר *",
+      "itemStockQty": "כמות במלאי",
+      "itemUnit": "יחידה *",
+      "itemsSubtitle": "מוצרים שספקים יכולים להציע עליהם",
+      "itemsTitle": "מוצרי הקמפיין",
+      "itemsValidation": "כל מוצר בקמפיין דורש שם (ערבית), קטגוריה, יחידה ומחיר",
+      "maxDays": "מקס. ימים",
+      "minDays": "מינ. ימים",
+      "name": "שם",
+      "nameAr": "שם קמפיין (ערבית)",
+      "nameEn": "שם קמפיין (אנגלית) *",
+      "namePlaceholder": "שם הקמפיין",
+      "noItems": "עדיין לא נוספו מוצרים.",
+      "noItemsDesc": "לחץ על «הוסף מוצר» כדי להגדיר על מה ספקים יכולים להציע.",
+      "orderingClosesAt": "סגירת הזמנות ב",
+      "requiredValidation": "שם הקמפיין, תאריך התחלה ותאריך סיום חובה",
+      "save": "שמור קמפיין",
+      "scheduleSubtitle": "ציר הזמן של הקמפיין וחלון ההזמנות",
+      "scheduleTitle": "לוח זמנים",
+      "selectCategory": "בחר קטגוריה",
+      "startDate": "תאריך התחלה *",
+      "statusDraft": "טיוטה",
+      "statusScheduled": "מתוכנן",
+      "stockLimited": "המלאי מוגבל",
+      "stockLowThreshold": "סף מלאי נמוך",
+      "stockReserved": "שמור",
+      "stockSold": "כבר נמכר",
+      "stockSubtitle": "הגדר מגבלות מלאי ברמת הקמפיין",
+      "stockTitle": "ניהול מלאי",
+      "stockTotal": "כמות כוללת",
+      "stockUnit": "יחידת מלאי",
+      "stockUnlimited": "מלאי בלתי מוגבל",
+      "subtitle": "צור קמפיין עונתי חדש",
+      "subtitleAr": "כותרת משנה (ערבית)",
+      "subtitleEn": "כותרת משנה (אנגלית)",
+      "subtitlePlaceholder": "כותרת משנה לקמפיין",
+      "targetZone": "אזור יעד",
+      "title": "צור קמפיין"
+    },
+    "edit": {
+      "active": "פעיל",
+      "addItem": "הוסף מוצר",
+      "alreadySold": "כבר נמכר",
+      "back": "חזרה לקמפיין",
+      "campaignDetails": "פרטי הקמפיין",
+      "campaignDetailsDesc": "מידע בסיסי על הקמפיין",
+      "campaignImage": "תמונת קמפיין",
+      "campaignImageDesc": "העלה תמונת באנר לקמפיין",
+      "campaignItems": "מוצרי הקמפיין",
+      "campaignItemsDesc": "מוצרים שספקים יכולים להציע עליהם",
+      "changeImage": "שנה תמונה",
+      "delivery": "משלוח",
+      "deliveryDesc": "זמני אספקה צפויים",
+      "description": "תיאור",
+      "descriptionEn": "תיאור (אנגלית)",
+      "descriptionEnPlaceholder": "תיאור באנגלית...",
+      "descriptionPlaceholder": "תיאור הקמפיין...",
+      "draft": "טיוטה",
+      "dragDropHint": "לחץ כדי לדפדף או גרור ושחרר",
+      "editDescription": "עדכן פרטים והגדרות של הקמפיין",
+      "errorTitle": "טעינת הקמפיין נכשלה",
+      "itemCategory": "קטגוריה *",
+      "itemDescription": "תיאור",
+      "itemDescriptionPlaceholder": "תיאור מוצר (אופציונלי)",
+      "itemName": "שם מוצר",
+      "itemNameAr": "שם (ערבית) *",
+      "itemNameArPlaceholder": "اسم المنتج",
+      "itemNameEn": "שם (אנגלית)",
+      "itemNameEnPlaceholder": "שם המוצר",
+      "itemNamePlaceholder": "שם המוצר",
+      "itemPrice": "מחיר *",
+      "itemPricePlaceholder": "0.00",
+      "itemStockQty": "כמות במלאי",
+      "itemStockQtyPlaceholder": "0",
+      "itemUnit": "יחידה *",
+      "itemUnitPlaceholder": "ק\"ג, קופסה",
+      "loadFailed": "טעינת הקמפיין נכשלה",
+      "lowStockThreshold": "סף מלאי נמוך",
+      "maxDays": "מקס. ימים",
+      "minDays": "מינ. ימים",
+      "name": "שם",
+      "nameAr": "שם קמפיין (ערבית)",
+      "nameArPlaceholder": "مهرجان الفواكه الصيفية",
+      "nameEn": "שם קמפיין (אנגלית) *",
+      "nameEnPlaceholder": "פסטיבל פירות קיץ",
+      "namePlaceholder": "שם הקמפיין",
+      "noItems": "עדיין לא נוספו מוצרים.",
+      "noItemsDesc": "לחץ על «הוסף מוצר» כדי להגדיר על מה ספקים יכולים להציע.",
+      "orderingClosesAt": "סגירת הזמנות ב",
+      "removeImage": "הסר תמונה",
+      "reserved": "שמור",
+      "saveCampaign": "שמור קמפיין",
+      "schedule": "לוח זמנים",
+      "scheduleDesc": "ציר הזמן של הקמפיין וחלון ההזמנות",
+      "scheduled": "מתוכנן",
+      "selectCategory": "בחר קטגוריה",
+      "status": "סטטוס",
+      "stockLimited": "המלאי מוגבל",
+      "stockManagement": "ניהול מלאי",
+      "stockManagementDesc": "הגדר מגבלות מלאי ברמת הקמפיין",
+      "stockUnit": "יחידת מלאי",
+      "stockUnitPlaceholder": "ק\"ג, קופסה, פריט",
+      "subtitle": "כותרת משנה",
+      "subtitleAr": "כותרת משנה (ערבית)",
+      "subtitleArPlaceholder": "عروض الصيف",
+      "subtitleEn": "כותרת משנה (אנגלית)",
+      "subtitleEnPlaceholder": "מבצעי קיץ",
+      "subtitlePlaceholder": "כותרת משנה לקמפיין",
+      "targetZone": "אזור יעד",
+      "title": "ערוך קמפיין",
+      "totalQuantity": "כמות כוללת",
+      "unlimitedStock": "מלאי בלתי מוגבל",
+      "uploadImage": "העלה תמונת קמפיין",
+      "validationRequired": "שם הקמפיין, תאריך התחלה ותאריך סיום חובה"
+    },
+    "toast": {
+      "createFailed": "יצירת הקמפיין נכשלה",
+      "createdSuccessfully": "הקמפיין נוצר בהצלחה",
+      "productCreateFailed": "יצירת המוצר נכשלה",
+      "productCreated": "המוצר #{{id}} נוצר"
     }
   },
   "notifications": {
@@ -1615,6 +2319,12 @@
       "warehouse": "מחסן",
       "zone": "אזור",
       "create": "צור משבצת"
+    },
+    "toast": {
+      "slotCreateFailed": "יצירת משבצת הזמן נכשלה",
+      "slotCreated": "משבצת הזמן נוצרה",
+      "slotUpdateFailed": "עדכון משבצת הזמן נכשל",
+      "slotUpdated": "משבצת הזמן עודכנה"
     }
   },
   "common": {
@@ -1643,11 +2353,390 @@
     "deactivate": "בטל הפעלה",
     "back": "חזרה",
     "select": "בחר",
-    "unknown": "לא ידוע"
+    "unknown": "לא ידוע",
+    "clear": "נקה",
+    "undo": "בטל",
+    "user": "משתמש"
   },
   "pagination": {
     "showingTo": "מציג {{from}} עד {{to}} מתוך {{total}} תוצאות",
     "previous": "הקודם",
     "next": "הבא"
+  },
+  "categories": {
+    "businessForm": {
+      "active": "פעיל",
+      "addDescription": "צור קטגוריה עסקית חדשה",
+      "addTitle": "הוסף קטגוריה עסקית",
+      "autoGeneratedDesc": "נוצר אוטומטית מהשם באנגלית",
+      "autoGeneratedHint": "נוצר אוטומטית מהשם באנגלית",
+      "back": "חזרה לקטגוריות",
+      "basicInfo": "מידע בסיסי",
+      "businessCategoriesDesc": "קטגוריות עסקיות משמשות לסיווג ספקים וחנויות. ניתן לשייך כל ספק לקטגוריה עסקית.",
+      "cancel": "ביטול",
+      "categoryInfo": "מידע על הקטגוריה",
+      "code": "קוד",
+      "createCategory": "צור קטגוריה עסקית",
+      "createFailed": "יצירת הקטגוריה העסקית נכשלה",
+      "createSuccess": "הקטגוריה העסקית נוצרה בהצלחה",
+      "editDescription": "עדכן את פרטי הקטגוריה העסקית",
+      "editTitle": "ערוך קטגוריה עסקית",
+      "errorLoading": "טעינת הקטגוריה העסקית נכשלה",
+      "errorTitle": "שגיאה",
+      "nameAr": "שם (ערבית) *",
+      "nameArPlaceholder": "اسم التصنيف التجاري",
+      "nameEn": "שם (אנגלית) *",
+      "namePlaceholder": "שם הקטגוריה העסקית",
+      "saveChanges": "שמור שינויים",
+      "sortOrder": "סדר מיון",
+      "supplierCount": "{{count}} ספקים משויכים לקטגוריה זו",
+      "suppliers": "ספקים",
+      "updateFailed": "עדכון הקטגוריה העסקית נכשל",
+      "updateSuccess": "הקטגוריה העסקית עודכנה בהצלחה",
+      "validationArRequired": "שם בערבית חובה",
+      "validationCodeRequired": "לא ניתן היה ליצור קוד מהשם באנגלית",
+      "validationEnRequired": "שם באנגלית חובה",
+      "validationRequired": "אין"
+    },
+    "cancel": "ביטול",
+    "delete": "מחק",
+    "deleteBusinessConfirm": "האם אתה בטוח שברצונך למחוק את <strong>{{name}}</strong>?",
+    "deleteBusinessTitle": "מחק קטגוריה עסקית",
+    "deleteBusinessWarning": "לקטגוריה זו משויכים {{count}} ספקים.",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את <strong>{{name}}</strong>?",
+    "deleteTitle": "מחק את «{{name}}»",
+    "deleteWarning": "לקטגוריה זו משויכים {{count}} מוצרים.",
+    "description": "נהל קטגוריות מוצרים ועסקיות",
+    "edit": "ערוך",
+    "errorMessage": "אירעה שגיאה בלתי צפויה",
+    "errorTitle": "טעינת הקטגוריות נכשלה",
+    "form": {
+      "active": "פעיל",
+      "addDescription": "צור קטגוריית מוצרים חדשה",
+      "addTitle": "הוסף קטגוריה",
+      "back": "חזרה לקטגוריות",
+      "basicInfo": "מידע בסיסי",
+      "cancel": "ביטול",
+      "categoryImage": "תמונת קטגוריה",
+      "changeImage": "שנה תמונה",
+      "createCategory": "צור קטגוריה",
+      "createFailed": "יצירת הקטגוריה נכשלה",
+      "createSuccess": "הקטגוריה נוצרה בהצלחה",
+      "editDescription": "עדכן את פרטי הקטגוריה",
+      "editTitle": "ערוך קטגוריה",
+      "errorLoading": "טעינת הקטגוריה נכשלה",
+      "errorTitle": "טעינת הקטגוריה נכשלה",
+      "imageFormatHint": "JPG, PNG או WebP. מקס. 2MB.",
+      "nameAr": "שם (ערבית) *",
+      "nameArPlaceholder": "اسم التصنيف",
+      "nameEn": "שם (אנגלית)",
+      "namePlaceholder": "שם הקטגוריה",
+      "noneTopLevel": "אין (רמה עליונה)",
+      "parentCategory": "קטגוריית אב",
+      "remove": "הסר",
+      "saveChanges": "שמור שינויים",
+      "sortOrder": "סדר מיון",
+      "updateFailed": "עדכון הקטגוריה נכשל",
+      "updateSuccess": "הקטגוריה עודכנה בהצלחה",
+      "uploadImage": "העלה תמונה",
+      "validationRequired": "שם בערבית חובה"
+    },
+    "list": {
+      "addBusinessCategory": "הוסף קטגוריה עסקית",
+      "addCategory": "הוסף קטגוריה",
+      "allBusinessCategories": "כל הקטגוריות העסקיות",
+      "allCategories": "כל הקטגוריות",
+      "noBusinessCategories": "אין עדיין קטגוריות עסקיות",
+      "noBusinessCategoriesDescription": "צור קטגוריה עסקית ראשונה כדי לארגן ספקים",
+      "noCategories": "אין עדיין קטגוריות",
+      "noCategoriesDescription": "צור קטגוריה ראשונה כדי לארגן מוצרים"
+    },
+    "productsCount": "{{count}} מוצרים",
+    "sortLabel": "מיון: {{order}}",
+    "stats": {
+      "active": "פעילים",
+      "inactive": "לא פעילים",
+      "total": "סך כל הקטגוריות",
+      "totalBusiness": "סך כל הקטגוריות העסקיות"
+    },
+    "sub": "{{count}} תת-קטגוריות",
+    "subLabel": "תת-קטגוריה: {{name}}",
+    "suppliersCount": "{{count}} ספקים",
+    "tabs": {
+      "business": "קטגוריות עסקיות",
+      "product": "קטגוריות מוצרים"
+    },
+    "title": "קטגוריות",
+    "toast": {
+      "businessDeleteFailed": "מחיקת הקטגוריה העסקית נכשלה",
+      "businessDeleteSuccess": "הקטגוריה העסקית נמחקה בהצלחה",
+      "deleteFailed": "מחיקת הקטגוריה נכשלה",
+      "deleteSuccess": "הקטגוריה נמחקה בהצלחה"
+    }
+  },
+  "locations": {
+    "countries": {
+      "addCountry": "הוסף מדינה",
+      "description": "נהל מדינות, קודים, קודי חיוג ומחוזות",
+      "detail": {
+        "addProvince": "הוסף מחוז",
+        "back": "חזרה למדינות",
+        "code": "קוד מדינה",
+        "dialCode": "קוד חיוג",
+        "edit": "ערוך",
+        "errorTitle": "טעינת המדינה נכשלה",
+        "noProvinces": "לא הוגדרו מחוזות",
+        "provinces": "מחוזות / ערים",
+        "provincesTitle": "מחוזות / ערים"
+      },
+      "form": {
+        "code": "קוד",
+        "create": "צור",
+        "createTitle": "הוסף מדינה",
+        "dialCode": "קוד חיוג",
+        "editTitle": "ערוך מדינה",
+        "nameAr": "שם (ערבית)",
+        "nameEn": "שם (אנגלית)"
+      },
+      "list": {
+        "addFirstCountry": "הוסף את המדינה הראשונה שלך",
+        "count": "{{count}} מדינות",
+        "noCountries": "לא נמצאו מדינות",
+        "provincesCount": "{{count}} מחוזות/ערים",
+        "searchPlaceholder": "חיפוש לפי שם או קוד...",
+        "title": "כל המדינות",
+        "tryDifferentSearch": "נסה מונח חיפוש אחר"
+      },
+      "stats": {
+        "active": "פעילים",
+        "provinces": "מחוזות / ערים",
+        "total": "סך כל המדינות"
+      },
+      "title": "מדינות",
+      "toast": {
+        "createFailed": "יצירת המדינה נכשלה",
+        "created": "המדינה נוצרה בהצלחה",
+        "deleteFailed": "מחיקת המדינה נכשלה",
+        "deleted": "המדינה נמחקה",
+        "disabled": "המדינה הושבתה",
+        "enabled": "המדינה הופעלה",
+        "toggleFailed": "שינוי סטטוס המדינה נכשל",
+        "updateFailed": "עדכון המדינה נכשל",
+        "updated": "המדינה עודכנה בהצלחה"
+      }
+    },
+    "provinces": {
+      "addProvince": "הוסף מחוז",
+      "description": "נהל מחוזות וערים בכל מדינה",
+      "form": {
+        "country": "מדינה",
+        "create": "צור",
+        "createTitle": "הוסף מחוז",
+        "editTitle": "ערוך מחוז",
+        "nameAr": "שם (ערבית)",
+        "nameEn": "שם (אנגלית)"
+      },
+      "list": {
+        "addFirstProvince": "הוסף את המחוז הראשון שלך",
+        "allCountries": "כל המדינות",
+        "count": "{{count}} מחוזות/ערים",
+        "noProvinces": "לא נמצאו מחוזות",
+        "searchPlaceholder": "חיפוש מחוזות...",
+        "title": "כל המחוזות / הערים",
+        "tryDifferentSearch": "נסה מונח חיפוש אחר",
+        "zonesCount": "{{count}} אזורים"
+      },
+      "stats": {
+        "active": "פעילים",
+        "total": "סך כל המחוזות / הערים",
+        "zones": "אזורי משלוח"
+      },
+      "title": "מחוזות / ערים",
+      "toast": {
+        "createFailed": "יצירת המחוז נכשלה",
+        "created": "המחוז נוצר בהצלחה",
+        "deleteFailed": "מחיקת המחוז נכשלה",
+        "deleted": "המחוז נמחק",
+        "toggleFailed": "שינוי סטטוס המחוז נכשל",
+        "toggled": "סטטוס המחוז שונה",
+        "updateFailed": "עדכון המחוז נכשל",
+        "updated": "המחוז עודכן בהצלחה"
+      }
+    },
+    "serviceRegions": {
+      "addRegion": "הוסף אזור שירות",
+      "confirmDeleteMessage": "האם אתה בטוח שברצונך למחוק את {{name}}?",
+      "confirmDeleteTitle": "מחק אזור שירות",
+      "description": "נהל אזורי שירות המשמשים לפניות נהגים",
+      "form": {
+        "code": "קוד",
+        "countryCode": "קוד מדינה",
+        "create": "צור",
+        "createTitle": "הוסף אזור שירות",
+        "displayOrder": "סדר תצוגה",
+        "editTitle": "ערוך אזור שירות",
+        "nameAr": "שם (ערבית)",
+        "nameEn": "שם (אנגלית)"
+      },
+      "list": {
+        "addFirstRegion": "הוסף את אזור השירות הראשון שלך",
+        "count": "{{count}} אזורי שירות",
+        "countryCode": "מדינה: {{code}}",
+        "noRegions": "לא נמצאו אזורי שירות",
+        "order": "סדר: {{order}}",
+        "searchPlaceholder": "חיפוש לפי שם או קוד...",
+        "title": "כל אזורי השירות",
+        "tryDifferentSearch": "נסה מונח חיפוש אחר"
+      },
+      "title": "אזורי שירות",
+      "toast": {
+        "createFailed": "יצירת אזור השירות נכשלה",
+        "created": "אזור השירות נוצר",
+        "deleteFailed": "מחיקת אזור השירות נכשלה",
+        "deleted": "אזור השירות נמחק",
+        "toggleFailed": "שינוי סטטוס האזור נכשל",
+        "toggled": "סטטוס האזור שונה",
+        "updateFailed": "עדכון אזור השירות נכשל",
+        "updated": "אזור השירות עודכן"
+      }
+    }
+  },
+  "aggregation": {
+    "inventory": {
+      "add10": "הוסף 10",
+      "add50": "הוסף 50",
+      "addStock": "הוסף {{count}}",
+      "adjustStockTitle": "התאם מלאי — {{name}}",
+      "cancel": "ביטול",
+      "currentStock": "מלאי נוכחי: {{quantity}} {{unit}}",
+      "customAdjustment": "התאמה מותאמת אישית",
+      "description": "נהל רמות מלאי, התראות מלאי נמוך והתאמות",
+      "disabled": "מושבת",
+      "errorMessage": "אירעה שגיאה",
+      "errorTitle": "טעינת המלאי נכשלה",
+      "lowStock": "מלאי נמוך",
+      "lowStockTitle": "התראת מלאי נמוך",
+      "noProducts": "לא נמצאו מוצרים",
+      "noProductsInInventory": "אין מוצרים במלאי",
+      "outOfStock": "אזל",
+      "productCount": "{{count}} מוצרים",
+      "reason": "סיבה",
+      "reasonPlaceholder": "מילוי מלאי, קלקול, התאמה...",
+      "remove10": "הורד 10",
+      "remove50": "הורד 50",
+      "removeStock": "הורד {{count}}",
+      "restock": "מלא מלאי",
+      "searchPlaceholder": "חיפוש מוצרים...",
+      "statInStock": "במלאי",
+      "statLowStock": "מלאי נמוך (<20)",
+      "statOutOfStock": "אזל מהמלאי",
+      "statTotalSkus": "סך כל ה-SKU",
+      "stockOverviewTitle": "סקירת מלאי",
+      "title": "מלאי",
+      "tryDifferentSearch": "נסה מונח חיפוש אחר"
+    },
+    "toast": {
+      "assignToTripFailed": "הקצאה לרכב נכשלה",
+      "assignedToTrip": "ההזמנה הוקצתה לרכב בהצלחה",
+      "packFailed": "סימון כאורוז נכשל",
+      "packed": "ההזמנה נארזה בהצלחה",
+      "processingStartFailed": "התחלת העיבוד נכשלה",
+      "processingStarted": "ההזמנה בתהליך עיבוד",
+      "qualityFailed": "בדיקת האיכות נכשלה",
+      "qualityPassed": "בדיקת האיכות עברה — ההזמנה מוכנה למשלוח",
+      "receiptConfirmFailed": "אישור הקבלה נכשל",
+      "receiptConfirmed": "הקבלה אושרה בהצלחה"
+    },
+    "warehouseSettings": {
+      "active": "פעיל",
+      "address": "כתובת",
+      "back": "חזרה למחסן",
+      "cancel": "ביטול",
+      "capacity": "קיבולת (הזמנות/יום)",
+      "closingTime": "שעת סגירה",
+      "description": "הגדרת פרטי המחסן והקצאת אזורים",
+      "nameAr": "שם (AR)",
+      "nameEn": "שם (EN)",
+      "openingTime": "שעת פתיחה",
+      "save": "שמור הגדרות",
+      "title": "הגדרות מחסן",
+      "warehouseInfo": "מידע על המחסן",
+      "workingHours": "שעות פעילות",
+      "zoneAssignments": "הקצאת אזורים",
+      "zoneAssignmentsDesc": "בחר את אזורי המשלוח שמחסן זה משרת"
+    }
+  },
+  "auth": {
+    "login": {
+      "adminLabel": "אדמין",
+      "email": "אימייל",
+      "emailPlaceholder": "admin@nexa.local",
+      "forgotPassword": "שכחת סיסמה?",
+      "loginFailed": "התחברות נכשלה. בדוק את הפרטים שלך.",
+      "loginToDashboard": "התחבר ללוח הבקרה",
+      "opsLabel": "תפעול",
+      "password": "סיסמה",
+      "passwordPlaceholder": "הזן סיסמה",
+      "protectedData": "מידע מסחרי מוגן",
+      "quickLogin": "התחברות מהירה",
+      "rememberMe": "זכור אותי",
+      "secureOperations": "פעילות עסקית מאובטחת",
+      "signInDescription": "היכנס ללוח הבקרה התפעולי שלך.",
+      "signingIn": "מתחבר...",
+      "verifiedPlatform": "פלטפורמת ספקים מאומתת",
+      "warehouseLabel": "מחסן",
+      "welcomeBack": "ברוך שובך"
+    },
+    "loginPage": {
+      "activeSuppliers": "ספקים פעילים",
+      "airFreightLabel": "הובלה אווירית",
+      "distributionLabel": "הפצה",
+      "fulfillmentRate": "שיעור מימוש",
+      "hubLabel": "NEXA Hub",
+      "intelligentPlatform": "פלטפורמת אספקה חכמה",
+      "monthlyRevenue": "הכנסה חודשית",
+      "platformDescription": "נהל הזמנות, מלאי, רכש ותיאום מחסנים מפלטפורמה חכמה אחת.",
+      "poweringModern": "מפעילים את תפעול<br />האספקה המודרני",
+      "regionalLabel": "אזורי",
+      "totalOrders": "סך כל ההזמנות"
+    },
+    "profile": {
+      "accountDetails": "פרטי החשבון",
+      "created": "נוצר",
+      "email": "אימייל",
+      "futureX": "FutureX",
+      "lastLogin": "התחברות אחרונה",
+      "none": "אין",
+      "permissions": "הרשאות",
+      "permissionsCount": "{{count}} הרשאות",
+      "phone": "טלפון",
+      "poweredBy": "מופעל על ידי",
+      "role": "תפקיד",
+      "userType": "סוג משתמש"
+    },
+    "protected": {
+      "accessDenied": "הגישה נדחתה",
+      "noPermission": "לחשבון שלך אין את ההרשאות הנדרשות לגישה לאזור זה.",
+      "signInDifferent": "התחבר עם חשבון אחר",
+      "signedInAs": "התחברת כ<strong>{{role}}</strong> אך אזור זה דורש אחת מהתפקידים הבאים: {{roles}}."
+    }
+  },
+  "documents": {
+    "expiresOn": "תוקף עד",
+    "open": "פתח",
+    "types": {
+      "commercial_register": "רישום מסחרי",
+      "id_back": "תעודה — אחורי",
+      "id_front": "תעודה — פנים",
+      "store_front": "תמונת חנות",
+      "tax_card": "כרטיס מס"
+    },
+    "uploadedOn": "הועלה"
+  },
+  "langs": {
+    "ar": "العربية",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
   }
 }

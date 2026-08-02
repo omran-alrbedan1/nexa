@@ -1142,7 +1142,10 @@
       "selectCategory": "Select a category",
       "supplier": "Supplier",
       "noSupplier": "No supplier",
-      "save": "Save Product"
+      "save": "Save Product",
+      "name": "Name",
+      "namePlaceholder": "Product name",
+      "descriptionPlaceholder": "Product description..."
     },
     "edit": {
       "validationRequired": "Product name (EN & AR) and price are required",
@@ -1180,7 +1183,11 @@
       "noSupplier": "No supplier",
       "saveChanges": "Save Changes",
       "cancel": "Cancel",
-      "successMessage": "Product updated successfully"
+      "successMessage": "Product updated successfully",
+      "name": "Name",
+      "namePlaceholder": "Product name",
+      "description": "Description",
+      "descriptionPlaceholder": "Product description..."
     },
     "toast": {
       "productEnabled": "Product enabled",
@@ -1197,6 +1204,10 @@
       "approveFailed": "Failed to approve product",
       "rejected": "Product rejected",
       "rejectFailed": "Failed to reject product"
+    },
+    "variants": {
+      "name": "Name",
+      "namePlaceholder": "Variant name"
     }
   },
   "categories": {
@@ -2251,7 +2262,10 @@
         "unit": "Unit",
         "price": "Price",
         "stock": "Stock"
-      }
+      },
+      "makeProduct": "Make Product",
+      "viewProduct": "View Product",
+      "product": "Product"
     },
     "create": {
       "back": "Back to Campaigns",
@@ -2302,7 +2316,14 @@
       "itemStockQty": "Stock Qty",
       "requiredValidation": "Campaign name, start date, and end date are required",
       "itemsValidation": "Each campaign item requires name (AR), category, unit, and price",
-      "save": "Save Campaign"
+      "save": "Save Campaign",
+      "name": "Name",
+      "namePlaceholder": "Campaign name",
+      "subtitlePlaceholder": "Campaign subtitle",
+      "descriptionPlaceholder": "Campaign description...",
+      "itemName": "Item Name",
+      "itemNamePlaceholder": "Item name",
+      "itemDescriptionPlaceholder": "Item description (optional)"
     },
     "edit": {
       "loadFailed": "Failed to load campaign",
@@ -2372,11 +2393,19 @@
       "itemStockQtyPlaceholder": "0",
       "itemDescription": "Description",
       "itemDescriptionPlaceholder": "Item description (optional)",
-      "saveCampaign": "Save Campaign"
+      "saveCampaign": "Save Campaign",
+      "name": "Name",
+      "namePlaceholder": "Campaign name",
+      "subtitle": "Subtitle",
+      "subtitlePlaceholder": "Campaign subtitle",
+      "itemName": "Item Name",
+      "itemNamePlaceholder": "Item name"
     },
     "toast": {
       "createdSuccessfully": "Campaign created successfully",
-      "createFailed": "Failed to create campaign"
+      "createFailed": "Failed to create campaign",
+      "productCreated": "Product #{{id}} created",
+      "productCreateFailed": "Failed to create product"
     }
   },
   "notifications": {
@@ -2656,5 +2685,11 @@
       "id_back": "ID — back",
       "store_front": "Store front photo"
     }
+  },
+  "langs": {
+    "ar": "العربية",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
   }
 }

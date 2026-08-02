@@ -933,9 +933,24 @@
       "selectCategory": "اختر فئة",
       "supplier": "المورد",
       "noSupplier": "بدون مورد",
-      "save": "حفظ المنتج"
+      "save": "حفظ المنتج",
+      "name": "الاسم",
+      "namePlaceholder": "اسم المنتج",
+      "descriptionPlaceholder": "وصف المنتج..."
     },
-    "toast": {}
+    "toast": {},
+    "variants": {
+      "name": "الاسم",
+      "namePlaceholder": "اسم الخيار"
+    },
+    "edit": {
+      "name": "الاسم",
+      "namePlaceholder": "اسم المنتج",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف المنتج...",
+      "successMessage": "تم تحديث المنتج بنجاح",
+      "validationRequired": "يرجى تعبئة الاسم والسعر"
+    }
   },
   "suppliers": {
     "title": "الموردين",
@@ -1847,7 +1862,10 @@
       "reserved": "محجوز",
       "orderingCloses": "إغلاق الطلبات",
       "deliveryLeadTime": "مدة التوصيل",
-      "subtitle": "العنوان الفرعي"
+      "subtitle": "العنوان الفرعي",
+      "makeProduct": "إنشاء منتج",
+      "viewProduct": "عرض المنتج",
+      "product": "المنتج"
     },
     "create": {
       "back": "العودة إلى الحملات",
@@ -1898,11 +1916,20 @@
       "itemStockQty": "كمية المخزون",
       "requiredValidation": "اسم الحملة وتاريخ البداية وتاريخ النهاية مطلوبة",
       "itemsValidation": "كل عنصر من عناصر الحملة يتطلب اسم (عربي) وفئة ووحدة وسعرًا",
-      "save": "حفظ الحملة"
+      "save": "حفظ الحملة",
+      "name": "الاسم",
+      "namePlaceholder": "اسم الحملة",
+      "subtitlePlaceholder": "العنوان الفرعي للحملة",
+      "descriptionPlaceholder": "وصف الحملة...",
+      "itemName": "اسم المنتج",
+      "itemNamePlaceholder": "اسم المنتج",
+      "itemDescriptionPlaceholder": "وصف المنتج (اختياري)"
     },
     "toast": {
       "createdSuccessfully": "تم إنشاء الحملة بنجاح",
-      "createFailed": "فشل إنشاء الحملة"
+      "createFailed": "فشل إنشاء الحملة",
+      "productCreated": "تم إنشاء المنتج رقم {{id}}",
+      "productCreateFailed": "فشل إنشاء المنتج"
     }
   },
   "notifications": {

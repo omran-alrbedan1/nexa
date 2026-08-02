@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { campaignsApi, type Campaign } from '../api/campaignsApi';
-import { campaignKeys, useCampaignAction } from '../hooks/useCampaigns';
+import { campaignKeys, useCampaignAction, useMaterializeItemProduct } from '../hooks/useCampaigns';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import {
   ArrowLeft, Megaphone, CalendarRange, ShoppingCart, TrendingUp,
-  MapPin, Tag, Clock, Package, PenLine,
+  MapPin, Tag, Clock, Package, PenLine, PackagePlus, ExternalLink,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, 'green' | 'teal' | 'yellow' | 'purple' | 'red'> = {
@@ -27,6 +27,7 @@ export function CampaignDetailPage() {
   const id = parseInt(campaignId || '0', 10);
   const { t } = useTranslation();
   const campaignAction = useCampaignAction();
+  const materialize = useMaterializeItemProduct(id);
 
   const { data: campaign, isLoading, isError, error, refetch } = useQuery<Campaign>({
     queryKey: campaignKeys.detail(id),
@@ -310,7 +311,8 @@ export function CampaignDetailPage() {
                   <th className="text-left py-2 pr-4 font-body">Category</th>
                   <th className="text-left py-2 pr-4 font-body">Unit</th>
                   <th className="text-right py-2 pr-4 font-body">Price</th>
-                  <th className="text-right py-2 font-body">Stock</th>
+                  <th className="text-right py-2 pr-4 font-body">Stock</th>
+                  <th className="text-right py-2 font-body">{t('campaigns.detail.product')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -321,7 +323,24 @@ export function CampaignDetailPage() {
                     <td className="py-3 pr-4 text-text-secondary font-body">{catName(item)}</td>
                     <td className="py-3 pr-4 text-text-secondary font-body">{item.unit}</td>
                     <td className="py-3 pr-4 text-right font-bold text-text-primary font-body">{item.price.toLocaleString()}</td>
-                    <td className="py-3 text-right text-text-secondary font-body">{item.stockQuantity}</td>
+                    <td className="py-3 pr-4 text-right text-text-secondary font-body">{item.stockQuantity}</td>
+                    <td className="py-3 text-right">
+                      {item.productId ? (
+                        <Button variant="secondary" size="sm" leftIcon={<ExternalLink size={12} />} onClick={() => navigate(ROUTES.PRODUCT_DETAIL(item.productId!))}>
+                          {t('campaigns.detail.viewProduct')}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          leftIcon={<PackagePlus size={12} />}
+                          isLoading={materialize.isPending && materialize.variables?.itemId === item.id}
+                          onClick={() => materialize.mutate({ itemId: item.id })}
+                        >
+                          {t('campaigns.detail.makeProduct')}
+                        </Button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
