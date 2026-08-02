@@ -9,6 +9,7 @@ import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi, type Campaign } from '../api/campaignsApi';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
+import { VariantEditor, type VariantDraft } from '@/features/products/components/VariantEditor';
 import { categoriesApi, type Category } from '@/features/categories/api/categoriesApi';
 import { ArrowLeft, Megaphone, Save, Image as ImageIcon, Plus, X, Package, Tag, Clock } from 'lucide-react';
 import { extractErrorMessage } from '@/lib/apiHelpers';
@@ -21,6 +22,7 @@ interface EditCampaignFormItem {
   unit: string;
   price: string;
   stockQuantity: string;
+  variants: VariantDraft[];
 }
 
 export function EditCampaignPage() {
@@ -97,6 +99,16 @@ export function EditCampaignPage() {
           unit: ci.unit,
           price: String(ci.price),
           stockQuantity: String(ci.stockQuantity),
+          variants: (ci.variants || []).map((v) => ({
+            id: v.id,
+            name_ar: v.nameAr,
+            name_en: v.nameEn ?? undefined,
+            name_he: v.nameHe ?? undefined,
+            name_ru: v.nameRu ?? undefined,
+            price: v.price,
+            stock_quantity: v.stockQuantity,
+            is_active: v.isActive,
+          })),
         }));
         setItems(mappedItems);
       })
@@ -124,7 +136,7 @@ export function EditCampaignPage() {
     const key = ++nextKey.current;
     setItems((prev) => [...prev, {
       key, names: {}, descriptions: {},
-      categoryId: '', unit: '', price: '', stockQuantity: '',
+      categoryId: '', unit: '', price: '', stockQuantity: '', variants: [],
     }]);
   };
 
@@ -134,6 +146,10 @@ export function EditCampaignPage() {
 
   const updateItem = (key: number, field: string, value: string) => {
     setItems((prev) => prev.map((i) => i.key === key ? { ...i, [field]: value } : i));
+  };
+
+  const updateItemVariants = (key: number, variants: VariantDraft[]) => {
+    setItems((prev) => prev.map((i) => i.key === key ? { ...i, variants } : i));
   };
 
   const updateItemNames = (key: number, lang: TranslatedLang, value: string) => {
@@ -188,6 +204,17 @@ export function EditCampaignPage() {
           unit: item.unit,
           price: parseFloat(item.price),
           stockQuantity: item.stockQuantity ? parseFloat(item.stockQuantity) : undefined,
+          variants: item.variants.map((v) => ({
+            ...(v.id ? { id: v.id } : {}),
+            nameAr: v.name_ar,
+            nameEn: v.name_en || undefined,
+            nameHe: v.name_he || undefined,
+            nameRu: v.name_ru || undefined,
+            price: v.price,
+            stockQuantity: v.stock_quantity,
+            isActive: v.is_active ?? true,
+            ...(v._delete ? { _delete: true } : {}),
+          })),
         })),
       });
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
@@ -528,6 +555,9 @@ export function EditCampaignPage() {
                       placeholder={t('campaigns.edit.itemDescriptionPlaceholder')}
                     />
                   </div>
+                </div>
+                <div className="mt-4 border-t border-border-default/50 pt-4">
+                  <VariantEditor value={item.variants} onChange={(variants) => updateItemVariants(item.key, variants)} />
                 </div>
               </div>
             ))}

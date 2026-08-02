@@ -44,6 +44,31 @@ export interface CampaignItem {
   unit: string;
   price: number;
   stockQuantity: number;
+  variants?: CampaignItemVariant[];
+}
+
+export interface CampaignItemVariant {
+  id: number;
+  nameAr: string;
+  nameEn: string | null;
+  nameHe: string | null;
+  nameRu: string | null;
+  price: number;
+  stockQuantity: number;
+  isActive: boolean;
+}
+
+/** Variant payload sent on create/update — `_delete` marks existing rows for removal */
+export interface CampaignItemVariantInput {
+  id?: number;
+  nameAr: string;
+  nameEn?: string;
+  nameHe?: string;
+  nameRu?: string;
+  price: number;
+  stockQuantity?: number;
+  isActive?: boolean;
+  _delete?: boolean;
 }
 
 export interface AssignedSupplier {
@@ -122,6 +147,18 @@ interface BackendCampaignItem {
   unit: string;
   price: number;
   stock_quantity: number;
+  variants?: BackendCampaignItemVariant[];
+}
+
+interface BackendCampaignItemVariant {
+  id: number;
+  name_ar: string;
+  name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
+  price: number;
+  stock_quantity: number;
+  is_active: boolean;
 }
 
 interface BackendAssignedSupplier {
@@ -219,6 +256,16 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
       unit: i.unit,
       price: i.price,
       stockQuantity: i.stock_quantity,
+      variants: (i.variants || []).map((v) => ({
+        id: v.id,
+        nameAr: v.name_ar,
+        nameEn: v.name_en,
+        nameHe: v.name_he ?? null,
+        nameRu: v.name_ru ?? null,
+        price: v.price,
+        stockQuantity: v.stock_quantity,
+        isActive: v.is_active,
+      })),
     })),
     assignedSupplier: c.assigned_supplier
       ? { id: c.assigned_supplier.id, businessName: c.assigned_supplier.business_name }
@@ -314,6 +361,7 @@ export const campaignsApi = {
       unit: string;
       price: number;
       stockQuantity?: number;
+      variants?: CampaignItemVariantInput[];
     }>;
   }): Promise<Campaign> => {
     const payload: Record<string, unknown> = {
@@ -354,6 +402,17 @@ export const campaignsApi = {
         unit: item.unit,
         price: item.price,
         stock_quantity: item.stockQuantity ?? 0,
+        variants: (item.variants || []).map((v) => ({
+          ...(v.id ? { id: v.id } : {}),
+          name_ar: v.nameAr,
+          name_en: v.nameEn ?? null,
+          name_he: v.nameHe ?? null,
+          name_ru: v.nameRu ?? null,
+          price: v.price,
+          stock_quantity: v.stockQuantity ?? 0,
+          is_active: v.isActive ?? true,
+          ...(v._delete ? { _delete: true } : {}),
+        })),
       }));
     }
     const response = await apiClient.post<ApiResponse<BackendCampaign>>('/api/v1/admin/campaigns', payload);
@@ -404,6 +463,7 @@ export const campaignsApi = {
       unit: string;
       price: number;
       stockQuantity?: number;
+      variants?: CampaignItemVariantInput[];
     }>;
   }): Promise<Campaign> => {
     const formData = new FormData();
@@ -445,6 +505,18 @@ export const campaignsApi = {
         formData.append(`items[${index}][unit]`, item.unit);
         formData.append(`items[${index}][price]`, String(item.price));
         if (item.stockQuantity !== undefined) formData.append(`items[${index}][stock_quantity]`, String(item.stockQuantity));
+        (item.variants || []).forEach((v, vIndex) => {
+          const prefix = `items[${index}][variants][${vIndex}]`;
+          if (v.id) formData.append(`${prefix}[id]`, String(v.id));
+          formData.append(`${prefix}[name_ar]`, v.nameAr);
+          if (v.nameEn) formData.append(`${prefix}[name_en]`, v.nameEn);
+          if (v.nameHe) formData.append(`${prefix}[name_he]`, v.nameHe);
+          if (v.nameRu) formData.append(`${prefix}[name_ru]`, v.nameRu);
+          formData.append(`${prefix}[price]`, String(v.price));
+          if (v.stockQuantity !== undefined) formData.append(`${prefix}[stock_quantity]`, String(v.stockQuantity));
+          if (v.isActive !== undefined) formData.append(`${prefix}[is_active]`, v.isActive ? '1' : '0');
+          if (v._delete) formData.append(`${prefix}[_delete]`, '1');
+        });
       });
     }
 

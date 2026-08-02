@@ -40,6 +40,8 @@ export function CountriesPage() {
     id: number;
     name_ar: string;
     name_en: string | null;
+    name_he: string | null;
+    name_ru: string | null;
     code: string;
     dial_code: string | null;
     is_active: boolean;
@@ -174,6 +176,8 @@ export function CountriesPage() {
                         id: country.id,
                         name_ar: country.name_ar,
                         name_en: country.name_en,
+                        name_he: country.name_he,
+                        name_ru: country.name_ru,
                         code: country.code,
                         dial_code: country.dial_code,
                         is_active: country.is_active,

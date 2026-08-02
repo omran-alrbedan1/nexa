@@ -21,7 +21,7 @@ export function useCreateServiceRegion() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: { code: string; name_ar: string; name_en?: string; country_code?: string; display_order?: number; is_active?: boolean }) =>
+    mutationFn: (data: { code: string; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; country_code?: string; display_order?: number; is_active?: boolean }) =>
       serviceRegionsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: serviceRegionKeys.all });
@@ -36,7 +36,7 @@ export function useUpdateServiceRegion() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { code?: string; name_ar?: string; name_en?: string; country_code?: string; display_order?: number; is_active?: boolean } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { code?: string; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; country_code?: string; display_order?: number; is_active?: boolean } }) =>
       serviceRegionsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: serviceRegionKeys.all });

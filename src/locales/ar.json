@@ -705,7 +705,9 @@
       "latitude": "خط العرض",
       "longitude": "خط الطول",
       "latitudePlaceholder": "مثال: 24.713552",
-      "longitudePlaceholder": "مثال: 46.675297"
+      "longitudePlaceholder": "مثال: 46.675297",
+      "nameHe": "الاسم (العبرية)",
+      "nameRu": "الاسم (الروسية)"
     },
     "toast": {
       "created": "تم إنشاء المستودع بنجاح",
@@ -941,7 +943,27 @@
     "toast": {},
     "variants": {
       "name": "الاسم",
-      "namePlaceholder": "اسم الخيار"
+      "namePlaceholder": "اسم المتغير",
+      "title": "المتغيرات",
+      "addVariant": "إضافة متغير",
+      "noVariants": "لا توجد متغيرات",
+      "addFirst": "أضف متغيرك الأول (مثل: الحجم، اللون)",
+      "create": "إنشاء",
+      "createTitle": "إنشاء متغير",
+      "editTitle": "تعديل متغير",
+      "sku": "رمز التخزين",
+      "price": "السعر",
+      "stock": "كمية المخزون",
+      "available": "متاح",
+      "confirmDelete": "حذف هذا المتغير؟",
+      "created": "تم إنشاء المتغير",
+      "createFailed": "فشل إنشاء المتغير",
+      "updated": "تم تحديث المتغير",
+      "updateFailed": "فشل تحديث المتغير",
+      "deleted": "تم حذف المتغير",
+      "deleteFailed": "فشل حذف المتغير",
+      "toggled": "تم تحديث حالة المتغير",
+      "toggleFailed": "فشل تحديث حالة المتغير"
     },
     "edit": {
       "name": "الاسم",
@@ -1923,14 +1945,24 @@
       "descriptionPlaceholder": "وصف الحملة...",
       "itemName": "اسم المنتج",
       "itemNamePlaceholder": "اسم المنتج",
-      "itemDescriptionPlaceholder": "وصف المنتج (اختياري)"
+      "itemDescriptionPlaceholder": "وصف المنتج (اختياري)",
+      "minDaysPlaceholder": "أقل مدة بالأيام",
+      "maxDaysPlaceholder": "أقصى مدة بالأيام",
+      "itemLabel": "البند {{number}}",
+      "totalQuantityPlaceholder": "الكمية الإجمالية",
+      "reservedPlaceholder": "المحجوز",
+      "alreadySoldPlaceholder": "المباع",
+      "lowStockThresholdPlaceholder": "حد المخزون المنخفض",
+      "backToCampaigns": "العودة إلى الحملات"
     },
     "toast": {
       "createdSuccessfully": "تم إنشاء الحملة بنجاح",
       "createFailed": "فشل إنشاء الحملة",
       "productCreated": "تم إنشاء المنتج رقم {{id}}",
-      "productCreateFailed": "فشل إنشاء المنتج"
-    }
+      "productCreateFailed": "فشل إنشاء المنتج",
+      "updatedSuccessfully": "تم تحديث الحملة بنجاح"
+    },
+    "itemVariants": "المتغيرات"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -2041,7 +2073,9 @@
         "nameEn": "الاسم (إنجليزي)",
         "code": "الرمز",
         "dialCode": "مفتاح الاتصال",
-        "create": "إنشاء"
+        "create": "إنشاء",
+        "nameHe": "الاسم (العبرية)",
+        "nameRu": "الاسم (الروسية)"
       },
       "toast": {
         "created": "تم إنشاء الدولة بنجاح",
@@ -2080,7 +2114,9 @@
         "nameAr": "الاسم (عربي)",
         "nameEn": "الاسم (إنجليزي)",
         "country": "الدولة",
-        "create": "إنشاء"
+        "create": "إنشاء",
+        "nameHe": "الاسم (العبرية)",
+        "nameRu": "الاسم (الروسية)"
       },
       "toast": {
         "created": "تم إنشاء المحافظة بنجاح",
@@ -2115,7 +2151,9 @@
         "nameEn": "الاسم (إنجليزي)",
         "countryCode": "رمز الدولة",
         "displayOrder": "ترتيب العرض",
-        "create": "إنشاء"
+        "create": "إنشاء",
+        "nameHe": "الاسم (العبرية)",
+        "nameRu": "الاسم (الروسية)"
       },
       "confirmDeleteTitle": "حذف منطقة الخدمة",
       "confirmDeleteMessage": "هل أنت متأكد من حذف {{name}}؟",

@@ -22,7 +22,7 @@ export function useCreateProvince() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: { country_id: number; name_ar: string; name_en?: string; is_active?: boolean }) =>
+    mutationFn: (data: { country_id: number; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; is_active?: boolean }) =>
       provincesApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: provinceKeys.all });
@@ -37,7 +37,7 @@ export function useUpdateProvince() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; is_active?: boolean } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; is_active?: boolean } }) =>
       provincesApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: provinceKeys.all });

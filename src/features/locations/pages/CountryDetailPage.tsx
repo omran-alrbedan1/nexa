@@ -32,7 +32,7 @@ export function CountryDetailPage() {
 
   const [editModal, setEditModal] = useState(false);
   const [provinceModal, setProvinceModal] = useState(false);
-  const [editProvinceTarget, setEditProvinceTarget] = useState<{ id: number; data: { name_ar: string; name_en: string | null; is_active: boolean } } | null>(null);
+  const [editProvinceTarget, setEditProvinceTarget] = useState<{ id: number; data: { name_ar: string; name_en: string | null; name_he: string | null; name_ru: string | null; is_active: boolean } } | null>(null);
   const [deleteProvinceTarget, setDeleteProvinceTarget] = useState<{ id: number; name: string } | null>(null);
 
   const { data: country, isLoading, isError, error, refetch } = useCountry(id);
@@ -169,6 +169,8 @@ export function CountryDetailPage() {
                       data: {
                         name_ar: province.name_ar,
                         name_en: province.name_en,
+                        name_he: province.name_he,
+                        name_ru: province.name_ru,
                         is_active: province.is_active,
                       },
                     })}

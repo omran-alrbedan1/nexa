@@ -855,7 +855,9 @@
       "longitude": "קו אורך",
       "longitudePlaceholder": "למשל 46.675297",
       "nameRequired": "שם חובה",
-      "zoneRequired": "אזור חובה"
+      "zoneRequired": "אזור חובה",
+      "nameHe": "שם (עברית)",
+      "nameRu": "שם (רוסית)"
     },
     "toast": {
       "created": "המחסן נוצר בהצלחה",
@@ -1209,7 +1211,27 @@
     },
     "variants": {
       "name": "שם",
-      "namePlaceholder": "שם הווריאציה"
+      "namePlaceholder": "שם הוריאנט",
+      "title": "וריאנטים",
+      "addVariant": "הוסף וריאנט",
+      "noVariants": "אין וריאנטים",
+      "addFirst": "הוסף את הוריאנט הראשון שלך (לדוגמה: גודל, צבע)",
+      "create": "צור",
+      "createTitle": "צור וריאנט",
+      "editTitle": "ערוך וריאנט",
+      "sku": "SKU",
+      "price": "מחיר",
+      "stock": "כמות מלאי",
+      "available": "זמין",
+      "confirmDelete": "למחוק וריאנט זה?",
+      "created": "הוריאנט נוצר",
+      "createFailed": "יצירת הוריאנט נכשלה",
+      "updated": "הוריאנט עודכן",
+      "updateFailed": "עדכון הוריאנט נכשל",
+      "deleted": "הוריאנט נמחק",
+      "deleteFailed": "מחיקת הוריאנט נכשלה",
+      "toggled": "סטטוס הוריאנט עודכן",
+      "toggleFailed": "עדכון סטטוס הוריאנט נכשל"
     }
   },
   "suppliers": {
@@ -2194,7 +2216,15 @@
       "subtitleEn": "כותרת משנה (אנגלית)",
       "subtitlePlaceholder": "כותרת משנה לקמפיין",
       "targetZone": "אזור יעד",
-      "title": "צור קמפיין"
+      "title": "צור קמפיין",
+      "minDaysPlaceholder": "ימים מינימליים",
+      "maxDaysPlaceholder": "ימים מקסימליים",
+      "itemLabel": "פריט {{number}}",
+      "totalQuantityPlaceholder": "כמות כוללת",
+      "reservedPlaceholder": "שמור",
+      "alreadySoldPlaceholder": "נמכר",
+      "lowStockThresholdPlaceholder": "סף מלאי נמוך",
+      "backToCampaigns": "חזרה לקמפיינים"
     },
     "edit": {
       "active": "פעיל",
@@ -2276,8 +2306,10 @@
       "createFailed": "יצירת הקמפיין נכשלה",
       "createdSuccessfully": "הקמפיין נוצר בהצלחה",
       "productCreateFailed": "יצירת המוצר נכשלה",
-      "productCreated": "המוצר #{{id}} נוצר"
-    }
+      "productCreated": "המוצר #{{id}} נוצר",
+      "updatedSuccessfully": "הקמפיין עודכן בהצלחה"
+    },
+    "itemVariants": "וריאנטים"
   },
   "notifications": {
     "title": "התראות",
@@ -2496,7 +2528,9 @@
         "dialCode": "קוד חיוג",
         "editTitle": "ערוך מדינה",
         "nameAr": "שם (ערבית)",
-        "nameEn": "שם (אנגלית)"
+        "nameEn": "שם (אנגלית)",
+        "nameHe": "שם (עברית)",
+        "nameRu": "שם (רוסית)"
       },
       "list": {
         "addFirstCountry": "הוסף את המדינה הראשונה שלך",
@@ -2534,7 +2568,9 @@
         "createTitle": "הוסף מחוז",
         "editTitle": "ערוך מחוז",
         "nameAr": "שם (ערבית)",
-        "nameEn": "שם (אנגלית)"
+        "nameEn": "שם (אנגלית)",
+        "nameHe": "שם (עברית)",
+        "nameRu": "שם (רוסית)"
       },
       "list": {
         "addFirstProvince": "הוסף את המחוז הראשון שלך",
@@ -2576,7 +2612,9 @@
         "displayOrder": "סדר תצוגה",
         "editTitle": "ערוך אזור שירות",
         "nameAr": "שם (ערבית)",
-        "nameEn": "שם (אנגלית)"
+        "nameEn": "שם (אנגלית)",
+        "nameHe": "שם (עברית)",
+        "nameRu": "שם (רוסית)"
       },
       "list": {
         "addFirstRegion": "הוסף את אזור השירות הראשון שלך",

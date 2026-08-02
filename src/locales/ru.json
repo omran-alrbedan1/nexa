@@ -855,7 +855,9 @@
       "longitude": "Долгота",
       "longitudePlaceholder": "например 46.675297",
       "nameRequired": "Название обязательно",
-      "zoneRequired": "Зона обязательна"
+      "zoneRequired": "Зона обязательна",
+      "nameHe": "Название (иврит)",
+      "nameRu": "Название (русский)"
     },
     "toast": {
       "created": "Склад успешно создан",
@@ -1209,7 +1211,27 @@
     },
     "variants": {
       "name": "Название",
-      "namePlaceholder": "Название варианта"
+      "namePlaceholder": "Название варианта",
+      "title": "Варианты",
+      "addVariant": "Добавить вариант",
+      "noVariants": "Вариантов нет",
+      "addFirst": "Добавьте первый вариант (например, размер, цвет)",
+      "create": "Создать",
+      "createTitle": "Создать вариант",
+      "editTitle": "Редактировать вариант",
+      "sku": "SKU",
+      "price": "Цена",
+      "stock": "Количество на складе",
+      "available": "доступно",
+      "confirmDelete": "Удалить этот вариант?",
+      "created": "Вариант создан",
+      "createFailed": "Не удалось создать вариант",
+      "updated": "Вариант обновлён",
+      "updateFailed": "Не удалось обновить вариант",
+      "deleted": "Вариант удалён",
+      "deleteFailed": "Не удалось удалить вариант",
+      "toggled": "Статус варианта обновлён",
+      "toggleFailed": "Не удалось обновить статус варианта"
     }
   },
   "suppliers": {
@@ -2194,7 +2216,15 @@
       "subtitleEn": "Подзаголовок (EN)",
       "subtitlePlaceholder": "Подзаголовок кампании",
       "targetZone": "Целевая зона",
-      "title": "Создать кампанию"
+      "title": "Создать кампанию",
+      "minDaysPlaceholder": "Мин. дней",
+      "maxDaysPlaceholder": "Макс. дней",
+      "itemLabel": "Позиция {{number}}",
+      "totalQuantityPlaceholder": "Общее количество",
+      "reservedPlaceholder": "Зарезервировано",
+      "alreadySoldPlaceholder": "Продано",
+      "lowStockThresholdPlaceholder": "Порог низкого остатка",
+      "backToCampaigns": "Назад к кампаниям"
     },
     "edit": {
       "active": "Активна",
@@ -2276,8 +2306,10 @@
       "createFailed": "Не удалось создать кампанию",
       "createdSuccessfully": "Кампания создана успешно",
       "productCreateFailed": "Не удалось создать товар",
-      "productCreated": "Товар #{{id}} создан"
-    }
+      "productCreated": "Товар #{{id}} создан",
+      "updatedSuccessfully": "Кампания обновлена успешно"
+    },
+    "itemVariants": "Варианты"
   },
   "notifications": {
     "title": "Уведомления",
@@ -2496,7 +2528,9 @@
         "dialCode": "Телефонный код",
         "editTitle": "Редактировать страну",
         "nameAr": "Название (арабский)",
-        "nameEn": "Название (английский)"
+        "nameEn": "Название (английский)",
+        "nameHe": "Название (иврит)",
+        "nameRu": "Название (русский)"
       },
       "list": {
         "addFirstCountry": "Добавьте свою первую страну",
@@ -2534,7 +2568,9 @@
         "createTitle": "Добавить провинцию",
         "editTitle": "Редактировать провинцию",
         "nameAr": "Название (арабский)",
-        "nameEn": "Название (английский)"
+        "nameEn": "Название (английский)",
+        "nameHe": "Название (иврит)",
+        "nameRu": "Название (русский)"
       },
       "list": {
         "addFirstProvince": "Добавьте свою первую провинцию",
@@ -2576,7 +2612,9 @@
         "displayOrder": "Порядок отображения",
         "editTitle": "Редактировать регион обслуживания",
         "nameAr": "Название (арабский)",
-        "nameEn": "Название (английский)"
+        "nameEn": "Название (английский)",
+        "nameHe": "Название (иврит)",
+        "nameRu": "Название (русский)"
       },
       "list": {
         "addFirstRegion": "Добавьте свой первый регион обслуживания",

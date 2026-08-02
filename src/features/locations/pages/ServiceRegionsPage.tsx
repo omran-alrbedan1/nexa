@@ -18,7 +18,7 @@ export function ServiceRegionsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [createModal, setCreateModal] = useState(false);
-  const [editTarget, setEditTarget] = useState<{ id: number; data: { code: string; name_ar: string; name_en: string | null; country_code: string | null; display_order: number; is_active: boolean } } | null>(null);
+  const [editTarget, setEditTarget] = useState<{ id: number; data: { code: string; name_ar: string; name_en: string | null; name_he: string | null; name_ru: string | null; country_code: string | null; display_order: number; is_active: boolean } } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useServiceRegionsList({
@@ -132,6 +132,8 @@ export function ServiceRegionsPage() {
                         code: item.code,
                         name_ar: item.name_ar,
                         name_en: item.name_en,
+                        name_he: item.name_he,
+                        name_ru: item.name_ru,
                         country_code: item.country_code,
                         display_order: item.display_order,
                         is_active: item.is_active,

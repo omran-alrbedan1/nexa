@@ -31,7 +31,7 @@ export function useCreateCountry() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: { name_ar: string; name_en?: string; code: string; dial_code?: string; is_active?: boolean }) =>
+    mutationFn: (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; code: string; dial_code?: string; is_active?: boolean }) =>
       countriesApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: countryKeys.all });
@@ -46,7 +46,7 @@ export function useUpdateCountry() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; code?: string; dial_code?: string; is_active?: boolean } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; dial_code?: string; is_active?: boolean } }) =>
       countriesApi.update(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: countryKeys.all });

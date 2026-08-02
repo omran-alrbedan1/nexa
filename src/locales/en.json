@@ -858,7 +858,9 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "latitudePlaceholder": "e.g. 24.713552",
-      "longitudePlaceholder": "e.g. 46.675297"
+      "longitudePlaceholder": "e.g. 46.675297",
+      "nameHe": "Name (Hebrew)",
+      "nameRu": "Name (Russian)"
     },
     "toast": {
       "created": "Warehouse created successfully",
@@ -1207,7 +1209,27 @@
     },
     "variants": {
       "name": "Name",
-      "namePlaceholder": "Variant name"
+      "namePlaceholder": "Variant name",
+      "title": "Variants",
+      "addVariant": "Add Variant",
+      "noVariants": "No variants",
+      "addFirst": "Add your first variant (e.g. size, color)",
+      "create": "Create",
+      "createTitle": "Create Variant",
+      "editTitle": "Edit Variant",
+      "sku": "SKU",
+      "price": "Price",
+      "stock": "Stock Quantity",
+      "available": "available",
+      "confirmDelete": "Delete this variant?",
+      "created": "Variant created",
+      "createFailed": "Failed to create variant",
+      "updated": "Variant updated",
+      "updateFailed": "Failed to update variant",
+      "deleted": "Variant deleted",
+      "deleteFailed": "Failed to delete variant",
+      "toggled": "Variant status updated",
+      "toggleFailed": "Failed to update variant status"
     }
   },
   "categories": {
@@ -2323,7 +2345,15 @@
       "descriptionPlaceholder": "Campaign description...",
       "itemName": "Item Name",
       "itemNamePlaceholder": "Item name",
-      "itemDescriptionPlaceholder": "Item description (optional)"
+      "itemDescriptionPlaceholder": "Item description (optional)",
+      "minDaysPlaceholder": "Min days",
+      "maxDaysPlaceholder": "Max days",
+      "itemLabel": "Item {{number}}",
+      "totalQuantityPlaceholder": "Total quantity",
+      "reservedPlaceholder": "Reserved",
+      "alreadySoldPlaceholder": "Already sold",
+      "lowStockThresholdPlaceholder": "Low stock threshold",
+      "backToCampaigns": "Back to campaigns"
     },
     "edit": {
       "loadFailed": "Failed to load campaign",
@@ -2405,8 +2435,10 @@
       "createdSuccessfully": "Campaign created successfully",
       "createFailed": "Failed to create campaign",
       "productCreated": "Product #{{id}} created",
-      "productCreateFailed": "Failed to create product"
-    }
+      "productCreateFailed": "Failed to create product",
+      "updatedSuccessfully": "Campaign updated successfully"
+    },
+    "itemVariants": "Variants"
   },
   "notifications": {
     "title": "Notifications",
@@ -2579,7 +2611,9 @@
         "nameEn": "Name (English)",
         "code": "Code",
         "dialCode": "Dial Code",
-        "create": "Create"
+        "create": "Create",
+        "nameHe": "Name (Hebrew)",
+        "nameRu": "Name (Russian)"
       },
       "toast": {
         "created": "Country created successfully",
@@ -2618,7 +2652,9 @@
         "nameAr": "Name (Arabic)",
         "nameEn": "Name (English)",
         "country": "Country",
-        "create": "Create"
+        "create": "Create",
+        "nameHe": "Name (Hebrew)",
+        "nameRu": "Name (Russian)"
       },
       "toast": {
         "created": "Province created successfully",
@@ -2653,7 +2689,9 @@
         "nameEn": "Name (English)",
         "countryCode": "Country Code",
         "displayOrder": "Display Order",
-        "create": "Create"
+        "create": "Create",
+        "nameHe": "Name (Hebrew)",
+        "nameRu": "Name (Russian)"
       },
       "confirmDeleteTitle": "Delete Service Region",
       "confirmDeleteMessage": "Are you sure you want to delete {{name}}?",

@@ -28,7 +28,7 @@ export function ProvincesPage() {
   const [countryFilter, setCountryFilter] = useState<number | ''>('');
   const [page, setPage] = useState(1);
   const [createModal, setCreateModal] = useState(false);
-  const [editTarget, setEditTarget] = useState<{ id: number; data: { name_ar: string; name_en: string | null; is_active: boolean } } | null>(null);
+  const [editTarget, setEditTarget] = useState<{ id: number; data: { name_ar: string; name_en: string | null; name_he: string | null; name_ru: string | null; is_active: boolean } } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
   const { data: countriesData } = useCountriesPage();
@@ -181,6 +181,8 @@ export function ProvincesPage() {
                       data: {
                         name_ar: province.name_ar,
                         name_en: province.name_en,
+                        name_he: province.name_he,
+                        name_ru: province.name_ru,
                         is_active: province.is_active,
                       },
                     })}

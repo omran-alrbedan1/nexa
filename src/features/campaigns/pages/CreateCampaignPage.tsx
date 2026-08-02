@@ -8,6 +8,7 @@ import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { campaignsApi } from '../api/campaignsApi';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
+import { VariantEditor, type VariantDraft } from '@/features/products/components/VariantEditor';
 import { categoriesApi, type Category } from '@/features/categories/api/categoriesApi';
 import { ArrowLeft, Megaphone, Save, Plus, X, Package, Tag, Clock } from 'lucide-react';
 import { extractErrorMessage } from '@/lib/apiHelpers';
@@ -20,6 +21,7 @@ interface CampaignFormItem {
   unit: string;
   price: string;
   stockQuantity: string;
+  variants: VariantDraft[];
 }
 
 export function CreateCampaignPage() {
@@ -60,7 +62,7 @@ export function CreateCampaignPage() {
     const key = ++nextKey.current;
     setItems((prev) => [...prev, {
       key, names: {}, descriptions: {},
-      categoryId: '', unit: '', price: '', stockQuantity: '',
+      categoryId: '', unit: '', price: '', stockQuantity: '', variants: [],
     }]);
   };
 
@@ -70,6 +72,10 @@ export function CreateCampaignPage() {
 
   const updateItem = (key: number, field: string, value: string) => {
     setItems((prev) => prev.map((i) => i.key === key ? { ...i, [field]: value } : i));
+  };
+
+  const updateItemVariants = (key: number, variants: VariantDraft[]) => {
+    setItems((prev) => prev.map((i) => i.key === key ? { ...i, variants } : i));
   };
 
   const updateItemNames = (key: number, lang: TranslatedLang, value: string) => {
@@ -117,6 +123,15 @@ export function CreateCampaignPage() {
         unit: item.unit,
         price: parseFloat(item.price),
         stockQuantity: item.stockQuantity ? parseFloat(item.stockQuantity) : undefined,
+        variants: item.variants.map((v) => ({
+          nameAr: v.name_ar,
+          nameEn: v.name_en || undefined,
+          nameHe: v.name_he || undefined,
+          nameRu: v.name_ru || undefined,
+          price: v.price,
+          stockQuantity: v.stock_quantity,
+          isActive: v.is_active ?? true,
+        })),
       })),
     }),
     onSuccess: () => {
@@ -398,6 +413,9 @@ export function CreateCampaignPage() {
                       placeholder={t('campaigns.create.itemDescriptionPlaceholder')}
                     />
                   </div>
+                </div>
+                <div className="mt-4 border-t border-border-default/50 pt-4">
+                  <VariantEditor value={item.variants} onChange={(variants) => updateItemVariants(item.key, variants)} />
                 </div>
               </div>
             ))}

@@ -10,6 +10,8 @@ export interface ServiceRegion {
   code: string;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   country_code: string | null;
   display_order: number;
   is_active: boolean;
@@ -23,6 +25,8 @@ interface BackendServiceRegion {
   code: string;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   country_code: string | null;
   display_order: number;
   is_active: boolean;
@@ -47,6 +51,8 @@ function mapBackendServiceRegion(br: BackendServiceRegion): ServiceRegion {
     code: br.code,
     name_ar: br.name_ar,
     name_en: br.name_en,
+    name_he: br.name_he ?? null,
+    name_ru: br.name_ru ?? null,
     country_code: br.country_code,
     display_order: br.display_order,
     is_active: br.is_active,
@@ -76,13 +82,13 @@ export const serviceRegionsApi = {
   },
 
   /** Create a new service region */
-  create: async (data: { code: string; name_ar: string; name_en?: string; country_code?: string; display_order?: number; is_active?: boolean }): Promise<ServiceRegion> => {
+  create: async (data: { code: string; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; country_code?: string; display_order?: number; is_active?: boolean }): Promise<ServiceRegion> => {
     const response = await apiClient.post<ApiResponse<BackendServiceRegion>>('/api/v1/admin/service-regions', data);
     return mapBackendServiceRegion(response.data.data);
   },
 
   /** Update a service region */
-  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; country_code?: string; display_order?: number; is_active?: boolean }): Promise<ServiceRegion> => {
+  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; country_code?: string; display_order?: number; is_active?: boolean }): Promise<ServiceRegion> => {
     const response = await apiClient.put<ApiResponse<BackendServiceRegion>>(`/api/v1/admin/service-regions/${id}`, data);
     return mapBackendServiceRegion(response.data.data);
   },

@@ -9,6 +9,8 @@ export interface CountryProvince {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
 }
 
@@ -16,6 +18,8 @@ export interface Country {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   code: string;
   dial_code: string | null;
   is_active: boolean;
@@ -45,6 +49,8 @@ interface BackendProvince {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
 }
 
@@ -52,6 +58,8 @@ interface BackendCountry {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   code: string;
   dial_code: string | null;
   is_active: boolean;
@@ -72,6 +80,8 @@ function mapBackendCountry(bc: BackendCountry): Country {
     id: bc.id,
     name_ar: bc.name_ar,
     name_en: bc.name_en,
+    name_he: bc.name_he ?? null,
+    name_ru: bc.name_ru ?? null,
     code: bc.code,
     dial_code: bc.dial_code,
     is_active: bc.is_active,
@@ -79,6 +89,8 @@ function mapBackendCountry(bc: BackendCountry): Country {
       id: p.id,
       name_ar: p.name_ar,
       name_en: p.name_en,
+      name_he: p.name_he ?? null,
+      name_ru: p.name_ru ?? null,
       is_active: p.is_active,
     })),
     provinces_count: bc.provinces_count ?? (bc.provinces?.length || 0),
@@ -120,13 +132,13 @@ export const countriesApi = {
   },
 
   /** Create a new country */
-  create: async (data: { name_ar: string; name_en?: string; code: string; dial_code?: string; is_active?: boolean }): Promise<Country> => {
+  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; code: string; dial_code?: string; is_active?: boolean }): Promise<Country> => {
     const response = await apiClient.post<ApiResponse<BackendCountry>>('/api/v1/admin/countries', data);
     return mapBackendCountry(response.data.data);
   },
 
   /** Update an existing country */
-  update: async (id: number, data: { name_ar?: string; name_en?: string; code?: string; dial_code?: string; is_active?: boolean }): Promise<Country> => {
+  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; dial_code?: string; is_active?: boolean }): Promise<Country> => {
     const response = await apiClient.put<ApiResponse<BackendCountry>>(`/api/v1/admin/countries/${id}`, data);
     return mapBackendCountry(response.data.data);
   },

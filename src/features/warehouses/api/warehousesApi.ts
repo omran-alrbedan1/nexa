@@ -15,6 +15,8 @@ export interface WarehouseFormData {
   code: string;
   name: string;
   nameAr?: string;
+  nameHe?: string;
+  nameRu?: string;
   zoneId: number;
   address?: string;
   managerUserId?: number | null;
@@ -31,6 +33,8 @@ export interface Warehouse {
   code: string;
   name: string;
   nameAr: string;
+  nameHe: string;
+  nameRu: string;
   address: string;
   latitude: number | null;
   longitude: number | null;
@@ -58,6 +62,8 @@ interface BackendWarehouse {
   code: string;
   name: string;
   name_ar: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   address: string | null;
   latitude: string | null;
   longitude: string | null;
@@ -86,6 +92,8 @@ function mapWarehouse(bw: BackendWarehouse): Warehouse {
     code: bw.code,
     name: bw.name,
     nameAr: bw.name_ar || '',
+    nameHe: bw.name_he || '',
+    nameRu: bw.name_ru || '',
     address: bw.address || '',
     latitude: bw.latitude ? parseFloat(bw.latitude) : null,
     longitude: bw.longitude ? parseFloat(bw.longitude) : null,
@@ -129,6 +137,8 @@ export const warehousesApi = {
       code: form.code,
       name: form.name,
       name_ar: form.nameAr || undefined,
+      name_he: form.nameHe || undefined,
+      name_ru: form.nameRu || undefined,
       zone_id: form.zoneId,
       address: form.address || undefined,
       manager_user_id: form.managerUserId || undefined,
@@ -147,6 +157,8 @@ export const warehousesApi = {
     if (form.code !== undefined) body.code = form.code;
     if (form.name !== undefined) body.name = form.name;
     if (form.nameAr !== undefined) body.name_ar = form.nameAr || null;
+    if (form.nameHe !== undefined) body.name_he = form.nameHe || null;
+    if (form.nameRu !== undefined) body.name_ru = form.nameRu || null;
     if (form.zoneId !== undefined) body.zone_id = form.zoneId;
     if (form.address !== undefined) body.address = form.address || null;
     if (form.managerUserId !== undefined) body.manager_user_id = form.managerUserId || null;

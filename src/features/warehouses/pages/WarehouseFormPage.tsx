@@ -6,6 +6,7 @@ import { regionsApi } from '@/features/regions/api/regionsApi';
 import { useToastStore } from '@/stores/toastStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { ROUTES } from '@/routes/routes';
 import { ArrowLeft, Warehouse, Save, MapPin, Clock, User, Map, Navigation } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -34,7 +35,7 @@ export function WarehouseFormPage() {
   const [form, setForm] = useState({
     code: '',
     name: '',
-    nameAr: '',
+    names: {} as Partial<Record<TranslatedLang, string>>,
     zoneId: 0,
     address: '',
     capacity: '',
@@ -65,7 +66,7 @@ export function WarehouseFormPage() {
       setForm({
         code: existing.code,
         name: existing.name,
-        nameAr: existing.nameAr || '',
+        names: { en: existing.name, ar: existing.nameAr, he: existing.nameHe, ru: existing.nameRu },
         zoneId: existing.zone?.id || 0,
         address: existing.address || '',
         capacity: String(existing.capacity || ''),
@@ -95,7 +96,9 @@ export function WarehouseFormPage() {
     const data = {
       code: form.code.trim(),
       name: form.name.trim(),
-      nameAr: form.nameAr.trim() || undefined,
+      nameAr: form.names.ar?.trim() || undefined,
+      nameHe: form.names.he?.trim() || undefined,
+      nameRu: form.names.ru?.trim() || undefined,
       zoneId: form.zoneId,
       address: form.address.trim() || undefined,
       capacity: form.capacity ? Number(form.capacity) : undefined,
@@ -162,16 +165,15 @@ export function WarehouseFormPage() {
             <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.code')} *</label>
             <input value={form.code} onChange={(e) => handleChange('code', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary font-mono" placeholder="WH-001" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.nameEn')} *</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.nameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" dir="rtl" />
-            </div>
-          </div>
+          <TranslatedField
+            label={`${t('warehouses.form.nameEn')} *`}
+            values={form.names}
+            onChange={(key, value) => {
+              const next = { ...form.names, [key]: value };
+              setForm({ ...form, names: next, name: next.en || form.name });
+            }}
+            required
+          />
 
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.zone')} *</label>

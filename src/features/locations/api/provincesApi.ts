@@ -9,6 +9,8 @@ export interface ProvinceCountry {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   code: string;
 }
 
@@ -17,6 +19,8 @@ export interface Province {
   country_id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
   country: ProvinceCountry | null;
   zones_count: number;
@@ -30,6 +34,8 @@ interface BackendProvince {
   country_id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
   country: ProvinceCountry | null;
   zones_count: number;
@@ -55,7 +61,13 @@ function mapBackendProvince(bp: BackendProvince): Province {
     name_ar: bp.name_ar,
     name_en: bp.name_en,
     is_active: bp.is_active,
-    country: bp.country,
+    country: bp.country ? {
+      ...bp.country,
+      name_he: bp.country.name_he ?? null,
+      name_ru: bp.country.name_ru ?? null,
+    } : null,
+    name_he: bp.name_he ?? null,
+    name_ru: bp.name_ru ?? null,
     zones_count: bp.zones_count,
     created_at: bp.created_at,
   };
@@ -90,13 +102,13 @@ export const provincesApi = {
   },
 
   /** Create a new province */
-  create: async (data: { country_id: number; name_ar: string; name_en?: string; is_active?: boolean }): Promise<Province> => {
+  create: async (data: { country_id: number; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; is_active?: boolean }): Promise<Province> => {
     const response = await apiClient.post<ApiResponse<BackendProvince>>('/api/v1/admin/provinces', data);
     return mapBackendProvince(response.data.data);
   },
 
   /** Update a province */
-  update: async (id: number, data: { name_ar?: string; name_en?: string; is_active?: boolean }): Promise<Province> => {
+  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; is_active?: boolean }): Promise<Province> => {
     const response = await apiClient.put<ApiResponse<BackendProvince>>(`/api/v1/admin/provinces/${id}`, data);
     return mapBackendProvince(response.data.data);
   },
