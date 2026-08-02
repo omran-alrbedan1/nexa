@@ -110,7 +110,6 @@
       "about": "عن NEXA",
       "support": "الدعم"
     },
-
     "roles": {
       "title": "الأدوار والصلاحيات",
       "description": "إدارة أدوار المستخدمين وتعيين الصلاحيات",
@@ -245,24 +244,24 @@
       "suspendDescription": "سيتم إيقاف حساب العميل. لن يتمكن من تقديم طلبات جديدة.",
       "activateTitle": "تفعيل {{name}}",
       "activateDescription": "سيتم إعادة تفعيل حساب العميل. سيتمكن من تقديم الطلبات مرة أخرى.",
-    "addCustomer": "إضافة عميل",
-    "confirmSuspend": "تأكيد الإيقاف",
-    "confirmActivate": "تأكيد التفعيل"
-  },
-  "create": {
-    "title": "إضافة عميل جديد",
-    "firstName": "الاسم الأول",
-    "lastName": "اسم العائلة",
-    "phone": "رقم الهاتف",
-    "email": "البريد الإلكتروني",
-    "password": "كلمة المرور",
-    "submit": "إنشاء العميل"
-  },
-  "toast": {
-    "created": "تم إنشاء العميل بنجاح",
-    "createFailed": "فشل إنشاء العميل"
-  },
-  "detail": {
+      "addCustomer": "إضافة عميل",
+      "confirmSuspend": "تأكيد الإيقاف",
+      "confirmActivate": "تأكيد التفعيل"
+    },
+    "create": {
+      "title": "إضافة عميل جديد",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "إنشاء العميل"
+    },
+    "toast": {
+      "created": "تم إنشاء العميل بنجاح",
+      "createFailed": "فشل إنشاء العميل"
+    },
+    "detail": {
       "back": "العودة إلى العملاء",
       "errorTitle": "فشل تحميل بيانات العميل",
       "contactInfo": "معلومات الاتصال",
@@ -939,7 +938,10 @@
       "totalCount": "({{count}} إجمالي)",
       "totalOrders": "إجمالي الطلبات",
       "revenue": "الإيرادات",
-      "acceptanceRate": "معدل القبول"
+      "acceptanceRate": "معدل القبول",
+      "documents": "المستندات",
+      "documentsSubtitle": "المستندات التي رفعها المورد أثناء التسجيل",
+      "noDocuments": "لا توجد مستندات مرفوعة بعد"
     },
     "status": {
       "active": "نشط",
@@ -1250,7 +1252,13 @@
       "available": "متاح",
       "onTrip": "في رحلة",
       "saveTrip": "حفظ الرحلة",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "driverBusy": "هذا السائق غير متاح في التاريخ المحدد",
+      "driverBusyExistingTrip": "السائق لديه رحلة #{{tripNumber}} بتاريخ {{date}}. اختر سائقاً أو تاريخاً آخر.",
+      "driverBusyGeneric": "اختر سائقاً آخر أو غيّر التاريخ.",
+      "checkingAvailability": "جارٍ التحقق من التوفر…",
+      "driverUnavailable": "السائق المحدد مشغول في هذا التاريخ — اختر سائقاً أو تاريخاً آخر.",
+      "errorGeneric": "تعذر إنشاء الرحلة. حاول مرة أخرى."
     },
     "toast": {
       "driverAssigned": "تم إسناد السائق للرحلة",
@@ -1351,7 +1359,10 @@
       "region": "المنطقة",
       "deliveredCount": "تم التوصيل: {{count}}",
       "noTripsYet": "لا توجد رحلات بعد",
-      "noTripsDescription": "لم يقم هذا السائق بأي رحلات بعد."
+      "noTripsDescription": "لم يقم هذا السائق بأي رحلات بعد.",
+      "documents": "المستندات",
+      "documentsSubtitle": "المستندات التي رفعها السائق أثناء التسجيل",
+      "noDocuments": "لا توجد مستندات مرفوعة بعد"
     },
     "toast": {
       "approved": "تم اعتماد السائق",
@@ -1852,5 +1863,17 @@
     "showingTo": "عرض {{from}} إلى {{to}} من أصل {{total}} نتيجة",
     "previous": "السابق",
     "next": "التالي"
+  },
+  "documents": {
+    "open": "فتح",
+    "expiresOn": "تنتهي",
+    "uploadedOn": "مرفوع",
+    "types": {
+      "commercial_register": "السجل التجاري",
+      "tax_card": "البطاقة الضريبية",
+      "id_front": "الهوية — الوجه",
+      "id_back": "الهوية — الخلف",
+      "store_front": "صورة المحل"
+    }
   }
 }

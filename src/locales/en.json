@@ -110,7 +110,6 @@
       "about": "About NEXA",
       "support": "Support"
     },
-
     "roles": {
       "title": "Roles & Permissions",
       "description": "Manage user roles and assign permissions",
@@ -311,24 +310,26 @@
       "suspendDescription": "This will suspend the customer's account. They will not be able to place new orders.",
       "activateTitle": "Activate {{name}}",
       "activateDescription": "This will reactivate the customer's account. They will be able to place orders again.",
-    "addCustomer": "Add Customer",
-    "confirmSuspend": "Confirm Suspend",
-    "confirmActivate": "Confirm Activate"
-  },
-  "create": {
-    "title": "Add New Customer",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "phone": "Phone",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Create Customer"
-  },
-  "toast": {
-    "created": "Customer created successfully",
-    "createFailed": "Failed to create customer"
-  },
-  "detail": {
+      "addCustomer": "Add Customer",
+      "confirmSuspend": "Confirm Suspend",
+      "confirmActivate": "Confirm Activate"
+    },
+    "create": {
+      "title": "Add New Customer",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phone": "Phone",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create Customer"
+    },
+    "toast": {
+      "statusUpdated": "Customer status updated",
+      "statusUpdateFailed": "Failed to update customer status",
+      "notesUpdated": "Customer notes updated",
+      "notesUpdateFailed": "Failed to update customer notes"
+    },
+    "detail": {
       "back": "Back to Customers",
       "errorTitle": "Failed to load customer",
       "contactInfo": "Contact Information",
@@ -365,12 +366,6 @@
       "inactive": "Inactive",
       "suspended": "Suspended",
       "blocked": "Blocked"
-    },
-    "toast": {
-      "statusUpdated": "Customer status updated",
-      "statusUpdateFailed": "Failed to update customer status",
-      "notesUpdated": "Customer notes updated",
-      "notesUpdateFailed": "Failed to update customer notes"
     }
   },
   "dashboard": {
@@ -1324,7 +1319,10 @@
       "totalCount": "({{count}} total)",
       "totalOrders": "Total Orders",
       "revenue": "Revenue",
-      "acceptanceRate": "Acceptance Rate"
+      "acceptanceRate": "Acceptance Rate",
+      "documents": "Documents",
+      "documentsSubtitle": "Registration documents uploaded by the supplier",
+      "noDocuments": "No documents uploaded yet"
     },
     "status": {
       "active": "Active",
@@ -1701,7 +1699,13 @@
       "available": "Available",
       "onTrip": "On Trip",
       "saveTrip": "Save Trip",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "driverBusy": "This driver is not available on the selected date",
+      "driverBusyExistingTrip": "Driver already has trip #{{tripNumber}} on {{date}}. Pick another driver or date.",
+      "driverBusyGeneric": "Pick another driver or change the date.",
+      "checkingAvailability": "Checking availability…",
+      "driverUnavailable": "Selected driver is busy on this date — pick another driver or date.",
+      "errorGeneric": "Could not create the trip. Please try again."
     },
     "toast": {
       "driverAssigned": "Driver assigned to trip",
@@ -1802,7 +1806,10 @@
       "region": "Region",
       "deliveredCount": "Delivered: {{count}}",
       "noTripsYet": "No trips yet",
-      "noTripsDescription": "This driver hasn't completed any trips yet."
+      "noTripsDescription": "This driver hasn't completed any trips yet.",
+      "documents": "Documents",
+      "documentsSubtitle": "Registration documents uploaded by the driver",
+      "noDocuments": "No documents uploaded yet"
     },
     "status": {
       "pending": "Pending",
@@ -2619,5 +2626,17 @@
     "showingTo": "Showing {{from}} to {{to}} of {{total}} results",
     "previous": "Previous",
     "next": "Next"
+  },
+  "documents": {
+    "open": "Open",
+    "expiresOn": "Expires",
+    "uploadedOn": "Uploaded",
+    "types": {
+      "commercial_register": "Commercial register",
+      "tax_card": "Tax card",
+      "id_front": "ID — front",
+      "id_back": "ID — back",
+      "store_front": "Store front photo"
+    }
   }
 }

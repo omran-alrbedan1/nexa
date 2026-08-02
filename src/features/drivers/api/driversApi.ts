@@ -18,6 +18,14 @@ import type { ApiResponse } from '@/types/common';
 
 export type DriverApprovalStatus = 'pending' | 'approved' | 'rejected';
 
+export interface DriverDocument {
+  id: number;
+  type: string;
+  filePath: string | null;
+  status: string;
+  uploadedAt: string | null;
+}
+
 export interface DriverTripOrder {
   id: number;
   sequence: number;
@@ -62,6 +70,7 @@ export interface Driver {
   createdAt: string;
   updatedAt: string;
   recentTrips: DriverTrip[];
+  documents: DriverDocument[];
 }
 
 export interface DriversPageData {
@@ -217,6 +226,13 @@ function mapBackendDriver(d: BackendDriver): Driver {
         delivery_status: to.delivery_status,
         order: to.order,
       })),
+    })),
+    documents: (d.user?.documents || []).map((doc) => ({
+      id: doc.id,
+      type: doc.type,
+      filePath: doc.file_path,
+      status: doc.status,
+      uploadedAt: doc.uploaded_at,
     })),
   };
 }

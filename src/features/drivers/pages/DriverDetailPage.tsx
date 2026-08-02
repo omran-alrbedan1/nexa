@@ -10,6 +10,7 @@ import { safeFormatDate } from '@/utils/date';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap';
+import { DocumentsSection } from '@/components/documents/DocumentsSection';
 import { ArrowLeft, User, Phone, Mail, Truck, Star, Route, Package, Calendar, Navigation } from 'lucide-react';
 
 export function DriverDetailPage() {
@@ -214,6 +215,14 @@ export function DriverDetailPage() {
           </div>
         </Card>
       </div>
+
+      {/* Documents */}
+      <DocumentsSection
+        documents={driver.documents}
+        titleKey="drivers.detail.documents"
+        subtitleKey="drivers.detail.documentsSubtitle"
+        emptyKey="drivers.detail.noDocuments"
+      />
 
       {/* Recent Trips */}
       <Card padding="lg">

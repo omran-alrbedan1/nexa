@@ -14,7 +14,15 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { tripsApi } from '../api/tripsApi';
 import { usePickupOrders } from '../hooks/useTrips';
 import type { TripType } from '../api/tripsApi';
-import { ArrowLeft, Truck, Save, User, Warehouse } from 'lucide-react';
+import { ArrowLeft, Truck, Save, User, Warehouse, AlertTriangle, Loader2 } from 'lucide-react';
+import axios from 'axios';
+
+function getApiErrorMessage(err: unknown, fallback: string): string {
+  if (axios.isAxiosError(err)) {
+    return err.response?.data?.message || fallback;
+  }
+  return err instanceof Error ? err.message : fallback;
+}
 
 export function CreateTripPage() {
   const { t } = useTranslation();
@@ -47,6 +55,14 @@ export function CreateTripPage() {
     queryKey: ['create-trip', 'available-drivers'],
     queryFn: () => tripsApi.getAvailableDrivers(),
     staleTime: 15_000,
+  });
+
+  // Check selected driver's availability for the chosen date (prevents double-booking)
+  const { data: availability, isFetching: checkingAvailability } = useQuery({
+    queryKey: ['create-trip', 'driver-availability', selectedDriver, form.plannedDate],
+    queryFn: () => tripsApi.checkDriverAvailability(selectedDriver!, form.plannedDate),
+    enabled: selectedDriver !== null && !!form.plannedDate,
+    staleTime: 30_000,
   });
 
   // Fetch real warehouses from backend
@@ -95,7 +111,10 @@ export function CreateTripPage() {
       addToast('error', t(isPickup ? 'trips.create.noPickupOrdersSelected' : 'trips.create.noOrdersSelected'));
       return;
     }
-    // Try real backend, fall back to dummy
+    if (selectedDriver && availability?.available === false) {
+      addToast('error', t('trips.create.driverUnavailable'));
+      return;
+    }
     try {
       await tripsApi.createTrip?.({
         type: tripType,
@@ -108,10 +127,10 @@ export function CreateTripPage() {
         order_ids: selectedOrders,
       });
       addToast('success', t('trips.create.successTitle'));
-    } catch {
-      addToast('success', t('trips.create.successDummy'));
+      navigate(ROUTES.TRIPS);
+    } catch (err) {
+      addToast('error', getApiErrorMessage(err, t('trips.create.errorGeneric')));
     }
-    navigate(ROUTES.TRIPS);
   };
 
   const selectedCount = selectedOrders.length;
@@ -327,7 +346,28 @@ export function CreateTripPage() {
         <div className="flex items-center gap-2 mb-4">
           <User size={16} className="text-brand-primary" />
           <h3 className="text-sm font-bold text-text-primary font-display">{t('trips.create.assignDriver')}</h3>
+          {checkingAvailability && (
+            <span className="flex items-center gap-1 text-xs text-text-tertiary font-body">
+              <Loader2 size={12} className="animate-spin" /> {t('trips.create.checkingAvailability')}
+            </span>
+          )}
         </div>
+        {selectedDriver && !checkingAvailability && availability?.available === false && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
+            <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm font-body">
+              <p className="font-bold text-amber-800">{t('trips.create.driverBusy')}</p>
+              <p className="text-amber-700 text-xs mt-0.5">
+                {availability.reason === 'driver_double_booked' && availability.existing_trip
+                  ? t('trips.create.driverBusyExistingTrip', {
+                      tripNumber: availability.existing_trip.trip_number,
+                      date: availability.existing_trip.planned_date || '',
+                    })
+                  : t('trips.create.driverBusyGeneric')}
+              </p>
+            </div>
+          </div>
+        )}
         {driversLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-pulse">{[1,2].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
         ) : (
@@ -361,7 +401,15 @@ export function CreateTripPage() {
       </Card>
 
       <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit}>{t('trips.create.saveTrip')}</Button>
+        <Button
+          variant="primary"
+          size="sm"
+          leftIcon={<Save size={14} />}
+          onClick={handleSubmit}
+          disabled={selectedDriver ? availability?.available === false : false}
+        >
+          {t('trips.create.saveTrip')}
+        </Button>
         <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.TRIPS)}>{t('trips.create.cancel')}</Button>
       </div>
     </div>

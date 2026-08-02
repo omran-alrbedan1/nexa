@@ -22,6 +22,14 @@ import type { DashboardProduct } from '@/features/products/api/productsApi';
 export type SupplierStatus = 'active' | 'inactive' | 'suspended' | 'pending_approval';
 export type SupplierPaymentTerms = 'net_15' | 'net_30' | 'net_45' | 'prepaid';
 
+export interface SupplierDocument {
+  id: number;
+  type: string;
+  filePath: string | null;
+  status: string | null;
+  expiresAt: string | null;
+}
+
 export interface Supplier {
   id: number;
   name: string;
@@ -43,6 +51,7 @@ export interface Supplier {
   contactPhone: string;
   address: string;
   notes: string;
+  documents: SupplierDocument[];
   createdAt: string;
   updatedAt: string;
 }
@@ -86,6 +95,14 @@ interface BackendCategoryRef {
   name: string;
 }
 
+interface BackendSupplierDocument {
+  id: number;
+  type: string;
+  file_path: string | null;
+  status: string | null;
+  expires_at: string | null;
+}
+
 interface BackendSupplier {
   id: number;
   business_name: string;
@@ -113,6 +130,7 @@ interface BackendSupplier {
   categories: BackendCategoryRef[] | null;
   user: BackendSupplierUser;
   zone: BackendSupplierZone | null;
+  documents?: BackendSupplierDocument[] | null;
 }
 
 interface BackendSuppliersResponse {
@@ -189,6 +207,13 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     contactPhone: bs.user?.phone || '',
     address: bs.address || '',
     notes: bs.rejection_reason || '',
+    documents: (bs.documents || []).map((d) => ({
+      id: d.id,
+      type: d.type,
+      filePath: d.file_path,
+      status: d.status,
+      expiresAt: d.expires_at,
+    })),
     createdAt: bs.created_at,
     updatedAt: bs.approved_at || bs.created_at,
   };

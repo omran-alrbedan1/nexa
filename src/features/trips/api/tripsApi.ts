@@ -262,6 +262,18 @@ interface BackendAvailableDriver {
   is_available: boolean;
 }
 
+export interface DriverAvailabilityResult {
+  available: boolean;
+  reason: string | null;
+  existing_trip: {
+    id: number;
+    trip_number: string;
+    type: string | null;
+    status: string | null;
+    planned_date: string | null;
+  } | null;
+}
+
 // ── Pickup Issue Types ──
 
 export interface PickupIssue {
@@ -463,6 +475,17 @@ export const tripsApi = {
     const response = await apiClient.get<ApiResponse<BackendAvailableDriver[]>>('/api/v1/admin/trips/available-drivers');
     const drivers = response.data.data;
     return (Array.isArray(drivers) ? drivers : []).map((d) => ({ id: d.id, name: d.full_name, regionName: d.zone_name, isAvailable: d.is_available }));
+  },
+
+  /** Check whether a driver is free on a given date (prevents double-booking) */
+  checkDriverAvailability: async (driverId: number, plannedDate?: string): Promise<DriverAvailabilityResult> => {
+    const response = await apiClient.get<ApiResponse<DriverAvailabilityResult>>('/api/v1/admin/trips/driver-availability', {
+      params: {
+        driver_id: driverId,
+        planned_date: plannedDate || undefined,
+      },
+    });
+    return response.data.data;
   },
 
   /** Create a new trip */

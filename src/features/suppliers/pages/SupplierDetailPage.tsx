@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
+import { DocumentsSection } from '@/components/documents/DocumentsSection';
 
 import { useState, useEffect } from 'react';
 import {
@@ -493,6 +494,14 @@ export function SupplierDetailPage() {
           </div>
         </Card>
       </div>
+      {/* Documents */}
+      <DocumentsSection
+        documents={supplier.documents}
+        titleKey="suppliers.detail.documents"
+        subtitleKey="suppliers.detail.documentsSubtitle"
+        emptyKey="suppliers.detail.noDocuments"
+      />
+
       {/* Products from supplier */}
       <SupplierProductsSection supplierId={id} t={t} />
 
