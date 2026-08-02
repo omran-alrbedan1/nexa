@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useRescheduleOrder, useTransferOrder, useUpdateDeliveryType, useUpdateDeliveryUrgency } from '../hooks/useOrders';
+import { useOrderDetail, useUpdateOrderStatus, useConfirmWarehouseReceipt, useUpdateDeliveryType, useUpdateDeliveryUrgency } from '../hooks/useOrders';
 import type { DeliveryUrgency } from '../api/ordersApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -16,7 +16,7 @@ import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
 import {
   ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
   CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
-  CalendarDays, Building2, ArrowRightLeft, DollarSign, FileClock, Navigation, MapPinHouse,
+  DollarSign, FileClock, Navigation, MapPinHouse,
 } from 'lucide-react';
 import type { DeliveryType, OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
@@ -88,8 +88,6 @@ export function OrderDetailPage() {
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
   const updateStatus = useUpdateOrderStatus();
   const confirmReceipt = useConfirmWarehouseReceipt();
-  const rescheduleOrder = useRescheduleOrder();
-  const transferOrder = useTransferOrder();
   const addToast = useToastStore((s) => s.addToast);
   const formatPrice = useFormatPrice();
   void useDeliveryStage(id);
@@ -100,14 +98,6 @@ export function OrderDetailPage() {
   const updateDeliveryUrgency = useUpdateDeliveryUrgency();
   const [deliveryUrgencyModal, setDeliveryUrgencyModal] = useState(false);
   const [deliveryUrgencySelection, setDeliveryUrgencySelection] = useState<DeliveryUrgency>('fast');
-
-  const [rescheduleModal, setRescheduleModal] = useState(false);
-  const [rescheduleDate, setRescheduleDate] = useState('');
-  const [rescheduleTime, setRescheduleTime] = useState('');
-  const [rescheduleReason, setRescheduleReason] = useState('');
-  const [transferModal, setTransferModal] = useState(false);
-  const [transferWarehouseId, setTransferWarehouseId] = useState('');
-  const [transferReason, setTransferReason] = useState('');
 
   if (isError) {
     return (
@@ -152,17 +142,6 @@ export function OrderDetailPage() {
       actions.push({ label: t('orders.detail.confirmReceipt'), onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
     }
     if (!['delivered', 'cancelled', 'refunded'].includes(o.status)) {
-      actions.push({ label: t('orders.detail.reschedule'), onClick: () => {
-        setRescheduleDate('');
-        setRescheduleTime('');
-        setRescheduleReason('');
-        setRescheduleModal(true);
-      }, variant: 'secondary', icon: <CalendarDays size={14} /> });
-      actions.push({ label: t('orders.detail.transfer'), onClick: () => {
-        setTransferWarehouseId('');
-        setTransferReason('');
-        setTransferModal(true);
-      }, variant: 'secondary', icon: <ArrowRightLeft size={14} /> });
       actions.push({ label: 'Set Urgency', onClick: () => {
         setDeliveryUrgencySelection(o.deliveryUrgency || 'fast');
         setDeliveryUrgencyModal(true);
@@ -177,6 +156,18 @@ export function OrderDetailPage() {
   };
 
   const availableActions = getAvailableActions(order);
+
+  // Merge consecutive duplicate status entries (e.g. repeated IN_SUPPLY logs from test data)
+  const dedupedTimeline = useMemo(() => {
+    const statusKey = (s: string) => mapFromBackend(s, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase();
+    const out: typeof order.timeline = [];
+    for (const log of order.timeline) {
+      const prev = out[out.length - 1];
+      if (prev && statusKey(prev.toStatus) === statusKey(log.toStatus)) continue;
+      out.push(log);
+    }
+    return out;
+  }, [order.timeline]);
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -429,7 +420,7 @@ export function OrderDetailPage() {
       )}
 
       {/* Timeline */}
-      {order.timeline.length > 0 && (
+      {dedupedTimeline.length > 0 && (
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-5">
             <Clock size={16} className="text-brand-accent" />
@@ -438,15 +429,15 @@ export function OrderDetailPage() {
           <div className="relative pl-8">
             {/* Vertical line */}
             <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-default" />
-            {order.timeline.map((log, idx) => (
+            {dedupedTimeline.map((log, idx) => (
               <div key={idx} className="relative pb-10 last:pb-0">
                 <div className={cn(
                   'absolute -left-[23px] w-[22px] h-[22px] rounded-full border-2 border-white flex items-center justify-center',
-                  idx === order.timeline.length - 1 ? 'bg-brand-accent' : 'bg-white'
+                  idx === dedupedTimeline.length - 1 ? 'bg-brand-accent' : 'bg-white'
                 )}>
                   <div className={cn(
                     'w-2 h-2 rounded-full',
-                    idx === order.timeline.length - 1 ? 'bg-white' : 'bg-border-default'
+                    idx === dedupedTimeline.length - 1 ? 'bg-white' : 'bg-border-default'
                   )} />
                 </div>
                 <div>
@@ -593,107 +584,6 @@ export function OrderDetailPage() {
               setCancelModal(false);
             }}>
               {t('orders.detail.yesCancel')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Reschedule Modal */}
-      <Modal open={rescheduleModal} onClose={() => setRescheduleModal(false)} title={t('orders.detail.rescheduleTitle', { number: order.orderNumber })}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.newDate')}</label>
-              <input
-                type="date"
-                value={rescheduleDate}
-                onChange={(e) => setRescheduleDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.newTime')}</label>
-              <input
-                type="time"
-                value={rescheduleTime}
-                onChange={(e) => setRescheduleTime(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.rescheduleReason')}</label>
-            <textarea
-              rows={2}
-              value={rescheduleReason}
-              onChange={(e) => setRescheduleReason(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
-              placeholder={t('orders.detail.reschedulePlaceholder')}
-            />
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
-            <CalendarDays size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700 font-body">{t('orders.detail.rescheduleWarning')}</p>
-          </div>
-          <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setRescheduleModal(false)}>{t('common.cancel')}</Button>
-            <Button variant="accent" size="sm" isLoading={rescheduleOrder.isPending} disabled={!rescheduleDate} onClick={() => {
-              const scheduledAt = rescheduleTime
-                ? `${rescheduleDate}T${rescheduleTime}:00`
-                : rescheduleDate;
-              rescheduleOrder.mutate({
-                orderId: order.id,
-                scheduledDate: scheduledAt,
-                reason: rescheduleReason,
-              });
-              setRescheduleModal(false);
-            }}>
-              {t('orders.detail.confirmReschedule')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Transfer Modal */}
-      <Modal open={transferModal} onClose={() => setTransferModal(false)} title={t('orders.detail.transferTitle', { number: order.orderNumber })}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.transferWarehouse')}</label>
-            <input
-              type="number"
-              value={transferWarehouseId}
-              onChange={(e) => setTransferWarehouseId(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder={t('orders.detail.warehouseIdPlaceholder')}
-              min="1"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('orders.detail.transferReason')}</label>
-            <textarea
-              rows={2}
-              value={transferReason}
-              onChange={(e) => setTransferReason(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary resize-none"
-              placeholder={t('orders.detail.transferPlaceholder')}
-            />
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
-            <Building2 size={18} className="text-blue-500 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700 font-body">{t('orders.detail.transferWarning')}</p>
-          </div>
-          <div className="flex items-center justify-end gap-3">
-            <Button variant="secondary" size="sm" onClick={() => setTransferModal(false)}>{t('common.cancel')}</Button>
-            <Button variant="accent" size="sm" isLoading={transferOrder.isPending} disabled={!transferWarehouseId} onClick={() => {
-              transferOrder.mutate({
-                orderId: order.id,
-                warehouseId: parseInt(transferWarehouseId),
-                reason: transferReason,
-              });
-              setTransferModal(false);
-            }}>
-              {t('orders.detail.confirmTransfer')}
             </Button>
           </div>
         </div>

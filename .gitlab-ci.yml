@@ -19,8 +19,8 @@ build_dev:
   script:
     - docker build -t nexa-dashboard:${IMAGE_TAG}
         --build-arg VITE_API_BASE_URL=${DEV_API_URL}
-        --build-arg VITE_REVERB_KEY=${DEV_REVERB_KEY:-nexa-tracking-key}
-        --build-arg VITE_REVERB_HOST=${DEV_REVERB_HOST:-api-nexa.futxtech.com}
+        --build-arg VITE_REVERB_KEY=${DEV_REVERB_KEY:-nexa-tracking-key-dev}
+        --build-arg VITE_REVERB_HOST=${DEV_REVERB_HOST:-dev.nexa.futxtech.com}
         --build-arg VITE_REVERB_PORT=${DEV_REVERB_PORT:-443}
         --build-arg VITE_REVERB_SCHEME=${DEV_REVERB_SCHEME:-https}
         --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .

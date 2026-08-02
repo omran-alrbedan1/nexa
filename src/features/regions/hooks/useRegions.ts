@@ -1,7 +1,44 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
+import { apiClient } from '@/lib/axios';
+import type { ApiResponse } from '@/types/common';
 import { regionsApi, type RegionsPageData } from '../api/regionsApi';
+
+export interface WarehouseOption {
+  id: number;
+  name: string;
+}
+
+export interface ZoneOption {
+  id: number;
+  name: string;
+  name_ar: string;
+  name_en?: string | null;
+  is_active: boolean;
+}
+
+export function useWarehouseOptions() {
+  return useQuery<WarehouseOption[]>({
+    queryKey: ['warehouse-options'] as const,
+    queryFn: async () => {
+      const response = await apiClient.get<ApiResponse<{ warehouses: WarehouseOption[]; meta: Record<string, unknown> }>>('/api/v1/admin/warehouses', { params: { per_page: 200 } });
+      return response.data.data.warehouses;
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useZoneOptions() {
+  return useQuery<ZoneOption[]>({
+    queryKey: ['zone-options'] as const,
+    queryFn: async () => {
+      const response = await apiClient.get<ApiResponse<{ zones: ZoneOption[]; meta: Record<string, unknown> }>>('/api/v1/admin/zones', { params: { per_page: 200 } });
+      return response.data.data.zones.map((z) => ({ ...z, name: z.name_ar }));
+    },
+    staleTime: 60_000,
+  });
+}
 
 export const regionKeys = {
   all: ['regions'] as const,

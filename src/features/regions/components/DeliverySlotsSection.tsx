@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDeliverySlots, useCreateDeliverySlot, useUpdateDeliverySlot } from '../hooks/useRegions';
-import { useWarehouses, useZones } from '@/features/delivery-slots/hooks/useDeliverySlots';
+import { useDeliverySlots, useCreateDeliverySlot, useUpdateDeliverySlot, useWarehouseOptions, useZoneOptions } from '../hooks/useRegions';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -20,8 +19,8 @@ export function DeliverySlotsSection({ zoneId }: DeliverySlotsSectionProps) {
   const { data: slots, isLoading } = useDeliverySlots(zoneId);
   const createSlot = useCreateDeliverySlot();
   const updateSlot = useUpdateDeliverySlot();
-  const { data: warehouses = [] } = useWarehouses();
-  const { data: zones = [] } = useZones();
+  const { data: warehouses = [] } = useWarehouseOptions();
+  const { data: zones = [] } = useZoneOptions();
 
   const [createModal, setCreateModal] = useState(false);
   const [form, setForm] = useState({

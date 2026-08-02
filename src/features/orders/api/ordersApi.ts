@@ -173,8 +173,9 @@ interface BackendItem {
 interface BackendStatusLog {
   from_status?: string | null;
   to_status: string;
-  timestamp: string;
-  actor: string;
+  role_at_time: string;
+  note?: string | null;
+  created_at: string;
 }
 
 interface BackendPayment {
@@ -304,8 +305,8 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
     timeline: (bo.status_logs || []).map((l) => ({
       fromStatus: l.from_status || null,
       toStatus: l.to_status,
-      timestamp: l.timestamp,
-      actor: l.actor,
+      timestamp: l.created_at,
+      actor: l.role_at_time,
     })),
     payments: (bo.payments || []).map((p) => ({
       amount: parseFloat(p.amount) || 0,

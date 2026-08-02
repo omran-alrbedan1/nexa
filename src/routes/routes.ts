@@ -101,9 +101,6 @@ export const ROUTES = {
   // Driver Monitor
   DRIVER_MONITOR: '/driver-monitor',
 
-  // Delivery Slots
-  DELIVERY_SLOTS: '/delivery-slots',
-
   // Settings
   SETTINGS: '/settings',
   SETTINGS_ROLES: '/settings/roles',

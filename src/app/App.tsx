@@ -135,11 +135,6 @@ const SpecialOrderDetailPage = lazy(() =>
   import('@/features/special-orders/pages/SpecialOrderDetailPage').then((m) => ({ default: m.SpecialOrderDetailPage }))
 );
 
-// ── Delivery Slots ──
-const DeliverySlotsPage = lazy(() =>
-  import('@/features/delivery-slots/pages/DeliverySlotsPage').then((m) => ({ default: m.DeliverySlotsPage }))
-);
-
 // ── Reports ──
 const ReportsPage = lazy(() =>
   import('@/features/reports/pages/ReportsPage').then((m) => ({ default: m.ReportsPage }))
@@ -368,9 +363,8 @@ export function App() {
                 <Route path={ROUTES.SETTINGS_ABOUT_NEXA} element={<AboutNexaPage />} />
               </Route>
 
-              {/* Delivery Slots — requires settings.manage */}
+              {/* Delivery Slots — removed; trips are scheduled per day instead */}
               <Route element={<ProtectedRoute requiredPermissions={['settings.manage']} />}>
-                <Route path={ROUTES.DELIVERY_SLOTS} element={<DeliverySlotsPage />} />
                 <Route path={ROUTES.WAREHOUSES} element={<WarehousesPage />} />
                 <Route path={ROUTES.WAREHOUSE_NEW} element={<WarehouseFormPage />} />
                 <Route path={ROUTES.WAREHOUSE_EDIT} element={<WarehouseFormPage />} />
