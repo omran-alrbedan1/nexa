@@ -219,7 +219,7 @@ export function ProductDetailPage() {
             <div className="flex items-center justify-between py-2 text-sm font-body">
               <span className="text-text-secondary flex items-center gap-2"><Image size={12} /> {t('products.detail.image')}</span>
               {product.imageUrl ? (
-                <img src={product.imageUrl} alt={product.nameAr || t('products.detail.product')} className="h-12 w-12 rounded-lg object-cover border border-border-default" />
+                <img src={product.imageUrl} alt={product.nameAr || t('products.detail.noImage')} className="h-12 w-12 rounded-lg object-cover border border-border-default" />
               ) : (
                 <span className="font-bold text-text-primary">{t('products.detail.noImage')}</span>
               )}
