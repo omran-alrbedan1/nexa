@@ -259,7 +259,11 @@
     },
     "toast": {
       "created": "تم إنشاء العميل بنجاح",
-      "createFailed": "فشل إنشاء العميل"
+      "createFailed": "فشل إنشاء العميل",
+      "statusUpdated": "تم تحديث حالة العميل",
+      "statusUpdateFailed": "فشل تحديث حالة العميل",
+      "notesUpdated": "تم تحديث ملاحظات العميل",
+      "notesUpdateFailed": "فشل تحديث ملاحظات العميل"
     },
     "detail": {
       "back": "العودة إلى العملاء",
@@ -692,7 +696,16 @@
       "openingTime": "وقت الافتتاح",
       "closingTime": "وقت الإغلاق",
       "save": "حفظ المستودع",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "codeRequired": "الرمز مطلوب",
+      "nameRequired": "الاسم مطلوب",
+      "zoneRequired": "المنطقة مطلوبة",
+      "location": "الموقع (اضغط على الخريطة أو أدخل الإحداثيات)",
+      "loadingMap": "جاري تحميل الخريطة...",
+      "latitude": "خط العرض",
+      "longitude": "خط الطول",
+      "latitudePlaceholder": "مثال: 24.713552",
+      "longitudePlaceholder": "مثال: 46.675297"
     },
     "toast": {
       "created": "تم إنشاء المستودع بنجاح",
@@ -850,7 +863,9 @@
       "disable": "تعطيل",
       "supplier": "مورد",
       "internal": "داخلي",
-      "seasonal": "موسمي"
+      "seasonal": "موسمي",
+      "noSupplier": "بدون مورد",
+      "totalOrders": "{{count}} طلب"
     },
     "detail": {
       "back": "العودة إلى المنتجات",
@@ -880,7 +895,47 @@
       "description": "الوصف",
       "stockMovements": "حركة المخزون",
       "stockMovementsPlaceholder": "سجل حركة المخزون سيظهر هنا عندما يوفر النظام الخلفي هذه البيانات."
-    }
+    },
+    "create": {
+      "title": "إضافة منتج",
+      "description": "إنشاء منتج جديد في الكتالوج",
+      "subtitle": "إنشاء منتج جديد في الكتالوج",
+      "back": "العودة إلى المنتجات",
+      "validationRequired": "اسم المنتج (عربي وإنجليزي) والسعر مطلوبة",
+      "successMessage": "تم إنشاء المنتج بنجاح",
+      "imageTitle": "صورة المنتج",
+      "preview": "معاينة",
+      "changeImage": "تغيير الصورة",
+      "uploadImage": "رفع الصورة",
+      "removeImage": "إزالة",
+      "imageHint": "JPG أو PNG أو WebP. بحد أقصى 2 ميجابايت.",
+      "basicInfo": "المعلومات الأساسية",
+      "nameEn": "اسم المنتج (إنجليزي) *",
+      "nameAr": "اسم المنتج (عربي)",
+      "descriptionEn": "الوصف (إنجليزي)",
+      "descriptionAr": "الوصف (عربي)",
+      "source": "المصدر",
+      "sourceSupplier": "مورد",
+      "sourceInternal": "داخلي",
+      "sourceSeasonal": "موسمي",
+      "pricingInventory": "السعر والمخزون",
+      "price": "السعر *",
+      "unit": "الوحدة",
+      "unitKg": "كيلوغرام (كغ)",
+      "unitPiece": "قطعة",
+      "unitPack": "عبوة",
+      "unitBox": "صندوق",
+      "unitLoaf": "رغيف",
+      "unitJar": "مرطبان",
+      "unitTub": "حاوية",
+      "stockQuantity": "كمية المخزون",
+      "category": "الفئة",
+      "selectCategory": "اختر فئة",
+      "supplier": "المورد",
+      "noSupplier": "بدون مورد",
+      "save": "حفظ المنتج"
+    },
+    "toast": {}
   },
   "suppliers": {
     "title": "الموردين",
@@ -955,6 +1010,49 @@
       "net_30": "صافي 30",
       "net_45": "صافي 45",
       "prepaid": "مدفوع مسبقاً"
+    },
+    "create": {
+      "title": "إضافة مورد",
+      "description": "تسجيل مورد جديد",
+      "back": "العودة إلى الموردين",
+      "contactInfo": "معلومات التواصل",
+      "businessNameEn": "اسم النشاط (إنجليزي) *",
+      "businessNameEnPlaceholder": "Fresh Farm Co.",
+      "businessNameAr": "اسم النشاط (عربي)",
+      "businessNameArPlaceholder": "المزرعة الطازجة",
+      "email": "البريد الإلكتروني *",
+      "emailPlaceholder": "contact@supplier.com",
+      "phone": "الهاتف",
+      "phonePlaceholder": "+966501234001",
+      "contactPerson": "الشخص المسؤول",
+      "contactPersonPlaceholder": "أحمد المطيري",
+      "contactPhone": "هاتف التواصل",
+      "contactPhonePlaceholder": "+966501234111",
+      "address": "العنوان",
+      "addressPlaceholder": "الرياض، المنطقة الصناعية",
+      "businessDetails": "تفاصيل النشاط التجاري",
+      "commercialRegister": "السجل التجاري",
+      "commercialRegisterPlaceholder": "CR-2025-001",
+      "taxNumber": "الرقم الضريبي",
+      "taxNumberPlaceholder": "TX-3001",
+      "paymentTerms": "شروط الدفع",
+      "paymentTermNet15": "صافي 15",
+      "paymentTermNet30": "صافي 30",
+      "paymentTermNet45": "صافي 45",
+      "paymentTermPrepaid": "دفع مسبق",
+      "commissionRate": "نسبة العمولة (%)",
+      "commissionRatePlaceholder": "10",
+      "save": "حفظ المورد",
+      "cancel": "إلغاء",
+      "required": "اسم النشاط والبريد الإلكتروني مطلوبان",
+      "success": "تم إنشاء المورد بنجاح",
+      "failed": "فشل إنشاء المورد"
+    },
+    "toast": {
+      "approved": "تم اعتماد المورد بنجاح",
+      "approveFailed": "فشل اعتماد المورد",
+      "suspended": "تم إيقاف المورد",
+      "suspendFailed": "فشل إيقاف المورد"
     }
   },
   "regions": {
@@ -979,7 +1077,12 @@
       "nameAr": "الاسم (عربي)",
       "nameEn": "الاسم (إنجليزي)",
       "code": "الرمز",
-      "create": "إنشاء"
+      "create": "إنشاء",
+      "boundaryTitle": "تحديد حدود المنطقة",
+      "clickToAdd": "اضغط على الخريطة لإضافة نقاط الحدود",
+      "pointsCount": "{{count}} نقطة",
+      "boundary": "حدود المنطقة",
+      "drawBoundary": "رسم الحدود"
     },
     "clusters": {
       "title": "التجمعات",
@@ -1059,6 +1162,29 @@
       "edit": "تعديل",
       "zoneInfo": "معلومات المنطقة",
       "activeSlotsCount": "الفترات النشطة"
+    },
+    "toast": {
+      "regionEnabled": "تم تفعيل المنطقة",
+      "regionDisabled": "تم تعطيل المنطقة",
+      "toggleFailed": "فشل تغيير حالة المنطقة",
+      "feeUpdated": "تم تحديث رسوم التوصيل",
+      "feeUpdateFailed": "فشل تحديث رسوم التوصيل",
+      "zoneCreated": "تم إنشاء المنطقة بنجاح",
+      "zoneCreateFailed": "فشل إنشاء المنطقة",
+      "zoneUpdated": "تم تحديث المنطقة بنجاح",
+      "zoneUpdateFailed": "فشل تحديث المنطقة",
+      "clusterCreated": "تم إنشاء الكتلة بنجاح",
+      "clusterCreateFailed": "فشل إنشاء الكتلة",
+      "clusterUpdated": "تم تحديث الكتلة بنجاح",
+      "clusterUpdateFailed": "فشل تحديث الكتلة",
+      "clusterDeleted": "تم حذف الكتلة بنجاح",
+      "clusterDeleteFailed": "فشل حذف الكتلة",
+      "slotCreated": "تم إنشاء الفترة الزمنية بنجاح",
+      "slotCreateFailed": "فشل إنشاء الفترة الزمنية",
+      "slotUpdated": "تم تحديث الفترة الزمنية بنجاح",
+      "slotUpdateFailed": "فشل تحديث الفترة الزمنية",
+      "workingDaysUpdated": "تم تحديث أيام العمل بنجاح",
+      "workingDaysUpdateFailed": "فشل تحديث أيام العمل"
     }
   },
   "trips": {
@@ -1453,7 +1579,31 @@
     "statusUpdated": "تم تحديث حالة التذكرة",
     "start": "بدء",
     "resolve": "حل",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "ticketStatus": {
+      "open": "مفتوحة",
+      "in_progress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "closed": "مغلقة",
+      "unknown": "غير معروف"
+    },
+    "priority": {
+      "urgent": "عاجل",
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "staffIdPlaceholder": "أدخل معرف الموظف",
+    "attachmentOnly": "[مرفق فقط]",
+    "loadFailed": "فشل تحميل التذكرة",
+    "switchToPublic": "التبديل إلى رد عام",
+    "switchToInternal": "التبديل إلى ملاحظة داخلية",
+    "toast": {
+      "assigned": "تم تعيين التذكرة",
+      "assignFailed": "فشل تعيين التذكرة",
+      "statusUpdated": "تم تحديث حالة التذكرة بنجاح",
+      "statusUpdateFailed": "فشل تحديث حالة التذكرة"
+    }
   },
   "reports": {
     "title": "التقارير",
@@ -1543,7 +1693,24 @@
       "priceQuoteNotes": "ملاحظات التسعير",
       "priceQuoteNotesPlaceholder": "أضف تفاصيل حول التسعير والتوفر ومدة التوصيل...",
       "priceQuoteUpdateWarning": "يوجد بالفعل عرض سعر لهذا الطلب الخاص. إرسال عرض جديد سيحل محله.",
-      "submitQuote": "إرسال عرض السعر"
+      "submitQuote": "إرسال عرض السعر",
+      "subtotal": "المجموع الفرعي",
+      "deliveryFeeLabel": "رسوم التوصيل",
+      "customerResponse": "رد العميل: {{note}}",
+      "noSuppliers": "لا يوجد موردون",
+      "searchSupplier": "ابحث باسم المورد...",
+      "searchZone": "ابحث عن منطقة...",
+      "noZones": "لا توجد مناطق",
+      "selectZoneFirst": "اختر منطقة أولاً",
+      "warehouse": "المستودع",
+      "noWarehouses": "لا توجد مستودعات",
+      "loadingZones": "جاري تحميل المناطق...",
+      "selectZone": "اختر منطقة",
+      "loadingWarehouses": "جاري تحميل المستودعات...",
+      "selectWarehouse": "اختر مستودعًا",
+      "searchWarehouse": "ابحث عن مستودع...",
+      "validUntil": "صالح حتى",
+      "quoteAutoHint": "سيتم أخذ المجموع الفرعي والإجمالي ورسوم التوصيل من عرض السعر المقبول تلقائيًا."
     },
     "statusLabels": {
       "pending_admin": "بانتظار المشرف",
@@ -1585,6 +1752,27 @@
       "customer": "العميل",
       "staff": "موظف",
       "responseHint": "للرد، قم بإنشاء عرض سعر جديد بتسعير محدّث."
+    },
+    "allStatuses": "كل الحالات",
+    "itemsCount": "{{count}} عنصر",
+    "assignedTo": "معين إلى: {{name}}",
+    "toast": {
+      "supplierAssigned": "تم تعيين المورد",
+      "supplierAssignFailed": "فشل تعيين المورد",
+      "staffAssigned": "تم تعيين الموظف",
+      "staffAssignFailed": "فشل تعيين الموظف",
+      "approved": "تم اعتماد الطلب الخاص",
+      "approveFailed": "فشل الاعتماد",
+      "rejected": "تم رفض الطلب الخاص",
+      "rejectFailed": "فشل الرفض",
+      "notesUpdated": "تم تحديث الملاحظات",
+      "notesUpdateFailed": "فشل تحديث الملاحظات",
+      "converted": "تم التحويل إلى طلب",
+      "convertFailed": "فشل التحويل",
+      "priceQuoteCreated": "تم إنشاء عرض السعر وإرساله للعميل",
+      "priceQuoteCreateFailed": "فشل إنشاء عرض السعر",
+      "priceQuoteSubmitted": "تم إرسال عرض السعر — بانتظار موافقة العميل",
+      "priceQuoteSubmitFailed": "فشل إرسال عرض السعر"
     }
   },
   "campaigns": {
@@ -1660,6 +1848,61 @@
       "orderingCloses": "إغلاق الطلبات",
       "deliveryLeadTime": "مدة التوصيل",
       "subtitle": "العنوان الفرعي"
+    },
+    "create": {
+      "back": "العودة إلى الحملات",
+      "title": "إنشاء حملة",
+      "subtitle": "إعداد حملة موسمية جديدة",
+      "detailsTitle": "تفاصيل الحملة",
+      "detailsSubtitle": "المعلومات الأساسية عن الحملة",
+      "nameEn": "اسم الحملة (إنجليزي) *",
+      "nameAr": "اسم الحملة (عربي)",
+      "subtitleAr": "العنوان الفرعي (عربي)",
+      "subtitleEn": "العنوان الفرعي (إنجليزي)",
+      "description": "الوصف",
+      "descriptionEn": "الوصف (إنجليزي)",
+      "targetZone": "المنطقة المستهدفة",
+      "scheduleTitle": "الجدول الزمني",
+      "scheduleSubtitle": "الخط الزمني للحملة ونافذة الطلب",
+      "startDate": "تاريخ البداية *",
+      "endDate": "تاريخ النهاية *",
+      "orderingClosesAt": "إغلاق الطلبات في",
+      "initialStatus": "الحالة الابتدائية",
+      "statusDraft": "مسودة",
+      "statusScheduled": "مجدولة",
+      "deliveryTitle": "التوصيل",
+      "deliverySubtitle": "زمن التوصيل المتوقع",
+      "minDays": "الحد الأدنى (أيام)",
+      "maxDays": "الحد الأقصى (أيام)",
+      "stockTitle": "إدارة المخزون",
+      "stockSubtitle": "ضبط حدود المخزون على مستوى الحملة",
+      "stockLimited": "المخزون محدود",
+      "stockUnlimited": "مخزون غير محدود",
+      "stockTotal": "الكمية الإجمالية",
+      "stockReserved": "محجوز",
+      "stockSold": "تم بيعه",
+      "stockLowThreshold": "حد التنبيه للمخزون المنخفض",
+      "stockUnit": "وحدة المخزون",
+      "itemsTitle": "عناصر الحملة",
+      "itemsSubtitle": "المنتجات التي يمكن للموردين تقديم عروض عليها",
+      "addItem": "إضافة عنصر",
+      "noItems": "لم تتم إضافة عناصر بعد.",
+      "noItemsDesc": "اضغط \"إضافة عنصر\" لتحديد المنتجات التي يمكن للموردين تقديم عروض عليها.",
+      "itemNumber": "العنصر #{{number}}",
+      "itemNameAr": "الاسم (عربي) *",
+      "itemNameEn": "الاسم (إنجليزي)",
+      "itemCategory": "الفئة *",
+      "selectCategory": "اختر الفئة",
+      "itemUnit": "الوحدة *",
+      "itemPrice": "السعر *",
+      "itemStockQty": "كمية المخزون",
+      "requiredValidation": "اسم الحملة وتاريخ البداية وتاريخ النهاية مطلوبة",
+      "itemsValidation": "كل عنصر من عناصر الحملة يتطلب اسم (عربي) وفئة ووحدة وسعرًا",
+      "save": "حفظ الحملة"
+    },
+    "toast": {
+      "createdSuccessfully": "تم إنشاء الحملة بنجاح",
+      "createFailed": "فشل إنشاء الحملة"
     }
   },
   "notifications": {
@@ -1730,7 +1973,9 @@
     "deactivate": "تعطيل",
     "back": "رجوع",
     "select": "اختيار",
-    "unknown": "غير معروف"
+    "unknown": "غير معروف",
+    "undo": "تراجع",
+    "clear": "مسح"
   },
   "locations": {
     "countries": {
@@ -1874,6 +2119,105 @@
       "id_front": "الهوية — الوجه",
       "id_back": "الهوية — الخلف",
       "store_front": "صورة المحل"
+    }
+  },
+  "categories": {
+    "title": "الفئات",
+    "description": "إدارة فئات المنتجات وفئات الأنشطة",
+    "tabs": {
+      "product": "فئات المنتجات",
+      "business": "فئات الأنشطة"
+    },
+    "stats": {
+      "total": "إجمالي الفئات",
+      "active": "نشطة",
+      "inactive": "غير نشطة",
+      "totalBusiness": "إجمالي فئات الأنشطة"
+    },
+    "list": {
+      "allCategories": "كل الفئات",
+      "allBusinessCategories": "كل فئات الأنشطة",
+      "addCategory": "إضافة فئة",
+      "addBusinessCategory": "إضافة فئة نشاط",
+      "noCategories": "لا توجد فئات بعد",
+      "noCategoriesDescription": "أنشئ فئتك الأولى لتنظيم المنتجات",
+      "noBusinessCategories": "لا توجد فئات أنشطة بعد",
+      "noBusinessCategoriesDescription": "أنشئ فئة نشاطك الأولى لتنظيم الموردين"
+    },
+    "form": {
+      "errorTitle": "فشل تحميل الفئة",
+      "back": "العودة إلى الفئات",
+      "editTitle": "تعديل الفئة",
+      "addTitle": "إضافة فئة",
+      "editDescription": "تحديث تفاصيل الفئة",
+      "addDescription": "إنشاء فئة منتجات جديدة",
+      "basicInfo": "المعلومات الأساسية",
+      "nameAr": "الاسم (عربي) *",
+      "nameArPlaceholder": "اسم التصنيف",
+      "nameEn": "الاسم (إنجليزي)",
+      "namePlaceholder": "اسم الفئة",
+      "parentCategory": "الفئة الأم",
+      "noneTopLevel": "بدون (مستوى أعلى)",
+      "sortOrder": "ترتيب الفرز",
+      "active": "نشطة",
+      "categoryImage": "صورة الفئة",
+      "changeImage": "تغيير الصورة",
+      "uploadImage": "رفع الصورة",
+      "remove": "إزالة",
+      "imageFormatHint": "JPG أو PNG أو WebP. بحد أقصى 2 ميجابايت.",
+      "validationRequired": "الاسم بالعربية مطلوب",
+      "updateSuccess": "تم تحديث الفئة بنجاح",
+      "createSuccess": "تم إنشاء الفئة بنجاح",
+      "saveChanges": "حفظ التغييرات",
+      "createCategory": "إنشاء فئة",
+      "cancel": "إلغاء",
+      "updateFailed": "فشل تحديث الفئة",
+      "createFailed": "فشل إنشاء الفئة",
+      "errorLoading": "فشل تحميل الفئة"
+    },
+    "businessForm": {
+      "errorTitle": "خطأ",
+      "back": "العودة إلى الفئات",
+      "editTitle": "تعديل فئة النشاط",
+      "addTitle": "إضافة فئة نشاط",
+      "editDescription": "تحديث تفاصيل فئة النشاط",
+      "addDescription": "إنشاء فئة نشاط جديدة",
+      "nameAr": "الاسم (عربي) *",
+      "nameArPlaceholder": "اسم الفئة",
+      "nameEn": "الاسم (إنجليزي)",
+      "namePlaceholder": "اسم الفئة",
+      "active": "نشطة",
+      "validationRequired": "الاسم بالعربية مطلوب",
+      "updateSuccess": "تم تحديث فئة النشاط بنجاح",
+      "createSuccess": "تم إنشاء فئة النشاط بنجاح",
+      "saveChanges": "حفظ التغييرات",
+      "createCategory": "إنشاء فئة نشاط",
+      "cancel": "إلغاء",
+      "updateFailed": "فشل تحديث فئة النشاط",
+      "createFailed": "فشل إنشاء فئة النشاط",
+      "errorLoading": "فشل تحميل فئة النشاط"
+    },
+    "errorTitle": "خطأ",
+    "errorMessage": "حدث خطأ ما",
+    "deleteTitle": "حذف الفئة",
+    "deleteConfirm": "هل أنت متأكد من حذف هذه الفئة؟",
+    "deleteWarning": "لا يمكن التراجع عن هذا الإجراء.",
+    "deleteBusinessTitle": "حذف فئة النشاط",
+    "deleteBusinessConfirm": "هل أنت متأكد من حذف فئة النشاط هذه؟",
+    "deleteBusinessWarning": "لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "sortLabel": "الفرز: {{order}}",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "sub": "{{count}} فرع",
+    "subLabel": "فرع: {{name}}",
+    "productsCount": "{{count}} منتج",
+    "suppliersCount": "{{count}} مورد",
+    "toast": {
+      "deleteSuccess": "تم حذف الفئة بنجاح",
+      "deleteFailed": "فشل حذف الفئة",
+      "businessDeleteSuccess": "تم حذف فئة النشاط بنجاح",
+      "businessDeleteFailed": "فشل حذف فئة النشاط"
     }
   }
 }

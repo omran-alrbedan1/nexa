@@ -89,7 +89,7 @@ export function CreateProductPage() {
   return (
     <div className="space-y-6 animate-fade-up max-w-4xl">
       <button onClick={() => navigate(ROUTES.PRODUCTS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> Back to Products
+        <ArrowLeft size={16} /> {t('products.create.back')}
       </button>
 
       <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
@@ -99,18 +99,18 @@ export function CreateProductPage() {
             <Package size={22} className="text-brand-accent" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">Add Product</h1>
-            <p className="text-sm text-text-secondary font-body">Create a new product in the catalog</p>
+            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('products.create.title')}</h1>
+            <p className="text-sm text-text-secondary font-body">{t('products.create.subtitle')}</p>
           </div>
         </div>
       </div>
 
       <Card padding="lg">
-        <h3 className="text-sm font-bold text-text-primary font-display mb-4">Product Image</h3>
+        <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('products.create.imageTitle')}</h3>
         <div className="flex items-start gap-5">
           <div className="w-28 h-28 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center flex-shrink-0">
             {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+              <img src={imagePreview} alt={t('products.create.preview')} className="w-full h-full object-cover" />
             ) : (
               <ImageOff size={28} className="text-text-secondary/40" />
             )}
@@ -118,83 +118,83 @@ export function CreateProductPage() {
           <div className="space-y-2">
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
             <Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>
-              {imagePreview ? 'Change Image' : 'Upload Image'}
+              {imagePreview ? t('products.create.changeImage') : t('products.create.uploadImage')}
             </Button>
             {imagePreview && (
-              <Button variant="ghost" size="sm" onClick={handleRemoveImage}>Remove</Button>
+              <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('products.create.removeImage')}</Button>
             )}
-            <p className="text-xs text-text-secondary/60">JPG, PNG, or WebP. Max 2MB.</p>
+            <p className="text-xs text-text-secondary/60">{t('products.create.imageHint')}</p>
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">Basic Information</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.create.basicInfo')}</h3>
           <div className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Product Name (EN) *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.nameEn')}</label>
               <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. Fresh Tomatoes" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Product Name (AR)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.nameAr')}</label>
               <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="طماطم طازجة" dir="rtl" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Description (EN)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.descriptionEn')}</label>
               <textarea value={form.description} onChange={(e) => handleChange('description', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="Product description..." />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Description (AR)</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.descriptionAr')}</label>
               <textarea value={form.descriptionAr} onChange={(e) => handleChange('descriptionAr', e.target.value)} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" placeholder="وصف المنتج..." dir="rtl" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Source</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.source')}</label>
               <select value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="supplier">Supplier</option>
-                <option value="internal">Internal</option>
-                <option value="seasonal">Seasonal</option>
+                <option value="supplier">{t('products.create.sourceSupplier')}</option>
+                <option value="internal">{t('products.create.sourceInternal')}</option>
+                <option value="seasonal">{t('products.create.sourceSeasonal')}</option>
               </select>
             </div>
           </div>
         </Card>
 
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">Pricing & Inventory</h3>
+          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.create.pricingInventory')}</h3>
           <div className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Price *</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.price')}</label>
               <input type="number" step="0.01" min="0" value={form.price} onChange={(e) => handleChange('price', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0.00" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Unit</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.unit')}</label>
               <select value={form.unit} onChange={(e) => handleChange('unit', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="kg">Kilogram (kg)</option>
-                <option value="piece">Piece</option>
-                <option value="pack">Pack</option>
-                <option value="box">Box</option>
-                <option value="loaf">Loaf</option>
-                <option value="jar">Jar</option>
-                <option value="tub">Tub</option>
+                <option value="kg">{t('products.create.unitKg')}</option>
+                <option value="piece">{t('products.create.unitPiece')}</option>
+                <option value="pack">{t('products.create.unitPack')}</option>
+                <option value="box">{t('products.create.unitBox')}</option>
+                <option value="loaf">{t('products.create.unitLoaf')}</option>
+                <option value="jar">{t('products.create.unitJar')}</option>
+                <option value="tub">{t('products.create.unitTub')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Stock Quantity</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.stockQuantity')}</label>
               <input type="number" min="0" value={form.stockQuantity} onChange={(e) => handleChange('stockQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Category</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.category')}</label>
               <select value={form.categoryId} onChange={(e) => handleChange('categoryId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">Select a category</option>
+                <option value="">{t('products.create.selectCategory')}</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">Supplier</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.supplier')}</label>
               <select value={form.supplierId} onChange={(e) => handleChange('supplierId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">No supplier</option>
+                <option value="">{t('products.create.noSupplier')}</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -205,8 +205,8 @@ export function CreateProductPage() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>Save Product</Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>Cancel</Button>
+        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.create.save')}</Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>{t('common.cancel')}</Button>
       </div>
     </div>
   );

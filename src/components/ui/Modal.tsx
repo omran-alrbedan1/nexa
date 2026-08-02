@@ -111,7 +111,7 @@ export function Modal({
         ref={modalRef}
         className={cn(
           'relative w-full bg-white rounded-xl shadow-2xl',
-          'max-h-[90vh] overflow-y-auto',
+          'max-h-[95vh] overflow-y-auto',
           sizeStyles[size]
         )}
       >

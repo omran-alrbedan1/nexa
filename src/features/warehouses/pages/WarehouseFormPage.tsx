@@ -88,9 +88,9 @@ export function WarehouseFormPage() {
   };
 
   const handleSave = () => {
-    if (!form.code.trim()) { addToast('error', 'Code is required'); return; }
-    if (!form.name.trim()) { addToast('error', 'Name is required'); return; }
-    if (!form.zoneId) { addToast('error', 'Zone is required'); return; }
+    if (!form.code.trim()) { addToast('error', t('warehouses.form.codeRequired')); return; }
+    if (!form.name.trim()) { addToast('error', t('warehouses.form.nameRequired')); return; }
+    if (!form.zoneId) { addToast('error', t('warehouses.form.zoneRequired')); return; }
 
     const data = {
       code: form.code.trim(),
@@ -195,7 +195,7 @@ export function WarehouseFormPage() {
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-2 flex items-center gap-1.5">
               <Map size={14} className="text-purple-600" />
-              Location (click on map or enter coordinates)
+              {t('warehouses.form.location')}
             </label>
             {isLoaded ? (
               <div className="rounded-xl overflow-hidden border border-border-default/60 mb-3" style={{ height: '260px' }}>
@@ -213,17 +213,17 @@ export function WarehouseFormPage() {
               </div>
             ) : (
               <div className="h-[260px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-text-secondary mb-3">
-                Loading map...
+                {t('warehouses.form.loadingMap')}
               </div>
             )}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Latitude</label>
-                <input type="number" step="any" value={form.latitude} onChange={(e) => handleChange('latitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. 24.713552" />
+                <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.latitude')}</label>
+                <input type="number" step="any" value={form.latitude} onChange={(e) => handleChange('latitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('warehouses.form.latitudePlaceholder')} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">Longitude</label>
-                <input type="number" step="any" value={form.longitude} onChange={(e) => handleChange('longitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="e.g. 46.675297" />
+                <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.longitude')}</label>
+                <input type="number" step="any" value={form.longitude} onChange={(e) => handleChange('longitude', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('warehouses.form.longitudePlaceholder')} />
               </div>
             </div>
           </div>

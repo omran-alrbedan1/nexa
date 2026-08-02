@@ -386,18 +386,18 @@ export function SpecialOrderDetailPage() {
                           </div>
                         ))}
                         <div className="flex justify-between text-xs font-bold text-text-primary pt-1 border-t border-border-default/50 mt-1">
-                          <span>Subtotal</span>
+                          <span>{t('specialOrders.detail.subtotal')}</span>
                           <span>{formatPrice(quote.subtotal)}</span>
                         </div>
                         <div className="flex justify-between text-xs text-text-secondary">
-                          <span>Delivery fee</span>
+                          <span>{t('specialOrders.detail.deliveryFeeLabel')}</span>
                           <span>{formatPrice(quote.deliveryFee)}</span>
                         </div>
                       </div>
                     )}
                     {quote.customerResponseNote && (
                       <p className="mt-2 text-xs text-red-600 bg-red-50 rounded-lg p-2 font-body">
-                        Customer response: {quote.customerResponseNote}
+                        {t('specialOrders.detail.customerResponse', { note: quote.customerResponseNote })}
                       </p>
                     )}
                   </div>
@@ -585,7 +585,7 @@ export function SpecialOrderDetailPage() {
               value={assignSupplierModal.search}
               onChange={(e) => setAssignSupplierModal({ ...assignSupplierModal, search: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder={t('specialOrders.detail.searchSupplierPlaceholder') || 'Search supplier name...'}
+              placeholder={t('specialOrders.detail.searchSupplierPlaceholder') || t('specialOrders.detail.searchSupplier')}
             />
           </div>
           <div className="max-h-48 overflow-y-auto space-y-1 border border-border-default rounded-lg p-1">
@@ -605,7 +605,7 @@ export function SpecialOrderDetailPage() {
                 </div>
               ))}
             {suppliers.filter((s) => (s.name || '').toLowerCase().includes((assignSupplierModal.search || '').toLowerCase())).length === 0 && (
-              <p className="text-xs text-text-tertiary text-center py-3">No suppliers found</p>
+              <p className="text-xs text-text-tertiary text-center py-3">{t('specialOrders.detail.noSuppliers')}</p>
             )}
           </div>
           <div className="flex justify-end gap-3">
@@ -649,11 +649,11 @@ export function SpecialOrderDetailPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.deliveryFee') || 'Delivery fee'}</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.deliveryFee') || t('specialOrders.detail.deliveryFeeLabel')}</label>
               <input type="number" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="0.00" min="0" step="0.01" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.validUntil') || 'Valid until'}</label>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.validUntil') || t('specialOrders.detail.validUntil')}</label>
               <input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
             </div>
           </div>
@@ -693,7 +693,7 @@ export function SpecialOrderDetailPage() {
       </Modal>
 
       {/* Convert to Order Modal */}
-      <Modal open={convertModal} onClose={() => setConvertModal(false)} title={t('specialOrders.detail.convertToOrder') || 'Convert to Order'}>
+      <Modal open={convertModal} onClose={() => setConvertModal(false)} title={t('specialOrders.detail.convertToOrder') || t('specialOrders.detail.convertToOrder')}>
         <div className="space-y-4">
           {/* Zone selector */}
           <div ref={zoneDropdownRef} className="relative">
@@ -705,7 +705,7 @@ export function SpecialOrderDetailPage() {
               onClick={() => { setZoneDropdownOpen(!zoneDropdownOpen); setWarehouseDropdownOpen(false); }}
             >
               <span className={selectedZone ? 'text-text-primary' : 'text-text-tertiary'}>
-                {selectedZone ? selectedZone.name : loadingZones ? 'Loading zones...' : 'Select zone'}
+                {selectedZone ? selectedZone.name : loadingZones ? t('specialOrders.detail.loadingZones') : t('specialOrders.detail.selectZone')}
               </span>
               <Search size={14} className="text-text-tertiary" />
             </div>
@@ -717,15 +717,15 @@ export function SpecialOrderDetailPage() {
                     value={zoneSearch}
                     onChange={(e) => setZoneSearch(e.target.value)}
                     className="w-full px-2 py-1.5 text-sm border border-border-default rounded-md bg-bg-input outline-none focus:border-brand-primary"
-                    placeholder="Search zone..."
+                    placeholder={t('specialOrders.detail.searchZone')}
                     autoFocus
                   />
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   {loadingZones ? (
-                    <p className="text-xs text-text-tertiary text-center py-4">Loading...</p>
+                    <p className="text-xs text-text-tertiary text-center py-4">{t('common.loading')}</p>
                   ) : filteredZones.length === 0 ? (
-                    <p className="text-xs text-text-tertiary text-center py-4">No zones found</p>
+                    <p className="text-xs text-text-tertiary text-center py-4">{t('specialOrders.detail.noZones')}</p>
                   ) : (
                     filteredZones.map((z) => (
                       <div
@@ -756,7 +756,7 @@ export function SpecialOrderDetailPage() {
           {/* Warehouse selector */}
           <div ref={warehouseDropdownRef} className="relative">
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">
-              <Store size={12} className="inline mr-1" />Warehouse
+              <Store size={12} className="inline mr-1" />{t('specialOrders.detail.warehouse')}
             </label>
             <div
               className={`w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input cursor-pointer flex items-center justify-between ${
@@ -766,9 +766,9 @@ export function SpecialOrderDetailPage() {
             >
               <span className={selectedWarehouse ? 'text-text-primary' : 'text-text-tertiary'}>
                 {selectedWarehouse ? selectedWarehouse.name
-                  : !selectedZone ? 'Select a zone first'
-                  : loadingWarehouses ? 'Loading warehouses...'
-                  : 'Select warehouse'}
+                  : !selectedZone ? t('specialOrders.detail.selectZoneFirst')
+                  : loadingWarehouses ? t('specialOrders.detail.loadingWarehouses')
+                  : t('specialOrders.detail.selectWarehouse')}
               </span>
               <Search size={14} className="text-text-tertiary" />
             </div>
@@ -780,15 +780,15 @@ export function SpecialOrderDetailPage() {
                     value={warehouseSearch}
                     onChange={(e) => setWarehouseSearch(e.target.value)}
                     className="w-full px-2 py-1.5 text-sm border border-border-default rounded-md bg-bg-input outline-none focus:border-brand-primary"
-                    placeholder="Search warehouse..."
+                    placeholder={t('specialOrders.detail.searchWarehouse')}
                     autoFocus
                   />
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   {loadingWarehouses ? (
-                    <p className="text-xs text-text-tertiary text-center py-4">Loading...</p>
+                    <p className="text-xs text-text-tertiary text-center py-4">{t('common.loading')}</p>
                   ) : filteredWarehouses.length === 0 ? (
-                    <p className="text-xs text-text-tertiary text-center py-4">No warehouses found</p>
+                    <p className="text-xs text-text-tertiary text-center py-4">{t('specialOrders.detail.noWarehouses')}</p>
                   ) : (
                     filteredWarehouses.map((w) => (
                       <div
@@ -813,7 +813,7 @@ export function SpecialOrderDetailPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">Delivery fee</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('specialOrders.detail.deliveryFeeLabel')}</label>
             <input
               type="number"
               value={convertDeliveryFee}
@@ -829,7 +829,7 @@ export function SpecialOrderDetailPage() {
               <RefreshCw size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
               <div className="text-xs text-green-700 font-body">
                 <p className="font-bold">Prices will auto-populate from the accepted quote.</p>
-                <p className="mt-1">Subtotal, total, and delivery fee will be taken from the accepted price quote automatically.</p>
+                <p className="mt-1">{t('specialOrders.detail.quoteAutoHint')}</p>
               </div>
             </div>
           )}

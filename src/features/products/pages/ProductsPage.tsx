@@ -148,7 +148,7 @@ export function ProductsPage() {
                   </>}
                 >
                   <p className="text-xs text-text-secondary font-body truncate">
-                    {product.supplierName || 'No supplier'} · {product.categoryName}
+                    {product.supplierName || t('products.catalog.noSupplier')} · {product.categoryName}
                   </p>
                 </ListItem>
               </div>
@@ -250,7 +250,7 @@ export function ProductsPage() {
                 </>}
               >
                 <p className="text-xs text-text-secondary font-body truncate">
-                  {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {product.totalOrders} orders
+                  {product.categoryName}{product.supplierName ? ` · ${product.supplierName}` : ''} · {t('products.catalog.totalOrders', { count: product.totalOrders })}
                 </p>
               </ListItem>
             ))}

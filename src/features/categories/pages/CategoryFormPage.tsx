@@ -61,7 +61,7 @@ export function CategoryFormPage() {
         setExistingImageUrl(cat.image.startsWith('http') ? cat.image : `${BASE_URL}/storage/${cat.image}`);
       }
     }).catch((err) => {
-      setError(err?.response?.data?.message || 'Failed to load category');
+      setError(err?.response?.data?.message || t('categories.form.errorLoading'));
     }).finally(() => setLoading(false));
   }, [isEdit, id]);
 
@@ -109,7 +109,7 @@ export function CategoryFormPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       navigate(ROUTES.CATEGORIES);
     } catch (err: any) {
-      addToast('error', err?.response?.data?.message || (isEdit ? t('categories.form.updateFailed') || 'Failed to update category' : t('categories.form.createFailed') || 'Failed to create category'));
+      addToast('error', err?.response?.data?.message || (isEdit ? t('categories.form.updateFailed') : t('categories.form.createFailed')));
     } finally {
       setSaving(false);
     }

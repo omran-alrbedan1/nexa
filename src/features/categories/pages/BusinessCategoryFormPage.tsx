@@ -96,7 +96,7 @@ export function BusinessCategoryFormPage() {
       queryClient.invalidateQueries({ queryKey: ['business-categories'] });
       navigate(ROUTES.CATEGORIES + '?tab=business');
     } catch (err: any) {
-      addToast('error', err?.response?.data?.message || (isEdit ? t('categories.businessForm.updateFailed') || 'Failed to update business category' : t('categories.businessForm.createFailed') || 'Failed to create business category'));
+      addToast('error', err?.response?.data?.message || (isEdit ? t('categories.businessForm.updateFailed') : t('categories.businessForm.createFailed')));
     } finally {
       setSaving(false);
     }

@@ -51,10 +51,10 @@ export function SupportTicketsPage() {
       apiClient.post(`/api/v1/admin/support-tickets/${ticketId}/assign`, { staff_id: staffId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: supportTicketKeys.pageData() });
-      addToast('success', 'Ticket assigned');
+      addToast('success', t('support.toast.assigned'));
       setAssignModal({ open: false, ticketId: 0, staffId: '' });
     },
-    onError: () => addToast('error', 'Failed to assign ticket'),
+    onError: () => addToast('error', t('support.toast.assignFailed')),
   });
 
   const statusMutation = useMutation({
@@ -62,9 +62,9 @@ export function SupportTicketsPage() {
       apiClient.put(`/api/v1/admin/support-tickets/${ticketId}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: supportTicketKeys.pageData() });
-      addToast('success', 'Ticket status updated');
+      addToast('success', t('support.toast.statusUpdated', { status: '' }));
     },
-    onError: () => addToast('error', 'Failed to update ticket status'),
+    onError: () => addToast('error', t('support.toast.statusUpdateFailed')),
   });
 
   // Customer/supplier/driver tabs are client-side only (backend has no user-type filter) — applies to the current page only.
@@ -141,10 +141,10 @@ export function SupportTicketsPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               <option value="">{t('support.allStatuses')}</option>
-              <option value="open">Open</option>
-              <option value="in_progress">In Progress</option>
-              <option value="resolved">Resolved</option>
-              <option value="closed">Closed</option>
+              <option value="open">{t('support.ticketStatus.open')}</option>
+              <option value="in_progress">{t('support.ticketStatus.in_progress')}</option>
+              <option value="resolved">{t('support.ticketStatus.resolved')}</option>
+              <option value="closed">{t('support.ticketStatus.closed')}</option>
             </select>
           </div>
         </div>
@@ -163,11 +163,11 @@ export function SupportTicketsPage() {
                   title={<span className="text-sm font-bold text-text-primary font-body truncate">{ticket.subject}</span>}
                   badges={<>
                     <Badge variant={STATUS_BADGE[ticket.status] || 'yellow'} size="sm">{t('support.ticketStatus.' + (ticket.status ?? 'unknown'))}</Badge>
-                    <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{ticket.priority}</Badge>
+                    <Badge variant={PRIORITY_COLORS[ticket.priority] || 'green'} size="sm">{t('support.priority.' + ticket.priority)}</Badge>
                   </>}
                   actions={<>
                     <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPORT_TICKET_DETAIL(ticket.id)); }}>
-                      <ArrowRight size={12} className="mr-1" /> View
+                      <ArrowRight size={12} className="mr-1" /> {t('support.viewTicket')}
                     </Button>
                     {!ticket.assignee && (
                       <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setAssignModal({ open: true, ticketId: ticket.id, staffId: '' }); }}>
@@ -202,7 +202,7 @@ export function SupportTicketsPage() {
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-bold text-text-secondary">{msg.user?.full_name || t('support.system')}</span>
                             <div className="flex items-center gap-2">
-                              {msg.is_internal && <span className="text-[10px] text-amber-600 font-bold">Internal</span>}
+                              {msg.is_internal && <span className="text-[10px] text-amber-600 font-bold">{t('support.internalNote')}</span>}
                               <span className="text-xs text-text-tertiary">{new Date(msg.created_at).toLocaleString()}</span>
                             </div>
                           </div>
@@ -233,7 +233,7 @@ export function SupportTicketsPage() {
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('support.staffId')}</label>
-            <input type="number" value={assignModal.staffId} onChange={(e) => setAssignModal({ ...assignModal, staffId: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="Enter staff user ID" />
+            <input type="number" value={assignModal.staffId} onChange={(e) => setAssignModal({ ...assignModal, staffId: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder={t('support.staffIdPlaceholder')} />
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={() => setAssignModal({ ...assignModal, open: false })}>{t('common.cancel')}</Button>

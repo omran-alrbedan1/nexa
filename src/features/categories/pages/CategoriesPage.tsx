@@ -57,11 +57,11 @@ export function CategoriesPage() {
     mutationFn: (id: number) => categoriesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      addToast('success', 'Category deleted successfully');
+      addToast('success', t('categories.toast.deleteSuccess'));
       setDeleteModal({ open: false, category: null });
     },
     onError: (err: any) => {
-      addToast('error', err?.response?.data?.message || 'Failed to delete category');
+      addToast('error', err?.response?.data?.message || t('categories.toast.deleteFailed'));
     },
   });
 
@@ -69,11 +69,11 @@ export function CategoriesPage() {
     mutationFn: (id: number) => businessCategoriesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-categories'] });
-      addToast('success', 'Business category deleted successfully');
+      addToast('success', t('categories.toast.businessDeleteSuccess'));
       setDeleteBusinessModal({ open: false, category: null });
     },
     onError: (err: any) => {
-      addToast('error', err?.response?.data?.message || 'Failed to delete business category');
+      addToast('error', err?.response?.data?.message || t('categories.toast.businessDeleteFailed'));
     },
   });
 
@@ -401,7 +401,7 @@ function CategoryListItem({ category, allCategories, onEdit, onDelete }: Categor
             <span className="text-xs text-text-tertiary truncate hidden sm:inline">{category.nameEn}</span>
           )}
           {category.parent && (
-            <span className="text-xs text-text-tertiary">Sub: {category.parent.name_ar}</span>
+            <span className="text-xs text-text-tertiary">{t('categories.subLabel', { name: category.parent.name_ar })}</span>
           )}
           <Badge variant={category.isActive ? 'green' : 'red'} size="sm">
             {category.isActive ? t('common.active') : t('common.inactive')}
@@ -420,7 +420,7 @@ function CategoryListItem({ category, allCategories, onEdit, onDelete }: Categor
         </>}
       >
         <p className="text-xs text-text-secondary font-body">
-          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {category.productsCount} product{category.productsCount !== 1 ? 's' : ''}
+          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {t('categories.productsCount', { count: category.productsCount })}
         </p>
       </ListItem>
     </div>
@@ -465,7 +465,7 @@ function BusinessCategoryListItem({ category, onEdit, onDelete }: BusinessCatego
         </>}
       >
         <p className="text-xs text-text-secondary font-body">
-          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {category.suppliersCount} supplier{category.suppliersCount !== 1 ? 's' : ''}
+          {t('categories.sortLabel', { order: category.sortOrder })} &middot; {t('categories.suppliersCount', { count: category.suppliersCount })}
         </p>
       </ListItem>
     </div>

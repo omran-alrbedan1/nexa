@@ -12,14 +12,14 @@ import { ROUTES } from '@/routes/routes';
 import { FileClock, Search, Filter, ArrowRight, User, Phone } from 'lucide-react';
 
 const STATUS_OPTIONS = [
-  { key: '', label: 'All Statuses' },
-  { key: 'pending_admin', label: 'Pending Admin', color: 'purple' as const },
-  { key: 'pending_pricing', label: 'Pending Pricing', color: 'yellow' as const },
-  { key: 'pending_customer', label: 'Awaiting Customer', color: 'teal' as const },
-  { key: 'priced', label: 'Priced', color: 'teal' as const },
-  { key: 'approved', label: 'Approved', color: 'green' as const },
-  { key: 'rejected', label: 'Rejected', color: 'red' as const },
-  { key: 'cancelled', label: 'Cancelled', color: 'red' as const },
+  { key: '', labelKey: 'specialOrders.allStatuses' },
+  { key: 'pending_admin', labelKey: 'specialOrders.statusLabels.pending_admin', color: 'purple' as const },
+  { key: 'pending_pricing', labelKey: 'specialOrders.statusLabels.pending_pricing', color: 'yellow' as const },
+  { key: 'pending_customer', labelKey: 'specialOrders.statusLabels.pending_customer', color: 'teal' as const },
+  { key: 'priced', labelKey: 'specialOrders.statusLabels.priced', color: 'teal' as const },
+  { key: 'approved', labelKey: 'specialOrders.statusLabels.approved', color: 'green' as const },
+  { key: 'rejected', labelKey: 'specialOrders.statusLabels.rejected', color: 'red' as const },
+  { key: 'cancelled', labelKey: 'specialOrders.statusLabels.cancelled', color: 'red' as const },
 ];
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple' | 'teal'> = {
@@ -123,7 +123,7 @@ export function SpecialOrdersPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.key} value={opt.key}>{opt.label}</option>
+                <option key={opt.key} value={opt.key}>{t(opt.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -150,7 +150,7 @@ export function SpecialOrdersPage() {
                       <div>
                         <div className="flex items-center gap-2">
                            <span className="text-sm font-bold text-text-primary font-body truncate">{order.referenceNumber}</span>
-                          <Badge variant={STATUS_BADGE[order.status] || 'yellow'} size="sm">{STATUS_OPTIONS.find((o) => o.key === order.status)?.label || order.status}</Badge>
+                          <Badge variant={STATUS_BADGE[order.status] || 'yellow'} size="sm">{STATUS_OPTIONS.find((o) => o.key === order.status)?.labelKey ? t(STATUS_OPTIONS.find((o) => o.key === order.status)!.labelKey) : order.status}</Badge>
                         </div>
                          <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1 flex-wrap">
                           <span className="flex items-center gap-1"><User size={12} /> {order.customerName}</span>
@@ -160,8 +160,8 @@ export function SpecialOrdersPage() {
                     </div>
                     <p className="text-sm text-text-secondary font-body mt-2 line-clamp-2">{order.customerNotes}</p>
                      <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1.5 flex-wrap">
-                      {order.itemCount > 0 && <span>{order.itemCount} item(s)</span>}
-                      {order.assignedToName && <span>Assigned: {order.assignedToName}</span>}
+                      {order.itemCount > 0 && <span>{t('specialOrders.itemsCount', { count: order.itemCount })}</span>}
+                      {order.assignedToName && <span>{t('specialOrders.assignedTo', { name: order.assignedToName })}</span>}
                       <span>{new Date(order.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>

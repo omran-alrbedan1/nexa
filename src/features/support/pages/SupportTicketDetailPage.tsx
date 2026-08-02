@@ -20,13 +20,14 @@ const STATUS_VARIANT: Record<string, 'red' | 'yellow' | 'green' | 'purple'> = {
   open: 'red', in_progress: 'yellow', resolved: 'green', closed: 'purple',
 };
 
-const NEXT_STATUS: Record<string, { label: string; status: string; icon: React.ReactNode }> = {
-  open: { label: 'Start', status: 'in_progress', icon: <PlayCircle size={14} /> },
-  in_progress: { label: 'Resolve', status: 'resolved', icon: <CheckCircle2 size={14} /> },
-  resolved: { label: 'Close', status: 'closed', icon: <XCircle size={14} /> },
+const NEXT_STATUS: Record<string, { labelKey: string; status: string; icon: React.ReactNode }> = {
+  open: { labelKey: 'support.start', status: 'in_progress', icon: <PlayCircle size={14} /> },
+  in_progress: { labelKey: 'support.resolve', status: 'resolved', icon: <CheckCircle2 size={14} /> },
+  resolved: { labelKey: 'support.close', status: 'closed', icon: <XCircle size={14} /> },
 };
 
 function MessageBubble({ message, currentUserId }: { message: SupportTicketMessage; currentUserId?: number }) {
+  const { t } = useTranslation();
   const isInternal = message.is_internal;
   const isOwn = !isInternal && message.user?.id === currentUserId;
   const isOther = !isInternal && message.user?.id !== currentUserId;
@@ -48,7 +49,7 @@ function MessageBubble({ message, currentUserId }: { message: SupportTicketMessa
         {isInternal && (
           <div className="flex items-center gap-1.5 mb-1.5">
             <Lock size={10} className="text-amber-500" />
-            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Internal Note</span>
+            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">{t('support.internalNote')}</span>
           </div>
         )}
         {message.message && <p className="whitespace-pre-wrap">{message.message}</p>}
@@ -58,7 +59,7 @@ function MessageBubble({ message, currentUserId }: { message: SupportTicketMessa
             : <a key={a.id} href={a.url} target="_blank" rel="noopener noreferrer" className="block mt-1 underline text-sm">{a.original_name}</a>
         ))}
         {!message.message && attachments.length === 0 && !isInternal && (
-          <p className="italic opacity-80">[Attachment only]</p>
+          <p className="italic opacity-80">{t('support.attachmentOnly')}</p>
         )}
         <div className={`flex items-center gap-2 mt-1.5 ${isInternal ? 'text-amber-600' : isOther ? 'text-gray-500' : 'text-white/70'}`}>
           {message.user && (
@@ -137,8 +138,8 @@ export function SupportTicketDetailPage() {
           <ArrowLeft size={16} className="mr-1.5" /> {t('common.back')}
         </Button>
         <ErrorState
-          title="Failed to load ticket"
-          message={error instanceof Error ? error.message : 'An error occurred'}
+          title={t('support.loadFailed')}
+          message={error instanceof Error ? error.message : t('common.error')}
           onRetry={() => refetch()}
         />
       </div>
@@ -174,7 +175,7 @@ export function SupportTicketDetailPage() {
               onClick={() => statusMutation.mutate(nextAction.status)}
             >
               {nextAction.icon}
-              <span className="ml-1">{nextAction.label}</span>
+              <span className="ml-1">{t(nextAction.labelKey)}</span>
             </Button>
           )}
         </div>
@@ -184,25 +185,25 @@ export function SupportTicketDetailPage() {
       <Card padding="md" className="flex-shrink-0">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">Customer</p>
+            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">{t('support.customerInfo')}</p>
             <div className="flex items-center gap-1.5 text-sm text-text-primary">
               <User size={14} className="text-text-tertiary" />
               <span>{ticket.customer?.full_name || '—'}</span>
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">Assignee</p>
+            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">{t('support.assigneeInfo')}</p>
             <div className="flex items-center gap-1.5 text-sm text-text-primary">
               <User size={14} className="text-text-tertiary" />
-              <span>{ticket.assignee?.full_name || 'Unassigned'}</span>
+              <span>{ticket.assignee?.full_name || t('support.unassigned')}</span>
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">Priority</p>
-            <p className="text-sm text-text-primary capitalize">{ticket.priority}</p>
+            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">{t('support.priorityInfo')}</p>
+            <p className="text-sm text-text-primary capitalize">{t('support.priority.' + ticket.priority)}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">Created</p>
+            <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider font-body mb-1">{t('support.createdInfo')}</p>
             <div className="flex items-center gap-1.5 text-sm text-text-primary">
               <Clock size={14} className="text-text-tertiary" />
               <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
@@ -217,8 +218,8 @@ export function SupportTicketDetailPage() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {messages.length === 0 ? (
             <EmptyState
-              title="No messages yet"
-              description="Send a message to start the conversation"
+              title={t('support.noMessages')}
+              description={t('support.noMessagesDesc')}
             />
           ) : (
             messages.map((msg) => (
@@ -241,17 +242,17 @@ export function SupportTicketDetailPage() {
                   : 'bg-gray-100 text-text-tertiary border border-transparent hover:bg-gray-200'
                 }
               `}
-              title={isInternal ? 'Switch to public reply' : 'Switch to internal note'}
+              title={isInternal ? t('support.switchToPublic') : t('support.switchToInternal')}
             >
               {isInternal ? <Lock size={12} /> : <Unlock size={12} />}
-              {isInternal ? 'Internal' : 'Public'}
+              {isInternal ? t('support.internalNote') : t('support.publicReply')}
             </button>
             <textarea
               ref={inputRef}
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isInternal ? 'Write an internal note (not visible to customer)...' : 'Type your reply...'}
+              placeholder={isInternal ? t('support.internalPlaceholder') : t('support.messagePlaceholder')}
               rows={1}
               className="flex-1 px-4 py-2.5 text-sm bg-bg-input border border-border-default rounded-xl outline-none resize-none focus:border-brand-primary transition-colors"
               style={{ minHeight: '40px', maxHeight: '120px' }}
