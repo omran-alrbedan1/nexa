@@ -90,7 +90,7 @@ export function useCreateZone() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (data: { name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) =>
+    mutationFn: (data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) =>
       regionsApi.createZone(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
@@ -105,7 +105,7 @@ export function useUpdateZone() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { name_ar?: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { province_id?: number; name_ar?: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } }) =>
       regionsApi.updateZone(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });

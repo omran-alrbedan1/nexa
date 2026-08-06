@@ -52,8 +52,8 @@ const PAYMENT_STATUS_VARIANT: Record<string, 'green' | 'yellow' | 'red'> = {
   paid: 'green', pending: 'yellow', failed: 'red', refunded: 'red',
 };
 
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  paid: 'Paid', pending: 'Pending', failed: 'Failed', refunded: 'Refunded',
+const PAYMENT_STATUS_KEYS: Record<string, string> = {
+  paid: 'paid', pending: 'pending', failed: 'failed', refunded: 'refunded',
 };
 
 function OrderInfoCard({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
@@ -77,6 +77,11 @@ export function OrderDetailPage() {
   const navigate = useNavigate();
   const id = parseInt(orderId || '0', 10);
   const { t } = useTranslation();
+  const paymentStatusLabel = (s: string) => {
+    if (s === 'refunded') return t('payments.refunded');
+    const key = PAYMENT_STATUS_KEYS[s];
+    return key ? t(`payments.status${key.charAt(0).toUpperCase()}${key.slice(1)}`) : s;
+  };
   const STATUS_LABELS: Record<string, string> = {
     new: t('orders.status.new'), pending_management: t('orders.status.pending_management'), pending_pricing: t('orders.status.pending_pricing'),
     pending_customer_approval: t('orders.status.pending_customer_approval'), confirmed: t('orders.status.confirmed'), paid: t('orders.status.paid'),
@@ -107,7 +112,7 @@ export function OrderDetailPage() {
         </button>
         <ErrorState
           title={t('orders.detail.errorTitle')}
-          message={error instanceof Error ? error.message : 'An unexpected error occurred'}
+          message={error instanceof Error ? error.message : t('orders.detail.unexpectedError')}
           onRetry={() => refetch()}
         />
       </div>
@@ -142,7 +147,7 @@ export function OrderDetailPage() {
       actions.push({ label: t('orders.detail.confirmReceipt'), onClick: () => confirmReceipt.mutate(o.id), variant: 'primary', icon: <Package size={14} /> });
     }
     if (!['delivered', 'cancelled', 'refunded'].includes(o.status)) {
-      actions.push({ label: 'Set Urgency', onClick: () => {
+      actions.push({ label: t('orders.detail.setUrgency'), onClick: () => {
         setDeliveryUrgencySelection(o.deliveryUrgency || 'fast');
         setDeliveryUrgencyModal(true);
       }, variant: 'secondary', icon: <Clock size={14} /> });
@@ -190,7 +195,7 @@ export function OrderDetailPage() {
                 <Badge variant={order.deliveryType === 'pickup' ? 'coral' : 'teal'} size="sm">{order.deliveryType === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</Badge>
                 {order.deliveryUrgency && (
                   <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
-                    {order.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled'}
+                    {order.deliveryUrgency === 'fast' ? t('orders.list.fast') : t('orders.list.scheduled')}
                   </Badge>
                 )}
                 <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
@@ -234,13 +239,13 @@ export function OrderDetailPage() {
 
         <OrderInfoCard icon={<Truck size={16} />} label={t('orders.detail.delivery')}>
           <p className="text-xs">{order.warehouseName || order.deliveryZone || '—'}{order.deliveryZone && order.warehouseName ? ` · ${order.deliveryZone}` : ''}</p>
-          {order.supplierName && <p className="text-xs text-text-secondary">Supplier: {order.supplierName}</p>}
+          {order.supplierName && <p className="text-xs text-text-secondary">{t('orders.detail.supplierLabel')}: {order.supplierName}</p>}
           {order.deliveryUrgency ? (
             <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5 font-bold">
-              {order.deliveryUrgency === 'fast' ? 'Fast Delivery' : 'Scheduled (1-2 days)'}
+              {order.deliveryUrgency === 'fast' ? t('orders.detail.fastDelivery') : t('orders.detail.scheduledDelivery')}
             </p>
           ) : (
-            <p className="text-xs text-text-tertiary">Urgency not set</p>
+            <p className="text-xs text-text-tertiary">{t('orders.detail.urgencyNotSet')}</p>
           )}
         </OrderInfoCard>
 
@@ -251,7 +256,7 @@ export function OrderDetailPage() {
             <span>{t('orders.detail.deliveryFee')}: {formatPrice(order.deliveryFee)}</span>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{PAYMENT_STATUS_LABELS[order.paymentStatus] || order.paymentStatus}</Badge>
+            <Badge variant={PAYMENT_STATUS_VARIANT[order.paymentStatus] || 'yellow'} size="sm">{paymentStatusLabel(order.paymentStatus)}</Badge>
             <span className="text-xs text-text-tertiary">{t('orders.paymentMethods.' + order.paymentMethod)}</span>
           </div>
         </OrderInfoCard>
@@ -453,7 +458,7 @@ export function OrderDetailPage() {
                   </div>
                   {log.actor && (
                     <p className="text-xs text-text-secondary font-body mt-0.5">
-                      {log.actor === 'system' ? 'System' : t('orders.detail.by', { actor: log.actor })}
+                      {log.actor === 'system' ? t('orders.detail.system') : t('orders.detail.by', { actor: log.actor })}
                       {log.fromStatus && ` (from ${STATUS_LABELS[mapFromBackend(log.fromStatus, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase()] || t('common.unknown')})`}
                     </p>
                   )}
@@ -482,7 +487,7 @@ export function OrderDetailPage() {
                   <p className="text-xs text-text-secondary font-body">{p.method}</p>
                 </div>
               </div>
-              <Badge variant={p.status === 'paid' ? 'green' : p.status === 'pending' ? 'yellow' : 'red'} size="sm">{PAYMENT_STATUS_LABELS[p.status] || p.status}</Badge>
+              <Badge variant={p.status === 'paid' ? 'green' : p.status === 'pending' ? 'yellow' : 'red'} size="sm">{paymentStatusLabel(p.status)}</Badge>
             </div>
           ))}
         </Card>
@@ -527,12 +532,12 @@ export function OrderDetailPage() {
       </Modal>
 
       {/* Delivery Urgency Modal */}
-      <Modal open={deliveryUrgencyModal} onClose={() => setDeliveryUrgencyModal(false)} title="Set Delivery Urgency">
+      <Modal open={deliveryUrgencyModal} onClose={() => setDeliveryUrgencyModal(false)} title={t('orders.detail.setUrgencyTitle')}>
         <div className="space-y-4">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50 border border-purple-100">
             <Clock size={18} className="text-purple-500 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-purple-700 font-body">
-              Set whether this order should be delivered urgently (fast) or scheduled (1-2 days).
+              {t('orders.detail.urgencyHint')}
             </p>
           </div>
           <div className="space-y-2">
@@ -548,9 +553,9 @@ export function OrderDetailPage() {
                   className="text-brand-primary focus:ring-brand-primary/30"
                 />
                 <div>
-                  <p className="text-sm font-bold text-text-primary">{u === 'fast' ? 'Fast (فوري)' : 'Scheduled (1-2 days)'}</p>
+                  <p className="text-sm font-bold text-text-primary">{u === 'fast' ? t('orders.detail.urgencyFast') : t('orders.detail.urgencyScheduled')}</p>
                   <p className="text-xs text-text-tertiary">
-                    {u === 'fast' ? 'Deliver as soon as possible, same day typically' : 'Deliver within 1 to 2 days'}
+                    {u === 'fast' ? t('orders.detail.urgencyFastHint') : t('orders.detail.urgencyScheduledHint')}
                   </p>
                 </div>
               </label>

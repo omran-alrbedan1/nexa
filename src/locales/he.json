@@ -923,7 +923,11 @@
       "noOrdersMatch": "אין הזמנות התואמות את המסננים שנבחרו",
       "fromDate": "מתאריך",
       "toDate": "עד תאריך",
-      "tbd": "TBD"
+      "tbd": "TBD",
+      "fast": "מהיר",
+      "scheduled": "מתוזמן",
+      "itemsCount_one": "{{count}} פריט",
+      "itemsCount_other": "{{count}} פריטים"
     },
     "detail": {
       "back": "חזרה להזמנות",
@@ -979,7 +983,18 @@
       "quoteHistory": "היסטוריית הצעות מחיר",
       "specialOrderRef": "הזמנה מיוחדת: {{reference}} ({{status}})",
       "supplierLabel": "ספק",
-      "system": "מערכת"
+      "system": "מערכת",
+      "setUrgency": "הגדר דחיפות",
+      "setUrgencyTitle": "הגדר דחיפות משלוח",
+      "urgencyHint": "קבע אם משלוח זה צריך להיות דחוף (מהיר) או מתוזמן (1-2 ימים).",
+      "urgencyFast": "מהיר (מיידי)",
+      "urgencyScheduled": "מתוזמן (1-2 ימים)",
+      "urgencyFastHint": "מסירה בהקדם האפשרי, בדרך כלל באותו היום",
+      "urgencyScheduledHint": "מסירה תוך 1-2 ימים",
+      "fastDelivery": "מסירה מהירה",
+      "scheduledDelivery": "מתוזמן (1-2 ימים)",
+      "urgencyNotSet": "דחיפות לא הוגדרה",
+      "unexpectedError": "אירעה שגיאה בלתי צפויה"
     },
     "tracking": {
       "speed": "מהירות",
@@ -1379,7 +1394,9 @@
       "boundaryTitle": "הגדר גבול אזור",
       "clickToAdd": "לחץ על המפה כדי להוסיף נקודות גבול",
       "drawBoundary": "צייר גבול",
-      "pointsCount": "{{count}} נקודות"
+      "pointsCount": "{{count}} נקודות",
+      "province": "מחוז",
+      "selectProvince": "בחר מחוז"
     },
     "clusters": {
       "title": "אשכולות",
@@ -1840,7 +1857,10 @@
     "refundTitle": "בצע החזר",
     "refundAmount": "סכום ההחזר",
     "refundReason": "סיבת ההחזר",
-    "confirmRefund": "אשר החזר"
+    "confirmRefund": "אשר החזר",
+    "statusPaid": "שולם",
+    "statusPending": "ממתין",
+    "statusFailed": "נכשל"
   },
   "support": {
     "title": "כרטיסי תמיכה",

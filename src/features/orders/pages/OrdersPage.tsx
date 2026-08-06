@@ -302,7 +302,7 @@ export function OrdersPage() {
                     <Badge variant={STATUS_BADGE[order.status] || 'gray'} size="sm">{STATUS_LABELS[order.status] || t('common.unknown')}</Badge>
                     {order.deliveryUrgency && (
                       <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
-                        {order.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled'}
+                        {order.deliveryUrgency === 'fast' ? t('orders.list.fast') : t('orders.list.scheduled')}
                       </Badge>
                     )}
                   </>}
@@ -312,7 +312,7 @@ export function OrdersPage() {
                   </>}
                 >
                   <p className="text-xs text-text-secondary font-body truncate">
-                    {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {order.itemCount} item{order.itemCount !== 1 ? 's' : ''}
+                    {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {t('orders.list.itemsCount', { count: order.itemCount })}
                   </p>
                 </ListItem>
               ))}

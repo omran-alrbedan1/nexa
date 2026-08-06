@@ -923,7 +923,11 @@
       "noOrdersMatch": "Заказы не соответствуют выбранным фильтрам",
       "fromDate": "С даты",
       "toDate": "По дату",
-      "tbd": "TBD"
+      "tbd": "TBD",
+      "fast": "Быстро",
+      "scheduled": "По расписанию",
+      "itemsCount_one": "{{count}} товар",
+      "itemsCount_other": "{{count}} товаров"
     },
     "detail": {
       "back": "Назад к заказам",
@@ -979,7 +983,18 @@
       "quoteHistory": "История ценовых предложений",
       "specialOrderRef": "Особый заказ: {{reference}} ({{status}})",
       "supplierLabel": "Поставщик",
-      "system": "Система"
+      "system": "Система",
+      "setUrgency": "Установить срочность",
+      "setUrgencyTitle": "Установить срочность доставки",
+      "urgencyHint": "Укажите, должна ли доставка быть срочной (немедленной) или по расписанию (1-2 дня).",
+      "urgencyFast": "Быстро (немедленно)",
+      "urgencyScheduled": "По расписанию (1-2 дня)",
+      "urgencyFastHint": "Доставка как можно скорее, обычно в тот же день",
+      "urgencyScheduledHint": "Доставка в течение 1-2 дней",
+      "fastDelivery": "Быстрая доставка",
+      "scheduledDelivery": "По расписанию (1-2 дня)",
+      "urgencyNotSet": "Срочность не установлена",
+      "unexpectedError": "Произошла непредвиденная ошибка"
     },
     "tracking": {
       "speed": "Скорость",
@@ -1379,7 +1394,9 @@
       "boundaryTitle": "Задать границу зоны",
       "clickToAdd": "Нажмите на карту, чтобы добавить точки границы",
       "drawBoundary": "Нарисовать границу",
-      "pointsCount": "{{count}} точек"
+      "pointsCount": "{{count}} точек",
+      "province": "Провинция",
+      "selectProvince": "Выберите провинцию"
     },
     "clusters": {
       "title": "Кластеры",
@@ -1840,7 +1857,10 @@
     "refundTitle": "Обработка возврата",
     "refundAmount": "Сумма возврата",
     "refundReason": "Причина возврата",
-    "confirmRefund": "Подтвердить возврат"
+    "confirmRefund": "Подтвердить возврат",
+    "statusPaid": "Оплачено",
+    "statusPending": "Ожидает",
+    "statusFailed": "Ошибка"
   },
   "support": {
     "title": "Тикеты поддержки",

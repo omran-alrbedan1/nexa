@@ -148,7 +148,13 @@ interface CreateCustomerData {
 export const customersApi = {
   /** Create a new customer */
   createCustomer: async (data: CreateCustomerData): Promise<Customer> => {
-    const response = await apiClient.post<ApiResponse<BackendCustomer>>('/api/v1/admin/customers', data);
+    const response = await apiClient.post<ApiResponse<BackendCustomer>>('/api/v1/admin/customers', {
+      first_name: data.firstName,
+      last_name: data.lastName || null,
+      phone: data.phone,
+      email: data.email || null,
+      password: data.password || undefined,
+    });
     return mapBackendCustomer(response.data.data);
   },
 

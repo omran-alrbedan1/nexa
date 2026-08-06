@@ -927,7 +927,11 @@
       "tryDifferentSearch": "Try a different search term",
       "noOrdersMatch": "No orders match the selected filters",
       "fromDate": "From date",
-      "toDate": "To date"
+      "toDate": "To date",
+      "fast": "Fast",
+      "scheduled": "Scheduled",
+      "itemsCount_one": "{{count}} item",
+      "itemsCount_other": "{{count}} items"
     },
     "detail": {
       "back": "Back to Orders",
@@ -983,7 +987,18 @@
       "driverTracking": "Driver Tracking",
       "system": "System",
       "supplierLabel": "Supplier",
-      "specialOrderRef": "Special Order: {{reference}} ({{status}})"
+      "specialOrderRef": "Special Order: {{reference}} ({{status}})",
+      "setUrgency": "Set Urgency",
+      "setUrgencyTitle": "Set Delivery Urgency",
+      "urgencyHint": "Set whether this order should be delivered urgently (fast) or scheduled (1-2 days).",
+      "urgencyFast": "Fast (فوري)",
+      "urgencyScheduled": "Scheduled (1-2 days)",
+      "urgencyFastHint": "Deliver as soon as possible, same day typically",
+      "urgencyScheduledHint": "Deliver within 1 to 2 days",
+      "fastDelivery": "Fast Delivery",
+      "scheduledDelivery": "Scheduled (1-2 days)",
+      "urgencyNotSet": "Urgency not set",
+      "unexpectedError": "An unexpected error occurred"
     },
     "toast": {
       "orderUpdated": "Order {{label}} successfully",
@@ -1487,7 +1502,9 @@
       "clickToAdd": "Click on the map to add boundary points",
       "pointsCount": "{{count}} points",
       "boundary": "Zone Boundary",
-      "drawBoundary": "Draw Boundary"
+      "drawBoundary": "Draw Boundary",
+      "province": "Province",
+      "selectProvince": "Select province"
     },
     "clusters": {
       "title": "Clusters",
@@ -1948,7 +1965,10 @@
     "refundTitle": "Process Refund",
     "refundAmount": "Refund Amount",
     "refundReason": "Reason for Refund",
-    "confirmRefund": "Process Refund"
+    "confirmRefund": "Process Refund",
+    "statusPaid": "Paid",
+    "statusPending": "Pending",
+    "statusFailed": "Failed"
   },
   "support": {
     "title": "Support Tickets",

@@ -1,38 +1,48 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Map, MapPin } from 'lucide-react';
 import type { Region } from '../api/regionsApi';
+import { provincesApi } from '@/features/locations/api/provincesApi';
 import { PolygonEditor } from './PolygonEditor';
 
 interface ZoneFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: { name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) => void;
+  onSave: (data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) => void;
   isSaving: boolean;
   editing?: Region | null;
 }
 
 export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormProps) {
   const { t } = useTranslation();
-  const [form, setForm] = useState({ name_ar: '', name_en: '', code: '' });
+  const [form, setForm] = useState({ province_id: 0, name_ar: '', name_en: '', code: '' });
   const [boundaries, setBoundaries] = useState<{ lat: number; lng: number }[][] | null>(null);
   const [showBoundaryEditor, setShowBoundaryEditor] = useState(false);
 
+  const { data: provincesData } = useQuery({
+    queryKey: ['provinces-for-zone-form'],
+    queryFn: () => provincesApi.getAll({ perPage: 200 }),
+    staleTime: 60_000,
+  });
+  const provinces = provincesData?.data ?? [];
+
   useEffect(() => {
     if (editing) {
-      setForm({ name_ar: editing.nameAr || editing.name, name_en: editing.name === editing.nameAr ? '' : editing.name, code: '' });
+      setForm({ province_id: editing.provinceId ?? 0, name_ar: editing.nameAr || editing.name, name_en: editing.name === editing.nameAr ? '' : editing.name, code: '' });
       setBoundaries(editing.boundaries ?? null);
     } else {
-      setForm({ name_ar: '', name_en: '', code: '' });
+      setForm({ province_id: 0, name_ar: '', name_en: '', code: '' });
       setBoundaries(null);
     }
   }, [editing, open]);
 
   const handleSave = () => {
-    const data: { name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } = {
+    const data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } = {
+      province_id: form.province_id,
       name_ar: form.name_ar,
       ...(form.name_en ? { name_en: form.name_en } : {}),
       ...(form.code ? { code: form.code } : {}),
@@ -53,6 +63,19 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
         title={editing ? t('regions.zoneForm.editTitle') : t('regions.zoneForm.createTitle')}
       >
         <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.province')} *</label>
+            <select
+              value={form.province_id}
+              onChange={(e) => setForm({ ...form, province_id: Number(e.target.value) })}
+              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+            >
+              <option value={0} disabled>{t('regions.zoneForm.selectProvince')}</option>
+              {provinces.map((p) => (
+                <option key={p.id} value={p.id}>{p.name_ar}{p.name_en ? ` (${p.name_en})` : ''}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.nameAr')}</label>
             <input
@@ -113,7 +136,7 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={onClose}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={isSaving} onClick={handleSave} disabled={!form.name_ar.trim()}>
+            <Button variant="primary" size="sm" isLoading={isSaving} onClick={handleSave} disabled={!form.name_ar.trim() || form.province_id === 0}>
               {editing ? t('common.save') : t('regions.zoneForm.create')}
             </Button>
           </div>

@@ -132,10 +132,10 @@ export function PaymentsPage() {
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none appearance-none focus:border-brand-primary">
               <option value="">{t('payments.allStatuses')}</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-              <option value="refunded">Refunded</option>
+              <option value="paid">{t('payments.statusPaid')}</option>
+              <option value="pending">{t('payments.statusPending')}</option>
+              <option value="failed">{t('payments.statusFailed')}</option>
+              <option value="refunded">{t('payments.refunded')}</option>
             </select>
           </div>
         </div>
