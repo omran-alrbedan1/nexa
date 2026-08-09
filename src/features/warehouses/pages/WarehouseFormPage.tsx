@@ -163,7 +163,7 @@ export function WarehouseFormPage() {
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1">{t('warehouses.form.code')} *</label>
-            <input value={form.code} onChange={(e) => handleChange('code', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary font-mono" placeholder="WH-001" />
+            <input value={form.code} onChange={(e) => handleChange('code', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary font-mono" placeholder={t('warehouses.form.codePlaceholder')} />
           </div>
           <TranslatedField
             label={`${t('warehouses.form.nameEn')} *`}

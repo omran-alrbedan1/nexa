@@ -233,7 +233,7 @@ export function ProductsPage() {
                 title={<span className="text-sm font-bold text-text-primary font-body group-hover:text-brand-primary transition-colors truncate">{product.name}</span>}
                 badges={<>
                   <span className="text-xs text-text-tertiary truncate hidden sm:inline">{product.nameAr}</span>
-                  <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source}</Badge>
+                  <Badge variant={SOURCE_BADGE[product.source] || 'gray'} size="sm">{product.source ? t('products.catalog.source.' + product.source, product.source) : '—'}</Badge>
                   {!product.isAvailable && <Badge variant="red" size="sm">{t('products.catalog.disabled')}</Badge>}
                   {product.isAvailable && product.stockQuantity < 20 && <Badge variant="yellow" size="sm">{t('products.catalog.lowStockBadge', { count: product.stockQuantity })}</Badge>}
                 </>}

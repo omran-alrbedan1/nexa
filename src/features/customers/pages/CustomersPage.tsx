@@ -251,7 +251,7 @@ export function CustomersPage() {
                     ))}
                     {customer.addresses.length > 2 && (
                       <span className="text-xs text-text-tertiary">
-                        +{customer.addresses.length - 2} more
+                        {t('customers.list.moreAddresses', { count: customer.addresses.length - 2 })}
                       </span>
                     )}
                   </div>

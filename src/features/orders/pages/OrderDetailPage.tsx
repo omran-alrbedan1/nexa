@@ -72,6 +72,25 @@ function OrderInfoCard({ icon, label, children }: { icon: React.ReactNode; label
   );
 }
 
+function ItemThumb({ src, productName }: { src: string | null; productName: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return (
+      <div className="w-10 h-10 rounded-lg bg-gray-100 border border-border-default flex items-center justify-center flex-shrink-0">
+        <Package size={16} className="text-text-tertiary" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={productName}
+      onError={() => setFailed(true)}
+      className="w-10 h-10 rounded-lg object-cover border border-border-default flex-shrink-0"
+    />
+  );
+}
+
 export function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
@@ -107,7 +126,7 @@ export function OrderDetailPage() {
   // Merge consecutive duplicate status entries (e.g. repeated IN_SUPPLY logs from test data)
   const dedupedTimeline = useMemo(() => {
     if (!order) return [];
-    const statusKey = (s: string) => mapFromBackend(s, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase();
+    const statusKey = (s: string) => (s ? mapFromBackend(s, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase() : '');
     const out: typeof order.timeline = [];
     for (const log of order.timeline) {
       const prev = out[out.length - 1];
@@ -147,7 +166,10 @@ export function OrderDetailPage() {
 
   const getAvailableActions = (o: OrderDetail) => {
     const actions: Array<{ label: string; onClick: () => void; variant: 'primary' | 'danger' | 'secondary'; icon?: React.ReactNode }> = [];
-    if (o.status === 'new' || o.status === 'pending_management') {
+    if (o.status === 'new') {
+      actions.push({ label: t('orders.detail.moveToPendingAdmin', 'Move to Pending Admin'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'pending_management' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
+    }
+    if (o.status === 'pending_management') {
       actions.push({ label: t('orders.detail.confirmOrder'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'confirmed' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
     }
     if (o.status === 'confirmed') {
@@ -283,7 +305,10 @@ export function OrderDetailPage() {
               {order.items.map((item) => (
                 <tr key={item.id} className="border-b border-border-default/50 last:border-0">
                   <td className="py-3 pr-4">
-                    <span className="font-bold text-text-primary">{item.productName}</span>
+                    <div className="flex items-center gap-3">
+                      <ItemThumb src={item.productImage} productName={item.productName} />
+                      <span className="font-bold text-text-primary">{item.productName}</span>
+                    </div>
                   </td>
                   <td className="py-3 px-4 text-center text-text-secondary">{item.quantity}</td>
                   <td className="py-3 px-4 text-right text-text-secondary">{formatPrice(item.unitPrice)}</td>
@@ -311,7 +336,10 @@ export function OrderDetailPage() {
         <div className="block sm:hidden space-y-4">
           {order.items.map((item) => (
             <div key={item.id} className="p-4 rounded-xl bg-bg-section-alt border border-border-default/60 space-y-2">
-              <p className="text-sm font-bold text-text-primary font-body">{item.productName}</p>
+              <div className="flex items-center gap-3">
+                <ItemThumb src={item.productImage} productName={item.productName} />
+                <p className="text-sm font-bold text-text-primary font-body">{item.productName}</p>
+              </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-text-tertiary">{t('orders.detail.qty')} </span>
@@ -449,7 +477,7 @@ export function OrderDetailPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-text-primary font-body">
-                      {STATUS_LABELS[mapFromBackend(log.toStatus, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase()] || t('common.unknown')}
+                      {log.toStatus ? STATUS_LABELS[mapFromBackend(log.toStatus, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase()] || t('common.unknown') : t('common.unknown')}
                     </span>
                     {isDateValid(log.timestamp) && (
                       <span className="text-xs text-text-tertiary font-body">

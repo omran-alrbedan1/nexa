@@ -322,23 +322,23 @@ export function CreateCampaignPage() {
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className={labelClass}>{t('campaigns.create.stockTotal')}</label>
-              <input type="number" min="0" value={form.stockTotalQuantity} onChange={(e) => handleChange('stockTotalQuantity', e.target.value)} className={inputClass} placeholder="e.g. 1000" />
+              <input type="number" min="0" value={form.stockTotalQuantity} onChange={(e) => handleChange('stockTotalQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.placeholder.stockTotalQuantity')} />
             </div>
             <div>
               <label className={labelClass}>{t('campaigns.create.stockReserved')}</label>
-              <input type="number" min="0" value={form.stockReservedQuantity} onChange={(e) => handleChange('stockReservedQuantity', e.target.value)} className={inputClass} placeholder="e.g. 50" />
+              <input type="number" min="0" value={form.stockReservedQuantity} onChange={(e) => handleChange('stockReservedQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.placeholder.stockReservedQuantity')} />
             </div>
             <div>
               <label className={labelClass}>{t('campaigns.create.stockSold')}</label>
-              <input type="number" min="0" value={form.stockSoldQuantity} onChange={(e) => handleChange('stockSoldQuantity', e.target.value)} className={inputClass} placeholder="e.g. 200" />
+              <input type="number" min="0" value={form.stockSoldQuantity} onChange={(e) => handleChange('stockSoldQuantity', e.target.value)} className={inputClass} placeholder={t('campaigns.create.placeholder.stockSoldQuantity')} />
             </div>
             <div>
               <label className={labelClass}>{t('campaigns.create.stockLowThreshold')}</label>
-              <input type="number" min="0" value={form.stockLowStockThreshold} onChange={(e) => handleChange('stockLowStockThreshold', e.target.value)} className={inputClass} placeholder="e.g. 100" />
+              <input type="number" min="0" value={form.stockLowStockThreshold} onChange={(e) => handleChange('stockLowStockThreshold', e.target.value)} className={inputClass} placeholder={t('campaigns.create.placeholder.stockLowStockThreshold')} />
             </div>
             <div>
               <label className={labelClass}>{t('campaigns.create.stockUnit')}</label>
-              <input value={form.stockUnit} onChange={(e) => handleChange('stockUnit', e.target.value)} className={inputClass} placeholder="kg, box, item" />
+              <input value={form.stockUnit} onChange={(e) => handleChange('stockUnit', e.target.value)} className={inputClass} placeholder={t('campaigns.create.placeholder.stockUnit')} />
             </div>
           </div>
         )}
@@ -395,7 +395,7 @@ export function CreateCampaignPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.itemUnit')}</label>
-                    <input value={item.unit} onChange={(e) => updateItem(item.key, 'unit', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="kg, box" />
+                    <input value={item.unit} onChange={(e) => updateItem(item.key, 'unit', e.target.value)} className="w-full px-2.5 py-2 bg-bg-input border border-border-default rounded-lg text-xs outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder={t('campaigns.create.placeholder.itemUnit')} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-text-secondary mb-1">{t('campaigns.create.itemPrice')}</label>

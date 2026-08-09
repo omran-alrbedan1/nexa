@@ -27,6 +27,7 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  productImage: string | null;
 }
 
 export interface StatusLog {
@@ -168,6 +169,7 @@ interface BackendItem {
   quantity: number;
   unit_price: string;
   total_price: string;
+  product_image?: string | null;
 }
 
 interface BackendStatusLog {
@@ -300,6 +302,7 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
         quantity: i.quantity,
         unitPrice,
         totalPrice,
+        productImage: i.product_image || null,
       };
     }),
     timeline: (bo.status_logs || []).map((l) => ({

@@ -312,7 +312,8 @@
       "activateDescription": "פעולה זו תפעיל מחדש את חשבון הלקוח. הוא יוכל לבצע הזמנות שוב.",
       "confirmSuspend": "אשר השעיה",
       "confirmActivate": "אשר הפעלה",
-      "addCustomer": "הוסף לקוח"
+      "addCustomer": "הוסף לקוח",
+      "moreAddresses": "+{{count}} נוספים"
     },
     "detail": {
       "back": "חזרה ללקוחות",
@@ -857,7 +858,8 @@
       "nameRequired": "שם חובה",
       "zoneRequired": "אזור חובה",
       "nameHe": "שם (עברית)",
-      "nameRu": "שם (רוסית)"
+      "nameRu": "שם (רוסית)",
+      "codePlaceholder": "WH-001"
     },
     "toast": {
       "created": "המחסן נוצר בהצלחה",
@@ -994,7 +996,8 @@
       "fastDelivery": "מסירה מהירה",
       "scheduledDelivery": "מתוזמן (1-2 ימים)",
       "urgencyNotSet": "דחיפות לא הוגדרה",
-      "unexpectedError": "אירעה שגיאה בלתי צפויה"
+      "unexpectedError": "אירעה שגיאה בלתי צפויה",
+      "moveToPendingAdmin": "העבר להמתנה"
     },
     "tracking": {
       "speed": "מהירות",
@@ -1057,7 +1060,12 @@
       "internal": "פנימי",
       "seasonal": "עונתי",
       "noSupplier": "אין ספק",
-      "totalOrders": "{{count}} הזמנות"
+      "totalOrders": "{{count}} הזמנות",
+      "source": {
+        "supplier": "ספק",
+        "internal": "פנימי",
+        "seasonal": "עונתי"
+      }
     },
     "detail": {
       "back": "חזרה למוצרים",
@@ -1396,7 +1404,9 @@
       "drawBoundary": "צייר גבול",
       "pointsCount": "{{count}} נקודות",
       "province": "מחוז",
-      "selectProvince": "בחר מחוז"
+      "selectProvince": "בחר מחוז",
+      "codePlaceholder": "לדוגמה RUH-01",
+      "codeRequired": "קוד אזור נדרש (לדוגמה RUH-01)"
     },
     "clusters": {
       "title": "אשכולות",
@@ -1570,7 +1580,8 @@
       "waitingDriver": "ממתין לנהג",
       "assignModalTitle": "שייך נהג — {{trip}}",
       "selectDriver": "בחר נהג עבור {{region}} ({{slot}})",
-      "assignButton": "שייך נהג"
+      "assignButton": "שייך נהג",
+      "suppliers": "ספקים"
     },
     "detail": {
       "back": "חזרה לנסיעות",
@@ -1698,7 +1709,22 @@
       "driverBusyExistingTrip": "לנהג כבר יש רכב #{{tripNumber}} בתאריך {{date}}. בחר נהג או תאריך אחר.",
       "driverBusyGeneric": "בחר נהג אחר או שנה את התאריך.",
       "driverUnavailable": "הנהג שנבחר עסוק בתאריך זה — בחר נהג או תאריך אחר.",
-      "errorGeneric": "לא ניתן היה ליצור את הרכב. נסה שוב."
+      "errorGeneric": "לא ניתן היה ליצור את הרכב. נסה שוב.",
+      "selectedTotal": "{{count}} הזמנות · {{total}}",
+      "searchOrders": "חיפוש הזמנות...",
+      "searchPickupOrders": "חיפוש לפי הזמנה, לקוח או ספק...",
+      "allSuppliers": "כל הספקים",
+      "allZones": "כל האזורים",
+      "searchDrivers": "חיפוש נהגים...",
+      "noOrdersMatch": "אין הזמנות תואמות לסינון",
+      "noDriversMatch": "אין נהגים תואמים לסינון",
+      "busyTrip": "עסוק — {{tripNumber}}",
+      "optional": "אופציונלי",
+      "selectWarehouse": "בחר מחסן",
+      "validationWarehouse": "אנא בחר מחסן",
+      "zonesTitle": "אזורי משלוח",
+      "zonesHint": "בחר אזור אחד או יותר למשלוח",
+      "loadingZones": "טוען אזורים..."
     },
     "toast": {
       "driverAssigned": "הנהג שויך לנסיעה",
@@ -1757,7 +1783,10 @@
       "approved": "מאושר",
       "rejected": "נדחה",
       "view": "צפה",
-      "addDriver": "הוסף נהג"
+      "addDriver": "הוסף נהג",
+      "phonePlaceholder": "+966501234567",
+      "vehiclePlaceholder": "מכונית/ואן/משאית",
+      "platePlaceholder": "ABC 1234"
     },
     "reject": {
       "title": "דחה את {{name}}",
@@ -2244,7 +2273,15 @@
       "reservedPlaceholder": "שמור",
       "alreadySoldPlaceholder": "נמכר",
       "lowStockThresholdPlaceholder": "סף מלאי נמוך",
-      "backToCampaigns": "חזרה לקמפיינים"
+      "backToCampaigns": "חזרה לקמפיינים",
+      "placeholder": {
+        "stockTotalQuantity": "לדוגמה 1000",
+        "stockReservedQuantity": "לדוגמה 50",
+        "stockSoldQuantity": "לדוגמה 200",
+        "stockLowStockThreshold": "לדוגמה 100",
+        "stockUnit": "ק\"ג, קופסה, יחידות",
+        "itemUnit": "ק\"ג, קופסה"
+      }
     },
     "edit": {
       "active": "פעיל",
@@ -2337,7 +2374,13 @@
     "allCaughtUp": "התעדכנת בכל ההתראות! התראות חדשות יופיעו כאן.",
     "markAllRead": "סמן הכל כנקרא",
     "footerCount": "{{count}} התראה(ות)",
-    "noNew": "אין התראות חדשות"
+    "noNew": "אין התראות חדשות",
+    "channels": {
+      "in_app": "באפליקציה",
+      "sms": "SMS",
+      "email": "אימייל",
+      "push": "Push"
+    }
   },
   "deliverySlots": {
     "title": "משבצות משלוח",
@@ -2408,7 +2451,9 @@
     "unknown": "לא ידוע",
     "clear": "נקה",
     "undo": "בטל",
-    "user": "משתמש"
+    "user": "משתמש",
+    "remove": "הסר",
+    "manage": "ניהול"
   },
   "pagination": {
     "showingTo": "מציג {{from}} עד {{to}} מתוך {{total}} תוצאות",

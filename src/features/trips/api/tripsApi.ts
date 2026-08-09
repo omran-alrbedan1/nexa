@@ -144,6 +144,7 @@ export interface DashboardTrip {
   updatedAt: string;
   tripOrders: TripOrderDetail[];
   stops: TripStop[];
+  supplierNames: string[];
 }
 
 export interface TripsPageData {
@@ -162,7 +163,7 @@ export interface TripsPageData {
     avgCompletionRate: number;
   };
   trips: DashboardTrip[];
-  availableDrivers: { id: number; name: string; regionName: string; isAvailable: boolean }[];
+  availableDrivers: { id: number; name: string; regionName: string; isAvailable: boolean; phone?: string | null }[];
   meta: {
     currentPage: number;
     lastPage: number;
@@ -260,6 +261,7 @@ interface BackendAvailableDriver {
   full_name: string;
   zone_name: string;
   is_available: boolean;
+  phone?: string | null;
 }
 
 export interface DriverAvailabilityResult {
@@ -392,6 +394,7 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     updatedAt: bt.updated_at,
     tripOrders,
     stops,
+    supplierNames: [...new Set(stops.map((s) => s.supplier?.businessName).filter((n): n is string => !!n))],
   };
 }
 
@@ -471,10 +474,10 @@ export const tripsApi = {
   },
 
   /** Get available drivers */
-  getAvailableDrivers: async (): Promise<{ id: number; name: string; regionName: string; isAvailable: boolean }[]> => {
+  getAvailableDrivers: async (): Promise<{ id: number; name: string; regionName: string; isAvailable: boolean; phone?: string | null }[]> => {
     const response = await apiClient.get<ApiResponse<BackendAvailableDriver[]>>('/api/v1/admin/trips/available-drivers');
     const drivers = response.data.data;
-    return (Array.isArray(drivers) ? drivers : []).map((d) => ({ id: d.id, name: d.full_name, regionName: d.zone_name, isAvailable: d.is_available }));
+    return (Array.isArray(drivers) ? drivers : []).map((d) => ({ id: d.id, name: d.full_name, regionName: d.zone_name, isAvailable: d.is_available, phone: d.phone || null }));
   },
 
   /** Check whether a driver is free on a given date (prevents double-booking) */
@@ -486,6 +489,27 @@ export const tripsApi = {
       },
     });
     return response.data.data;
+  },
+
+  /** List ALL approved drivers (not just currently-available) with per-date booking flags */
+  getAllDrivers: async (params: { search?: string; zoneId?: number; plannedDate?: string; excludeTripId?: number } = {}): Promise<{ id: number; name: string; phone: string | null; regionName: string; isAvailable: boolean; bookedTripNumber: string | null }[]> => {
+    const response = await apiClient.get<ApiResponse<{ id: number; full_name: string; phone: string | null; zone_name: string; is_available: boolean; booked_trip_number: string | null }[]>>('/api/v1/admin/trips/drivers', {
+      params: {
+        search: params.search || undefined,
+        zone_id: params.zoneId || undefined,
+        planned_date: params.plannedDate || undefined,
+        exclude_trip_id: params.excludeTripId || undefined,
+      },
+    });
+    const drivers = response.data.data;
+    return (Array.isArray(drivers) ? drivers : []).map((d) => ({
+      id: d.id,
+      name: d.full_name,
+      phone: d.phone || null,
+      regionName: d.zone_name,
+      isAvailable: d.is_available,
+      bookedTripNumber: d.booked_trip_number || null,
+    }));
   },
 
   /** Create a new trip */
@@ -502,6 +526,7 @@ export const tripsApi = {
     delivery_fee_override?: number;
     driver_id?: number;
     order_ids?: number[];
+    zone_ids?: number[];
   }): Promise<DashboardTrip> => {
     const response = await apiClient.post<ApiResponse<BackendTrip>>('/api/v1/admin/trips', data);
     return mapBackendTrip(response.data.data);

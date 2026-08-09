@@ -118,7 +118,7 @@ export function NotificationsPage() {
                     <div className="flex items-center gap-2">
                       <MessageSquare size={14} className="text-brand-primary flex-shrink-0" />
                       <span className="text-sm font-bold text-text-primary font-body">{notif.title}</span>
-                      <Badge variant={notif.channel === 'in_app' ? 'teal' : notif.channel === 'sms' ? 'purple' : 'green'} size="sm">{notif.channel}</Badge>
+                      <Badge variant={notif.channel === 'in_app' ? 'teal' : notif.channel === 'sms' ? 'purple' : 'green'} size="sm">{t('notifications.channels.' + notif.channel, notif.channel)}</Badge>
                     </div>
                     <p className="text-xs text-text-secondary font-body mt-1">{notif.body}</p>
                     <div className="flex items-center gap-3 text-xs text-text-tertiary font-body mt-1.5">

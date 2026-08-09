@@ -246,7 +246,8 @@
       "activateDescription": "سيتم إعادة تفعيل حساب العميل. سيتمكن من تقديم الطلبات مرة أخرى.",
       "addCustomer": "إضافة عميل",
       "confirmSuspend": "تأكيد الإيقاف",
-      "confirmActivate": "تأكيد التفعيل"
+      "confirmActivate": "تأكيد التفعيل",
+      "moreAddresses": "+{{count}} عناوين إضافية"
     },
     "create": {
       "title": "إضافة عميل جديد",
@@ -707,7 +708,8 @@
       "latitudePlaceholder": "مثال: 24.713552",
       "longitudePlaceholder": "مثال: 46.675297",
       "nameHe": "الاسم (العبرية)",
-      "nameRu": "الاسم (الروسية)"
+      "nameRu": "الاسم (الروسية)",
+      "codePlaceholder": "WH-001"
     },
     "toast": {
       "created": "تم إنشاء المستودع بنجاح",
@@ -833,7 +835,8 @@
       "fastDelivery": "توصيل سريع",
       "scheduledDelivery": "مجدول (1-2 يوم)",
       "urgencyNotSet": "لم يتم تحديد سرعة التوصيل",
-      "unexpectedError": "حدث خطأ غير متوقع"
+      "unexpectedError": "حدث خطأ غير متوقع",
+      "moveToPendingAdmin": "نقل إلى الإدارة"
     },
     "tracking": {
       "speed": "السرعة",
@@ -882,7 +885,12 @@
       "internal": "داخلي",
       "seasonal": "موسمي",
       "noSupplier": "بدون مورد",
-      "totalOrders": "{{count}} طلب"
+      "totalOrders": "{{count}} طلب",
+      "source": {
+        "supplier": "مورد",
+        "internal": "داخلي",
+        "seasonal": "موسمي"
+      }
     },
     "detail": {
       "back": "العودة إلى المنتجات",
@@ -1136,7 +1144,9 @@
       "boundary": "حدود المنطقة",
       "drawBoundary": "رسم الحدود",
       "province": "المحافظة",
-      "selectProvince": "اختر المحافظة"
+      "selectProvince": "اختر المحافظة",
+      "codePlaceholder": "مثال: RUH-01",
+      "codeRequired": "رمز المنطقة مطلوب (مثال: RUH-01)"
     },
     "clusters": {
       "title": "التجمعات",
@@ -1310,7 +1320,8 @@
       "waitingDriver": "بانتظار السائق",
       "assignModalTitle": "إسناد سائق — {{trip}}",
       "selectDriver": "اختر سائقاً لـ {{region}} ({{slot}})",
-      "assignButton": "إسناد سائق"
+      "assignButton": "إسناد سائق",
+      "suppliers": "الموردون"
     },
     "detail": {
       "back": "العودة إلى الرحلات",
@@ -1438,7 +1449,22 @@
       "driverBusyGeneric": "اختر سائقاً آخر أو غيّر التاريخ.",
       "checkingAvailability": "جارٍ التحقق من التوفر…",
       "driverUnavailable": "السائق المحدد مشغول في هذا التاريخ — اختر سائقاً أو تاريخاً آخر.",
-      "errorGeneric": "تعذر إنشاء الرحلة. حاول مرة أخرى."
+      "errorGeneric": "تعذر إنشاء الرحلة. حاول مرة أخرى.",
+      "selectedTotal": "{{count}} طلب · {{total}}",
+      "searchOrders": "بحث في الطلبات...",
+      "searchPickupOrders": "بحث بالطلب أو العميل أو المورد...",
+      "allSuppliers": "جميع الموردين",
+      "allZones": "جميع المناطق",
+      "searchDrivers": "بحث في السائقين...",
+      "noOrdersMatch": "لا توجد طلبات تطابق الفلاتر",
+      "noDriversMatch": "لا يوجد سائقون يطابقون الفلاتر",
+      "busyTrip": "مشغول — {{tripNumber}}",
+      "optional": "اختياري",
+      "selectWarehouse": "اختر المستودع",
+      "validationWarehouse": "يرجى اختيار المستودع",
+      "zonesTitle": "مناطق التوصيل",
+      "zonesHint": "اختر منطقة أو أكثر لهذه الرحلة",
+      "loadingZones": "جارٍ تحميل المناطق..."
     },
     "toast": {
       "driverAssigned": "تم إسناد السائق للرحلة",
@@ -1497,7 +1523,10 @@
       "pending": "قيد الانتظار",
       "approved": "معتمد",
       "rejected": "مرفوض",
-      "view": "عرض"
+      "view": "عرض",
+      "phonePlaceholder": "+966501234567",
+      "vehiclePlaceholder": "سيارة / فان / شاحنة",
+      "platePlaceholder": "ABC 1234"
     },
     "reject": {
       "title": "رفض {{name}}",
@@ -1973,7 +2002,15 @@
       "reservedPlaceholder": "المحجوز",
       "alreadySoldPlaceholder": "المباع",
       "lowStockThresholdPlaceholder": "حد المخزون المنخفض",
-      "backToCampaigns": "العودة إلى الحملات"
+      "backToCampaigns": "العودة إلى الحملات",
+      "placeholder": {
+        "stockTotalQuantity": "مثال: 1000",
+        "stockReservedQuantity": "مثال: 50",
+        "stockSoldQuantity": "مثال: 200",
+        "stockLowStockThreshold": "مثال: 100",
+        "stockUnit": "كجم، عبوة، قطعة",
+        "itemUnit": "كجم، عبوة"
+      }
     },
     "toast": {
       "createdSuccessfully": "تم إنشاء الحملة بنجاح",
@@ -1990,7 +2027,13 @@
     "allCaughtUp": "كل شيء محدّث! الإشعارات الجديدة ستظهر هنا.",
     "markAllRead": "تحديد الكل كمقروء",
     "footerCount": "{{count}} إشعار",
-    "noNew": "لا توجد إشعارات جديدة"
+    "noNew": "لا توجد إشعارات جديدة",
+    "channels": {
+      "in_app": "داخل التطبيق",
+      "sms": "رسائل نصية",
+      "email": "البريد الإلكتروني",
+      "push": "إشعارات"
+    }
   },
   "deliverySlots": {
     "title": "مواعيد التوصيل",
@@ -2054,7 +2097,9 @@
     "select": "اختيار",
     "unknown": "غير معروف",
     "undo": "تراجع",
-    "clear": "مسح"
+    "clear": "مسح",
+    "remove": "إزالة",
+    "manage": "إدارة"
   },
   "locations": {
     "countries": {

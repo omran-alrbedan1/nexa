@@ -94,13 +94,16 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.code')}</label>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.code')}{!editing && ' *'}</label>
             <input
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder="e.g. RUH-01"
+              placeholder={t('regions.zoneForm.codePlaceholder', 'e.g. RUH-01')}
             />
+            {!editing && !form.code.trim() && (
+              <p className="text-xs text-status-error mt-1 font-body">{t('regions.zoneForm.codeRequired', 'Zone code is required (e.g. RUH-01)')}</p>
+            )}
           </div>
 
           <div>
@@ -136,7 +139,8 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={onClose}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={isSaving} onClick={handleSave} disabled={!form.name_ar.trim() || form.province_id === 0}>
+            <Button variant="primary" size="sm" isLoading={isSaving} onClick={handleSave}
+              disabled={!form.name_ar.trim() || form.province_id === 0 || (!editing && !form.code.trim()) || (boundaryCount > 0 && boundaryCount < 3)}>
               {editing ? t('common.save') : t('regions.zoneForm.create')}
             </Button>
           </div>

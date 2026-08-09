@@ -312,7 +312,8 @@
       "activateDescription": "This will reactivate the customer's account. They will be able to place orders again.",
       "addCustomer": "Add Customer",
       "confirmSuspend": "Confirm Suspend",
-      "confirmActivate": "Confirm Activate"
+      "confirmActivate": "Confirm Activate",
+      "moreAddresses": "+{{count}} more"
     },
     "create": {
       "title": "Add New Customer",
@@ -860,7 +861,8 @@
       "latitudePlaceholder": "e.g. 24.713552",
       "longitudePlaceholder": "e.g. 46.675297",
       "nameHe": "Name (Hebrew)",
-      "nameRu": "Name (Russian)"
+      "nameRu": "Name (Russian)",
+      "codePlaceholder": "WH-001"
     },
     "toast": {
       "created": "Warehouse created successfully",
@@ -998,7 +1000,8 @@
       "fastDelivery": "Fast Delivery",
       "scheduledDelivery": "Scheduled (1-2 days)",
       "urgencyNotSet": "Urgency not set",
-      "unexpectedError": "An unexpected error occurred"
+      "unexpectedError": "An unexpected error occurred",
+      "moveToPendingAdmin": "Move to Pending Admin"
     },
     "toast": {
       "orderUpdated": "Order {{label}} successfully",
@@ -1055,7 +1058,12 @@
       "internal": "internal",
       "seasonal": "seasonal",
       "noSupplier": "No supplier",
-      "totalOrders": "{{count}} orders"
+      "totalOrders": "{{count}} orders",
+      "source": {
+        "supplier": "Supplier",
+        "internal": "Internal",
+        "seasonal": "Seasonal"
+      }
     },
     "detail": {
       "back": "Back to Products",
@@ -1504,7 +1512,9 @@
       "boundary": "Zone Boundary",
       "drawBoundary": "Draw Boundary",
       "province": "Province",
-      "selectProvince": "Select province"
+      "selectProvince": "Select province",
+      "codePlaceholder": "e.g. RUH-01",
+      "codeRequired": "Zone code is required (e.g. RUH-01)"
     },
     "clusters": {
       "title": "Clusters",
@@ -1678,7 +1688,8 @@
       "waitingDriver": "Waiting Driver",
       "assignModalTitle": "Assign Driver — {{trip}}",
       "selectDriver": "Select a driver for {{region}} ({{slot}})",
-      "assignButton": "Assign Driver"
+      "assignButton": "Assign Driver",
+      "suppliers": "Suppliers"
     },
     "detail": {
       "back": "Back to Trips",
@@ -1806,7 +1817,22 @@
       "driverBusyGeneric": "Pick another driver or change the date.",
       "checkingAvailability": "Checking availability…",
       "driverUnavailable": "Selected driver is busy on this date — pick another driver or date.",
-      "errorGeneric": "Could not create the trip. Please try again."
+      "errorGeneric": "Could not create the trip. Please try again.",
+      "selectedTotal": "{{count}} orders · {{total}}",
+      "searchOrders": "Search orders...",
+      "searchPickupOrders": "Search orders, customers or suppliers...",
+      "allSuppliers": "All suppliers",
+      "allZones": "All zones",
+      "searchDrivers": "Search drivers...",
+      "noOrdersMatch": "No orders match your filters",
+      "noDriversMatch": "No drivers match your filters",
+      "busyTrip": "Busy — {{tripNumber}}",
+      "optional": "Optional",
+      "selectWarehouse": "Select a warehouse",
+      "validationWarehouse": "Please select a warehouse",
+      "zonesTitle": "Delivery Zones",
+      "zonesHint": "Select one or more zones this trip will deliver to",
+      "loadingZones": "Loading zones..."
     },
     "toast": {
       "driverAssigned": "Driver assigned to trip",
@@ -1865,7 +1891,10 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "view": "View"
+      "view": "View",
+      "phonePlaceholder": "+966501234567",
+      "vehiclePlaceholder": "Car/Van/Truck",
+      "platePlaceholder": "ABC 1234"
     },
     "reject": {
       "title": "Reject {{name}}",
@@ -2373,7 +2402,15 @@
       "reservedPlaceholder": "Reserved",
       "alreadySoldPlaceholder": "Already sold",
       "lowStockThresholdPlaceholder": "Low stock threshold",
-      "backToCampaigns": "Back to campaigns"
+      "backToCampaigns": "Back to campaigns",
+      "placeholder": {
+        "stockTotalQuantity": "e.g. 1000",
+        "stockReservedQuantity": "e.g. 50",
+        "stockSoldQuantity": "e.g. 200",
+        "stockLowStockThreshold": "e.g. 100",
+        "stockUnit": "kg, box, item",
+        "itemUnit": "kg, box"
+      }
     },
     "edit": {
       "loadFailed": "Failed to load campaign",
@@ -2466,7 +2503,13 @@
     "allCaughtUp": "You're all caught up! New notifications will appear here.",
     "markAllRead": "Mark all as read",
     "footerCount": "{{count}} notification(s)",
-    "noNew": "No new notifications"
+    "noNew": "No new notifications",
+    "channels": {
+      "in_app": "In-App",
+      "sms": "SMS",
+      "email": "Email",
+      "push": "Push"
+    }
   },
   "deliverySlots": {
     "title": "Delivery Slots",
@@ -2537,7 +2580,9 @@
     "unknown": "Unknown",
     "user": "there",
     "undo": "Undo",
-    "clear": "Clear"
+    "clear": "Clear",
+    "remove": "Remove",
+    "manage": "Manage"
   },
   "auth": {
     "login": {

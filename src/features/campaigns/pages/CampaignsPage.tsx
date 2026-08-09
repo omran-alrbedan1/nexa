@@ -162,7 +162,7 @@ export function CampaignsPage() {
                 title={<span className="text-sm font-bold text-text-primary font-body truncate">{camp.name}</span>}
                 badges={<>
                   <span className="text-xs text-text-tertiary truncate hidden sm:inline">{camp.nameAr}</span>
-                  <Badge variant={STATUS_BADGE[camp.status]} size="sm">{camp.status}</Badge>
+                  <Badge variant={STATUS_BADGE[camp.status]} size="sm">{t('campaigns.list.' + camp.status, camp.status)}</Badge>
                 </>}
                 actions={getActions(camp.status).map((action) => (
                   <Button key={action.action} variant={action.variant} size="sm" isLoading={campaignAction.isPending} onClick={(e) => { e.stopPropagation(); campaignAction.mutate({ id: camp.id, action: action.action }); }}>

@@ -312,7 +312,8 @@
       "activateDescription": "Это реактивирует учётную запись клиента. Он сможет снова размещать заказы.",
       "confirmSuspend": "Подтвердить приостановку",
       "confirmActivate": "Подтвердить активацию",
-      "addCustomer": "Добавить клиента"
+      "addCustomer": "Добавить клиента",
+      "moreAddresses": "+ещё {{count}}"
     },
     "detail": {
       "back": "Назад к клиентам",
@@ -857,7 +858,8 @@
       "nameRequired": "Название обязательно",
       "zoneRequired": "Зона обязательна",
       "nameHe": "Название (иврит)",
-      "nameRu": "Название (русский)"
+      "nameRu": "Название (русский)",
+      "codePlaceholder": "WH-001"
     },
     "toast": {
       "created": "Склад успешно создан",
@@ -994,7 +996,8 @@
       "fastDelivery": "Быстрая доставка",
       "scheduledDelivery": "По расписанию (1-2 дня)",
       "urgencyNotSet": "Срочность не установлена",
-      "unexpectedError": "Произошла непредвиденная ошибка"
+      "unexpectedError": "Произошла непредвиденная ошибка",
+      "moveToPendingAdmin": "Перевести на рассмотрение"
     },
     "tracking": {
       "speed": "Скорость",
@@ -1057,7 +1060,12 @@
       "internal": "внутренний",
       "seasonal": "сезонный",
       "noSupplier": "Нет поставщика",
-      "totalOrders": "{{count}} заказов"
+      "totalOrders": "{{count}} заказов",
+      "source": {
+        "supplier": "Поставщик",
+        "internal": "Внутренние",
+        "seasonal": "Сезонные"
+      }
     },
     "detail": {
       "back": "Назад к товарам",
@@ -1396,7 +1404,9 @@
       "drawBoundary": "Нарисовать границу",
       "pointsCount": "{{count}} точек",
       "province": "Провинция",
-      "selectProvince": "Выберите провинцию"
+      "selectProvince": "Выберите провинцию",
+      "codePlaceholder": "напр. RUH-01",
+      "codeRequired": "Код зоны обязателен (напр. RUH-01)"
     },
     "clusters": {
       "title": "Кластеры",
@@ -1570,7 +1580,8 @@
       "waitingDriver": "Ожидание водителя",
       "assignModalTitle": "Назначить водителя — {{trip}}",
       "selectDriver": "Выберите водителя для {{region}} ({{slot}})",
-      "assignButton": "Назначить водителя"
+      "assignButton": "Назначить водителя",
+      "suppliers": "Поставщики"
     },
     "detail": {
       "back": "Назад к поездкам",
@@ -1698,7 +1709,22 @@
       "driverBusyExistingTrip": "У водителя уже есть рейс №{{tripNumber}} на {{date}}. Выберите другого водителя или дату.",
       "driverBusyGeneric": "Выберите другого водителя или измените дату.",
       "driverUnavailable": "Выбранный водитель занят в эту дату — выберите другого водителя или дату.",
-      "errorGeneric": "Не удалось создать рейс. Попробуйте ещё раз."
+      "errorGeneric": "Не удалось создать рейс. Попробуйте ещё раз.",
+      "selectedTotal": "{{count}} заказов · {{total}}",
+      "searchOrders": "Поиск заказов...",
+      "searchPickupOrders": "Поиск по заказу, клиенту или поставщику...",
+      "allSuppliers": "Все поставщики",
+      "allZones": "Все зоны",
+      "searchDrivers": "Поиск водителей...",
+      "noOrdersMatch": "Заказы по фильтрам не найдены",
+      "noDriversMatch": "Водители по фильтрам не найдены",
+      "busyTrip": "Занят — {{tripNumber}}",
+      "optional": "Необязательно",
+      "selectWarehouse": "Выберите склад",
+      "validationWarehouse": "Пожалуйста, выберите склад",
+      "zonesTitle": "Зоны доставки",
+      "zonesHint": "Выберите одну или несколько зон доставки",
+      "loadingZones": "Загрузка зон..."
     },
     "toast": {
       "driverAssigned": "Водитель назначен на поездку",
@@ -1757,7 +1783,10 @@
       "approved": "Одобрен",
       "rejected": "Отклонен",
       "view": "Просмотр",
-      "addDriver": "Добавить водителя"
+      "addDriver": "Добавить водителя",
+      "phonePlaceholder": "+966501234567",
+      "vehiclePlaceholder": "Авто/Фургон/Грузовик",
+      "platePlaceholder": "ABC 1234"
     },
     "reject": {
       "title": "Отклонить {{name}}",
@@ -2244,7 +2273,15 @@
       "reservedPlaceholder": "Зарезервировано",
       "alreadySoldPlaceholder": "Продано",
       "lowStockThresholdPlaceholder": "Порог низкого остатка",
-      "backToCampaigns": "Назад к кампаниям"
+      "backToCampaigns": "Назад к кампаниям",
+      "placeholder": {
+        "stockTotalQuantity": "напр. 1000",
+        "stockReservedQuantity": "напр. 50",
+        "stockSoldQuantity": "напр. 200",
+        "stockLowStockThreshold": "напр. 100",
+        "stockUnit": "кг, коробка, шт",
+        "itemUnit": "кг, коробка"
+      }
     },
     "edit": {
       "active": "Активна",
@@ -2337,7 +2374,13 @@
     "allCaughtUp": "Вы всё прочитали! Новые уведомления появятся здесь.",
     "markAllRead": "Отметить всё как прочитанное",
     "footerCount": "{{count}} уведомление(ий)",
-    "noNew": "Нет новых уведомлений"
+    "noNew": "Нет новых уведомлений",
+    "channels": {
+      "in_app": "В приложении",
+      "sms": "SMS",
+      "email": "Email",
+      "push": "Push"
+    }
   },
   "deliverySlots": {
     "title": "Слоты доставки",
@@ -2408,7 +2451,9 @@
     "unknown": "Неизвестно",
     "clear": "Очистить",
     "undo": "Отменить",
-    "user": "пользователь"
+    "user": "пользователь",
+    "remove": "Удалить",
+    "manage": "Управление"
   },
   "pagination": {
     "showingTo": "Показано с {{from}} по {{to}} из {{total}}",

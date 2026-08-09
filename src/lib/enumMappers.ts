@@ -28,6 +28,7 @@ export const ORDER_STATUS_BACKEND_TO_FRONTEND: Record<string, string> = {
   IN_AGGREGATION: 'pending_aggregation',
   PENDING_AGGREGATION: 'pending_aggregation',
   READY_TO_SHIP: 'ready_to_ship',
+  READY_TO_DELIVER: 'ready_to_deliver',
   OUT_FOR_DELIVERY: 'out_for_delivery',
   DELIVERED: 'delivered',
   FAILED_DELIVERY: 'failed_delivery',

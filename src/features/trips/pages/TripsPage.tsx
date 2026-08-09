@@ -241,6 +241,11 @@ export function TripsPage() {
                 <p className="text-xs text-text-secondary font-body truncate">
                   {trip.regionName} · {trip.clusterName} · {trip.scheduledDate} · {trip.timeSlot}
                 </p>
+                {trip.type === 'supplier_pickup' && trip.supplierNames.length > 0 && (
+                  <p className="text-xs text-text-secondary font-body truncate mt-0.5">
+                    {t('trips.list.suppliers')}: <span className="font-bold text-text-primary">{trip.supplierNames.join(', ')}</span>
+                  </p>
+                )}
                 <div className="flex items-center gap-3 mt-1 text-xs text-text-tertiary font-body flex-wrap">
                   <span>
                     {t('trips.list.driver')}{' '}
@@ -275,7 +280,7 @@ export function TripsPage() {
         <div className="space-y-4">
           <p className="text-sm text-text-secondary font-body">{t('trips.list.selectDriver', { region: assignModal.trip?.regionName || '', slot: assignModal.trip?.timeSlot || '' })}</p>
           <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-            {availableDrivers.filter((d) => !assignModal.trip || !d.regionName || d.regionName === assignModal.trip.regionName).map((driver) => (
+            {availableDrivers.map((driver) => (
               <button
                 key={driver.id}
                 onClick={() => setAssignModal({ ...assignModal, driverId: driver.id, driverName: driver.name })}
@@ -292,7 +297,11 @@ export function TripsPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-text-primary">{driver.name}</p>
-                    <p className="text-xs text-text-secondary">{driver.regionName} · {driver.isAvailable ? <span className="text-status-success font-bold">Available</span> : <span className="text-status-error font-bold">On Trip</span>}</p>
+                    <p className="text-xs text-text-secondary">
+                      {[driver.regionName, driver.phone].filter(Boolean).join(' · ')}
+                      {driver.regionName || driver.phone ? ' · ' : ''}
+                      {driver.isAvailable ? <span className="text-status-success font-bold">Available</span> : <span className="text-status-error font-bold">On Trip</span>}
+                    </p>
                   </div>
                 </div>
               </button>

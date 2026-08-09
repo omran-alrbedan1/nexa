@@ -300,7 +300,7 @@ export function DriversPage() {
               value={createForm.phone}
               onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder="+966501234567"
+              placeholder={t('drivers.list.phonePlaceholder')}
             />
           </div>
           <div>
@@ -318,7 +318,7 @@ export function DriversPage() {
                 value={createForm.vehicle_type}
                 onChange={(e) => setCreateForm({ ...createForm, vehicle_type: e.target.value })}
                 className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-                placeholder="Car/Van/Truck"
+                placeholder={t('drivers.list.vehiclePlaceholder')}
               />
             </div>
             <div>
@@ -327,7 +327,7 @@ export function DriversPage() {
                 value={createForm.vehicle_plate}
                 onChange={(e) => setCreateForm({ ...createForm, vehicle_plate: e.target.value })}
                 className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-                placeholder="ABC 1234"
+                placeholder={t('drivers.list.platePlaceholder')}
               />
             </div>
           </div>
