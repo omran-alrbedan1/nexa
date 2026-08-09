@@ -104,6 +104,19 @@ export function OrderDetailPage() {
   const [deliveryUrgencyModal, setDeliveryUrgencyModal] = useState(false);
   const [deliveryUrgencySelection, setDeliveryUrgencySelection] = useState<DeliveryUrgency>('fast');
 
+  // Merge consecutive duplicate status entries (e.g. repeated IN_SUPPLY logs from test data)
+  const dedupedTimeline = useMemo(() => {
+    if (!order) return [];
+    const statusKey = (s: string) => mapFromBackend(s, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase();
+    const out: typeof order.timeline = [];
+    for (const log of order.timeline) {
+      const prev = out[out.length - 1];
+      if (prev && statusKey(prev.toStatus) === statusKey(log.toStatus)) continue;
+      out.push(log);
+    }
+    return out;
+  }, [order?.timeline]);
+
   if (isError) {
     return (
       <div className="space-y-6 animate-fade-up">
@@ -161,18 +174,6 @@ export function OrderDetailPage() {
   };
 
   const availableActions = getAvailableActions(order);
-
-  // Merge consecutive duplicate status entries (e.g. repeated IN_SUPPLY logs from test data)
-  const dedupedTimeline = useMemo(() => {
-    const statusKey = (s: string) => mapFromBackend(s, ORDER_STATUS_BACKEND_TO_FRONTEND).toLowerCase();
-    const out: typeof order.timeline = [];
-    for (const log of order.timeline) {
-      const prev = out[out.length - 1];
-      if (prev && statusKey(prev.toStatus) === statusKey(log.toStatus)) continue;
-      out.push(log);
-    }
-    return out;
-  }, [order.timeline]);
 
   return (
     <div className="space-y-6 animate-fade-up">
