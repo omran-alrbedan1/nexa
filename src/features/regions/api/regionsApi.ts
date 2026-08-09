@@ -31,6 +31,9 @@ export interface Region {
   id: number;
   name: string;
   nameAr: string;
+  nameHe: string | null;
+  nameRu: string | null;
+  code: string;
   provinceId: number | null;
   deliveryFee: number;
   minimumOrder: number;
@@ -78,6 +81,8 @@ interface BackendDeliveryZone {
   code: string;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   province_id: number;
   is_active: boolean;
   boundaries: { lat: number; lng: number }[][] | null;
@@ -103,6 +108,9 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
     id: z.id,
     name: z.name_ar || z.name_en || '',
     nameAr: z.name_ar,
+    nameHe: z.name_he || null,
+    nameRu: z.name_ru || null,
+    code: z.code,
     provinceId: z.province_id ?? null,
     deliveryFee: 0,
     minimumOrder: 0,
@@ -172,13 +180,13 @@ export const regionsApi = {
   },
 
   /** Create a new zone */
-  createZone: async (data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
+  createZone: async (data: { province_id: number; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
     const response = await apiClient.post<ApiResponse<BackendDeliveryZone>>('/api/v1/admin/zones', data);
     return mapBackendZone(response.data.data);
   },
 
   /** Update an existing zone */
-  updateZone: async (id: number, data: { province_id?: number; name_ar?: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
+  updateZone: async (id: number, data: { province_id?: number; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }): Promise<Region> => {
     const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}`, data);
     return mapBackendZone(response.data.data);
   },

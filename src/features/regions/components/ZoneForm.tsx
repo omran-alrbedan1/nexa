@@ -8,18 +8,19 @@ import { Map, MapPin } from 'lucide-react';
 import type { Region } from '../api/regionsApi';
 import { provincesApi } from '@/features/locations/api/provincesApi';
 import { PolygonEditor } from './PolygonEditor';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 
 interface ZoneFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) => void;
+  onSave: (data: { province_id: number; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; boundaries?: { lat: number; lng: number }[][] }) => void;
   isSaving: boolean;
   editing?: Region | null;
 }
 
 export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormProps) {
   const { t } = useTranslation();
-  const [form, setForm] = useState({ province_id: 0, name_ar: '', name_en: '', code: '' });
+  const [form, setForm] = useState<{ province_id: number; names: Partial<Record<TranslatedLang, string>>; code: string }>({ province_id: 0, names: {}, code: '' });
   const [boundaries, setBoundaries] = useState<{ lat: number; lng: number }[][] | null>(null);
   const [showBoundaryEditor, setShowBoundaryEditor] = useState(false);
 
@@ -32,19 +33,25 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
 
   useEffect(() => {
     if (editing) {
-      setForm({ province_id: editing.provinceId ?? 0, name_ar: editing.nameAr || editing.name, name_en: editing.name === editing.nameAr ? '' : editing.name, code: '' });
+      setForm({
+        province_id: editing.provinceId ?? 0,
+        names: { ar: editing.nameAr || editing.name, en: editing.name === editing.nameAr ? '' : editing.name, he: editing.nameHe || '', ru: editing.nameRu || '' },
+        code: editing.code ?? '',
+      });
       setBoundaries(editing.boundaries ?? null);
     } else {
-      setForm({ province_id: 0, name_ar: '', name_en: '', code: '' });
+      setForm({ province_id: 0, names: {}, code: '' });
       setBoundaries(null);
     }
   }, [editing, open]);
 
   const handleSave = () => {
-    const data: { province_id: number; name_ar: string; name_en?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } = {
-      province_id: form.province_id,
-      name_ar: form.name_ar,
-      ...(form.name_en ? { name_en: form.name_en } : {}),
+    const data: { province_id: number; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; code?: string; boundaries?: { lat: number; lng: number }[][] } = {
+      province_id: form.province_id ?? 0,
+      name_ar: form.names.ar ?? '',
+      ...(form.names.en ? { name_en: form.names.en } : {}),
+      ...(form.names.he ? { name_he: form.names.he } : {}),
+      ...(form.names.ru ? { name_ru: form.names.ru } : {}),
       ...(form.code ? { code: form.code } : {}),
     };
     if (boundaries && boundaries.length > 0) {
@@ -76,23 +83,12 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.nameAr')}</label>
-            <input
-              value={form.name_ar}
-              onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              dir="rtl"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.nameEn')}</label>
-            <input
-              value={form.name_en}
-              onChange={(e) => setForm({ ...form, name_en: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-            />
-          </div>
+          <TranslatedField
+            label={t('regions.zoneForm.nameAr')}
+            values={form.names}
+            onChange={(key, value) => setForm({ ...form, names: { ...form.names, [key]: value } })}
+            required
+          />
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.code')}{!editing && ' *'}</label>
             <input
@@ -140,7 +136,7 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={onClose}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" isLoading={isSaving} onClick={handleSave}
-              disabled={!form.name_ar.trim() || form.province_id === 0 || (!editing && !form.code.trim()) || (boundaryCount > 0 && boundaryCount < 3)}>
+              disabled={!form.names.ar?.trim() || form.province_id === 0 || (!editing && !form.code.trim()) || (boundaryCount > 0 && boundaryCount < 3)}>
               {editing ? t('common.save') : t('regions.zoneForm.create')}
             </Button>
           </div>

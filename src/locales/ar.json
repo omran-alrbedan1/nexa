@@ -2362,5 +2362,11 @@
       "businessDeleteSuccess": "تم حذف فئة النشاط بنجاح",
       "businessDeleteFailed": "فشل حذف فئة النشاط"
     }
+  },
+  "langs": {
+    "ar": "العربية",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
   }
 }
