@@ -170,6 +170,12 @@ export function DriverDetailPage() {
               <span className="text-text-secondary">{t('drivers.detail.phone')}</span>
               <span className="font-bold text-text-primary" dir="ltr">{driver.phone}</span>
             </div>
+            {driver.zoneName && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
+                <span className="text-text-secondary">{t('drivers.detail.zone')}</span>
+                <span className="font-bold text-text-primary">{driver.zoneName}</span>
+              </div>
+            )}
             {driver.email && (
               <div className="flex items-center justify-between p-3 rounded-xl bg-bg-section-alt">
                 <span className="text-text-secondary">{t('drivers.detail.email')}</span>

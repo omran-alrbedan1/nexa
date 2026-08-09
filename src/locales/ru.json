@@ -1800,6 +1800,7 @@
       "personalInfo": "Личная информация",
       "fullName": "Полное имя",
       "phone": "Телефон",
+      "zone": "Зона",
       "email": "Эл. почта",
       "vehicleInfo": "Информация о ТС",
       "plateNumber": "Госномер",

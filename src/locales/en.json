@@ -1918,6 +1918,7 @@
       "personalInfo": "Personal Information",
       "fullName": "Full Name",
       "phone": "Phone",
+      "zone": "Zone",
       "email": "Email",
       "vehicleInfo": "Vehicle Information",
       "plateNumber": "Plate Number",
