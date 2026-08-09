@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -62,6 +62,7 @@ export function CreateTripPage() {
     assignmentType: 'manual', deliveryFeeOverride: '',
   });
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [orderTotals, setOrderTotals] = useState<Record<number, number>>({});
   const [selectedDriver, setSelectedDriver] = useState<number | null>(null);
 
   // Order picker filters
@@ -136,12 +137,8 @@ export function CreateTripPage() {
   const zones = zonesData ?? [];
   const pagination = ordersData?.pagination ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
-  const selectedOrdersFull = useMemo(
-    () => (ordersData?.orders ?? []).filter((o) => selectedOrders.includes(o.id)),
-    [ordersData, selectedOrders],
-  );
-  const selectedTotal = selectedOrdersFull.reduce((s, o) => s + o.total, 0);
   const selectedCount = selectedOrders.length;
+  const selectedTotal = selectedOrders.reduce((s, id) => s + (orderTotals[id] ?? 0), 0);
 
   const activeZone = zones.find((z) => z.id === (selectedZoneIds[0] ?? 0));
 
@@ -149,8 +146,18 @@ export function CreateTripPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleOrder = (id: number) => {
-    setSelectedOrders((prev) => prev.includes(id) ? prev.filter((o) => o !== id) : [...prev, id]);
+  const toggleOrder = (id: number, total?: number) => {
+    const isSelected = selectedOrders.includes(id);
+    setSelectedOrders((prev) => isSelected ? prev.filter((o) => o !== id) : [...prev, id]);
+    setOrderTotals((prev) => {
+      const next = { ...prev };
+      if (isSelected) {
+        delete next[id];
+      } else if (total !== undefined) {
+        next[id] = total;
+      }
+      return next;
+    });
   };
 
   const toggleZone = (id: number) => {
@@ -400,7 +407,7 @@ export function CreateTripPage() {
                     <div className="divide-y divide-border-default/60">
                       {group.orders.map((order) => (
                         <label key={order.id} className="flex items-center gap-3 p-3 hover:bg-bg-section-alt/60 cursor-pointer transition-all">
-                          <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
+                          <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id, order.total)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-text-primary font-body">{order.customerName ?? '—'}</p>
                             <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemsCount} {t('common.items')}</p>
@@ -460,7 +467,7 @@ export function CreateTripPage() {
                 <div className="space-y-2">
                   {availableOrders.map((order) => (
                     <label key={order.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-default/60 hover:border-brand-primary/20 cursor-pointer transition-all">
-                      <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
+                      <input type="checkbox" checked={selectedOrders.includes(order.id)} onChange={() => toggleOrder(order.id, order.total)} className="w-4 h-4 rounded border-border-default text-brand-primary focus:ring-brand-primary" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-text-primary font-body">{order.customerName}</p>
                         <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.itemCount} {t('common.items')} · {order.regionName}</p>
