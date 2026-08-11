@@ -51,7 +51,7 @@ export function RegionDetailPage() {
 
   const { data: zoneSlots } = useDeliverySlotsForZone(id);
 
-  const [feeModal, setFeeModal] = useState<{ open: boolean; fee: string }>({ open: false, fee: '' });
+  const [feeModal, setFeeModal] = useState<{ open: boolean; fee: string; warehouseId: number | null; warehouseName: string | null }>({ open: false, fee: '', warehouseId: null, warehouseName: null });
   const [zoneEditModal, setZoneEditModal] = useState(false);
 
   if (isError) {
@@ -102,7 +102,7 @@ export function RegionDetailPage() {
               <Button variant="outline" size="sm" leftIcon={<Pencil size={14} />} onClick={() => setZoneEditModal(true)}>
                 {t('regions.detail.edit')}
               </Button>
-              <Button variant="secondary" size="sm" leftIcon={<DollarSign size={14} />} onClick={() => setFeeModal({ open: true, fee: String(region.deliveryFee) })}>
+              <Button variant="secondary" size="sm" leftIcon={<DollarSign size={14} />} onClick={() => setFeeModal({ open: true, fee: String(region.deliveryFee), warehouseId: region.defaultWarehouseId, warehouseName: region.deliveryFees[0]?.warehouseName ?? null })}>
                 {t('regions.detail.updateFee')}
               </Button>
               <Button variant={region.isActive ? 'secondary' : 'primary'} size="sm" isLoading={toggleActive.isPending} onClick={() => toggleActive.mutate(region.id)}>
@@ -227,6 +227,11 @@ export function RegionDetailPage() {
       {/* Fee Modal */}
       <Modal open={feeModal.open} onClose={() => setFeeModal({ ...feeModal, open: false })} title={t('regions.list.feeModalTitle', { name: region.name })}>
         <div className="space-y-4">
+          {feeModal.warehouseName && (
+            <p className="text-xs text-text-secondary font-body">
+              {t('regions.list.feeWarehouse', 'Warehouse: {{name}}', { name: feeModal.warehouseName })}
+            </p>
+          )}
           <div>
             <label className="block text-sm font-bold text-text-secondary font-body mb-1">{t('regions.list.deliveryFee')}</label>
             <input type="number" step="0.5" min="0" value={feeModal.fee} onChange={(e) => setFeeModal({ ...feeModal, fee: e.target.value })}
@@ -234,8 +239,8 @@ export function RegionDetailPage() {
           </div>
           <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setFeeModal({ ...feeModal, open: false })}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={updateFee.isPending} onClick={() => {
-              updateFee.mutate({ id, deliveryFee: parseFloat(feeModal.fee) });
+            <Button variant="primary" size="sm" isLoading={updateFee.isPending} disabled={feeModal.warehouseId === null && !feeModal.warehouseName} onClick={() => {
+              updateFee.mutate({ id, deliveryFee: parseFloat(feeModal.fee), warehouseId: feeModal.warehouseId });
               setFeeModal({ ...feeModal, open: false });
             }}>{t('regions.list.update')}</Button>
           </div>

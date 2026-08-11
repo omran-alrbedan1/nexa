@@ -27,7 +27,7 @@ export function RegionsPage() {
   const updateFee = useUpdateDeliveryFee();
   const createZone = useCreateZone();
 
-  const [feeModal, setFeeModal] = useState<{ open: boolean; regionId: number; regionName: string; fee: string }>({ open: false, regionId: 0, regionName: '', fee: '' });
+  const [feeModal, setFeeModal] = useState<{ open: boolean; regionId: number; regionName: string; warehouseId: number | null; warehouseName: string | null; fee: string }>({ open: false, regionId: 0, regionName: '', warehouseId: null, warehouseName: null, fee: '' });
   const [zoneModal, setZoneModal] = useState(false);
 
   if (isError) return (
@@ -45,7 +45,7 @@ export function RegionsPage() {
   const meta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
 
   const openFeeModal = (region: typeof regions[0]) => {
-    setFeeModal({ open: true, regionId: region.id, regionName: region.name, fee: region.deliveryFee.toString() });
+    setFeeModal({ open: true, regionId: region.id, regionName: region.name, warehouseId: region.defaultWarehouseId, warehouseName: region.deliveryFees[0]?.warehouseName ?? null, fee: region.deliveryFee.toString() });
   };
 
   return (
@@ -181,13 +181,18 @@ export function RegionsPage() {
       {/* Fee Modal */}
       <Modal open={feeModal.open} onClose={() => setFeeModal({ ...feeModal, open: false })} title={t('regions.list.feeModalTitle', { name: feeModal.regionName })}>
         <div className="space-y-4">
+          {feeModal.warehouseName && (
+            <p className="text-xs text-text-secondary font-body">
+              {t('regions.list.feeWarehouse', 'Warehouse: {{name}}', { name: feeModal.warehouseName })}
+            </p>
+          )}
           <div>
             <label className="block text-sm font-bold text-text-secondary font-body mb-1">{t('regions.list.deliveryFee')}</label>
             <input type="number" step="0.5" min="0" value={feeModal.fee} onChange={(e) => setFeeModal({ ...feeModal, fee: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input" />
           </div>
           <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setFeeModal({ ...feeModal, open: false })}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={updateFee.isPending} onClick={() => { updateFee.mutate({ id: feeModal.regionId, deliveryFee: parseFloat(feeModal.fee) }); setFeeModal({ ...feeModal, open: false }); }}>{t('regions.list.update')}</Button>
+            <Button variant="primary" size="sm" isLoading={updateFee.isPending} disabled={feeModal.warehouseId === null && !feeModal.warehouseName} onClick={() => { updateFee.mutate({ id: feeModal.regionId, deliveryFee: parseFloat(feeModal.fee), warehouseId: feeModal.warehouseId }); setFeeModal({ ...feeModal, open: false }); }}>{t('regions.list.update')}</Button>
           </div>
         </div>
       </Modal>

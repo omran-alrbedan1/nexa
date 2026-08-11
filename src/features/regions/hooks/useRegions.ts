@@ -73,8 +73,8 @@ export function useUpdateDeliveryFee() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, deliveryFee }: { id: number; deliveryFee: number }) =>
-      regionsApi.updateDeliveryFee(id, deliveryFee),
+    mutationFn: ({ id, deliveryFee, warehouseId }: { id: number; deliveryFee: number; warehouseId?: number | null }) =>
+      regionsApi.updateDeliveryFee(id, deliveryFee, warehouseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: regionKeys.pageData() });
       addToast('success', t('regions.toast.feeUpdated'));

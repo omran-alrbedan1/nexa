@@ -27,6 +27,12 @@ export interface TimeSlot {
   isActive: boolean;
 }
 
+export interface DeliveryFeeItem {
+  warehouseId: number;
+  warehouseName: string | null;
+  fee: number;
+}
+
 export interface Region {
   id: number;
   name: string;
@@ -35,7 +41,9 @@ export interface Region {
   nameRu: string | null;
   code: string;
   provinceId: number | null;
+  defaultWarehouseId: number | null;
   deliveryFee: number;
+  deliveryFees: DeliveryFeeItem[];
   minimumOrder: number;
   freeDeliveryThreshold: number | null;
   isActive: boolean;
@@ -87,9 +95,18 @@ interface BackendDeliveryZone {
   is_active: boolean;
   boundaries: { lat: number; lng: number }[][] | null;
   default_warehouse_id: number | null;
+  delivery_fee: number | null;
+  delivery_fees: BackendZoneFee[] | null;
   province?: { id: number; name: string } | null;
+  default_warehouse?: { id: number; name: string } | null;
   created_at: string;
   updated_at: string;
+}
+
+interface BackendZoneFee {
+  warehouse_id: number;
+  warehouse_name: string | null;
+  fee: number;
 }
 
 interface BackendZonesResponse {
@@ -112,7 +129,13 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
     nameRu: z.name_ru || null,
     code: z.code,
     provinceId: z.province_id ?? null,
-    deliveryFee: 0,
+    defaultWarehouseId: z.default_warehouse?.id ?? z.default_warehouse_id ?? null,
+    deliveryFee: z.delivery_fee ?? 0,
+    deliveryFees: (z.delivery_fees || []).map((f) => ({
+      warehouseId: f.warehouse_id,
+      warehouseName: f.warehouse_name,
+      fee: f.fee,
+    })),
     minimumOrder: 0,
     freeDeliveryThreshold: null,
     isActive: z.is_active,
@@ -144,7 +167,7 @@ export const regionsApi = {
         totalClusters: 0,
         totalOrders: 0,
         totalRevenue: 0,
-        avgDeliveryFee: 0,
+        avgDeliveryFee: regions.length > 0 ? regions.reduce((sum, r) => sum + r.deliveryFee, 0) / regions.length : 0,
       },
       regions,
       meta: {
@@ -168,9 +191,9 @@ export const regionsApi = {
     return mapBackendZone(response.data.data);
   },
 
-  /** Update delivery fee — backend uses PUT /zones/{id}/delivery-fees (plural) */
-  updateDeliveryFee: async (id: number, deliveryFee: number): Promise<Region> => {
-    const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/delivery-fees`, { fees: [{ warehouse_id: 0, fee: deliveryFee }] });
+  /** Update delivery fee for the zone's resolved warehouse — backend uses PUT /zones/{id}/delivery-fees (plural) */
+  updateDeliveryFee: async (id: number, deliveryFee: number, warehouseId?: number | null): Promise<Region> => {
+    const response = await apiClient.put<ApiResponse<BackendDeliveryZone>>(`/api/v1/admin/zones/${id}/delivery-fees`, { fees: [{ warehouse_id: warehouseId ?? 0, fee: deliveryFee }] });
     return mapBackendZone(response.data.data);
   },
 
