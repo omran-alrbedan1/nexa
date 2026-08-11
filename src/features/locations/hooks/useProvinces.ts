@@ -71,6 +71,13 @@ export function useDeleteProvince() {
       queryClient.invalidateQueries({ queryKey: provinceKeys.all });
       addToast('success', t('locations.provinces.toast.deleted'));
     },
-    onError: () => addToast('error', t('locations.provinces.toast.deleteFailed')),
+    onError: (error) => {
+      const data = (error as { response?: { data?: { error_code?: string; message?: string } } }).response?.data;
+      if (data?.error_code === 'province_has_zones') {
+        addToast('error', t('locations.provinces.toast.hasZones'));
+      } else {
+        addToast('error', data?.message || t('locations.provinces.toast.deleteFailed'));
+      }
+    },
   });
 }

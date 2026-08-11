@@ -2730,8 +2730,12 @@
         "toggled": "Province status changed",
         "toggleFailed": "Failed to toggle province",
         "deleted": "Province deleted",
-        "deleteFailed": "Failed to delete province"
-      }
+        "deleteFailed": "Failed to delete province",
+        "hasZones": "Cannot delete — this province has delivery zones. Move or remove them first."
+      },
+      "deleteTitle": "Delete Province — {{name}}",
+      "deleteConfirm": "Are you sure you want to delete \"{{name}}\" permanently?",
+      "deleteWarning": "Provinces that contain delivery zones cannot be deleted."
     },
     "serviceRegions": {
       "title": "Service Regions",
