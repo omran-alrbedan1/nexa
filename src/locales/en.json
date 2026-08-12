@@ -30,6 +30,7 @@
     "regions": "Regions",
     "campaigns": "Campaigns",
     "products": "Products",
+    "units": "Units",
     "categories": "Categories",
     "drivers": "Drivers",
     "customers": "Customers",
@@ -1252,7 +1253,58 @@
       "deleted": "Variant deleted",
       "deleteFailed": "Failed to delete variant",
       "toggled": "Variant status updated",
-      "toggleFailed": "Failed to update variant status"
+      "toggleFailed": "Failed to update variant status",
+      "unit": "Unit",
+      "selectUnit": "Select unit (auto name & SKU)",
+      "autoName": "Auto name & SKU",
+      "skuPreview": "SKU preview",
+      "duplicateUnit": "Each unit can be used once",
+      "totalStock": "Total stock (all variants)",
+      "addFirstUnit": "Add the first unit to start auto-naming variants"
+    }
+  },
+  "units": {
+    "title": "Product Units",
+    "description": "Manage selling units and sizes used across the catalog",
+    "errorTitle": "Failed to load units",
+    "errorMessage": "An unexpected error occurred while loading units",
+    "stats": {
+      "total": "Total Units",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "list": {
+      "allUnits": "All Units",
+      "addUnit": "Add Unit",
+      "searchPlaceholder": "Search units...",
+      "noUnits": "No units found",
+      "noUnitsDescription": "Add your first unit (e.g. kg, piece, pack, XL)"
+    },
+    "sortLabel": "Sort order: {{order}}",
+    "enable": "Enable",
+    "disable": "Disable",
+    "deleteTitle": "Delete Unit",
+    "deleteConfirm": "Delete unit \"{{name}}\"? Products using it will keep it but it can no longer be selected.",
+    "validation": {
+      "required": "Code and Arabic name are required"
+    },
+    "modal": {
+      "createTitle": "Add Unit",
+      "editTitle": "Edit Unit",
+      "create": "Add",
+      "code": "Code",
+      "name": "Name",
+      "namePlaceholder": "Unit name",
+      "sortOrder": "Sort order"
+    },
+    "toast": {
+      "created": "Unit created",
+      "updated": "Unit updated",
+      "deleted": "Unit deleted",
+      "saveFailed": "Failed to save unit",
+      "deleteFailed": "Failed to delete unit",
+      "toggled": "Unit status updated",
+      "toggleFailed": "Failed to update unit status"
     }
   },
   "categories": {

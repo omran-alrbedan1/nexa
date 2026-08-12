@@ -30,6 +30,7 @@
     "regions": "אזורים",
     "campaigns": "קמפיינים",
     "products": "מוצרים",
+    "units": "יחידות",
     "categories": "קטגוריות",
     "drivers": "נהגים",
     "customers": "לקוחות",
@@ -1254,7 +1255,14 @@
       "deleted": "הוריאנט נמחק",
       "deleteFailed": "מחיקת הוריאנט נכשלה",
       "toggled": "סטטוס הוריאנט עודכן",
-      "toggleFailed": "עדכון סטטוס הוריאנט נכשל"
+      "toggleFailed": "עדכון סטטוס הוריאנט נכשל",
+      "unit": "יחידה",
+      "selectUnit": "בחירת יחידה (שם ומק״ט אוטומטיים)",
+      "autoName": "שם ומק״ט אוטומטיים",
+      "skuPreview": "תצוגה מקדימה של מק״ט",
+      "duplicateUnit": "ניתן להשתמש בכל יחידה פעם אחת בלבד",
+      "totalStock": "סך המלאי (כל הווריאנטים)",
+      "addFirstUnit": "הוסף את היחידה הראשונה כדי להתחיל מתן שמות אוטומטי"
     }
   },
   "suppliers": {
@@ -2460,6 +2468,50 @@
     "showingTo": "מציג {{from}} עד {{to}} מתוך {{total}} תוצאות",
     "previous": "הקודם",
     "next": "הבא"
+  },
+  "units": {
+    "title": "יחידות מוצר",
+    "description": "ניהול יחידות מכירה ומידות בקatalog",
+    "errorTitle": "טעינת היחידות נכשלה",
+    "errorMessage": "אירעה שגיאה בלתי צפויה בטעינת היחידות",
+    "stats": {
+      "total": "סה״כ יחידות",
+      "active": "פעילות",
+      "inactive": "לא פעילות"
+    },
+    "list": {
+      "allUnits": "כל היחידות",
+      "addUnit": "הוספת יחידה",
+      "searchPlaceholder": "חיפוש יחידות...",
+      "noUnits": "לא נמצאו יחידות",
+      "noUnitsDescription": "הוסף את היחידה הראשונה (למשל: ק״ג, יחידה, חבילה, XL)"
+    },
+    "sortLabel": "סדר: {{order}}",
+    "enable": "הפעלה",
+    "disable": "השבתה",
+    "deleteTitle": "מחיקת יחידה",
+    "deleteConfirm": "למחוק יחידה \"{{name}}\"? מוצרים שמשתמשים בה ישמרו עליה אך לא ניתן יהיה לבחור אותה עוד.",
+    "validation": {
+      "required": "קוד ושם בערבית נדרשים"
+    },
+    "modal": {
+      "createTitle": "הוספת יחידה",
+      "editTitle": "עריכת יחידה",
+      "create": "הוספה",
+      "code": "קוד",
+      "name": "שם",
+      "namePlaceholder": "שם היחידה",
+      "sortOrder": "סדר"
+    },
+    "toast": {
+      "created": "היחידה נוצרה",
+      "updated": "היחידה עודכנה",
+      "deleted": "היחידה נמחקה",
+      "saveFailed": "שמירת היחידה נכשלה",
+      "deleteFailed": "מחיקת היחידה נכשלה",
+      "toggled": "מצב היחידה עודכן",
+      "toggleFailed": "עדכון מצב היחידה נכשל"
+    }
   },
   "categories": {
     "businessForm": {

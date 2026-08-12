@@ -65,6 +65,9 @@ export const ROUTES = {
   PRODUCT_EDIT: (productId: number | string) => `/products/${productId}/edit`,
   PRODUCT_DETAIL: (productId: number | string) => `/products/${productId}`,
 
+  // Product units
+  UNITS: '/units',
+
   // Suppliers
   SUPPLIERS: '/suppliers',
   SUPPLIER_CREATE: '/suppliers/create',

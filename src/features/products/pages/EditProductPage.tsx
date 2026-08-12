@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
+import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +29,8 @@ export function EditProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
+  const [units, setUnits] = useState<ProductUnit[]>([]);
+  const [productSku, setProductSku] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
@@ -35,7 +38,7 @@ export function EditProductPage() {
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [form, setForm] = useState({
-    price: '', unit: 'kg', stockQuantity: '',
+    price: '', unit: 'kg', unitId: '', stockQuantity: '',
     categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
 
@@ -47,11 +50,13 @@ export function EditProductPage() {
       productVariantsApi.list(id).catch(() => []),
       productsApi.getCategories().catch(() => [] as ProductCategory[]),
       productsApi.getSuppliersList().catch(() => []),
-    ]).then(([p, variantList, cats, supps]) => {
+      unitsApi.list().then((d) => d.units).catch(() => [] as ProductUnit[]),
+    ]).then(([p, variantList, cats, supps, unitList]) => {
       setNames({ ar: p.nameAr, en: p.name, he: p.nameHe ?? '', ru: p.nameRu ?? '' });
       setDescriptions({ ar: p.descriptionAr, en: p.descriptionEn ?? '', he: p.descriptionHe ?? '', ru: p.descriptionRu ?? '' });
       setVariants(variantList.map((v) => ({
         id: v.id,
+        unit_id: v.unit_id ?? undefined,
         name_ar: v.name_ar,
         name_en: v.name_en ?? undefined,
         name_he: v.name_he ?? undefined,
@@ -62,7 +67,7 @@ export function EditProductPage() {
         is_active: v.is_active,
       })));
       setForm({
-        price: String(p.price), unit: p.unit,
+        price: String(p.price), unit: p.unit, unitId: p.unitId ? String(p.unitId) : '',
         stockQuantity: String(p.stockQuantity), categoryId: String(p.categoryId),
         supplierId: p.supplierId ? String(p.supplierId) : '',
         source: p.source,
@@ -70,6 +75,8 @@ export function EditProductPage() {
       setExistingImageUrl(p.imageUrl);
       setCategories(cats);
       setSuppliers(supps);
+      setUnits(unitList);
+      setProductSku(p.sku);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
@@ -77,6 +84,15 @@ export function EditProductPage() {
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUnitChange = (unitId: string) => {
+    const unit = units.find((u) => String(u.id) === unitId);
+    setForm((prev) => ({
+      ...prev,
+      unitId,
+      unit: unit ? unit.code.toLowerCase() : prev.unit,
+    }));
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +128,7 @@ export function EditProductPage() {
         descriptionRu: descriptions.ru,
         price: parseFloat(form.price) || 0,
         unit: form.unit,
+        unitId: form.unitId ? parseInt(form.unitId) : null,
         stockQuantity: parseInt(form.stockQuantity) || 0,
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
@@ -228,14 +245,13 @@ export function EditProductPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.unit')}</label>
-              <select value={form.unit} onChange={(e) => handleChange('unit', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="kg">{t('products.edit.kg')}</option>
-                <option value="piece">{t('products.edit.piece')}</option>
-                <option value="pack">{t('products.edit.pack')}</option>
-                <option value="box">{t('products.edit.box')}</option>
-                <option value="loaf">{t('products.edit.loaf')}</option>
-                <option value="jar">{t('products.edit.jar')}</option>
-                <option value="tub">{t('products.edit.tub')}</option>
+              <select value={form.unitId} onChange={(e) => handleUnitChange(e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
+                <option value="">{t('products.edit.selectUnit')}</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.nameAr}{unit.nameEn ? ` (${unit.nameEn})` : ''} — {unit.code}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -265,7 +281,13 @@ export function EditProductPage() {
       </div>
 
       <Card padding="lg">
-        <VariantEditor value={variants} onChange={setVariants} />
+        <VariantEditor
+          value={variants}
+          onChange={setVariants}
+          units={units}
+          productNames={names}
+          productSku={productSku}
+        />
       </Card>
 
       <div className="flex items-center gap-3">

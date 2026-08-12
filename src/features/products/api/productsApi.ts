@@ -28,6 +28,7 @@ export interface ProductCategory {
 
 export interface DashboardProduct {
   id: number;
+  sku: string;
   name: string;
   nameAr: string;
   nameHe?: string;
@@ -39,6 +40,7 @@ export interface DashboardProduct {
   descriptionRu?: string;
   price: number;
   unit: string;
+  unitId?: number | null;
   imageUrl: string | null;
   categoryId: number;
   categoryName: string;
@@ -99,6 +101,7 @@ interface BackendProduct {
   campaign_id?: number | null;
   price: string;
   unit: string;
+  unit_id?: number | null;
   stock_quantity: number;
   approval_status: string;
   rejection_reason: string | null;
@@ -148,6 +151,7 @@ function mapBackendCategory(bc: BackendCategory): ProductCategory {
 function mapBackendProduct(bp: BackendProduct): DashboardProduct {
   return {
     id: bp.id,
+    sku: bp.sku ?? '',
     name: bp.name_en || bp.name_ar,
     nameAr: bp.name_ar,
     nameHe: bp.name_he ?? undefined,
@@ -159,6 +163,7 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     descriptionRu: bp.description_ru ?? '',
     price: parseFloat(bp.price) || 0,
     unit: bp.unit || 'piece',
+    unitId: bp.unit_id ?? null,
     imageUrl: bp.primary_image || null,
     categoryId: bp.category?.id || 0,
     categoryName: bp.category?.name || 'Uncategorized',
@@ -188,6 +193,7 @@ const PRODUCT_FIELD_MAP: Record<string, string> = {
   descriptionRu: 'description_ru',
   price: 'price',
   unit: 'unit',
+  unitId: 'unit_id',
   stockQuantity: 'stock_quantity',
   categoryId: 'category_id',
   supplierId: 'supplier_id',
@@ -377,7 +383,8 @@ export const productsApi = {
 
 export interface ProductVariantInput {
   id?: number;
-  name_ar: string;
+  unit_id?: number;
+  name_ar?: string;
   name_en?: string;
   name_he?: string;
   name_ru?: string;
@@ -391,6 +398,7 @@ export interface ProductVariantInput {
 export interface ProductVariant {
   id: number;
   product_id: number;
+  unit_id: number | null;
   sku: string | null;
   name_ar: string;
   name_en: string | null;
@@ -404,7 +412,8 @@ export interface ProductVariant {
 }
 
 export type VariantFormData = {
-  name_ar: string;
+  unit_id?: number;
+  name_ar?: string;
   name_en?: string;
   name_he?: string;
   name_ru?: string;

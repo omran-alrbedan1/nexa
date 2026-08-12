@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { productsApi, type ProductCategory } from '../api/productsApi';
+import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -23,13 +24,14 @@ export function CreateProductPage() {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
+  const [units, setUnits] = useState<ProductUnit[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [form, setForm] = useState({
-    price: '', unit: 'kg', stockQuantity: '',
+    price: '', unit: 'kg', unitId: '', stockQuantity: '',
     categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
 
@@ -37,14 +39,25 @@ export function CreateProductPage() {
     Promise.all([
       productsApi.getCategories().catch(() => [] as ProductCategory[]),
       productsApi.getSuppliersList().catch(() => []),
-    ]).then(([cats, supps]) => {
+      unitsApi.list().then((d) => d.units).catch(() => [] as ProductUnit[]),
+    ]).then(([cats, supps, unitList]) => {
       setCategories(cats);
       setSuppliers(supps);
+      setUnits(unitList);
     });
   }, []);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUnitChange = (unitId: string) => {
+    const unit = units.find((u) => String(u.id) === unitId);
+    setForm((prev) => ({
+      ...prev,
+      unitId,
+      unit: unit ? unit.code.toLowerCase() : prev.unit,
+    }));
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +93,7 @@ export function CreateProductPage() {
         descriptionRu: descriptions.ru,
         price: parseFloat(form.price) || 0,
         unit: form.unit,
+        unitId: form.unitId ? parseInt(form.unitId) : null,
         stockQuantity: parseInt(form.stockQuantity) || 0,
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
@@ -177,14 +191,13 @@ export function CreateProductPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.unit')}</label>
-              <select value={form.unit} onChange={(e) => handleChange('unit', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="kg">{t('products.create.unitKg')}</option>
-                <option value="piece">{t('products.create.unitPiece')}</option>
-                <option value="pack">{t('products.create.unitPack')}</option>
-                <option value="box">{t('products.create.unitBox')}</option>
-                <option value="loaf">{t('products.create.unitLoaf')}</option>
-                <option value="jar">{t('products.create.unitJar')}</option>
-                <option value="tub">{t('products.create.unitTub')}</option>
+              <select value={form.unitId} onChange={(e) => handleUnitChange(e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
+                <option value="">{t('products.create.selectUnit')}</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.nameAr}{unit.nameEn ? ` (${unit.nameEn})` : ''} — {unit.code}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -214,7 +227,12 @@ export function CreateProductPage() {
       </div>
 
       <Card padding="lg">
-        <VariantEditor value={variants} onChange={setVariants} />
+        <VariantEditor
+          value={variants}
+          onChange={setVariants}
+          units={units}
+          productNames={names}
+        />
       </Card>
 
       <div className="flex items-center gap-3">

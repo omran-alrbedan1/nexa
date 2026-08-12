@@ -67,6 +67,9 @@ const CreateProductPage = lazy(() =>
 const EditProductPage = lazy(() =>
   import('@/features/products/pages/EditProductPage').then((m) => ({ default: m.EditProductPage }))
 );
+const UnitsPage = lazy(() =>
+  import('@/features/products/pages/UnitsPage').then((m) => ({ default: m.UnitsPage }))
+);
 const RegionsPage = lazy(() =>
   import('@/features/regions/pages/RegionsPage').then((m) => ({ default: m.RegionsPage }))
 );
@@ -315,6 +318,7 @@ export function App() {
                 <Route path={ROUTES.PRODUCT_CREATE} element={<CreateProductPage />} />
                 <Route path={ROUTES.PRODUCT_EDIT(':productId')} element={<EditProductPage />} />
                 <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<ProductDetailPage />} />
+                <Route path={ROUTES.UNITS} element={<UnitsPage />} />
                 <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
                 <Route path={ROUTES.CAMPAIGN_DETAIL(':campaignId')} element={<CampaignDetailPage />} />
                 <Route path={ROUTES.CAMPAIGN_CREATE} element={<CreateCampaignPage />} />

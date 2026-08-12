@@ -260,7 +260,14 @@ export function ProductDetailPage() {
 
       {/* Variants */}
       <Card padding="lg">
-        <VariantsSection productId={product.id} />
+        <VariantsSection
+          productId={product.id}
+          productNameAr={product.nameAr}
+          productNameEn={product.name}
+          productNameHe={product.nameHe}
+          productNameRu={product.nameRu}
+          productSku={product.sku}
+        />
       </Card>
 
       {/* Description */}

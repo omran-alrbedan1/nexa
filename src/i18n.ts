@@ -6,7 +6,7 @@ import ru from './locales/ru.json';
 import he from './locales/he.json';
 
 const savedLang = typeof window !== 'undefined' ? localStorage.getItem('nexa-lang') : null;
-const initialLang = savedLang || 'en';
+const initialLang = savedLang || 'he';
 
 i18n.use(initReactI18next).init({
   resources: {
