@@ -1137,7 +1137,8 @@
       "unitPiece": "יחידה",
       "unitTub": "מיכל",
       "uploadImage": "העלה תמונה",
-      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה"
+      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה",
+      "selectUnit": "בחירת יחידה (אופציונלי)"
     },
     "edit": {
       "back": "חזרה למוצר",
@@ -1179,7 +1180,8 @@
       "tub": "מיכל",
       "unit": "יחידה",
       "uploadImage": "העלה תמונה",
-      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה"
+      "validationRequired": "שם מוצר (אנגלית וערבית) ומחיר חובה",
+      "selectUnit": "בחירת יחידה (אופציונלי)"
     },
     "form": {
       "basicInformation": "מידע בסיסי",

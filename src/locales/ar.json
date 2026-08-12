@@ -962,7 +962,8 @@
       "save": "حفظ المنتج",
       "name": "الاسم",
       "namePlaceholder": "اسم المنتج",
-      "descriptionPlaceholder": "وصف المنتج..."
+      "descriptionPlaceholder": "وصف المنتج...",
+      "selectUnit": "اختر الوحدة (اختياري)"
     },
     "toast": {},
     "variants": {
@@ -1002,7 +1003,9 @@
       "description": "الوصف",
       "descriptionPlaceholder": "وصف المنتج...",
       "successMessage": "تم تحديث المنتج بنجاح",
-      "validationRequired": "يرجى تعبئة الاسم والسعر"
+      "validationRequired": "يرجى تعبئة الاسم والسعر",
+      "selectUnit": "اختر الوحدة (اختياري)",
+      "unit": "الوحدة"
     }
   },
   "suppliers": {

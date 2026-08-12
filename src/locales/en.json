@@ -1171,7 +1171,8 @@
       "save": "Save Product",
       "name": "Name",
       "namePlaceholder": "Product name",
-      "descriptionPlaceholder": "Product description..."
+      "descriptionPlaceholder": "Product description...",
+      "selectUnit": "Select unit (optional)"
     },
     "edit": {
       "validationRequired": "Product name (EN & AR) and price are required",
@@ -1213,7 +1214,8 @@
       "name": "Name",
       "namePlaceholder": "Product name",
       "description": "Description",
-      "descriptionPlaceholder": "Product description..."
+      "descriptionPlaceholder": "Product description...",
+      "selectUnit": "Select unit (optional)"
     },
     "toast": {
       "productEnabled": "Product enabled",

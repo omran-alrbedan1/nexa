@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
-import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import { DollarSign, Package, Plus, Pencil, Trash2, Layers, AlertTriangle } from 'lucide-react';
 import { useProductVariants, useCreateProductVariant, useUpdateProductVariant, useToggleProductVariant, useDeleteProductVariant } from '../hooks/useProductVariants';
@@ -37,13 +36,13 @@ function VariantFormModal({
   isSaving: boolean;
   editing?: ProductVariant | null;
   units: ProductUnit[];
-  productNames: Partial<Record<TranslatedLang, string>>;
+  productNames: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   productSku: string;
   existing: ProductVariant[];
 }) {
   const { t, i18n } = useTranslation();
-  const [form, setForm] = useState<{ unit_id: string; names: Partial<Record<TranslatedLang, string>>; sku: string; price: string; stock_quantity: string }>(() => ({
-    unit_id: editing?.unit_id != null ? String(editing.unit_id) : '',
+  const [form, setForm] = useState<{ unit_id: string; names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>; sku: string; price: string; stock_quantity: string }>(() => ({
+    unit_id: editing?.unit_id != null ? String(editing.unit_id) : String(units[0]?.id ?? ''),
     names: { ar: editing?.name_ar ?? '', en: editing?.name_en ?? '', he: editing?.name_he ?? '', ru: editing?.name_ru ?? '' },
     sku: editing?.sku ?? '',
     price: editing ? String(editing.price) : '',
@@ -127,36 +126,12 @@ function VariantFormModal({
           </select>
         </div>
 
-        {selectedUnit ? (
-          <>
-            <div className="rounded-xl bg-teal-50 border border-teal-200 p-3 space-y-1.5">
-              <p className="text-xs font-bold text-teal-700 font-body">{t('products.variants.autoName', 'Auto-generated name')}</p>
-              <p className="text-sm text-text-primary font-body">{autoNames?.ar}</p>
-              {autoNames?.en && <p className="text-xs text-text-secondary font-body">{autoNames.en}</p>}
-              <p className="text-xs text-teal-700 font-mono font-medium">{t('products.variants.skuPreview', 'SKU')}: {autoSku}</p>
+        {duplicateUnit && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+              <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>
             </div>
-            {duplicateUnit && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-                <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <TranslatedField
-              label={t('products.variants.name', 'Name')}
-              values={form.names}
-              onChange={(key, value) => setForm({ ...form, names: { ...form.names, [key]: value } })}
-              placeholder={t('products.variants.namePlaceholder', 'Variant name')}
-              required
-            />
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.sku', 'SKU')}</label>
-              <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="e.g. L-001" />
-            </div>
-          </>
-        )}
+          )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -205,7 +180,7 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
   }
 
   const list = variants ?? [];
-  const productNames: Partial<Record<TranslatedLang, string>> = {
+  const productNames: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>> = {
     ar: productNameAr,
     en: productNameEn,
     he: productNameHe,
@@ -240,11 +215,9 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
               <ListItem
                 key={variant.id}
                 icon={<Package size={14} className="text-brand-primary" />}
-                title={<span className="text-sm font-bold text-text-primary font-body">{variant.name_ar}{variant.name_en ? ` (${variant.name_en})` : ''}</span>}
+                title={<span className="text-sm font-bold text-text-primary font-body">{unit ? unitName(unit) : variant.name_ar}</span>}
                 badges={<>
                   {variant.is_active ? <Badge variant="green" size="sm">{t('common.active')}</Badge> : <Badge variant="red" size="sm">{t('common.inactive')}</Badge>}
-                  {unit && <span className="text-xs text-teal-600">{unitName(unit)}</span>}
-                  {variant.sku && <span className="text-xs text-text-tertiary">{variant.sku}</span>}
                 </>}
                 actions={<>
                   <Button variant="secondary" size="sm" leftIcon={<Pencil size={12} />} onClick={() => setFormModal({ open: true, editing: variant })}>{t('common.edit')}</Button>

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import type { ProductUnit } from '../api/unitsApi';
 import { Package, Plus, Pencil, Trash2, Layers, AlertTriangle } from 'lucide-react';
 
@@ -26,13 +25,13 @@ interface VariantEditorProps {
   value: VariantDraft[];
   onChange: (variants: VariantDraft[]) => void;
   units?: ProductUnit[];
-  productNames?: Partial<Record<TranslatedLang, string>>;
+  productNames?: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   productSku?: string;
 }
 
 interface DraftState {
   unit_id: string;
-  names: Partial<Record<TranslatedLang, string>>;
+  names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   sku: string;
   price: string;
   stock_quantity: string;
@@ -81,7 +80,7 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   const totalStock = value.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
 
   const openCreate = () => {
-    setDraft({ unit_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true });
+    setDraft({ unit_id: String(units[0]?.id ?? ''), names: {}, sku: '', price: '', stock_quantity: '0', is_active: true });
     setModal({ open: true });
   };
 
@@ -170,11 +169,10 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
                   <Package size={14} className="text-brand-primary shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-text-primary font-body truncate">
-                      {variant.name_ar}{variant.name_en ? ` (${variant.name_en})` : ''}
+                      {unit ? unitName(unit) : (variant.name_ar || t('products.variants.selectUnit', 'Select a unit'))}
                     </p>
                     <p className="text-xs text-text-secondary font-body">
-                      {unit ? `${unitName(unit)} · ` : ''}{variant.price} · {t('products.variants.stock', 'Stock')}: {variant.stock_quantity}
-                      {variant.sku ? ` · ${variant.sku}` : ''}
+                      {variant.price} · {t('products.variants.stock', 'Stock')}: {variant.stock_quantity}
                     </p>
                   </div>
                 </div>
@@ -220,35 +218,11 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
             </select>
           </div>
 
-          {selectedUnit ? (
-            <>
-              <div className="rounded-xl bg-teal-50 border border-teal-200 p-3 space-y-1.5">
-                <p className="text-xs font-bold text-teal-700 font-body">{t('products.variants.autoName', 'Auto-generated name')}</p>
-                <p className="text-sm text-text-primary font-body">{autoNames?.ar}</p>
-                {autoNames?.en && <p className="text-xs text-text-secondary font-body">{autoNames.en}</p>}
-                <p className="text-xs text-teal-700 font-mono font-medium">{t('products.variants.skuPreview', 'SKU')}: {autoSku}</p>
-              </div>
-              {duplicateUnit && (
-                <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-                  <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <TranslatedField
-                label={t('products.variants.name', 'Name')}
-                values={draft.names}
-                onChange={(key, val) => setDraft({ ...draft, names: { ...draft.names, [key]: val } })}
-                placeholder={t('products.variants.namePlaceholder', 'Variant name')}
-                required
-              />
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.sku', 'SKU')}</label>
-                <input value={draft.sku} onChange={(e) => setDraft({ ...draft, sku: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="e.g. L-001" />
-              </div>
-            </>
+          {duplicateUnit && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+              <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>
+            </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
