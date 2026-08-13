@@ -1553,7 +1553,9 @@
           "id_back": "ID — back",
           "store_front": "Store front photo"
         }
-      }
+      },
+      "businessName": "Business Name *",
+      "businessNamePlaceholder": "e.g. Fresh Farm Co."
     },
     "delete": {
       "button": "Delete account",
@@ -1583,7 +1585,11 @@
       "toastAdded": "Phone added to trusted list",
       "toastAddFailed": "Failed to add phone",
       "toastRemoved": "Phone removed from trusted list",
-      "toastRemoveFailed": "Failed to remove phone"
+      "toastRemoveFailed": "Failed to remove phone",
+      "makeTrusted": "Make trusted",
+      "removeTrusted": "Remove trust",
+      "toastTrusted": "Supplier marked as trusted — future registrations with this phone are auto-approved",
+      "toastUntrusted": "Trust removed from supplier"
     }
   },
   "regions": {

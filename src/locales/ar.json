@@ -1132,7 +1132,9 @@
           "id_back": "هوية — الخلف",
           "store_front": "صورة المحل"
         }
-      }
+      },
+      "businessName": "اسم النشاط *",
+      "businessNamePlaceholder": "مثال: المزرعة الطازجة"
     },
     "toast": {
       "approved": "تم اعتماد المورد بنجاح",
@@ -1172,7 +1174,11 @@
       "toastAdded": "تمت إضافة الرقم للقائمة الموثوقة",
       "toastAddFailed": "فشل إضافة الرقم",
       "toastRemoved": "تمت إزالة الرقم من القائمة",
-      "toastRemoveFailed": "فشل إزالة الرقم"
+      "toastRemoveFailed": "فشل إزالة الرقم",
+      "makeTrusted": "جعله موثوقاً",
+      "removeTrusted": "إزالة الثقة",
+      "toastTrusted": "تم اعتماد المورد — التسجيلات المستقبلية بهذا الرقم تُعتمد تلقائياً",
+      "toastUntrusted": "تمت إزالة الثقة من المورد"
     }
   },
   "regions": {

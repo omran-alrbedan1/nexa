@@ -103,7 +103,6 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
     items: [
       { id: 'customers', label: 'nav.customers', icon: 'Users', type: 'item', to: ROUTES.CUSTOMERS, roles: ['admin', 'operations'] },
       { id: 'suppliers', label: 'nav.suppliers', icon: 'Users', type: 'item', to: ROUTES.SUPPLIERS, roles: ['admin', 'operations'] },
-      { id: 'trusted-phones', label: 'nav.trustedPhones', icon: 'ShieldCheck', type: 'item', to: ROUTES.SUPPLIER_TRUSTED_PHONES, roles: ['admin', 'operations'] },
       { id: 'drivers', label: 'nav.drivers', icon: 'Truck', type: 'item', to: ROUTES.DRIVERS, roles: ['admin', 'operations'] },
     ],
   },

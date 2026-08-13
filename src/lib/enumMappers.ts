@@ -128,7 +128,8 @@ export function mapPaymentMethod(method: string): string {
 // Backend returns: approved, pending, rejected
 // ──────────────────────────────────────────────
 
-export function mapSupplierApprovalStatus(status: string): string {
+export function mapSupplierApprovalStatus(status: string, userStatus?: string): string {
+  if (userStatus === 'suspended') return 'suspended';
   switch (status) {
     case 'approved': return 'active';
     case 'pending': return 'pending_approval';

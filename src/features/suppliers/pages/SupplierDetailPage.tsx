@@ -375,7 +375,7 @@ export function SupplierDetailPage() {
               {supplier.status === 'suspended' && (
                 <Button variant="secondary" size="sm" leftIcon={<RotateCcw size={14} />} isLoading={togglingId === supplier.id} onClick={() => {
                   setTogglingId(supplier.id);
-                  toggleSupplier.mutate(supplier.id, { onSettled: () => setTogglingId(null) });
+                  (supplier.approvalStatus === 'rejected' ? approveSupplier : toggleSupplier).mutate(supplier.id, { onSettled: () => setTogglingId(null) });
                 }}>
                   {t('suppliers.list.reactivate')}
                 </Button>

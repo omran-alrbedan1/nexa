@@ -10,6 +10,7 @@ import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ArrowLeft, Building2, FileUp, Save, CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 
 interface DocUpload {
   type: string;
@@ -50,8 +51,13 @@ export function CreateSupplierPage() {
   const addToast = useToastStore((s) => s.addToast);
   const [saving, setSaving] = useState(false);
   const [createdSupplierId, setCreatedSupplierId] = useState<number | null>(null);
-  const [form, setForm] = useState({
-    name: '', nameAr: '', email: '', phone: '', address: '',
+  const [form, setForm] = useState<{
+    names: Partial<Record<TranslatedLang, string>>;
+    email: string; phone: string; address: string;
+    commercialRegister: string; taxNumber: string;
+    contactPerson: string; contactPhone: string;
+  }>({
+    names: {}, email: '', phone: '', address: '',
     commercialRegister: '', taxNumber: '',
     contactPerson: '', contactPhone: '',
   });
@@ -70,7 +76,7 @@ export function CreateSupplierPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: keyof typeof form, value: (typeof form)[typeof field]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -98,15 +104,21 @@ export function CreateSupplierPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email) {
+    if (!form.names.en?.trim() && !form.names.ar?.trim()) {
+      addToast('error', t('suppliers.create.required'));
+      return;
+    }
+    if (!form.email) {
       addToast('error', t('suppliers.create.required'));
       return;
     }
     setSaving(true);
     try {
       const supplier = await suppliersApi.createSupplier({
-        name: form.name,
-        nameAr: form.nameAr,
+        name: form.names.en?.trim() || form.names.ar?.trim() || '',
+        nameAr: form.names.ar,
+        nameHe: form.names.he,
+        nameRu: form.names.ru,
         email: form.email,
         phone: form.phone,
         address: form.address,
@@ -162,14 +174,15 @@ export function CreateSupplierPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('suppliers.create.contactInfo')}</h3>
           <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.businessNameEn')}</label>
-              <input value={form.name} onChange={(e) => handleChange('name', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('suppliers.create.businessNameEnPlaceholder')} />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.businessNameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('suppliers.create.businessNameArPlaceholder')} dir="rtl" />
-            </div>
+            <TranslatedField
+              label={t('suppliers.create.businessName')}
+              placeholder={t('suppliers.create.businessNamePlaceholder')}
+              values={form.names}
+              onChange={(lang, value) =>
+                setForm((prev) => ({ ...prev, names: { ...prev.names, [lang]: value } }))
+              }
+              required
+            />
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.email')}</label>
               <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('suppliers.create.emailPlaceholder')} />

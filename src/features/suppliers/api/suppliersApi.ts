@@ -34,11 +34,17 @@ export interface Supplier {
   id: number;
   name: string;
   nameAr: string;
+  nameHe: string;
+  nameRu: string;
   email: string;
   phone: string;
   commercialRegister: string;
   taxNumber: string;
   status: SupplierStatus;
+  approvalStatus: 'approved' | 'pending' | 'rejected';
+  userStatus: string;
+  isTrusted: boolean;
+  trustedPhoneId: number | null;
   paymentTerms: SupplierPaymentTerms;
   commissionRate: number; // percentage
   rating: number;
@@ -107,6 +113,10 @@ interface BackendSupplier {
   id: number;
   business_name: string;
   name_ar: string | null;
+  name_he: string | null;
+  name_ru: string | null;
+  is_trusted: boolean;
+  trusted_phone_id: number | null;
   address: string;
   cover_image: string | null;
   long_description: string | null;
@@ -192,11 +202,17 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     id: bs.id,
     name: bs.business_name,
     nameAr: bs.name_ar || bs.business_name,
+    nameHe: bs.name_he || '',
+    nameRu: bs.name_ru || '',
     email: bs.user?.email || '',
     phone: bs.user?.phone || '',
     commercialRegister: bs.commercial_register || '',
     taxNumber: bs.tax_number || '',
-    status: mapSupplierApprovalStatus(bs.approval_status) as SupplierStatus,
+    status: mapSupplierApprovalStatus(bs.approval_status, bs.user?.status) as SupplierStatus,
+    approvalStatus: bs.approval_status,
+    userStatus: bs.user?.status || '',
+    isTrusted: Boolean(bs.is_trusted),
+    trustedPhoneId: bs.trusted_phone_id ?? null,
     paymentTerms: 'net_30',
     commissionRate: Number(bs.commission_rate ?? 0),
     rating: Number(bs.rating_avg ?? 0),

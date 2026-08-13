@@ -1391,7 +1391,9 @@
           "id_back": "תעודת זהות — גב",
           "store_front": "תמונת החנות"
         }
-      }
+      },
+      "businessName": "שם העסק *",
+      "businessNamePlaceholder": "למשל: חווה טרייה בע\"מ"
     },
     "toast": {
       "approveFailed": "אישור הספק נכשל",
@@ -1431,7 +1433,11 @@
       "toastAdded": "המספר נוסף לרשימה המהימנה",
       "toastAddFailed": "הוספת המספר נכשלה",
       "toastRemoved": "המספר הוסר מהרשימה",
-      "toastRemoveFailed": "הסרת המספר נכשלה"
+      "toastRemoveFailed": "הסרת המספר נכשלה",
+      "makeTrusted": "הפוך לספק מהימן",
+      "removeTrusted": "הסר מהימנות",
+      "toastTrusted": "הספק סומן כספק מהימן — הרשמות עתידיות עם מספר זה יאושרו אוטומטית",
+      "toastUntrusted": "המהימנות הוסרה מהספק"
     }
   },
   "regions": {

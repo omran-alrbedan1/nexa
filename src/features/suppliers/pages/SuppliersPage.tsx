@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useSuppliersPage, useApproveSupplier, useSuspendSupplier } from '../hooks/useSuppliers';
+import { useSuppliersPage, useApproveSupplier, useSuspendSupplier, useToggleSupplier, useDeleteSupplier, useToggleSupplierTrust } from '../hooks/useSuppliers';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -13,7 +13,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Pagination } from '@/components/ui/Pagination';
-import { Building2, Users, CheckCircle2, AlertTriangle, Star, Search, Filter, Plus } from 'lucide-react';
+import axios from 'axios';
+import { Building2, Users, CheckCircle2, AlertTriangle, Star, Search, Filter, Plus, RotateCcw, Trash2, ShieldCheck, ShieldOff } from 'lucide-react';
 import type { SupplierStatus } from '../api/suppliersApi';
 
 const STATUS_BADGE: Record<SupplierStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
@@ -44,9 +45,16 @@ export function SuppliersPage() {
   });
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
+  const toggleSupplier = useToggleSupplier();
+  const deleteSupplier = useDeleteSupplier();
+  const toggleTrust = useToggleSupplierTrust();
   const [approvingId, setApprovingId] = useState<number | null>(null);
   const [suspendingId, setSuspendingId] = useState<number | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [trustingId, setTrustingId] = useState<number | null>(null);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; supplierId: number; supplierName: string; reason: string }>({ open: false, supplierId: 0, supplierName: '', reason: '' });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; supplierId: number; supplierName: string; typedName: string }>({ open: false, supplierId: 0, supplierName: '', typedName: '' });
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -179,6 +187,7 @@ export function SuppliersPage() {
                 badges={<>
                   <span className="text-xs text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
                   <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{t('suppliers.status.' + (supplier.status ?? 'unknown'))}</Badge>
+                  {supplier.isTrusted && <Badge variant="teal" size="sm">{t('suppliers.trusted.autoApproved')}</Badge>}
                 </>}
                 actions={<>
                   {supplier.status === 'pending_approval' && (
@@ -190,6 +199,19 @@ export function SuppliersPage() {
                   {supplier.status === 'active' && (
                     <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); setSuspendModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, reason: '' }); }}>{t('suppliers.list.suspend')}</Button>
                   )}
+                  {supplier.status === 'suspended' && (
+                    <Button variant="secondary" size="sm" leftIcon={<RotateCcw size={13} />} isLoading={togglingId === supplier.id} onClick={(e) => {
+                      e.stopPropagation();
+                      setTogglingId(supplier.id);
+                      (supplier.approvalStatus === 'rejected' ? approveSupplier : toggleSupplier).mutate(supplier.id, { onSettled: () => setTogglingId(null) });
+                    }}>{t('suppliers.list.reactivate')}</Button>
+                  )}
+                  <Button variant={supplier.isTrusted ? 'secondary' : 'outline'} size="sm" leftIcon={supplier.isTrusted ? <ShieldOff size={13} /> : <ShieldCheck size={13} />} isLoading={trustingId === supplier.id} onClick={(e) => {
+                    e.stopPropagation();
+                    setTrustingId(supplier.id);
+                    toggleTrust.mutate(supplier, { onSettled: () => setTrustingId(null) });
+                  }}>{supplier.isTrusted ? t('suppliers.trusted.removeTrusted') : t('suppliers.trusted.makeTrusted')}</Button>
+                  <Button variant="danger" size="sm" leftIcon={<Trash2 size={13} />} onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteModal({ open: true, supplierId: supplier.id, supplierName: supplier.name, typedName: '' }); }}>{t('common.delete')}</Button>
                   <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); navigate(ROUTES.SUPPLIER_DETAIL(supplier.id)); }}>{t('suppliers.list.view')}</Button>
                 </>}
               >
@@ -232,6 +254,50 @@ export function SuppliersPage() {
           <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" size="sm" onClick={() => setSuspendModal({ ...suspendModal, open: false })}>{t('common.cancel')}</Button>
             <Button variant="danger" size="sm" disabled={!suspendModal.reason.trim()} isLoading={suspendingId === suspendModal.supplierId} onClick={() => { setSuspendingId(suspendModal.supplierId); suspendSupplier.mutate({ id: suspendModal.supplierId, reason: suspendModal.reason }, { onSettled: () => setSuspendingId(null) }); setSuspendModal({ ...suspendModal, open: false }); }}>{t('suppliers.list.confirmSuspend')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Supplier Modal */}
+      <Modal open={deleteModal.open} onClose={() => setDeleteModal({ ...deleteModal, open: false })} title={t('suppliers.delete.title', { name: deleteModal.supplierName })}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">{t('suppliers.delete.confirm')}</p>
+          <p className="text-sm text-red-600 font-body">{t('suppliers.delete.warning')}</p>
+          <input
+            value={deleteModal.typedName}
+            onChange={(e) => setDeleteModal({ ...deleteModal, typedName: e.target.value })}
+            className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+            placeholder={t('suppliers.delete.typeName', { name: deleteModal.supplierName })}
+          />
+          {deleteError && (
+            <p className="text-xs text-red-600 font-body bg-red-50 border border-red-100 rounded-lg px-3 py-2">{deleteError}</p>
+          )}
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeleteModal({ ...deleteModal, open: false })}>{t('common.cancel')}</Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={deleteModal.typedName !== deleteModal.supplierName}
+              isLoading={deleteSupplier.isPending}
+              onClick={() => {
+                setDeleteError(null);
+                deleteSupplier.mutate(deleteModal.supplierId, {
+                  onSuccess: () => setDeleteModal({ ...deleteModal, open: false }),
+                  onError: (err: unknown) => {
+                    let errorMsg: string | null = null;
+                    if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object') {
+                      const data = err.response.data as { message?: unknown; error_code?: unknown };
+                      if (data.error_code === 'supplier_has_open_orders') {
+                        errorMsg = 'suppliers.delete.openOrdersError';
+                      } else if (typeof data.message === 'string' && data.message.trim()) {
+                        errorMsg = data.message;
+                      }
+                    }
+                    setDeleteError(errorMsg === 'suppliers.delete.openOrdersError' ? t('suppliers.delete.openOrdersError') : (errorMsg ?? t('suppliers.delete.failed')));
+                  },
+                });
+              }}
+            >{t('common.delete')}</Button>
           </div>
         </div>
       </Modal>

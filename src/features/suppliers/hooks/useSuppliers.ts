@@ -127,6 +127,26 @@ export function useDeleteTrustedPhone() {
   });
 }
 
+export function useToggleSupplierTrust() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (supplier: { id: number; phone: string; isTrusted: boolean; trustedPhoneId: number | null }): Promise<unknown> =>
+      supplier.isTrusted && supplier.trustedPhoneId
+        ? suppliersApi.deleteTrustedPhone(supplier.trustedPhoneId)
+        : suppliersApi.addTrustedPhone(supplier.phone),
+    onSuccess: (_data, supplier) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.list() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(supplier.id) });
+      queryClient.invalidateQueries({ queryKey: [...supplierKeys.all, 'trusted-phones'] });
+      addToast('success', supplier.isTrusted ? t('suppliers.trusted.toastUntrusted') : t('suppliers.trusted.toastTrusted'));
+    },
+    onError: () => addToast('error', t('suppliers.trusted.toastAddFailed')),
+  });
+}
+
 export function useSupplierCategories(supplierId: number) {
   return useQuery({
     queryKey: [...supplierKeys.detail(supplierId), 'categories'],
