@@ -202,8 +202,6 @@ export function SuppliersPage() {
                   <span>{t('suppliers.list.orders', { count: supplier.totalOrders })}</span>
                   <span className="font-bold text-text-primary">{formatPrice(supplier.totalRevenue)}</span>
                   <span>{t('suppliers.list.accept', { rate: supplier.acceptanceRate })}</span>
-                  <span>{t('suppliers.list.commission', { rate: supplier.commissionRate })}</span>
-                  <span>{t('suppliers.paymentTerms.' + supplier.paymentTerms)}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   {supplier.categories.map((c) => <Badge key={c} variant="teal" size="sm">{c}</Badge>)}

@@ -1534,7 +1534,20 @@
       "cancel": "Cancel",
       "required": "Business name and email are required",
       "success": "Supplier created successfully",
-      "failed": "Failed to create supplier"
+      "failed": "Failed to create supplier",
+      "documents": {
+        "title": "Registration documents (optional)",
+        "subtitle": "Upload the same documents as mobile registration — each must be JPG, PNG or PDF, max 5 MB",
+        "uploaded": "Uploaded",
+        "uploadFailed": "Failed to upload this document",
+        "types": {
+          "commercial_register": "Commercial register",
+          "tax_card": "Tax card",
+          "id_front": "ID — front",
+          "id_back": "ID — back",
+          "store_front": "Store front photo"
+        }
+      }
     }
   },
   "regions": {

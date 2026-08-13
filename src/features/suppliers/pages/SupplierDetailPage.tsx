@@ -282,7 +282,6 @@ export function SupplierDetailPage() {
     { key: 'totalRevenue', label: t('suppliers.detail.revenue'), icon: TrendingUp, variant: 'success' as const, suffix: '' },
     { key: 'rating', label: t('suppliers.detail.rating'), icon: Star, variant: 'warning' as const, suffix: '/5', format: 'toFixed1' as const },
     { key: 'acceptanceRate', label: t('suppliers.detail.acceptanceRate'), icon: Percent, variant: 'teal' as const, suffix: '%' },
-    { key: 'commissionRate', label: t('suppliers.detail.commissionRate'), icon: Percent, variant: 'coral' as const, suffix: '%' },
   ];
 
   if (isError) {
@@ -451,14 +450,6 @@ export function SupplierDetailPage() {
             <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
               <span className="text-text-secondary">{t('suppliers.detail.taxNumber')}</span>
               <span className="font-bold text-text-primary">{supplier.taxNumber || '—'}</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">{t('suppliers.detail.paymentTerms')}</span>
-              <span className="font-bold text-text-primary capitalize">{t('suppliers.paymentTerms.' + supplier.paymentTerms)}</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-border-default/50 text-sm font-body">
-              <span className="text-text-secondary">{t('suppliers.detail.commissionRate')}</span>
-              <span className="font-bold text-text-primary">{supplier.commissionRate}%</span>
             </div>
             <div className="flex items-center justify-between py-2 text-sm font-body">
               <span className="text-text-secondary">{t('suppliers.detail.rating')}</span>

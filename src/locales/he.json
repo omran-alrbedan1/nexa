@@ -1376,7 +1376,20 @@
       "success": "הספק נוצר בהצלחה",
       "taxNumber": "מספר מס",
       "taxNumberPlaceholder": "TX-3001",
-      "title": "הוסף ספק"
+      "title": "הוסף ספק",
+      "documents": {
+        "title": "מסמכי רישום (אופציונלי)",
+        "subtitle": "העלה את אותם מסמכים כמו ברישום מהטלפון — JPG, PNG או PDF, עד 5MB",
+        "uploaded": "הועלה",
+        "uploadFailed": "העלאת מסמך זה נכשלה",
+        "types": {
+          "commercial_register": "תעודת רישום עסק",
+          "tax_card": "כרטיס מס",
+          "id_front": "תעודת זהות — פנים",
+          "id_back": "תעודת זהות — גב",
+          "store_front": "תמונת החנות"
+        }
+      }
     },
     "toast": {
       "approveFailed": "אישור הספק נכשל",

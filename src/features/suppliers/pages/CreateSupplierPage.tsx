@@ -1,14 +1,47 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { suppliersApi } from '../api/suppliersApi';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Building2, Save } from 'lucide-react';
+import { ArrowLeft, Building2, FileUp, Save, CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
+
+interface DocUpload {
+  type: string;
+  label: string;
+  file: File | null;
+  status: 'idle' | 'uploading' | 'done' | 'error';
+  error?: string;
+}
+
+const FALLBACK_DOC_TYPES: Array<{ type: string; label: string }> = [
+  { type: 'commercial_register', label: 'Commercial register' },
+  { type: 'tax_card', label: 'Tax card' },
+  { type: 'id_front', label: 'ID — front' },
+  { type: 'id_back', label: 'ID — back' },
+  { type: 'store_front', label: 'Store front photo' },
+];
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object') {
+    const data = err.response.data as { message?: unknown; errors?: Record<string, unknown> };
+    if (typeof data.message === 'string' && data.message.trim()) {
+      return data.message;
+    }
+    if (data.errors) {
+      const first = Object.values(data.errors)[0];
+      if (Array.isArray(first) && typeof first[0] === 'string') {
+        return first[0];
+      }
+    }
+  }
+  return fallback;
+}
 
 export function CreateSupplierPage() {
   const { t } = useTranslation();
@@ -16,14 +49,52 @@ export function CreateSupplierPage() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const [saving, setSaving] = useState(false);
+  const [createdSupplierId, setCreatedSupplierId] = useState<number | null>(null);
   const [form, setForm] = useState({
     name: '', nameAr: '', email: '', phone: '', address: '',
-    commercialRegister: '', taxNumber: '', paymentTerms: 'net_30',
-    commissionRate: '10', contactPerson: '', contactPhone: '',
+    commercialRegister: '', taxNumber: '',
+    contactPerson: '', contactPhone: '',
   });
+  const [docs, setDocs] = useState<DocUpload[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    suppliersApi.getSupplierDocumentTypes()
+      .then((types) => {
+        if (cancelled) return;
+        setDocs((types.length > 0 ? types : FALLBACK_DOC_TYPES).map((d) => ({ ...d, file: null, status: 'idle' })));
+      })
+      .catch(() => {
+        if (!cancelled) setDocs(FALLBACK_DOC_TYPES.map((d) => ({ ...d, file: null, status: 'idle' })));
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFile = (index: number, file: File | null) => {
+    setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, file, status: 'idle', error: undefined } : d)));
+  };
+
+  const uploadDoc = async (index: number, supplierId: number) => {
+    const doc = docs[index];
+    if (!doc.file) return;
+    setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, status: 'uploading', error: undefined } : d)));
+    try {
+      await suppliersApi.uploadSupplierDocument(supplierId, doc.type, doc.file);
+      setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, status: 'done' } : d)));
+    } catch (err) {
+      const message = extractErrorMessage(err, t('suppliers.create.documents.uploadFailed'));
+      setDocs((prev) => prev.map((d, i) => (i === index ? { ...d, status: 'error', error: message } : d)));
+    }
+  };
+
+  const uploadSelected = async (supplierId: number) => {
+    await Promise.all(
+      docs.map((doc, index) => (doc.file ? uploadDoc(index, supplierId) : Promise.resolve()))
+    );
   };
 
   const handleSubmit = async () => {
@@ -33,7 +104,7 @@ export function CreateSupplierPage() {
     }
     setSaving(true);
     try {
-      await suppliersApi.createSupplier({
+      const supplier = await suppliersApi.createSupplier({
         name: form.name,
         nameAr: form.nameAr,
         email: form.email,
@@ -41,19 +112,32 @@ export function CreateSupplierPage() {
         address: form.address,
         commercialRegister: form.commercialRegister,
         taxNumber: form.taxNumber,
-        paymentTerms: form.paymentTerms as 'net_15' | 'net_30' | 'net_45' | 'prepaid',
-        commissionRate: parseFloat(form.commissionRate) || 10,
         contactPerson: form.contactPerson,
         contactPhone: form.contactPhone,
       });
+
+      setCreatedSupplierId(supplier.id);
+
+      if (docs.some((d) => d.file)) {
+        await uploadSelected(supplier.id);
+      }
+
       queryClient.invalidateQueries({ queryKey: supplierKeys.all });
       addToast('success', t('suppliers.create.success'));
-      navigate(ROUTES.SUPPLIERS);
-    } catch {
-      addToast('error', t('suppliers.create.failed'));
+      navigate(ROUTES.SUPPLIER_DETAIL(supplier.id));
+    } catch (err) {
+      const message = extractErrorMessage(err, t('suppliers.create.failed'));
+      addToast('error', message);
     } finally {
       setSaving(false);
     }
+  };
+
+  const statusIcon = (doc: DocUpload) => {
+    if (doc.status === 'uploading') return <Loader2 size={14} className="text-brand-primary animate-spin" />;
+    if (doc.status === 'done') return <CheckCircle2 size={14} className="text-green-600" />;
+    if (doc.status === 'error') return <XCircle size={14} className="text-red-600" />;
+    return null;
   };
 
   return (
@@ -120,19 +204,44 @@ export function CreateSupplierPage() {
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.taxNumber')}</label>
               <input value={form.taxNumber} onChange={(e) => handleChange('taxNumber', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('suppliers.create.taxNumberPlaceholder')} />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.paymentTerms')}</label>
-              <select value={form.paymentTerms} onChange={(e) => handleChange('paymentTerms', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="net_15">{t('suppliers.create.paymentTermNet15')}</option>
-                <option value="net_30">{t('suppliers.create.paymentTermNet30')}</option>
-                <option value="net_45">{t('suppliers.create.paymentTermNet45')}</option>
-                <option value="prepaid">{t('suppliers.create.paymentTermPrepaid')}</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1">{t('suppliers.create.commissionRate')}</label>
-              <input type="number" min="0" max="100" value={form.commissionRate} onChange={(e) => handleChange('commissionRate', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder={t('suppliers.create.commissionRatePlaceholder')} />
-            </div>
+          </div>
+
+          <h3 className="text-sm font-bold text-text-primary font-display mt-6 mb-1 flex items-center gap-2">
+            <FileUp size={14} className="text-brand-primary" />
+            {t('suppliers.create.documents.title')}
+          </h3>
+          <p className="text-xs text-text-secondary font-body mb-3">{t('suppliers.create.documents.subtitle')}</p>
+          <div className="space-y-2">
+            {docs.map((doc, index) => (
+              <div key={doc.type} className="flex items-center gap-2 p-2.5 border border-border-default rounded-lg bg-bg-card">
+                <label className="flex-1 min-w-0 cursor-pointer">
+                  <span className="block text-xs font-bold text-text-primary font-body truncate">{t(`suppliers.create.documents.types.${doc.type}`, doc.label)}</span>
+                  {doc.file && (
+                    <span className="block text-[11px] text-text-tertiary font-body truncate">
+                      {doc.status === 'done'
+                        ? t('suppliers.create.documents.uploaded')
+                        : doc.status === 'error'
+                          ? doc.error
+                          : doc.file.name}
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf,image/*,application/pdf"
+                    className="hidden"
+                    onChange={(e) => handleFile(index, e.target.files?.[0] ?? null)}
+                  />
+                </label>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {doc.status === 'error' && createdSupplierId !== null && (
+                    <Button variant="secondary" size="sm" leftIcon={<RefreshCw size={12} />} onClick={() => uploadDoc(index, createdSupplierId)}>
+                      {t('common.retry')}
+                    </Button>
+                  )}
+                  {statusIcon(doc)}
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       </div>

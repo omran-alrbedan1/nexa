@@ -106,6 +106,7 @@ interface BackendSupplierDocument {
 interface BackendSupplier {
   id: number;
   business_name: string;
+  name_ar: string | null;
   address: string;
   cover_image: string | null;
   long_description: string | null;
@@ -190,7 +191,7 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
   return {
     id: bs.id,
     name: bs.business_name,
-    nameAr: bs.business_name,
+    nameAr: bs.name_ar || bs.business_name,
     email: bs.user?.email || '',
     phone: bs.user?.phone || '',
     commercialRegister: bs.commercial_register || '',
@@ -288,6 +289,21 @@ export const suppliersApi = {
   createSupplier: async (data: Partial<Supplier>): Promise<Supplier> => {
     const response = await apiClient.post<ApiResponse<BackendSupplier>>('/api/v1/admin/suppliers', data);
     return mapBackendSupplier(response.data.data);
+  },
+
+  /** Fetch allowed registration document types */
+  getSupplierDocumentTypes: async (): Promise<Array<{ type: string; label: string }>> => {
+    const response = await apiClient.get<ApiResponse<{ document_types: Array<{ type: string; label: string }> }>>('/api/v1/admin/suppliers/document-types');
+    return response.data.data?.document_types ?? [];
+  },
+
+  /** Upload a registration document for a supplier */
+  uploadSupplierDocument: async (supplierId: number, documentType: string, file: File): Promise<SupplierDocument> => {
+    const formData = new FormData();
+    formData.append('document_type', documentType);
+    formData.append('file', file);
+    const response = await apiClient.post<ApiResponse<SupplierDocument>>(`/api/v1/admin/suppliers/${supplierId}/documents`, formData);
+    return response.data.data;
   },
 
   /** Update an existing supplier */
