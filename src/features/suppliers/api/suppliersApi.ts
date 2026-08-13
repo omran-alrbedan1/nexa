@@ -352,6 +352,34 @@ export const suppliersApi = {
     return mapBackendSupplier(response.data.data);
   },
 
+  /** Toggle supplier between active and suspended (suspend / reactivate) */
+  toggleSupplier: async (id: number): Promise<Supplier> => {
+    const response = await apiClient.post<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}/toggle`);
+    return mapBackendSupplier(response.data.data);
+  },
+
+  /** Delete a supplier account (blocked while open orders exist) */
+  deleteSupplier: async (id: number): Promise<void> => {
+    await apiClient.post(`/api/v1/admin/suppliers/${id}/delete`);
+  },
+
+  /** Fetch the trusted supplier phones list */
+  getTrustedPhones: async (): Promise<Array<{ id: number; phone: string; note: string | null; created_at: string }>> => {
+    const response = await apiClient.get<ApiResponse<{ trusted_phones: Array<{ id: number; phone: string; note: string | null; created_at: string }> }>>('/api/v1/admin/trusted-supplier-phones');
+    return response.data.data?.trusted_phones ?? [];
+  },
+
+  /** Add a phone to the trusted list */
+  addTrustedPhone: async (phone: string, note?: string): Promise<{ id: number; phone: string; note: string | null }> => {
+    const response = await apiClient.post<ApiResponse<{ id: number; phone: string; note: string | null }>>('/api/v1/admin/trusted-supplier-phones', { phone, note: note || undefined });
+    return response.data.data;
+  },
+
+  /** Remove a phone from the trusted list */
+  deleteTrustedPhone: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/admin/trusted-supplier-phones/${id}`);
+  },
+
   /** Fetch supplier categories */
   getSupplierCategories: async (supplierId: number): Promise<number[]> => {
     const response = await apiClient.get<ApiResponse<{ category_ids: number[] }>>(`/api/v1/admin/suppliers/${supplierId}/categories`);

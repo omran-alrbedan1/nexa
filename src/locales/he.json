@@ -48,7 +48,8 @@
     "countries": "מדינות",
     "groupGeography": "גיאוגרפיה ומיקומים",
     "provinces": "מחוזות / ערים",
-    "serviceRegions": "אזורי שירות"
+    "serviceRegions": "אזורי שירות",
+    "trustedPhones": "טלפונים מהימנים"
   },
   "settings": {
     "title": "הגדרות",
@@ -1300,7 +1301,8 @@
       "suspendTitle": "השעה את {{name}}",
       "suspendDescription": "הכנס את סיבת ההשעיה של ספק זה. הוא לא יוכל לקבל הזמנות בזמן ההשעיה.",
       "suspendReason": "סיבת ההשעיה...",
-      "confirmSuspend": "אשר השעיה"
+      "confirmSuspend": "אשר השעיה",
+      "reactivate": "הפעל מחדש"
     },
     "detail": {
       "back": "חזרה לספקים",
@@ -1395,7 +1397,41 @@
       "approveFailed": "אישור הספק נכשל",
       "approved": "הספק אושר בהצלחה",
       "suspendFailed": "השעיית הספק נכשלה",
-      "suspended": "הספק הושעה"
+      "suspended": "הספק הושעה",
+      "statusChanged": "סטטוס הספק עודכן",
+      "statusChangeFailed": "עדכון סטטוס הספק נכשל",
+      "deleted": "חשבון הספק נמחק",
+      "deleteFailed": "מחיקת חשבון הספק נכשלה"
+    },
+    "delete": {
+      "button": "מחק חשבון",
+      "title": "מחק את {{name}}",
+      "confirm": "פעולה זו תמחק לצמיתות את חשבון הספק ותבטל פרסום של כל המוצרים שלו.",
+      "warning": "לא ניתן לבטל פעולה זו.",
+      "typeName": "הקלד {{name}} כדי לאשר",
+      "openOrdersError": "לא ניתן למחוק ספק זה: יש לו הזמנות פעילות.",
+      "failed": "מחיקת חשבון הספק נכשלה."
+    },
+    "trusted": {
+      "back": "חזרה לספקים",
+      "title": "טלפונים מהימנים של ספקים",
+      "description": "הרשמות ממספרים אלה מאושרות אוטומטית ללא בדיקת מנהל.",
+      "add": "הוסף מספר",
+      "emptyTitle": "אין עדיין טלפונים מהימנים",
+      "emptyMessage": "הוסף מספר כדי לאשר אוטומטית כל ספק שנרשם עמו.",
+      "phone": "מספר טלפון",
+      "note": "הערה",
+      "notePlaceholder": "הערה אופציונלית (חברה, סיבה...)",
+      "autoApproved": "אישור אוטומטי",
+      "addTitle": "הוסף טלפון מהימן",
+      "phoneRequired": "אנא הזן מספר טלפון תקין.",
+      "addFailed": "הוספת המספר נכשלה. נסה שוב.",
+      "removeTitle": "הסר את {{phone}}",
+      "removeConfirm": "ספקים שנרשמים עם {{phone}} לא יאושרו יותר אוטומטית.",
+      "toastAdded": "המספר נוסף לרשימה המהימנה",
+      "toastAddFailed": "הוספת המספר נכשלה",
+      "toastRemoved": "המספר הוסר מהרשימה",
+      "toastRemoveFailed": "הסרת המספר נכשלה"
     }
   },
   "regions": {

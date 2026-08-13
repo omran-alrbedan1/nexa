@@ -60,6 +60,73 @@ export function useSuspendSupplier() {
   });
 }
 
+export function useToggleSupplier() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => suppliersApi.toggleSupplier(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
+      addToast('success', t('suppliers.toast.statusChanged'));
+    },
+    onError: () => addToast('error', t('suppliers.toast.statusChangeFailed')),
+  });
+}
+
+export function useDeleteSupplier() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => suppliersApi.deleteSupplier(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.list() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
+      addToast('success', t('suppliers.toast.deleted'));
+    },
+    onError: () => addToast('error', t('suppliers.toast.deleteFailed')),
+  });
+}
+
+export function useTrustedPhones() {
+  return useQuery({
+    queryKey: [...supplierKeys.all, 'trusted-phones'] as const,
+    queryFn: () => suppliersApi.getTrustedPhones(),
+    staleTime: 30_000,
+  });
+}
+
+export function useAddTrustedPhone() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ phone, note }: { phone: string; note?: string }) => suppliersApi.addTrustedPhone(phone, note),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...supplierKeys.all, 'trusted-phones'] });
+      addToast('success', t('suppliers.trusted.toastAdded'));
+    },
+    onError: () => addToast('error', t('suppliers.trusted.toastAddFailed')),
+  });
+}
+
+export function useDeleteTrustedPhone() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => suppliersApi.deleteTrustedPhone(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...supplierKeys.all, 'trusted-phones'] });
+      addToast('success', t('suppliers.trusted.toastRemoved'));
+    },
+    onError: () => addToast('error', t('suppliers.trusted.toastRemoveFailed')),
+  });
+}
+
 export function useSupplierCategories(supplierId: number) {
   return useQuery({
     queryKey: [...supplierKeys.detail(supplierId), 'categories'],

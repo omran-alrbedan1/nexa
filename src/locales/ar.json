@@ -48,7 +48,8 @@
     "groupGeography": "المواقع والجغرافيا",
     "countries": "الدول",
     "provinces": "المدن / المحافظات",
-    "serviceRegions": "مناطق الخدمة"
+    "serviceRegions": "مناطق الخدمة",
+    "trustedPhones": "الأرقام الموثوقة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -1041,7 +1042,8 @@
       "suspendTitle": "إيقاف {{name}}",
       "suspendDescription": "أدخل سبب إيقاف هذا المورد. لن يتمكن من استلام الطلبات أثناء الإيقاف.",
       "suspendReason": "سبب الإيقاف...",
-      "confirmSuspend": "تأكيد الإيقاف"
+      "confirmSuspend": "تأكيد الإيقاف",
+      "reactivate": "إعادة تفعيل"
     },
     "detail": {
       "back": "العودة إلى الموردين",
@@ -1136,7 +1138,41 @@
       "approved": "تم اعتماد المورد بنجاح",
       "approveFailed": "فشل اعتماد المورد",
       "suspended": "تم إيقاف المورد",
-      "suspendFailed": "فشل إيقاف المورد"
+      "suspendFailed": "فشل إيقاف المورد",
+      "statusChanged": "تم تحديث حالة المورد",
+      "statusChangeFailed": "فشل تحديث حالة المورد",
+      "deleted": "تم حذف حساب المورد",
+      "deleteFailed": "فشل حذف حساب المورد"
+    },
+    "delete": {
+      "button": "حذف الحساب",
+      "title": "حذف {{name}}",
+      "confirm": "سيؤدي هذا إلى حذف حساب المورد نهائياً وإلغاء نشر جميع منتجاته.",
+      "warning": "لا يمكن التراجع عن هذا الإجراء.",
+      "typeName": "اكتب {{name}} للتأكيد",
+      "openOrdersError": "لا يمكن حذف هذا المورد: لديه طلبات قيد التنفيذ.",
+      "failed": "فشل حذف حساب المورد."
+    },
+    "trusted": {
+      "back": "العودة إلى الموردين",
+      "title": "أرقام الموردين الموثوقين",
+      "description": "تُعتمد تسجيلات هذه الأرقام تلقائياً دون مراجعة الإدارة.",
+      "add": "إضافة رقم",
+      "emptyTitle": "لا توجد أرقام موثوقة بعد",
+      "emptyMessage": "أضف رقماً لاعتماد أي مورد يسجل به تلقائياً.",
+      "phone": "رقم الهاتف",
+      "note": "ملاحظة",
+      "notePlaceholder": "ملاحظة اختيارية (شركة، سبب...)",
+      "autoApproved": "اعتماد تلقائي",
+      "addTitle": "إضافة رقم موثوق",
+      "phoneRequired": "يرجى إدخال رقم هاتف صحيح.",
+      "addFailed": "فشل إضافة الرقم. حاول مجدداً.",
+      "removeTitle": "إزالة {{phone}}",
+      "removeConfirm": "لن يُعتمد تلقائياً أي مورد يسجل برقم {{phone}} بعد الآن.",
+      "toastAdded": "تمت إضافة الرقم للقائمة الموثوقة",
+      "toastAddFailed": "فشل إضافة الرقم",
+      "toastRemoved": "تمت إزالة الرقم من القائمة",
+      "toastRemoveFailed": "فشل إزالة الرقم"
     }
   },
   "regions": {

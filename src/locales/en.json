@@ -48,7 +48,8 @@
     "groupGeography": "Geography & Locations",
     "countries": "Countries",
     "provinces": "Provinces / Cities",
-    "serviceRegions": "Service Regions"
+    "serviceRegions": "Service Regions",
+    "trustedPhones": "Trusted Phones"
   },
   "settings": {
     "title": "Settings",
@@ -1452,7 +1453,8 @@
       "suspendTitle": "Suspend {{name}}",
       "suspendDescription": "Enter the reason for suspending this supplier. They will not be able to receive orders while suspended.",
       "suspendReason": "Reason for suspension...",
-      "confirmSuspend": "Confirm Suspend"
+      "confirmSuspend": "Confirm Suspend",
+      "reactivate": "Reactivate"
     },
     "detail": {
       "back": "Back to Suppliers",
@@ -1497,7 +1499,11 @@
       "approved": "Supplier approved successfully",
       "approveFailed": "Failed to approve supplier",
       "suspended": "Supplier suspended",
-      "suspendFailed": "Failed to suspend supplier"
+      "suspendFailed": "Failed to suspend supplier",
+      "statusChanged": "Supplier status updated",
+      "statusChangeFailed": "Failed to update supplier status",
+      "deleted": "Supplier account deleted",
+      "deleteFailed": "Failed to delete supplier"
     },
     "create": {
       "title": "Add Supplier",
@@ -1548,6 +1554,36 @@
           "store_front": "Store front photo"
         }
       }
+    },
+    "delete": {
+      "button": "Delete account",
+      "title": "Delete {{name}}",
+      "confirm": "This will permanently delete the supplier account and unpublish all their products.",
+      "warning": "This action cannot be undone.",
+      "typeName": "Type {{name}} to confirm",
+      "openOrdersError": "Cannot delete this supplier: they have orders still in progress.",
+      "failed": "Failed to delete the supplier account."
+    },
+    "trusted": {
+      "back": "Back to suppliers",
+      "title": "Trusted Supplier Phones",
+      "description": "Registrations from these phones are auto-approved without admin review.",
+      "add": "Add phone",
+      "emptyTitle": "No trusted phones yet",
+      "emptyMessage": "Add a phone number to instantly approve any supplier registering with it.",
+      "phone": "Phone number",
+      "note": "Note",
+      "notePlaceholder": "Optional note (company, reason...)",
+      "autoApproved": "Auto-approved",
+      "addTitle": "Add trusted phone",
+      "phoneRequired": "Please enter a valid phone number.",
+      "addFailed": "Failed to add the phone. Try again.",
+      "removeTitle": "Remove {{phone}}",
+      "removeConfirm": "Suppliers registering with {{phone}} will no longer be auto-approved.",
+      "toastAdded": "Phone added to trusted list",
+      "toastAddFailed": "Failed to add phone",
+      "toastRemoved": "Phone removed from trusted list",
+      "toastRemoveFailed": "Failed to remove phone"
     }
   },
   "regions": {

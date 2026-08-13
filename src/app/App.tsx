@@ -49,6 +49,9 @@ const AggregationPage = lazy(() =>
 const SuppliersPage = lazy(() =>
   import('@/features/suppliers/pages/SuppliersPage').then((m) => ({ default: m.SuppliersPage }))
 );
+const TrustedPhonesPage = lazy(() =>
+  import('@/features/suppliers/pages/TrustedPhonesPage').then((m) => ({ default: m.TrustedPhonesPage }))
+);
 const SupplierDetailPage = lazy(() =>
   import('@/features/suppliers/pages/SupplierDetailPage').then((m) => ({ default: m.SupplierDetailPage }))
 );
@@ -310,6 +313,7 @@ export function App() {
                 <Route path={ROUTES.SUPPLIERS} element={<SuppliersPage />} />
                 <Route path={ROUTES.SUPPLIER_CREATE} element={<CreateSupplierPage />} />
                 <Route path={ROUTES.SUPPLIER_DETAIL(':supplierId')} element={<SupplierDetailPage />} />
+                <Route path={ROUTES.SUPPLIER_TRUSTED_PHONES} element={<TrustedPhonesPage />} />
               </Route>
 
               {/* Products & campaigns & categories — requires products.view */}

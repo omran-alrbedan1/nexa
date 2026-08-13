@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories } from '../hooks/useSuppliers';
+import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories, useToggleSupplier, useDeleteSupplier } from '../hooks/useSuppliers';
 import { suppliersApi } from '../api/suppliersApi';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -13,9 +13,11 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { DocumentsSection } from '@/components/documents/DocumentsSection';
 
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2,
   Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Layers, Pencil,
+  RotateCcw, Trash2,
 } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
 import type { Supplier } from '../api/suppliersApi';
@@ -257,9 +259,14 @@ export function SupplierDetailPage() {
 
   const approveSupplier = useApproveSupplier();
   const suspendSupplier = useSuspendSupplier();
+  const toggleSupplier = useToggleSupplier();
+  const deleteSupplier = useDeleteSupplier();
   const [approvingId, setApprovingId] = useState<number | null>(null);
   const [suspendingId, setSuspendingId] = useState<number | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
   const [suspendModal, setSuspendModal] = useState<{ open: boolean; reason: string }>({ open: false, reason: '' });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; typedName: string }>({ open: false, typedName: '' });
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { data: selectedCategoryIds } = useSupplierCategories(id);
   const syncCategories = useSyncSupplierCategories(id);
@@ -365,6 +372,20 @@ export function SupplierDetailPage() {
                   {t('suppliers.list.suspend')}
                 </Button>
               )}
+              {supplier.status === 'suspended' && (
+                <Button variant="secondary" size="sm" leftIcon={<RotateCcw size={14} />} isLoading={togglingId === supplier.id} onClick={() => {
+                  setTogglingId(supplier.id);
+                  toggleSupplier.mutate(supplier.id, { onSettled: () => setTogglingId(null) });
+                }}>
+                  {t('suppliers.list.reactivate')}
+                </Button>
+              )}
+              <Button variant="danger" size="sm" leftIcon={<Trash2 size={14} />} onClick={() => {
+                setDeleteError(null);
+                setDeleteModal({ open: true, typedName: '' });
+              }}>
+                {t('suppliers.delete.button')}
+              </Button>
             </div>
           </div>
         </div>
@@ -551,6 +572,50 @@ export function SupplierDetailPage() {
               suspendSupplier.mutate({ id: supplier.id, reason: suspendModal.reason }, { onSettled: () => setSuspendingId(null) });
               setSuspendModal({ ...suspendModal, open: false });
             }}>{t('suppliers.list.confirmSuspend')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Account Modal */}
+      <Modal open={deleteModal.open} onClose={() => setDeleteModal({ ...deleteModal, open: false })} title={t('suppliers.delete.title', { name: supplier.name })}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary font-body">{t('suppliers.delete.confirm')}</p>
+          <p className="text-sm text-red-600 font-body">{t('suppliers.delete.warning')}</p>
+          <input
+            value={deleteModal.typedName}
+            onChange={(e) => setDeleteModal({ ...deleteModal, typedName: e.target.value })}
+            className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+            placeholder={t('suppliers.delete.typeName', { name: supplier.name })}
+          />
+          {deleteError && (
+            <p className="text-xs text-red-600 font-body bg-red-50 border border-red-100 rounded-lg px-3 py-2">{deleteError}</p>
+          )}
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setDeleteModal({ ...deleteModal, open: false })}>{t('common.cancel')}</Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={deleteModal.typedName !== supplier.name}
+              isLoading={deleteSupplier.isPending}
+              onClick={() => {
+                setDeleteError(null);
+                deleteSupplier.mutate(supplier.id, {
+                  onSuccess: () => navigate(ROUTES.SUPPLIERS),
+                  onError: (err: unknown) => {
+                    let errorMsg: string | null = null;
+                    if (axios.isAxiosError(err) && err.response?.data && typeof err.response.data === 'object') {
+                      const data = err.response.data as { message?: unknown; error_code?: unknown };
+                      if (data.error_code === 'supplier_has_open_orders') {
+                        errorMsg = 'suppliers.delete.openOrdersError';
+                      } else if (typeof data.message === 'string' && data.message.trim()) {
+                        errorMsg = data.message;
+                      }
+                    }
+                    setDeleteError(errorMsg === 'suppliers.delete.openOrdersError' ? t('suppliers.delete.openOrdersError') : (errorMsg ?? t('suppliers.delete.failed')));
+                  },
+                });
+              }}
+            >{t('common.delete')}</Button>
           </div>
         </div>
       </Modal>

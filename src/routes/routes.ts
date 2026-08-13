@@ -72,6 +72,7 @@ export const ROUTES = {
   SUPPLIERS: '/suppliers',
   SUPPLIER_CREATE: '/suppliers/create',
   SUPPLIER_DETAIL: (supplierId: number | string) => `/suppliers/${supplierId}`,
+  SUPPLIER_TRUSTED_PHONES: '/suppliers/trusted-phones',
 
   // Drivers
   DRIVERS: '/drivers',
