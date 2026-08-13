@@ -238,30 +238,10 @@
       "validationRequired": "Вопрос и ответ на арабском обязательны"
     },
     "settingGroups": {
-      "about": "О NEXA",
-      "general": "Общие",
-      "legal": "Юридические",
-      "orders": "Заказы",
-      "support": "Поддержка",
-      "trips": "Рейсы"
+      "pricing": "Цены"
     },
     "settingKeys": {
-      "about_content_ar": "Контент «О NEXA» (AR)",
-      "about_content_en": "Контент «О NEXA» (EN)",
-      "about_title_ar": "Заголовок «О NEXA» (AR)",
-      "about_title_en": "Заголовок «О NEXA» (EN)",
-      "app_name": "Название приложения",
-      "default_delivery_fee": "Плата за доставку по умолчанию",
-      "default_trip_capacity": "Вместимость рейса по умолчанию",
-      "min_order_amount": "Минимальная сумма заказа",
-      "privacy_policy_content_ar": "Контент политики конфиденциальности (AR)",
-      "privacy_policy_content_en": "Контент политики конфиденциальности (EN)",
-      "privacy_policy_title_ar": "Заголовок политики конфиденциальности (AR)",
-      "privacy_policy_title_en": "Заголовок политики конфиденциальности (EN)",
-      "supplier_accept_timeout_hours": "Таймаут принятия поставщиком (часы)",
-      "support_email": "Эл. почта поддержки",
-      "support_phone": "Телефон поддержки",
-      "trip_cutoff_hours_before": "Отсечка рейса (часов до)"
+      "global_markup_percent": "Глобальная наценка %"
     },
     "toast": {
       "permissionsUpdateFailed": "Не удалось обновить разрешения",
@@ -276,6 +256,11 @@
       "staffRolesUpdated": "Роли сотрудника обновлены",
       "staffStatusUpdateFailed": "Не удалось обновить статус сотрудника",
       "staffStatusUpdated": "Статус сотрудника обновлён"
+    },
+    "pricing": {
+      "title": "Ценообразование",
+      "description": "Глобальная наценка, применяемая ко всем клиентским ценам.",
+      "hint": "Этот процент добавляется к базовой цене поставщика при каждой покупке (каталог, корзина и итоги заказов). Цены в базе данных не меняются."
     }
   },
   "customers": {

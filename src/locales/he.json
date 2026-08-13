@@ -238,30 +238,10 @@
       "validationRequired": "שאלה ותשובה בערבית חובה"
     },
     "settingGroups": {
-      "about": "אודות NEXA",
-      "general": "כללי",
-      "legal": "חוקי",
-      "orders": "הזמנות",
-      "support": "תמיכה",
-      "trips": "רכבים"
+      "pricing": "תמחור"
     },
     "settingKeys": {
-      "about_content_ar": "תוכן אודות NEXA (AR)",
-      "about_content_en": "תוכן אודות NEXA (EN)",
-      "about_title_ar": "כותרת אודות NEXA (AR)",
-      "about_title_en": "כותרת אודות NEXA (EN)",
-      "app_name": "שם האפליקציה",
-      "default_delivery_fee": "דמי משלוח ברירת מחדל",
-      "default_trip_capacity": "קיבולת רכב ברירת מחדל",
-      "min_order_amount": "סכום הזמנה מינימלי",
-      "privacy_policy_content_ar": "תוכן מדיניות הפרטיות (AR)",
-      "privacy_policy_content_en": "תוכן מדיניות הפרטיות (EN)",
-      "privacy_policy_title_ar": "כותרת מדיניות הפרטיות (AR)",
-      "privacy_policy_title_en": "כותרת מדיניות הפרטיות (EN)",
-      "supplier_accept_timeout_hours": "זמן קצוב לקבלת ספק (שעות)",
-      "support_email": "אימייל תמיכה",
-      "support_phone": "טלפון תמיכה",
-      "trip_cutoff_hours_before": "סף רכב (שעות לפני)"
+      "global_markup_percent": "מרווח גלובלי %"
     },
     "toast": {
       "permissionsUpdateFailed": "עדכון ההרשאות נכשל",
@@ -276,6 +256,11 @@
       "staffRolesUpdated": "תפקידי הצוות עודכנו",
       "staffStatusUpdateFailed": "עדכון סטטוס הצוות נכשל",
       "staffStatusUpdated": "סטטוס הצוות עודכן"
+    },
+    "pricing": {
+      "title": "תמחור",
+      "description": "מרווח גלובלי המוחל על כל המחירים לצד הלקוח.",
+      "hint": "אחוז זה מתווסף למחיר הבסיס של הספק בכל רכישה (קטלוג, סל וסכומי הזמנה). המחירים נשארים ללא שינוי במסד הנתונים."
     }
   },
   "customers": {

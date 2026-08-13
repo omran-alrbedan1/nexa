@@ -87,30 +87,10 @@
       "noSettings": "No settings are configured yet."
     },
     "settingKeys": {
-      "app_name": "Application Name",
-      "support_phone": "Support Phone",
-      "support_email": "Support Email",
-      "min_order_amount": "Minimum Order Amount",
-      "default_delivery_fee": "Default Delivery Fee",
-      "supplier_accept_timeout_hours": "Supplier Acceptance Timeout (hours)",
-      "default_trip_capacity": "Default Trip Capacity",
-      "trip_cutoff_hours_before": "Trip Cutoff (hours before)",
-      "privacy_policy_title_ar": "Privacy Policy Title (AR)",
-      "privacy_policy_title_en": "Privacy Policy Title (EN)",
-      "privacy_policy_content_ar": "Privacy Policy Content (AR)",
-      "privacy_policy_content_en": "Privacy Policy Content (EN)",
-      "about_title_ar": "About NEXA Title (AR)",
-      "about_title_en": "About NEXA Title (EN)",
-      "about_content_ar": "About NEXA Content (AR)",
-      "about_content_en": "About NEXA Content (EN)"
+      "global_markup_percent": "Global markup %"
     },
     "settingGroups": {
-      "general": "General",
-      "orders": "Orders",
-      "trips": "Trips",
-      "legal": "Legal",
-      "about": "About NEXA",
-      "support": "Support"
+      "pricing": "Pricing"
     },
     "roles": {
       "title": "Roles & Permissions",
@@ -276,6 +256,11 @@
       "updatedToast": "FAQ updated",
       "deletedToast": "FAQ deleted",
       "validationRequired": "Arabic question and answer are required"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "description": "Global markup applied to all customer-facing prices.",
+      "hint": "This percentage is added on top of the supplier base price at every purchase (catalog, cart and order totals). Prices stay unchanged in the database."
     }
   },
   "customers": {

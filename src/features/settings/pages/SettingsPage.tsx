@@ -5,6 +5,7 @@ import { ROUTES } from '@/routes/routes';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useSettings, useBulkUpdateSettings } from '../hooks/useSettings';
+import type { Setting } from '../api/settingsApi';
 // import { useCurrencyStore, type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
 import { useCurrencyStore } from '@/stores/currencyStore';
 import { useToastStore } from '@/stores/toastStore';
@@ -22,6 +23,41 @@ const SETTINGS_TABS = [
   { key: 'navigation', label: 'settings.tabs.navigation', icon: Menu, route: ROUTES.SETTINGS_NAVIGATION },
 ];
 
+function SettingRow({ setting, value, onChange }: { setting: Setting; value: string; onChange: (value: string) => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex items-center justify-between p-4 rounded-xl border border-border-default/60">
+      <div className="flex-1 min-w-0 mr-4">
+        <p className="text-sm font-bold text-text-primary font-body capitalize">
+          {t('settings.settingKeys.' + setting.key) || setting.key.replace(/_/g, ' ')}
+        </p>
+        <p className="text-xs text-text-tertiary font-body mt-0.5">{t('settings.settingGroups.' + setting.group) || setting.group}</p>
+      </div>
+      <div className="flex-shrink-0 w-64">
+        {setting.type === 'boolean' ? (
+          <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+          >
+            <option value="1">{t('common.yes')}</option>
+            <option value="0">{t('common.no')}</option>
+          </select>
+        ) : (
+          <input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+            type={setting.type === 'number' ? 'number' : 'text'}
+            {...(setting.type === 'number' ? { min: 0, step: '0.01' } : {})}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -36,6 +72,7 @@ export function SettingsPage() {
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
 
   const generalSettings = (settings || []).filter((s) => s.group === 'general' || !s.group);
+  const pricingSettings = (settings || []).filter((s) => s.group === 'pricing');
 
   // ─── Multi-currency state (commented out) ──────────────────────────
   // const storeCurrency = useCurrencyStore((s) => s.selectedCurrency);
@@ -154,37 +191,52 @@ export function SettingsPage() {
         ) : (
           <div className="space-y-4">
             {generalSettings.map((setting) => (
-              <div
+              <SettingRow
                 key={setting.id}
-                className="flex items-center justify-between p-4 rounded-xl border border-border-default/60"
-              >
-                <div className="flex-1 min-w-0 mr-4">
-                  <p className="text-sm font-bold text-text-primary font-body capitalize">
-                    {t('settings.settingKeys.' + setting.key) || setting.key.replace(/_/g, ' ')}
-                  </p>
-                  <p className="text-xs text-text-tertiary font-body mt-0.5">{t('settings.settingGroups.' + setting.group) || setting.group}</p>
-                </div>
-                <div className="flex-shrink-0 w-64">
-                  {setting.type === 'boolean' ? (
-                    <select
-                      value={editedValues[setting.key] ?? setting.value}
-                      onChange={(e) => handleValueChange(setting.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
-                    >
-                      <option value="1">{t('common.yes')}</option>
-                      <option value="0">{t('common.no')}</option>
-                    </select>
-                  ) : (
-                    <input
-                      value={editedValues[setting.key] ?? setting.value}
-                      onChange={(e) => handleValueChange(setting.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
-                      type={setting.type === 'number' ? 'number' : 'text'}
-                    />
-                  )}
-                </div>
-              </div>
+                setting={setting}
+                value={editedValues[setting.key] ?? setting.value}
+                onChange={(value) => handleValueChange(setting.key, value)}
+              />
             ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Pricing Settings */}
+      <Card padding="lg">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('settings.pricing.title')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('settings.pricing.description')}</p>
+          </div>
+          {pricingSettings.some((s) => editedValues[s.key] !== undefined) && (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Save size={14} />}
+              isLoading={bulkUpdate.isPending}
+              onClick={handleSave}
+            >
+              {t('common.save')}
+            </Button>
+          )}
+        </div>
+
+        {pricingSettings.length === 0 ? (
+          <p className="text-sm text-text-tertiary font-body">{t('settings.general.noSettings')}</p>
+        ) : (
+          <div className="space-y-4">
+            {pricingSettings.map((setting) => (
+              <SettingRow
+                key={setting.id}
+                setting={setting}
+                value={editedValues[setting.key] ?? setting.value}
+                onChange={(value) => handleValueChange(setting.key, value)}
+              />
+            ))}
+            <p className="text-xs text-text-tertiary font-body bg-bg-section-alt rounded-xl px-4 py-3">
+              {t('settings.pricing.hint')}
+            </p>
           </div>
         )}
       </Card>

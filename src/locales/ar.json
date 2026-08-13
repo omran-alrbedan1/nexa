@@ -87,30 +87,10 @@
       "noSettings": "لم يتم تكوين أي إعدادات بعد."
     },
     "settingKeys": {
-      "app_name": "اسم التطبيق",
-      "support_phone": "هاتف الدعم",
-      "support_email": "البريد الإلكتروني للدعم",
-      "min_order_amount": "الحد الأدنى للطلب",
-      "default_delivery_fee": "رسوم التوصيل الافتراضية",
-      "supplier_accept_timeout_hours": "مهلة قبول المورد (ساعات)",
-      "default_trip_capacity": "سعة الرحلة الافتراضية",
-      "trip_cutoff_hours_before": "وقت قطع الرحلة (ساعات قبل)",
-      "privacy_policy_title_ar": "عنوان سياسة الخصوصية (عربي)",
-      "privacy_policy_title_en": "عنوان سياسة الخصوصية (إنجليزي)",
-      "privacy_policy_content_ar": "محتوى سياسة الخصوصية (عربي)",
-      "privacy_policy_content_en": "محتوى سياسة الخصوصية (إنجليزي)",
-      "about_title_ar": "عنوان عن NEXA (عربي)",
-      "about_title_en": "عنوان عن NEXA (إنجليزي)",
-      "about_content_ar": "محتوى عن NEXA (عربي)",
-      "about_content_en": "محتوى عن NEXA (إنجليزي)"
+      "global_markup_percent": "الهامش الإجمالي %"
     },
     "settingGroups": {
-      "general": "عام",
-      "orders": "الطلبات",
-      "trips": "الرحلات",
-      "legal": "قانوني",
-      "about": "عن NEXA",
-      "support": "الدعم"
+      "pricing": "التسعير"
     },
     "roles": {
       "title": "الأدوار والصلاحيات",
@@ -210,6 +190,11 @@
       "description": "إدارة محتوى سياسة الخصوصية لتطبيق الجوال",
       "titleLabel": "عنوان الصفحة",
       "contentLabel": "المحتوى"
+    },
+    "pricing": {
+      "title": "التسعير",
+      "description": "هامش إجمالي يُطبق على جميع أسعار العملاء.",
+      "hint": "تُضاف هذه النسبة على السعر الأساسي للمورد في كل عملية شراء (المتجر، السلة، وإجمالي الطلبات). تبقى الأسعار كما هي في قاعدة البيانات."
     }
   },
   "customers": {
