@@ -89,8 +89,21 @@ export interface OrderDetail {
   specialOrder: OrderSpecialOrderRef | null;
   priceQuote: OrderPriceQuoteRef | null;
   trip: { id: number; driverLocation?: { latitude: number; longitude: number; updatedAt: string } | null } | null;
+  isParent: boolean;
+  parentOrderId: number | null;
+  children: OrderChildSummary[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderChildSummary {
+  id: number;
+  orderNumber: string;
+  status: OrderStatus;
+  total: number;
+  supplierId: number | null;
+  supplierName: string | null;
+  items: OrderItem[];
 }
 
 export interface OrderSummary {
@@ -110,6 +123,9 @@ export interface OrderSummary {
   supplierName: string | null;
   scheduledDate: string | null;
   createdAt: string;
+  isParent: boolean;
+  parentOrderId: number | null;
+  children: OrderChildSummary[];
 }
 
 export interface OrdersStats {
@@ -206,6 +222,16 @@ interface BackendPriceQuoteRef {
   delivery_fee: string;
 }
 
+interface BackendOrderChild {
+  id: number;
+  order_number: string;
+  status: string;
+  total: string;
+  items_count?: number;
+  items?: BackendItem[] | null;
+  supplier: BackendSupplier | null;
+}
+
 interface BackendOrder {
   id: number;
   order_number: string;
@@ -232,6 +258,9 @@ interface BackendOrder {
   payments?: BackendPayment[];
   special_order: BackendSpecialOrderRef | null;
   price_quote: BackendPriceQuoteRef | null;
+  parent_order_id?: number | null;
+  is_parent?: boolean;
+  children?: BackendOrderChild[];
 }
 
 interface BackendOrdersResponse {
@@ -241,6 +270,28 @@ interface BackendOrdersResponse {
     last_page: number;
     total: number;
   };
+}
+
+function mapChildren(bo: BackendOrder): OrderChildSummary[] {
+  return (bo.children || []).map((c) => ({
+    id: c.id,
+    orderNumber: c.order_number,
+    status: mapFromBackend(c.status, ORDER_STATUS_BACKEND_TO_FRONTEND) as OrderStatus,
+    total: parseFloat(c.total) || 0,
+    supplierId: c.supplier?.id || null,
+    supplierName: c.supplier?.business_name || null,
+    items: (c.items || []).map((i) => {
+      const unitPrice = parseFloat(i.unit_price) || 0;
+      return {
+        id: i.id,
+        productName: i.product_name,
+        quantity: i.quantity,
+        unitPrice,
+        totalPrice: parseFloat(i.total_price) || unitPrice * i.quantity,
+        productImage: null,
+      };
+    }),
+  }));
 }
 
 // ── Mapping Functions ──
@@ -264,6 +315,9 @@ function mapBackendOrderToSummary(bo: BackendOrder): OrderSummary {
     supplierName: bo.supplier?.business_name || null,
     scheduledDate: bo.delivery_scheduled_at,
     createdAt: bo.created_at,
+    isParent: bo.is_parent === true || (bo.parent_order_id === null && (bo.children?.length ?? 0) > 0),
+    parentOrderId: bo.parent_order_id ?? null,
+    children: mapChildren(bo),
   };
 }
 
@@ -341,6 +395,9 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
             : null,
         }
       : null,
+    isParent: bo.is_parent === true || (bo.parent_order_id === null && (bo.children?.length ?? 0) > 0),
+    parentOrderId: bo.parent_order_id ?? null,
+    children: mapChildren(bo),
     createdAt: bo.created_at,
     updatedAt: bo.updated_at || bo.created_at,
   };

@@ -565,6 +565,8 @@
       "noOrdersFound": "No orders found",
       "tryDifferentSearch": "Try a different search term",
       "noOrdersMatch": "No orders match the selected filters",
+      "parentOrder": "Multi-supplier",
+      "suppliersCount": "{{count}} suppliers",
       "details": "Details",
       "confirm": "Confirm",
       "cancel": "Cancel",
@@ -988,7 +990,8 @@
       "scheduledDelivery": "Scheduled (1-2 days)",
       "urgencyNotSet": "Urgency not set",
       "unexpectedError": "An unexpected error occurred",
-      "moveToPendingAdmin": "Move to Pending Admin"
+      "moveToPendingAdmin": "Move to Pending Admin",
+      "supplierOrders": "Supplier orders ({{count}})"
     },
     "toast": {
       "orderUpdated": "Order {{label}} successfully",

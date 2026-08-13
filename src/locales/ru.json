@@ -567,6 +567,8 @@
       "noOrdersFound": "Заказы не найдены",
       "tryDifferentSearch": "Попробуйте другой поисковый запрос",
       "noOrdersMatch": "Заказы не соответствуют выбранным фильтрам",
+      "parentOrder": "Несколько поставщиков",
+      "suppliersCount": "{{count}} поставщиков",
       "details": "Детали",
       "confirm": "Подтвердить",
       "cancel": "Отменить",
@@ -984,7 +986,8 @@
       "scheduledDelivery": "По расписанию (1-2 дня)",
       "urgencyNotSet": "Срочность не установлена",
       "unexpectedError": "Произошла непредвиденная ошибка",
-      "moveToPendingAdmin": "Перевести на рассмотрение"
+      "moveToPendingAdmin": "Перевести на рассмотрение",
+      "supplierOrders": "Заказы поставщиков ({{count}})"
     },
     "tracking": {
       "speed": "Скорость",

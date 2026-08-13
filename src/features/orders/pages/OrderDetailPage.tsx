@@ -166,6 +166,9 @@ export function OrderDetailPage() {
 
   const getAvailableActions = (o: OrderDetail) => {
     const actions: Array<{ label: string; onClick: () => void; variant: 'primary' | 'danger' | 'secondary'; icon?: React.ReactNode }> = [];
+    if (o.isParent && o.children.length > 0) {
+      return actions;
+    }
     if (o.status === 'new') {
       actions.push({ label: t('orders.detail.moveToPendingAdmin', 'Move to Pending Admin'), onClick: () => updateStatus.mutate({ orderId: o.id, newStatus: 'pending_management' }), variant: 'primary', icon: <CheckCircle2 size={14} /> });
     }
@@ -215,6 +218,7 @@ export function OrderDetailPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{order.orderNumber}</h1>
                 <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{order.orderType}</Badge>
+                {order.isParent && <Badge variant="purple" size="sm">{t('orders.list.parentOrder')}</Badge>}
                 <Badge variant={order.deliveryType === 'pickup' ? 'coral' : 'teal'} size="sm">{order.deliveryType === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</Badge>
                 {order.deliveryUrgency && (
                   <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
@@ -356,21 +360,59 @@ export function OrderDetailPage() {
               </div>
             </div>
           ))}
-          <div className="p-4 rounded-xl bg-white border border-border-default/60 space-y-1.5 text-sm">
-            <div className="flex justify-between text-text-secondary">
-              <span>{t('orders.detail.subtotal')}</span>
-              <span>{formatPrice(order.subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-text-secondary">
-              <span>{t('orders.detail.deliveryFee')}</span>
-              <span>{formatPrice(order.deliveryFee)}</span>
-            </div>
-            <div className="flex justify-between font-extrabold text-lg pt-1.5 border-t border-border-default text-text-primary font-display">
-              <span>{t('orders.detail.totalLabel')}</span>
-              <span className="text-brand-accent">{formatPrice(order.total)}</span>
-            </div>
-          </div>
         </div>
+        {order.isParent && order.children.length > 0 && (
+          <div className="space-y-4">
+            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">
+              {t('orders.detail.supplierOrders', { count: order.children.length })}
+            </p>
+            {order.children.map((child) => (
+              <div key={child.id} className="p-4 rounded-xl bg-bg-section-alt/70 border border-border-default/70 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <button
+                    onClick={() => navigate(ROUTES.ORDER_DETAIL(child.id))}
+                    className="text-sm font-bold text-brand-accent hover:underline font-body"
+                  >
+                    {child.orderNumber}
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-secondary font-body">{child.supplierName || '—'}</span>
+                    <Badge variant={STATUS_BADGE[child.status] || 'gray'} size="sm">{STATUS_LABELS[child.status] || t('common.unknown')}</Badge>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm font-body">
+                    <thead>
+                      <tr className="border-b border-border-default">
+                        <th className="text-left py-2 pr-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.item')}</th>
+                        <th className="text-center py-2 px-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.qty')}</th>
+                        <th className="text-right py-2 pl-4 text-xs font-bold text-text-secondary uppercase tracking-wider">{t('orders.detail.total')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {child.items.map((item) => (
+                        <tr key={item.id} className="border-b border-border-default/50 last:border-0">
+                          <td className="py-2.5 pr-4">
+                            <div className="flex items-center gap-3">
+                              <ItemThumb src={item.productImage} productName={item.productName} />
+                              <span className="font-bold text-text-primary">{item.productName}</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-4 text-center text-text-secondary">{item.quantity}</td>
+                          <td className="py-2.5 pl-4 text-right font-bold text-text-primary">{formatPrice(item.totalPrice)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border-default/50">
+                  <span className="text-xs text-text-tertiary font-body">{t('orders.detail.items', { count: child.items.length })}</span>
+                  <span className="text-sm font-extrabold text-text-primary font-display">{formatPrice(child.total)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {order.customerNotes && (
           <div className="mt-4 p-3 rounded-xl bg-brand-accent-light/50 border border-brand-accent/10">
             <p className="text-xs font-bold text-brand-accent uppercase tracking-wider font-body mb-1">{t('orders.detail.customerNotes')}</p>

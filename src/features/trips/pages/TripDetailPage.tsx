@@ -225,6 +225,14 @@ export function TripDetailPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-text-primary font-body">{order.customerName ?? '—'}</p>
                   <p className="text-xs text-text-secondary font-body">{order.orderNumber} · {order.deliveryStatus}</p>
+                  {order.parentOrderId && (
+                    <Link
+                      to={ROUTES.ORDER_DETAIL(order.parentOrderId)}
+                      className="inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 transition-colors"
+                    >
+                      {t('orders.list.parentOrder')}
+                    </Link>
+                  )}
                 </div>
                 <span className="text-sm font-extrabold text-text-primary font-display">{formatPrice(order.total)}</span>
                 {trip.status !== 'completed' && trip.status !== 'cancelled' && (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
+import { ROUTES } from '@/routes/routes';
 import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'purple'> = {
@@ -25,6 +27,7 @@ interface AggregationQueueSectionProps {
 }
 
 export function AggregationQueueSection({ items, isLoading, meta, onPageChange }: AggregationQueueSectionProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const STATUS_LABELS: Record<AggregationStatus, string> = {
     queued: t('warehouse.aggregationQueue.queued'),
@@ -173,6 +176,14 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-900">{item.customerName}</span>
                   <span className="text-xs text-gray-400">{item.orderNumber}</span>
+                  {item.parentOrderId && (
+                    <button
+                      onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 transition-colors"
+                    >
+                      {t('orders.list.parentOrder')}
+                    </button>
+                  )}
                   <span className="text-xs text-gray-300">·</span>
                   <StatusBadge
                     status={STATUS_LABELS[item.status]}

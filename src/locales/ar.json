@@ -755,6 +755,8 @@
       "noOrdersFound": "لا توجد طلبات",
       "tryDifferentSearch": "جرب كلمة بحث مختلفة",
       "noOrdersMatch": "لا توجد طلبات تطابق الفلاتر",
+      "parentOrder": "متعدد الموردين",
+      "suppliersCount": "{{count}} موردين",
       "fromDate": "من تاريخ",
       "toDate": "إلى تاريخ",
       "fast": "سريع",
@@ -823,7 +825,8 @@
       "scheduledDelivery": "مجدول (1-2 يوم)",
       "urgencyNotSet": "لم يتم تحديد سرعة التوصيل",
       "unexpectedError": "حدث خطأ غير متوقع",
-      "moveToPendingAdmin": "نقل إلى الإدارة"
+      "moveToPendingAdmin": "نقل إلى الإدارة",
+      "supplierOrders": "طلبات الموردين ({{count}})"
     },
     "tracking": {
       "speed": "السرعة",

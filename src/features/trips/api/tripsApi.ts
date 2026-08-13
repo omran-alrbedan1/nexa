@@ -43,6 +43,7 @@ export interface TripOrderDetail {
   id: number;
   orderId: number;
   orderNumber: string;
+  parentOrderId: number | null;
   status: string;
   deliveryStatus: string;
   customerName: string | null;
@@ -214,6 +215,7 @@ interface BackendTrip {
     order: {
       id: number;
       order_number: string;
+      parent_order_id: number | null;
       status: string;
       total: number | null;
       customer: { id: number; full_name: string } | null;
@@ -327,6 +329,7 @@ function mapBackendTrip(bt: BackendTrip): DashboardTrip {
     id: to.id,
     orderId: to.order?.id ?? 0,
     orderNumber: to.order?.order_number ?? '',
+    parentOrderId: to.order?.parent_order_id ?? null,
     status: to.order?.status ?? '',
     deliveryStatus: to.delivery_status,
     customerName: to.order?.customer?.full_name ?? null,

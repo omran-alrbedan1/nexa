@@ -567,6 +567,8 @@
       "noOrdersFound": "לא נמצאו הזמנות",
       "tryDifferentSearch": "נסה מונח חיפוש אחר",
       "noOrdersMatch": "אין הזמנות התואמות את המסננים שנבחרו",
+      "parentOrder": "רב-ספקים",
+      "suppliersCount": "{{count}} ספקים",
       "details": "פרטים",
       "confirm": "אשר",
       "cancel": "בטל",
@@ -984,7 +986,8 @@
       "scheduledDelivery": "מתוזמן (1-2 ימים)",
       "urgencyNotSet": "דחיפות לא הוגדרה",
       "unexpectedError": "אירעה שגיאה בלתי צפויה",
-      "moveToPendingAdmin": "העבר להמתנה"
+      "moveToPendingAdmin": "העבר להמתנה",
+      "supplierOrders": "הזמנות ספקים ({{count}})"
     },
     "tracking": {
       "speed": "מהירות",
