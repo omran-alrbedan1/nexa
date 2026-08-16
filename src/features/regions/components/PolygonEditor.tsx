@@ -4,7 +4,7 @@ import { GoogleMap, Marker, Polygon, useJsApiLoader } from '@react-google-maps/a
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { GOOGLE_MAPS_LOADER_OPTIONS, DEFAULT_MAP_CENTER, MAP_CONTAINER_STYLE } from '@/config/googleMaps';
-import { Map, Undo2, Trash2, Save } from 'lucide-react';
+import { Map, MapPin, Square, Undo2, Trash2, Save } from 'lucide-react';
 
 interface PolygonEditorProps {
   open: boolean;
@@ -22,22 +22,70 @@ const POLYGON_OPTIONS: google.maps.PolygonOptions = {
   editable: false,
 };
 
+type ToolMode = 'points' | 'rectangle';
+
+interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+function rectFromCorners(a: LatLng, b: LatLng): LatLng[] {
+  const minLat = Math.min(a.lat, b.lat);
+  const maxLat = Math.max(a.lat, b.lat);
+  const minLng = Math.min(a.lng, b.lng);
+  const maxLng = Math.max(a.lng, b.lng);
+  return [
+    { lat: minLat, lng: minLng },
+    { lat: minLat, lng: maxLng },
+    { lat: maxLat, lng: maxLng },
+    { lat: maxLat, lng: minLng },
+  ];
+}
+
 export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: PolygonEditorProps) {
   const { t } = useTranslation();
   const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const [points, setPoints] = useState<{ lat: number; lng: number }[]>(() => {
+  const [mode, setMode] = useState<ToolMode>('points');
+  const [points, setPoints] = useState<LatLng[]>(() => {
     if (initialBoundaries && initialBoundaries.length > 0) {
       return initialBoundaries[0];
     }
     return [];
   });
+  const [dragStart, setDragStart] = useState<LatLng | null>(null);
+  const [dragCurrent, setDragCurrent] = useState<LatLng | null>(null);
 
   const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (mode !== 'points') return;
     if (!e.latLng) return;
-    setPoints((prev) => [...prev, { lat: e.latLng!.lat(), lng: e.latLng!.lng() }]);
-  }, []);
+    setPoints((prev) => (prev.length < 50 ? [...prev, { lat: e.latLng!.lat(), lng: e.latLng!.lng() }] : prev));
+  }, [mode]);
+
+  const handleMouseDown = useCallback(
+    (e: google.maps.MapMouseEvent) => {
+      if (mode !== 'rectangle') return;
+      if (!e.latLng) return;
+      setDragStart({ lat: e.latLng!.lat(), lng: e.latLng!.lng() });
+      setDragCurrent({ lat: e.latLng!.lat(), lng: e.latLng!.lng() });
+    },
+    [mode],
+  );
+
+  const handleMouseMove = useCallback((e: google.maps.MapMouseEvent) => {
+    if (!dragStart) return;
+    if (!e.latLng) return;
+    setDragCurrent({ lat: e.latLng!.lat(), lng: e.latLng!.lng() });
+  }, [dragStart]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!dragStart || !dragCurrent) return;
+    const rect = rectFromCorners(dragStart, dragCurrent);
+    setPoints((prev) => [...prev, ...rect]);
+    setDragStart(null);
+    setDragCurrent(null);
+  }, [dragStart, dragCurrent]);
 
   const handleUndo = useCallback(() => {
     setPoints((prev) => prev.slice(0, -1));
@@ -53,9 +101,13 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
     onClose();
   }, [points, onSave, onClose]);
 
+  const pendingRect = dragStart && dragCurrent ? rectFromCorners(dragStart, dragCurrent) : null;
+
   const polyCenter = points.length > 0
     ? { lat: points[Math.floor(points.length / 2)].lat, lng: points[Math.floor(points.length / 2)].lng }
     : DEFAULT_MAP_CENTER;
+
+  const maxPointsReached = points.length >= 50;
 
   return (
     <Modal open={open} onClose={onClose} size="full" title={t('regions.zoneForm.boundaryTitle', 'Define Zone Boundary')}>
@@ -63,13 +115,35 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
         <div className="flex items-center justify-between gap-2 text-sm text-text-secondary">
           <div className="flex items-center gap-2">
             <Map size={16} className="text-purple-600" />
-            <span>
-              {points.length === 0
-                ? t('regions.zoneForm.clickToAdd', 'Click on the map to add boundary points')
-                : t('regions.zoneForm.pointsCount', '{{count}} points', { count: points.length })}
-            </span>
+            {mode === 'points' ? (
+              <span>
+                {points.length === 0
+                  ? t('regions.zoneForm.clickToAdd', 'Click on the map to add boundary points')
+                  : t('regions.zoneForm.pointsCount', '{{count}} points', { count: points.length })}
+              </span>
+            ) : (
+              <span>{t('regions.zoneForm.dragForRect', 'Drag on the map to draw a rectangle')}</span>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-border-default p-1">
+              <Button
+                variant={mode === 'points' ? 'primary' : 'ghost'}
+                size="sm"
+                leftIcon={<MapPin size={14} />}
+                onClick={() => setMode('points')}
+              >
+                {t('regions.zoneForm.pointsTool', 'Points')}
+              </Button>
+              <Button
+                variant={mode === 'rectangle' ? 'primary' : 'ghost'}
+                size="sm"
+                leftIcon={<Square size={14} />}
+                onClick={() => setMode('rectangle')}
+              >
+                {t('regions.zoneForm.rectangleTool', 'Rectangle')}
+              </Button>
+            </div>
             <Button variant="ghost" size="sm" leftIcon={<Undo2 size={14} />} onClick={handleUndo} disabled={points.length === 0}>
               {t('common.undo', 'Undo')}
             </Button>
@@ -93,14 +167,19 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
                 streetViewControl: false,
                 mapTypeControl: false,
                 fullscreenControl: false,
-                draggableCursor: points.length < 50 ? 'crosshair' : 'default',
+                draggableCursor: !maxPointsReached ? 'crosshair' : 'default',
               }}
-              onClick={points.length < 50 ? handleMapClick : undefined}
-              onLoad={(map) => { mapRef.current = map; }}
+              onClick={!maxPointsReached ? handleMapClick : undefined}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onLoad={(map) => {
+                mapRef.current = map;
+              }}
             >
               {points.map((point, i) => (
                 <Marker
-                  key={i}
+                  key={`${i}-${point.lat.toFixed(6)}-${point.lng.toFixed(6)}`}
                   position={point}
                   label={{
                     text: String(i + 1),
@@ -110,6 +189,7 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
                   }}
                 />
               ))}
+              {pendingRect && <Polygon paths={pendingRect} options={{ ...POLYGON_OPTIONS, fillOpacity: 0.15 }} />}
               {points.length >= 3 && (
                 <Polygon paths={points} options={POLYGON_OPTIONS} />
               )}

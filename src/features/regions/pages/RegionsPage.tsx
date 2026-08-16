@@ -14,6 +14,10 @@ import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, Map, Globe, DollarSign, Plus } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ZoneForm } from '../components/ZoneForm';
+import { ZoneBoundaryMap } from '../components/ZoneBoundaryMap';
+import { regionsApi } from '../api/regionsApi';
+import { useQuery } from '@tanstack/react-query';
+import { provincesApi } from '@/features/locations/api/provincesApi';
 
 
 
@@ -29,6 +33,27 @@ export function RegionsPage() {
 
   const [feeModal, setFeeModal] = useState<{ open: boolean; regionId: number; regionName: string; warehouseId: number | null; warehouseName: string | null; fee: string }>({ open: false, regionId: 0, regionName: '', warehouseId: null, warehouseName: null, fee: '' });
   const [zoneModal, setZoneModal] = useState(false);
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const [provinceId, setProvinceId] = useState<number | ''>('');
+
+  const { data: provinces } = useQuery({
+    queryKey: ['provinces-options'] as const,
+    queryFn: () => provincesApi.getAll({ perPage: 200 }),
+    staleTime: 60_000,
+  });
+
+  const { data: mapZones, isLoading: mapLoading } = useQuery({
+    queryKey: ['regions-map', provinceId] as const,
+    queryFn: () =>
+      regionsApi.getPageData({
+        perPage: 200,
+        provinceId: provinceId === '' ? undefined : provinceId,
+      }).then((d) => d.regions),
+    staleTime: 30_000,
+    enabled: view === 'map',
+  });
+
+  const mapRegions = mapZones ?? [];
 
   if (isError) return (
     <div className="space-y-6 animate-fade-up">
@@ -104,6 +129,47 @@ export function RegionsPage() {
           );
         })}
       </div>
+
+      {/* View Toggle */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1 rounded-lg border border-border-default p-1">
+          <Button variant={view === 'list' ? 'primary' : 'ghost'} size="sm" leftIcon={<MapPin size={14} />} onClick={() => setView('list')}>
+            {t('regions.map.listView', 'List')}
+          </Button>
+          <Button variant={view === 'map' ? 'primary' : 'ghost'} size="sm" leftIcon={<Map size={14} />} onClick={() => setView('map')}>
+            {t('regions.map.mapView', 'Map')}
+          </Button>
+        </div>
+        {view === 'map' && (
+          <select
+            value={provinceId}
+            onChange={(e) => setProvinceId(e.target.value === '' ? '' : Number(e.target.value))}
+            className="px-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary bg-bg-input"
+          >
+            <option value="">{t('regions.map.allProvinces', 'All provinces')}</option>
+            {(provinces?.data ?? []).map((p) => (
+              <option key={p.id} value={p.id}>{p.name_ar}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Map View */}
+      {view === 'map' && (
+        <Card padding="lg">
+          <CardHeader>
+            <div>
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.map.zoneCoverage', 'Zone coverage map')}</h3>
+              <p className="text-xs text-text-secondary font-body mt-0.5">{t('regions.map.zoneCoverageHint', 'Each polygon is a delivery zone — click one to open it.')}</p>
+            </div>
+          </CardHeader>
+          {mapLoading ? (
+            <div className="h-96 rounded-xl bg-gray-100 animate-pulse" />
+          ) : (
+            <ZoneBoundaryMap zones={mapRegions} />
+          )}
+        </Card>
+      )}
 
       {/* Regions List */}
       <Card padding="lg">

@@ -1467,7 +1467,23 @@
       "province": "מחוז",
       "selectProvince": "בחר מחוז",
       "codePlaceholder": "לדוגמה RUH-01",
-      "codeRequired": "קוד אזור נדרש (לדוגמה RUH-01)"
+      "codeRequired": "קוד אזור נדרש (לדוגמה RUH-01)",
+      "pointsTool": "נקודות",
+      "rectangleTool": "מלבן",
+      "dragForRect": "גרור על המפה כדי לצייר מלבן"
+    },
+    "map": {
+      "listView": "רשימה",
+      "mapView": "מפה",
+      "allProvinces": "כל המחוזות",
+      "zoneCoverage": "מפת כיסוי אזורים",
+      "zoneCoverageHint": "כל מצולע הוא אזור משלוחים — לחץ עליו כדי לפתוח אותו.",
+      "noBoundaries": "אין אזורים עם גבול מצויר עדיין — פתח אזור וצייר את גבולו קודם.",
+      "openZone": "פתח אזור",
+      "zoneBoundary": "גבול האזור",
+      "drawn": "מצויר",
+      "notDrawn": "ללא גבול",
+      "withoutBoundaries": "ל-{{count}} אזורים אין גבול מצויר עדיין."
     },
     "clusters": {
       "title": "אשכולות",

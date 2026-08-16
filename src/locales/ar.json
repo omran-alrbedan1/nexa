@@ -1206,7 +1206,23 @@
       "province": "المحافظة",
       "selectProvince": "اختر المحافظة",
       "codePlaceholder": "مثال: RUH-01",
-      "codeRequired": "رمز المنطقة مطلوب (مثال: RUH-01)"
+      "codeRequired": "رمز المنطقة مطلوب (مثال: RUH-01)",
+      "pointsTool": "نقاط",
+      "rectangleTool": "مستطيل",
+      "dragForRect": "اسحب على الخريطة لرسم مستطيل"
+    },
+    "map": {
+      "listView": "قائمة",
+      "mapView": "خريطة",
+      "allProvinces": "كل المحافظات",
+      "zoneCoverage": "خريطة تغطية المناطق",
+      "zoneCoverageHint": "كل مضلع هو منطقة توصيل — اضغط عليه لفتحه.",
+      "noBoundaries": "لا توجد مناطق بحدود مرسومة بعد — افتح منطقة وارسم حدودها أولاً.",
+      "openZone": "فتح المنطقة",
+      "zoneBoundary": "حدود المنطقة",
+      "drawn": "مرسومة",
+      "notDrawn": "بدون حدود",
+      "withoutBoundaries": "{{count}} مناطق بدون حدود مرسومة بعد."
     },
     "clusters": {
       "title": "التجمعات",

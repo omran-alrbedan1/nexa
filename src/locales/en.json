@@ -1619,7 +1619,23 @@
       "province": "Province",
       "selectProvince": "Select province",
       "codePlaceholder": "e.g. RUH-01",
-      "codeRequired": "Zone code is required (e.g. RUH-01)"
+      "codeRequired": "Zone code is required (e.g. RUH-01)",
+      "pointsTool": "Points",
+      "rectangleTool": "Rectangle",
+      "dragForRect": "Drag on the map to draw a rectangle"
+    },
+    "map": {
+      "listView": "List",
+      "mapView": "Map",
+      "allProvinces": "All provinces",
+      "zoneCoverage": "Zone coverage map",
+      "zoneCoverageHint": "Each polygon is a delivery zone — click one to open it.",
+      "noBoundaries": "No zones with drawn boundaries yet — open a zone and draw its boundary first.",
+      "openZone": "Open zone",
+      "zoneBoundary": "Zone boundary",
+      "drawn": "drawn",
+      "notDrawn": "no boundary",
+      "withoutBoundaries": "{{count}} zones have no drawn boundary yet."
     },
     "clusters": {
       "title": "Clusters",

@@ -151,11 +151,12 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
 
 export const regionsApi = {
   /** Fetch all regions page data */
-  getPageData: async (params: { page?: number; search?: string; perPage?: number } = {}): Promise<RegionsPageData> => {
+  getPageData: async (params: { page?: number; search?: string; perPage?: number; provinceId?: number } = {}): Promise<RegionsPageData> => {
     const requestParams: Record<string, string | number> = {};
     if (params.page) requestParams.page = params.page;
     if (params.perPage) requestParams.per_page = params.perPage;
     if (params.search) requestParams.search = params.search;
+    if (params.provinceId) requestParams.province_id = params.provinceId;
     const response = await apiClient.get<ApiResponse<BackendZonesResponse>>('/api/v1/admin/zones', { params: requestParams });
     const backendData = response.data.data;
     const regions = backendData.zones.map(mapBackendZone);

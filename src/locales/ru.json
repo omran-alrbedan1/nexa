@@ -1467,7 +1467,23 @@
       "province": "Провинция",
       "selectProvince": "Выберите провинцию",
       "codePlaceholder": "напр. RUH-01",
-      "codeRequired": "Код зоны обязателен (напр. RUH-01)"
+      "codeRequired": "Код зоны обязателен (напр. RUH-01)",
+      "pointsTool": "Точки",
+      "rectangleTool": "Прямоугольник",
+      "dragForRect": "Перетащите по карте, чтобы нарисовать прямоугольник"
+    },
+    "map": {
+      "listView": "Список",
+      "mapView": "Карта",
+      "allProvinces": "Все провинции",
+      "zoneCoverage": "Карта покрытия зон",
+      "zoneCoverageHint": "Каждый многоугольник — зона доставки. Нажмите, чтобы открыть.",
+      "noBoundaries": "Пока нет зон с нарисованными границами — откройте зону и нарисуйте её границу.",
+      "openZone": "Открыть зону",
+      "zoneBoundary": "Граница зоны",
+      "drawn": "нарисована",
+      "notDrawn": "без границы",
+      "withoutBoundaries": "У {{count}} зон пока нет нарисованных границ."
     },
     "clusters": {
       "title": "Кластеры",

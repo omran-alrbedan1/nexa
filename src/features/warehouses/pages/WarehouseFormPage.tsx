@@ -209,7 +209,17 @@ export function WarehouseFormPage() {
                   onClick={handleMapClick}
                 >
                   {form.latitude && form.longitude && (
-                    <Marker position={{ lat: Number(form.latitude), lng: Number(form.longitude) }} />
+                    <Marker
+                      position={{ lat: Number(form.latitude), lng: Number(form.longitude) }}
+                      draggable
+                      onDragEnd={(e) => {
+                        const lat = e.latLng?.lat();
+                        const lng = e.latLng?.lng();
+                        if (lat !== undefined && lng !== undefined) {
+                          setForm((prev) => ({ ...prev, latitude: String(lat), longitude: String(lng) }));
+                        }
+                      }}
+                    />
                   )}
                 </GoogleMap>
               </div>

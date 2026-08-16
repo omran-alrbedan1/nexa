@@ -17,6 +17,7 @@ import { ClustersSection } from '../components/ClustersSection';
 import { DeliverySlotsSection } from '../components/DeliverySlotsSection';
 import { WorkingDaysSection } from '../components/WorkingDaysSection';
 import { ZoneForm } from '../components/ZoneForm';
+import { ZoneBoundaryMap } from '../components/ZoneBoundaryMap';
 
 const REGION_TABS = [
   { key: 'overview', label: 'regions.tabs.overview', icon: Globe },
@@ -193,6 +194,14 @@ export function RegionDetailPage() {
               <span className="text-text-secondary">{t('regions.detail.activeSlotsCount')}</span>
               <span className="font-bold text-text-primary">{zoneSlots?.filter((s: any) => s.is_available).length ?? '—'}</span>
             </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Map size={16} className="text-purple-600" />
+              <h3 className="text-sm font-bold text-text-primary font-display">{t('regions.map.zoneBoundary', 'Zone boundary')}</h3>
+            </div>
+            <ZoneBoundaryMap zones={[region]} />
           </div>
         </Card>
       )}
