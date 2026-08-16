@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +9,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
+import { OrderParts } from './OrderParts';
 import { useAssignToTrip } from '../hooks/useAggregation';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import { ROUTES } from '@/routes/routes';
-import { Layers2 } from 'lucide-react';
-import type { ReadyToShipItem, ShipmentStatus } from '../api/aggregationApi';
+import type { ReadyToShipItem, ShipmentStatus, OrderGroup, OrderPart } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'green'> = {
   pending_trip: 'yellow',
@@ -21,6 +21,21 @@ const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'gree
   loaded: 'purple',
   shipped: 'green',
 };
+
+const PART_STATUS_LABELS: Record<string, string> = {
+  READY_TO_SHIP: 'warehouse.readyToShip.pendingTrip',
+  IN_AGGREGATION: 'warehouse.parts.statusInAggregation',
+  IN_SUPPLY: 'warehouse.parts.statusInSupply',
+  READY_TO_DELIVER: 'warehouse.parts.statusReadyToDeliver',
+  OUT_FOR_DELIVERY: 'warehouse.parts.statusOutForDelivery',
+  DELIVERED: 'warehouse.parts.statusDelivered',
+  CANCELLED: 'warehouse.parts.statusCancelled',
+};
+
+interface ShipGroup {
+  group: OrderGroup;
+  items: ReadyToShipItem[];
+}
 
 interface ReadyToShipSectionProps {
   items: ReadyToShipItem[];
@@ -43,27 +58,47 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
   const [selectedTrip, setSelectedTrip] = useState<number | ''>('');
   const assignToTrip = useAssignToTrip();
 
-  // Fetch real trips from backend for the assign-to-trip dropdown
   const { data: availableTrips = [], isLoading: tripsLoading } = useQuery({
     queryKey: ['ready-to-ship', 'available-trips'],
-    queryFn: () => tripsApi.getPageData().then((d) => 
+    queryFn: () => tripsApi.getPageData().then((d) =>
       d.trips.filter((t) => t.status === 'scheduled' || t.status === 'assigned')
     ),
     staleTime: 30_000,
   });
 
+  const { groups, singles } = useMemo(() => {
+    const gs: ShipGroup[] = [];
+    const ss: ReadyToShipItem[] = [];
+    for (const item of items) {
+      const grp = item.group;
+      if (grp) {
+        const existing = gs.find((g) => g.group.id === grp.id);
+        if (existing) existing.items.push(item);
+        else gs.push({ group: grp, items: [item] });
+      } else {
+        ss.push(item);
+      }
+    }
+    return { groups: gs, singles: ss };
+  }, [items]);
+
   const pendingCount = items.filter((i) => i.status === 'pending_trip').length;
   const totalWeight = items.reduce((sum, i) => sum + i.totalWeight, 0);
 
-  const filtered = items.filter((item) => {
+  const matchesSearch = (q: string, parts: { orderNumber: string; customerName: string; regionName: string }[]) =>
+    parts.some((p) => p.orderNumber.toLowerCase().includes(q) || p.customerName.toLowerCase().includes(q) || p.regionName.toLowerCase().includes(q));
+
+  const filteredGroups = groups.filter((g) => {
     if (!search) return true;
     const q = search.toLowerCase();
-    return (
-      item.orderNumber.toLowerCase().includes(q) ||
-      item.customerName.toLowerCase().includes(q) ||
-      item.regionName.toLowerCase().includes(q)
-    );
+    return matchesSearch(q, g.items) || g.group.orders.some((o) => o.orderNumber.toLowerCase().includes(q));
   });
+  const filteredSingles = singles.filter((item) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return item.orderNumber.toLowerCase().includes(q) || item.customerName.toLowerCase().includes(q) || item.regionName.toLowerCase().includes(q);
+  });
+  const filteredCount = filteredGroups.length + filteredSingles.length;
 
   const handleAssign = () => {
     if (!assignModal.item || !selectedTrip) return;
@@ -81,6 +116,63 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
     setSelectedTrip('');
   };
 
+  const partLabel = (part: OrderPart) => t(PART_STATUS_LABELS[part.status] || part.status);
+
+  const renderGroupCard = (g: ShipGroup) => {
+    const allReady = g.group.total > 0 && g.group.done === g.group.total;
+    const weight = g.items.reduce((s, i) => s + i.totalWeight, 0);
+    const itemCount = g.items.reduce((s, i) => s + i.itemCount, 0);
+    const numbers = g.items.map((i) => i.orderNumber).join(' / ');
+
+    return (
+      <div
+        key={g.group.id}
+        className="flex flex-col p-4 rounded-lg border border-purple-200 bg-purple-50/30 hover:bg-purple-50/60 transition-colors"
+      >
+        <div className="flex items-start justify-between mb-1">
+          <div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(ROUTES.ORDER_DETAIL(g.group.id))}
+                className="text-sm font-medium text-gray-900 hover:text-purple-700 transition-colors"
+              >
+                {g.items[0]?.customerName}
+              </button>
+              <span className="text-xs text-gray-400">{numbers}</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-0.5">{g.items[0]?.items}</p>
+          </div>
+        </div>
+
+        <OrderParts
+          members={g.group.orders}
+          progressLabel={t('warehouse.parts.ready', { done: g.group.done, total: g.group.total })}
+          renderMember={(part) => <span className="text-gray-500 font-medium">{partLabel(part)}</span>}
+        />
+
+        <div className="flex items-center justify-between text-xs text-gray-400 mt-2">
+          <span>{t('warehouse.readyToShip.itemsCount', { count: itemCount })} · {t('warehouse.readyToShip.weight', { weight: weight.toFixed(1) })}</span>
+          <span>{g.items[0]?.regionName}</span>
+        </div>
+
+        {allReady ? (
+          <Button variant="primary" size="sm" className="w-full mt-2" onClick={() => g.items[0] && openAssignModal(g.items[0])}>
+            {t('warehouse.parts.assignAll', { count: g.group.total })}
+          </Button>
+        ) : (
+          <Button variant="primary" size="sm" className="w-full mt-2 !bg-gray-200 !text-gray-400 cursor-not-allowed" disabled>
+            {t('warehouse.parts.assignAll', { count: g.group.total })}
+          </Button>
+        )}
+        {!allReady && (
+          <p className="text-[11px] text-amber-600 mt-1 text-center font-medium">
+            {t('warehouse.parts.waitForParts', { done: g.group.done, total: g.group.total })}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <Card padding="md">
@@ -95,7 +187,6 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
           </div>
         </CardHeader>
 
-        {/* Search */}
         {items.length > 0 && (
           <div className="mb-4 max-w-xs">
             <SearchInput
@@ -112,7 +203,7 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
               <div key={i} className="h-16 bg-gray-100 rounded" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredCount === 0 ? (
           <EmptyState
             title={search ? t('warehouse.readyToShip.noMatchingOrders') : t('warehouse.readyToShip.nothingToShip')}
             description={search ? t('warehouse.readyToShip.tryDifferentSearch') : t('warehouse.readyToShip.allAssigned')}
@@ -124,7 +215,8 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
           />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {filtered.map((item) => (
+            {filteredGroups.map(renderGroupCard)}
+            {filteredSingles.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-col p-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
@@ -140,10 +232,8 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
                         onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
                         className="mt-1.5 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors text-left"
                       >
-                        <Layers2 size={12} className="flex-shrink-0" />
                         <span>
                           {t('orders.multiSupplier.partOf')} {item.parentOrderNumber ? `(${item.parentOrderNumber})` : ''}
-                          {item.childrenCount > 0 && ` — ${t('orders.multiSupplier.allPartsRequired', { count: item.childrenCount })}`}
                         </span>
                       </button>
                     )}
@@ -195,7 +285,6 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
         />
       </Card>
 
-      {/* Assign to Trip Modal */}
       <Modal
         open={assignModal.open}
         onClose={() => setAssignModal({ open: false, item: null })}
@@ -206,7 +295,16 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-lg p-3 text-sm">
               <p className="font-medium text-gray-900">{assignModal.item.customerName}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{assignModal.item.orderNumber}</p>
+              <p className="text-gray-500 text-xs mt-0.5">
+                {assignModal.item.group
+                  ? assignModal.item.group.orders.map((o) => o.orderNumber).join(' / ')
+                  : assignModal.item.orderNumber}
+              </p>
+              {assignModal.item.group && (
+                <p className="text-purple-700 text-xs mt-0.5">
+                  {t('warehouse.parts.ready', { done: assignModal.item.group.done, total: assignModal.item.group.total })}
+                </p>
+              )}
               <p className="text-gray-500 text-xs">{assignModal.item.items}</p>
               <p className="text-gray-500 text-xs mt-1">{assignModal.item.regionName} · {assignModal.item.totalWeight} kg</p>
             </div>

@@ -789,6 +789,22 @@
       "loadingTrips": "Загрузка поездок...",
       "noTrips": "Нет доступных поездок",
       "differentRegion": "другой регион"
+    },
+    "parts": {
+      "showParts": "Показать {{count}} частей",
+      "hideParts": "Скрыть части",
+      "ready": "Готово {{done}}/{{total}}",
+      "done": "Готово {{done}}/{{total}}",
+      "assignAll": "Назначить все {{count}} частей в рейс",
+      "waitForParts": "Ожидание остальных частей (готово {{done}}/{{total}})",
+      "statusInAggregation": "В обработке",
+      "statusInSupply": "В поставке",
+      "statusReadyToDeliver": "Готов к доставке",
+      "statusOutForDelivery": "В доставке",
+      "statusDelivered": "Доставлено",
+      "statusCancelled": "Отменено",
+      "statusArrived": "Прибыл на склад",
+      "statusOnWay": "В пути"
     }
   },
   "warehouses": {
@@ -1470,7 +1486,10 @@
       "codeRequired": "Код зоны обязателен (напр. RUH-01)",
       "pointsTool": "Точки",
       "rectangleTool": "Прямоугольник",
-      "dragForRect": "Перетащите по карте, чтобы нарисовать прямоугольник"
+      "dragForRect": "Перетащите по карте, чтобы нарисовать прямоугольник",
+      "squareLocked": "Квадрат зафиксирован (Shift)",
+      "currentZone": "Эта зона",
+      "otherZones": "Существующие зоны"
     },
     "map": {
       "listView": "Список",
@@ -2874,7 +2893,8 @@
       "qualityFailed": "Контроль качества не пройден",
       "qualityPassed": "Контроль качества пройден — заказ готов к отправке",
       "receiptConfirmFailed": "Не удалось подтвердить получение",
-      "receiptConfirmed": "Получение подтверждено успешно"
+      "receiptConfirmed": "Получение подтверждено успешно",
+      "assignedToTripMulti": "Все {{count}} частей назначены в рейс успешно"
     },
     "warehouseSettings": {
       "active": "Активен",

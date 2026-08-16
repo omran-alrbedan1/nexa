@@ -128,7 +128,7 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
     nameHe: z.name_he || null,
     nameRu: z.name_ru || null,
     code: z.code,
-    provinceId: z.province_id ?? null,
+    provinceId: z.province_id ?? z.province?.id ?? null,
     defaultWarehouseId: z.default_warehouse?.id ?? z.default_warehouse_id ?? null,
     deliveryFee: z.delivery_fee ?? 0,
     deliveryFees: (z.delivery_fees || []).map((f) => ({

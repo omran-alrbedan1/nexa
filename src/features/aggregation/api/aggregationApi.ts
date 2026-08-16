@@ -39,8 +39,24 @@ export interface Supplier {
   phone: string;
 }
 
+export interface OrderPart {
+  id: number;
+  orderNumber: string;
+  status: string;
+  supplierName: string | null;
+}
+
+/** Multi-supplier group envelope (null for standalone orders) */
+export interface OrderGroup {
+  id: number;
+  total: number;
+  done: number;
+  orders: OrderPart[];
+}
+
 export interface WarehouseSupplyItem {
   id: number;
+  orderId: number | null;
   supplier: Supplier;
   purchaseOrderNumber: string;
   items: string;
@@ -50,10 +66,12 @@ export interface WarehouseSupplyItem {
   receivedAt: string | null;
   notes: string;
   createdAt: string;
+  group: OrderGroup | null;
 }
 
 export interface AggregationOrder {
   id: number;
+  orderId: number | null;
   orderNumber: string;
   parentOrderId: number | null;
   parentOrderNumber: string | null;
@@ -67,6 +85,7 @@ export interface AggregationOrder {
   assignedTo: string | null;
   createdAt: string;
   updatedAt: string;
+  group: OrderGroup | null;
 }
 
 export interface ReadyToShipItem {
@@ -85,6 +104,7 @@ export interface ReadyToShipItem {
   tripName: string | null;
   packedAt: string;
   createdAt: string;
+  group: OrderGroup | null;
 }
 
 export interface WarehouseThroughput {
@@ -165,6 +185,20 @@ interface BackendSupplyRecordConfirmedBy {
   full_name: string;
 }
 
+interface BackendOrderPart {
+  id: number;
+  order_number: string;
+  status: string | null;
+  supplier_name: string | null;
+}
+
+interface BackendOrderGroup {
+  id: number;
+  total: number;
+  done: number;
+  orders: BackendOrderPart[];
+}
+
 interface BackendSupplyRecord {
   id: number;
   status: string;
@@ -178,6 +212,7 @@ interface BackendSupplyRecord {
   warehouse: BackendSupplyRecordWarehouse | null;
   confirmed_by: BackendSupplyRecordConfirmedBy | null;
   created_at: string;
+  group?: BackendOrderGroup | null;
 }
 
 // ── Backend Raw Types (matching AggregationQueueResource) ──
@@ -223,6 +258,7 @@ interface BackendAggregationQueueItem {
   qc_note: string | null;
   order: BackendQueueOrder | null;
   assigned_to: BackendQueueAssignedTo | null;
+  group?: BackendOrderGroup | null;
 }
 
 // ── Backend Raw Types (ready-to-ship uses OrderResource) ──
@@ -247,6 +283,7 @@ interface BackendReadyToShipOrder {
   delivery_scheduled_at?: string | null;
   customer: { id: number; name: string; phone: string } | null;
   warehouse: { id: number; name: string } | null;
+  group?: BackendOrderGroup | null;
 }
 
 // ── Backend Raw Types (throughput) ──
@@ -301,10 +338,26 @@ function mapBackendAggregationStatus(status: string): AggregationStatus {
   return map[status] || 'queued';
 }
 
+function mapBackendGroup(g?: BackendOrderGroup | null): OrderGroup | null {
+  if (!g) return null;
+  return {
+    id: g.id,
+    total: g.total,
+    done: g.done,
+    orders: (g.orders || []).map((o) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      status: o.status || '',
+      supplierName: o.supplier_name ?? null,
+    })),
+  };
+}
+
 function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
   const orderNum = r.order?.order_number || '';
   return {
     id: r.id,
+    orderId: r.order?.id ?? null,
     supplier: {
       id: r.supplier?.id || r.order?.id || 0,
       name: r.supplier?.business_name || `Supplier #${r.id}`,
@@ -318,6 +371,7 @@ function mapBackendSupplyRecord(r: BackendSupplyRecord): WarehouseSupplyItem {
     receivedAt: r.confirmed_at || r.arrived_at,
     notes: r.supplier_note || '',
     createdAt: r.created_at,
+    group: mapBackendGroup(r.group),
   };
 }
 
@@ -327,6 +381,7 @@ function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
   const regionName = order?.zone?.name_ar || '';
   return {
     id: q.id,
+    orderId: order?.id ?? null,
     orderNumber: order?.order_number || `ORD-${q.id}`,
     parentOrderId: order?.parent_order_id ?? null,
     parentOrderNumber: order?.parent_order_number ?? null,
@@ -340,6 +395,7 @@ function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
     assignedTo: q.assigned_to?.full_name || null,
     createdAt: q.processing_started_at || new Date().toISOString(),
     updatedAt: q.quality_checked_at || q.packed_at || q.processing_started_at || new Date().toISOString(),
+    group: mapBackendGroup(q.group),
   };
 }
 
@@ -360,6 +416,7 @@ function mapBackendReadyToShip(o: BackendReadyToShipOrder): ReadyToShipItem {
     tripName: null,
     packedAt: o.created_at,
     createdAt: o.created_at,
+    group: mapBackendGroup(o.group),
   };
 }
 
@@ -503,7 +560,7 @@ export const aggregationApi = {
   },
 
   /** Start processing an item in the aggregation queue */
-  startProcessing: async (orderId: number, _assignee: string): Promise<AggregationOrder> => {
+  startProcessing: async (orderId: number): Promise<AggregationOrder> => {
     try {
       // Backend StartProcessingRequest expects `assigned_to` (nullable integer, user ID)
       const response = await apiClient.post<ApiResponse<BackendAggregationQueueItem>>(
@@ -559,28 +616,18 @@ export const aggregationApi = {
     }
   },
 
-  /** Assign to trip — backend uses POST /aggregation/orders/{orderId}/assign-trip */
-  assignToTrip: async (itemId: number, tripId: number, tripName: string): Promise<ReadyToShipItem> => {
+  /** Assign to trip — backend returns {orders: [...], count} (group-aware) */
+  assignToTrip: async (itemId: number, tripId: number, tripName: string): Promise<{ count: number; orders: ReadyToShipItem[] }> => {
     try {
-      const response = await apiClient.post<ApiResponse<BackendReadyToShipOrder>>(`/api/v1/admin/aggregation/orders/${itemId}/assign-trip`, { trip_id: tripId });
+      const response = await apiClient.post<ApiResponse<{ orders: BackendReadyToShipOrder[]; count: number }>>(`/api/v1/admin/aggregation/orders/${itemId}/assign-trip`, { trip_id: tripId });
       const data = unwrap(response.data);
-      return {
-        id: data.id || itemId,
-        orderNumber: data.order_number || `ORD-${itemId}`,
-        parentOrderId: data.parent_order_id ?? null,
-        parentOrderNumber: data.parent_order_number ?? null,
-        childrenCount: data.parent_children_count ?? 0,
-        customerName: data.customer?.name || 'Unknown',
-        items: data.items_summary || '',
-        itemCount: data.items_count || 0,
-        totalWeight: data.total_weight ?? 0,
-        status: 'assigned_to_trip',
-        regionName: '',
+      const orders = (data.orders || []).map((o) => ({
+        ...mapBackendReadyToShip(o),
+        status: 'assigned_to_trip' as const,
         tripId,
         tripName,
-        packedAt: new Date().toISOString(),
-        createdAt: data.created_at || new Date().toISOString(),
-      };
+      }));
+      return { count: data.count ?? orders.length, orders };
     } catch {
       throw new Error('Failed to assign to trip');
     }

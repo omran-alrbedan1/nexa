@@ -97,9 +97,11 @@ export function useAssignToTrip() {
   return useMutation({
     mutationFn: ({ itemId, tripId, tripName }: { itemId: number; tripId: number; tripName: string }) =>
       aggregationApi.assignToTrip(itemId, tripId, tripName),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.all });
-      addToast('success', t('aggregation.toast.assignedToTrip'));
+      addToast('success', data.count > 1
+        ? t('aggregation.toast.assignedToTripMulti', { count: data.count })
+        : t('aggregation.toast.assignedToTrip'));
     },
     onError: () => {
       addToast('error', t('aggregation.toast.assignToTripFailed'));

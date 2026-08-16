@@ -789,6 +789,22 @@
       "loadingTrips": "טוען נסיעות...",
       "noTrips": "אין נסיעות זמינות",
       "differentRegion": "אזור שונה"
+    },
+    "parts": {
+      "showParts": "הצג {{count}} חלקים",
+      "hideParts": "הסתר חלקים",
+      "ready": "מוכן {{done}}/{{total}}",
+      "done": "הושלם {{done}}/{{total}}",
+      "assignAll": "הקצה את כל {{count}} החלקים לרכב",
+      "waitForParts": "המתן לחלקים הנותרים (מוכן {{done}}/{{total}})",
+      "statusInAggregation": "בתהליך איגוד",
+      "statusInSupply": "באספקה",
+      "statusReadyToDeliver": "מוכן למסירה",
+      "statusOutForDelivery": "בדרך למסירה",
+      "statusDelivered": "נמסר",
+      "statusCancelled": "בוטל",
+      "statusArrived": "הגיע למחסן",
+      "statusOnWay": "באספקה"
     }
   },
   "warehouses": {
@@ -1470,7 +1486,10 @@
       "codeRequired": "קוד אזור נדרש (לדוגמה RUH-01)",
       "pointsTool": "נקודות",
       "rectangleTool": "מלבן",
-      "dragForRect": "גרור על המפה כדי לצייר מלבן"
+      "dragForRect": "גרור על המפה כדי לצייר מלבן",
+      "squareLocked": "ריבוע נעול (Shift)",
+      "currentZone": "אזור זה",
+      "otherZones": "אזורים קיימים"
     },
     "map": {
       "listView": "רשימה",
@@ -2874,7 +2893,8 @@
       "qualityFailed": "בדיקת האיכות נכשלה",
       "qualityPassed": "בדיקת האיכות עברה — ההזמנה מוכנה למשלוח",
       "receiptConfirmFailed": "אישור הקבלה נכשל",
-      "receiptConfirmed": "הקבלה אושרה בהצלחה"
+      "receiptConfirmed": "הקבלה אושרה בהצלחה",
+      "assignedToTripMulti": "כל {{count}} החלקים הוקצו לרכב בהצלחה"
     },
     "warehouseSettings": {
       "active": "פעיל",

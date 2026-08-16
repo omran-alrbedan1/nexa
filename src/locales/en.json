@@ -787,6 +787,22 @@
       "loadingTrips": "Loading trips...",
       "noTrips": "No available trips",
       "differentRegion": "different region"
+    },
+    "parts": {
+      "showParts": "Show {{count}} parts",
+      "hideParts": "Hide parts",
+      "ready": "{{done}}/{{total}} ready",
+      "done": "{{done}}/{{total}} done",
+      "assignAll": "Assign all {{count}} parts to trip",
+      "waitForParts": "Waiting for remaining parts ({{done}}/{{total}} ready)",
+      "statusInAggregation": "In aggregation",
+      "statusInSupply": "In supply",
+      "statusReadyToDeliver": "Ready to deliver",
+      "statusOutForDelivery": "Out for delivery",
+      "statusDelivered": "Delivered",
+      "statusCancelled": "Cancelled",
+      "statusArrived": "Arrived at warehouse",
+      "statusOnWay": "In supply"
     }
   },
   "warehouses": {
@@ -1622,7 +1638,10 @@
       "codeRequired": "Zone code is required (e.g. RUH-01)",
       "pointsTool": "Points",
       "rectangleTool": "Rectangle",
-      "dragForRect": "Drag on the map to draw a rectangle"
+      "dragForRect": "Drag on the map to draw a rectangle",
+      "squareLocked": "Square locked (Shift)",
+      "currentZone": "This zone",
+      "otherZones": "Existing zones"
     },
     "map": {
       "listView": "List",
@@ -2369,7 +2388,8 @@
       "qualityPassed": "Quality check passed — order ready to ship",
       "qualityFailed": "Quality check failed",
       "assignedToTrip": "Order assigned to trip successfully",
-      "assignToTripFailed": "Failed to assign to trip"
+      "assignToTripFailed": "Failed to assign to trip",
+      "assignedToTripMulti": "All {{count}} parts assigned to trip successfully"
     }
   },
   "campaigns": {

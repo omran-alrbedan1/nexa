@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/ui/SearchInput';
@@ -7,11 +7,10 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
-import { useAuth } from '@/contexts/AuthContext';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
+import { OrderParts } from './OrderParts';
 import { ROUTES } from '@/routes/routes';
-import { Layers2 } from 'lucide-react';
-import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
+import type { AggregationOrder, AggregationStatus, OrderGroup, OrderPart } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'purple'> = {
   queued: 'yellow',
@@ -19,6 +18,11 @@ const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'pu
   packed: 'purple',
   completed: 'green',
 };
+
+interface AggregateGroup {
+  group: OrderGroup;
+  items: AggregationOrder[];
+}
 
 interface AggregationQueueSectionProps {
   items: AggregationOrder[];
@@ -36,7 +40,6 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
     packed: t('warehouse.aggregationQueue.packed'),
     completed: t('warehouse.aggregationQueue.completed'),
   };
-  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<AggregationStatus | ''>('');
   const [sortByPriority, setSortByPriority] = useState(false);
@@ -48,15 +51,40 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
     queued: 0, processing: 1, packed: 2, completed: 3,
   };
 
-  const displayItems = [...items];
+  const { groups, singles } = useMemo(() => {
+    const gs: AggregateGroup[] = [];
+    const ss: AggregationOrder[] = [];
+    for (const item of items) {
+      const grp = item.group;
+      if (grp) {
+        const existing = gs.find((g) => g.group.id === grp.id);
+        if (existing) existing.items.push(item);
+        else gs.push({ group: grp, items: [item] });
+      } else {
+        ss.push(item);
+      }
+    }
+    return { groups: gs, singles: ss };
+  }, [items]);
+
+  const displayGroups = [...groups];
+  const displaySingles = [...singles];
   if (sortByPriority) {
-    displayItems.sort((a, b) => priorityOrder[a.status] - priorityOrder[b.status]);
+    displayGroups.sort((a, b) => priorityOrder[a.items[0].status] - priorityOrder[b.items[0].status]);
+    displaySingles.sort((a, b) => priorityOrder[a.status] - priorityOrder[b.status]);
   }
 
-  const filtered = displayItems.filter((item) => {
-    const matchesSearch = !search ||
-      item.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      item.customerName.toLowerCase().includes(search.toLowerCase());
+  const matches = (item: AggregationOrder, q: string) =>
+    item.orderNumber.toLowerCase().includes(q) || item.customerName.toLowerCase().includes(q) || item.regionName.toLowerCase().includes(q);
+
+  const filteredGroups = displayGroups.filter((g) => {
+    const matchesSearch = !search || g.items.some((i) => matches(i, search.toLowerCase())) || g.group.orders.some((o) => o.orderNumber.toLowerCase().includes(search.toLowerCase()));
+    const matchesStatus = !statusFilter || g.items.some((i) => i.status === statusFilter);
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredSingles = displaySingles.filter((item) => {
+    const matchesSearch = !search || matches(item, search.toLowerCase());
     const matchesStatus = !statusFilter || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -71,7 +99,7 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
             variant="primary"
             size="sm"
             isLoading={startProcessing.isPending}
-            onClick={() => startProcessing.mutate({ orderId: item.id, assignee: user?.name || 'Unassigned' })}
+            onClick={() => startProcessing.mutate(item.id)}
           >
             {t('warehouse.aggregationQueue.startProcessing')}
           </Button>
@@ -108,6 +136,62 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
       default:
         return null;
     }
+  };
+
+  const partLabel = (part: OrderPart) => {
+    if (['READY_TO_SHIP', 'READY_TO_DELIVER', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(part.status)) {
+      return t('warehouse.parts.statusReady');
+    }
+    if (part.status === 'IN_AGGREGATION') {
+      return t('warehouse.parts.statusInAggregation');
+    }
+    return t('warehouse.parts.statusInSupply');
+  };
+
+  const renderGroupCard = (g: AggregateGroup) => {
+    const numbers = g.items.map((i) => i.orderNumber).join(' / ');
+    const itemForPart = (part: OrderPart) => g.items.find((i) => i.orderId === part.id);
+
+    return (
+      <div
+        key={g.group.id}
+        className="flex flex-col py-3 px-4 rounded-lg border border-purple-200 bg-purple-50/30 hover:bg-purple-50/60 transition-colors"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(ROUTES.ORDER_DETAIL(g.group.id))}
+                className="text-sm font-medium text-gray-900 hover:text-purple-700 transition-colors"
+              >
+                {g.items[0]?.customerName}
+              </button>
+              <span className="text-xs text-gray-400">{numbers}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400">
+              <span>{t('warehouse.aggregationQueue.itemsCount', { count: g.items.reduce((s, i) => s + i.itemCount, 0) })}</span>
+              <span>·</span>
+              <span>{g.items[0]?.regionName}</span>
+            </div>
+          </div>
+        </div>
+
+        <OrderParts
+          members={g.group.orders}
+          progressLabel={t('warehouse.parts.done', { done: g.group.done, total: g.group.total })}
+          renderMember={(part) => {
+            const item = itemForPart(part);
+            return (
+              <>
+                <span className="text-gray-500 font-medium">{partLabel(part)}</span>
+                {item && <div className="ml-2">{renderActionButtons(item)}</div>}
+              </>
+            );
+          }}
+          defaultOpen
+        />
+      </div>
+    );
   };
 
   return (
@@ -156,7 +240,7 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
             <div key={i} className="h-16 bg-gray-100 rounded" />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : filteredGroups.length === 0 && filteredSingles.length === 0 ? (
         <EmptyState
           title={t('warehouse.aggregationQueue.queueEmpty')}
           description={search ? t('warehouse.aggregationQueue.noMatchingOrders') : t('warehouse.aggregationQueue.allProcessed')}
@@ -168,7 +252,8 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map((item) => (
+          {filteredGroups.map(renderGroupCard)}
+          {filteredSingles.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between py-3 px-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
@@ -189,10 +274,8 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
                     onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
                     className="mt-1.5 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors text-left"
                   >
-                    <Layers2 size={12} className="flex-shrink-0" />
                     <span>
                       {t('orders.multiSupplier.partOf')} {item.parentOrderNumber ? `(${item.parentOrderNumber})` : ''}
-                      {item.childrenCount > 0 && ` — ${t('orders.multiSupplier.allPartsRequired', { count: item.childrenCount })}`}
                     </span>
                   </button>
                 )}

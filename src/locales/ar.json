@@ -632,6 +632,22 @@
       "loadingTrips": "جاري تحميل الرحلات...",
       "noTrips": "لا توجد رحلات متاحة",
       "differentRegion": "منطقة مختلفة"
+    },
+    "parts": {
+      "showParts": "عرض الأجزاء ({{count}})",
+      "hideParts": "إخفاء الأجزاء",
+      "ready": "جاهز {{done}}/{{total}}",
+      "done": "مكتمل {{done}}/{{total}}",
+      "assignAll": "ربط جميع الأجزاء ({{count}}) بالرحلة",
+      "waitForParts": "بانتظار تجهيز باقي الأجزاء (جاهز {{done}}/{{total}})",
+      "statusInAggregation": "قيد التجميع",
+      "statusInSupply": "قيد التوريد",
+      "statusReadyToDeliver": "جاهز للتسليم",
+      "statusOutForDelivery": "في الطريق للتسليم",
+      "statusDelivered": "تم التسليم",
+      "statusCancelled": "ملغى",
+      "statusArrived": "وصل إلى المخزن",
+      "statusOnWay": "قيد التوريد"
     }
   },
   "warehouses": {
@@ -1209,7 +1225,10 @@
       "codeRequired": "رمز المنطقة مطلوب (مثال: RUH-01)",
       "pointsTool": "نقاط",
       "rectangleTool": "مستطيل",
-      "dragForRect": "اسحب على الخريطة لرسم مستطيل"
+      "dragForRect": "اسحب على الخريطة لرسم مستطيل",
+      "squareLocked": "مربع مقفول (Shift)",
+      "currentZone": "هذه المنطقة",
+      "otherZones": "المناطق الموجودة"
     },
     "map": {
       "listView": "قائمة",
@@ -2492,5 +2511,20 @@
     "en": "English",
     "he": "עברית",
     "ru": "Русский"
+  },
+  "aggregation": {
+    "toast": {
+      "receiptConfirmed": "تم تأكيد استلام التوريد بنجاح",
+      "receiptConfirmFailed": "فشل تأكيد الاستلام",
+      "processingStarted": "بدأت معالجة الطلب",
+      "processingStartFailed": "فشل بدء المعالجة",
+      "packed": "تم تجهيز الطلب بنجاح",
+      "packFailed": "فشل حفظ الطلب كمجُهّز",
+      "qualityPassed": "نجح فحص الجودة — الطلب جاهز للشحن",
+      "qualityFailed": "فشل فحص الجودة",
+      "assignedToTrip": "تم ربط الطلب بالرحلة بنجاح",
+      "assignToTripFailed": "فشل ربط الطلب بالرحلة",
+      "assignedToTripMulti": "تم ربط جميع أجزاء الطلب ({{count}}) بالرحلة بنجاح"
+    }
   }
 }
