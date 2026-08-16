@@ -9,10 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { productKeys } from '../hooks/useProductsAdmin';
 import { VariantsSection } from '../components/VariantsSection';
-import {
-  ArrowLeft, Package, Star, ShoppingCart, TrendingUp, Building2,
-  Tag, Hash, Ruler, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users,
-} from 'lucide-react';
+import { ArrowLeft, Package, ShoppingCart, TrendingUp, Building2, Tag, Hash, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = {

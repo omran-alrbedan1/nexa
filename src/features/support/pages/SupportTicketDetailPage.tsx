@@ -10,10 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ROUTES } from '@/routes/routes';
-import {
-  ArrowLeft, Send, Lock, Unlock, User, Clock, MessageSquare,
-  CheckCircle2, XCircle, PlayCircle, LifeBuoy,
-} from 'lucide-react';
+import { ArrowLeft, Send, Lock, Unlock, User, Clock, CheckCircle2, XCircle, PlayCircle } from 'lucide-react';
 import type { SupportTicketMessage } from '../api/supportApi';
 
 const STATUS_VARIANT: Record<string, 'red' | 'yellow' | 'green' | 'purple'> = {

@@ -10,10 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowLeft, AlertTriangle, MessageSquare, User,
-  CheckCircle2, Clock, Tag, Calendar,
-} from 'lucide-react';
+import { ArrowLeft, AlertTriangle, MessageSquare, User, CheckCircle2, Clock, Tag, Calendar } from 'lucide-react';
 
 const PRIORITY_BADGE: Record<string, 'red' | 'yellow' | 'teal' | 'purple'> = {
   urgent: 'red', high: 'red', medium: 'yellow', low: 'teal',

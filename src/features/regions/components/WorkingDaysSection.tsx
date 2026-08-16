@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUpdateWorkingDays } from '../hooks/useRegions';
-import { Card } from '@/components/ui/Card';
+
 import { Button } from '@/components/ui/Button';
 import { Calendar, Sun, Save } from 'lucide-react';
 import type { Region } from '../api/regionsApi';

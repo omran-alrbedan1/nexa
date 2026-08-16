@@ -12,7 +12,7 @@ import { ListItem } from '@/components/ui/ListItem';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Pagination } from '@/components/ui/Pagination';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Search, Filter, Users, UserCheck, UserX, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus } from 'lucide-react';
+import { Search, Filter, Users, UserCheck, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus } from 'lucide-react';
 import type { CustomerStatus } from '../api/customersApi';
 import { useCreateCustomer } from '../hooks/useCustomers';
 

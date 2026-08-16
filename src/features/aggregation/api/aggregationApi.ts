@@ -377,12 +377,12 @@ function mapBackendThroughput(t: BackendThroughput): WarehouseThroughput {
 
 
 /** Helper: extract paginated items from a backend response with a dynamic key */
-function extractPaginated<T>(response: ApiResponse<Record<string, unknown>> | null, key: string, map: (raw: unknown) => T): { items: T[]; meta: { current_page: number; last_page: number; total: number } } {
+function extractPaginated<TResponse, T>(response: ApiResponse<TResponse> | null, key: string, map: (raw: Record<string, unknown>) => T): { items: T[]; meta: { current_page: number; last_page: number; total: number; per_page?: number } } {
   if (!response) return { items: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } };
   try {
-    const data = unwrap(response);
-    const rawItems = (data[key] as unknown[]) || [];
-    return { items: rawItems.map(map), meta: data.meta as { current_page: number; last_page: number; total: number } || { current_page: 1, last_page: 1, total: rawItems.length } };
+    const data = unwrap(response) as unknown as Record<string, unknown>;
+    const rawItems = (data[key] as Record<string, unknown>[]) || [];
+    return { items: rawItems.map(map), meta: (data.meta as { current_page: number; last_page: number; total: number; per_page?: number }) || { current_page: 1, last_page: 1, total: rawItems.length } };
   } catch {
     return { items: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } };
   }
@@ -409,9 +409,9 @@ export const aggregationApi = {
       ]);
 
       // Backend keys: supply-receiving→supply_records, queue→items, ready-to-ship→orders
-      const supplyResult = extractPaginated(supplyRes, 'supply_records', mapBackendSupplyRecord);
-      const queueResult = extractPaginated(queueRes, 'items', mapBackendQueueItem);
-      const readyResult = extractPaginated(readyRes, 'orders', mapBackendReadyToShip);
+      const supplyResult = extractPaginated<BackendSupplyReceivingResponse, WarehouseSupplyItem>(supplyRes, 'supply_records', (raw) => mapBackendSupplyRecord(raw as unknown as BackendSupplyRecord));
+      const queueResult = extractPaginated<BackendAggregationQueueResponse, AggregationOrder>(queueRes, 'items', (raw) => mapBackendQueueItem(raw as unknown as BackendAggregationQueueItem));
+      const readyResult = extractPaginated<BackendReadyToShipResponse, ReadyToShipItem>(readyRes, 'orders', (raw) => mapBackendReadyToShip(raw as unknown as BackendReadyToShipOrder));
 
       const toMeta = (m: { current_page: number; last_page: number; total: number }) => ({
         currentPage: m.current_page ?? 1,
@@ -603,10 +603,10 @@ export const aggregationApi = {
       const response = await apiClient.get<ApiResponse<{ warehouses: Record<string, unknown>[]; meta: Record<string, unknown> }>>('/api/v1/admin/warehouses');
       const data = unwrap(response.data);
       return data.warehouses.map((w: Record<string, unknown>) => ({
-        id: w.id,
-        name: w.name,
-        nameAr: w.name_ar || '',
-        address: w.address || '',
+        id: Number(w.id) || 0,
+        name: typeof w.name === 'string' ? w.name : '',
+        nameAr: typeof w.name_ar === 'string' ? w.name_ar : '',
+        address: typeof w.address === 'string' ? w.address : '',
         capacity: Number(w.capacity || 0),
         isActive: w.is_active !== false,
       }));

@@ -200,6 +200,37 @@ interface BackendOrdersResponse {
   };
 }
 
+/** Permissive payload returned by special-order mutations (assign/approve/reject/convert/notes) */
+interface BackendSpecialOrderPayload {
+  id?: number;
+  reference_number?: string;
+  customer_id?: number;
+  customer?: { id?: number; full_name?: string; name?: string; phone?: string } | null;
+  customer_notes?: string;
+  internal_notes?: string;
+  estimated_budget?: number | string | null;
+  status?: string;
+  assigned_to?: string | null;
+  assigned_to_user?: { full_name?: string } | null;
+  assigned_supplier?: { business_name?: string } | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Permissive payload returned by support-ticket mutations (assign/status) */
+interface BackendTicketPayload {
+  id?: number;
+  ticket_number?: string;
+  customer_id?: number;
+  customer?: { full_name?: string } | null;
+  subject?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // ── Mapping: BackendOrder → frontend OperationsOrder ──
 
 function mapBackendOrderStatus(status: string): OrderStatus {
@@ -349,7 +380,7 @@ export const operationsApi = {
       if (_params?.page) params.set('page', String(_params.page));
       if (_params?.perPage) params.set('per_page', String(_params.perPage));
       const qs = params.toString();
-      const response = await apiClient.get<ApiResponse<{ special_orders: BackendSpecialOrder[] }>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
+      const response = await apiClient.get<ApiResponse<{ special_orders: BackendSpecialOrderForMapping[] }>>(`/api/v1/admin/special-orders${qs ? '?' + qs : ''}`);
       const backendData = response.data.data;
       // Map backend special orders to frontend format
       const items: SpecialRequest[] = (backendData.special_orders || []).map((so: BackendSpecialOrderForMapping) => ({
@@ -391,24 +422,24 @@ export const operationsApi = {
   /** Assign a special request for pricing — backend uses POST /special-orders/{id}/assign-staff */
   assignForPricing: async (requestId: number, assignedTo: string, staffUserId?: number): Promise<SpecialRequest> => {
     try {
-      const response = await apiClient.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/assign-staff`, {
+      const response = await apiClient.post<ApiResponse<BackendSpecialOrderPayload>>(`/api/v1/admin/special-orders/${requestId}/assign-staff`, {
         staff_user_id: staffUserId || 1,
       });
       const data = unwrap(response.data);
       return {
-        id: data.id,
-        orderNumber: data.reference_number || `SPO-${data.id}`,
+        id: data.id || requestId,
+        orderNumber: data.reference_number || `SPO-${data.id || requestId}`,
         customerId: data.customer_id || 0,
         customerName: data.customer?.full_name || 'Unknown',
         customerPhone: data.customer?.phone || '',
         requestDetails: data.customer_notes || '',
         estimatedBudget: data.estimated_budget !== undefined ? Number(data.estimated_budget) : null,
-        status: mapBackendSpecialOrderStatus(data.status),
+        status: mapBackendSpecialOrderStatus(data.status || ''),
         assignedTo,
         priceQuote: null,
         notes: data.internal_notes || '',
-        createdAt: data.created_at,
-        updatedAt: data.updated_at || data.created_at,
+        createdAt: data.created_at || new Date().toISOString(),
+        updatedAt: data.updated_at || data.created_at || new Date().toISOString(),
       };
     } catch {
       throw new Error('Failed to assign request for pricing');
@@ -418,7 +449,7 @@ export const operationsApi = {
   /** Approve a special order (mark as ready for fulfillment) */
   approveSpecialOrder: async (requestId: number): Promise<SpecialRequest> => {
     try {
-      const response = await apiClient.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/approve`);
+      const response = await apiClient.post<ApiResponse<BackendSpecialOrderPayload>>(`/api/v1/admin/special-orders/${requestId}/approve`);
       const data = unwrap(response.data);
       return {
         id: data.id || requestId,
@@ -443,7 +474,7 @@ export const operationsApi = {
   /** Reject a special order with reason */
   rejectSpecialOrder: async (requestId: number, reason?: string): Promise<SpecialRequest> => {
     try {
-      const response = await apiClient.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/reject`, { reason: reason || '' });
+      const response = await apiClient.post<ApiResponse<BackendSpecialOrderPayload>>(`/api/v1/admin/special-orders/${requestId}/reject`, { reason: reason || '' });
       const data = unwrap(response.data);
       return {
         id: data.id || requestId,
@@ -468,7 +499,7 @@ export const operationsApi = {
   /** Convert a special order to a regular order */
   convertToOrder: async (requestId: number): Promise<SpecialRequest> => {
     try {
-      const response = await apiClient.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/convert-to-order`);
+      const response = await apiClient.post<ApiResponse<BackendSpecialOrderPayload>>(`/api/v1/admin/special-orders/${requestId}/convert-to-order`);
       const data = unwrap(response.data);
       return {
         id: data.id || requestId,
@@ -494,7 +525,7 @@ export const operationsApi = {
   submitPriceQuote: async (requestId: number, price: number, notes: string): Promise<SpecialRequest> => {
     try {
       const pricingNotes = `Price Quote: ${formatPrice(price)}. ${notes ? notes : ''}`;
-      const response = await apiClient.put<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/special-orders/${requestId}/notes`, {
+      const response = await apiClient.put<ApiResponse<BackendSpecialOrderPayload>>(`/api/v1/admin/special-orders/${requestId}/notes`, {
         notes: pricingNotes,
       });
       const data = unwrap(response.data);
@@ -534,8 +565,8 @@ export const operationsApi = {
         customerName: t.customer?.full_name || 'Unknown',
         subject: t.subject || '',
         description: t.description || '',
-        status: t.status || 'open',
-        priority: t.priority || 'medium',
+        status: (t.status || 'open') as Complaint['status'],
+        priority: (t.priority || 'medium') as Complaint['priority'],
         assignedTo: t.assigned_to?.full_name || null,
         relatedOrderNumber: t.order_number || null,
         createdAt: t.created_at,
@@ -553,21 +584,21 @@ export const operationsApi = {
   /** Assign a complaint — backend uses POST /support-tickets/{id}/assign */
   assignComplaint: async (complaintId: number, assignedTo: string): Promise<Complaint> => {
     try {
-      const response = await apiClient.post<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/support-tickets/${complaintId}/assign`, { staff_id: 1 });
-      const ticket = response.data.data;
+      const response = await apiClient.post<ApiResponse<BackendTicketPayload>>(`/api/v1/admin/support-tickets/${complaintId}/assign`, { staff_id: 1 });
+      const ticket = unwrap(response.data);
       return {
-        id: ticket.id,
-        ticketNumber: ticket.ticket_number || `TKT-${ticket.id}`,
+        id: ticket.id || complaintId,
+        ticketNumber: ticket.ticket_number || `TKT-${ticket.id || complaintId}`,
         customerId: ticket.customer_id || 0,
         customerName: ticket.customer?.full_name || 'Unknown',
         subject: ticket.subject || '',
         description: ticket.description || '',
         status: 'in_progress',
-        priority: ticket.priority || 'medium',
+        priority: (ticket.priority || 'medium') as Complaint['priority'],
         assignedTo,
         relatedOrderNumber: null,
-        createdAt: ticket.created_at,
-        updatedAt: ticket.updated_at || ticket.created_at,
+        createdAt: ticket.created_at || new Date().toISOString(),
+        updatedAt: ticket.updated_at || ticket.created_at || new Date().toISOString(),
       };
     } catch {
       throw new Error('Failed to assign complaint');
@@ -577,21 +608,21 @@ export const operationsApi = {
   /** Resolve a complaint — backend uses PUT /support-tickets/{id}/status with status=resolved */
   resolveComplaint: async (complaintId: number): Promise<Complaint> => {
     try {
-      const response = await apiClient.put<ApiResponse<Record<string, unknown>>>(`/api/v1/admin/support-tickets/${complaintId}/status`, { status: 'resolved' });
-      const ticket = response.data.data;
+      const response = await apiClient.put<ApiResponse<BackendTicketPayload>>(`/api/v1/admin/support-tickets/${complaintId}/status`, { status: 'resolved' });
+      const ticket = unwrap(response.data);
       return {
-        id: ticket.id,
-        ticketNumber: ticket.ticket_number || `TKT-${ticket.id}`,
+        id: ticket.id || complaintId,
+        ticketNumber: ticket.ticket_number || `TKT-${ticket.id || complaintId}`,
         customerId: ticket.customer_id || 0,
         customerName: ticket.customer?.full_name || 'Unknown',
         subject: ticket.subject || '',
         description: ticket.description || '',
         status: 'resolved',
-        priority: ticket.priority || 'medium',
+        priority: (ticket.priority || 'medium') as Complaint['priority'],
         assignedTo: null,
         relatedOrderNumber: null,
-        createdAt: ticket.created_at,
-        updatedAt: ticket.updated_at || ticket.created_at,
+        createdAt: ticket.created_at || new Date().toISOString(),
+        updatedAt: ticket.updated_at || ticket.created_at || new Date().toISOString(),
       };
     } catch {
       throw new Error('Failed to resolve complaint');

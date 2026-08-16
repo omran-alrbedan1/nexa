@@ -21,6 +21,8 @@ export interface MarketplaceUser {
   first_name: string;
   last_name: string | null;
   full_name: string;
+  /** Convenience alias consumed by some pages */
+  name?: string | null;
   phone: string | null;
   email: string | null;
   avatar: string | null;

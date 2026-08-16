@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { ROUTES } from '@/routes/routes';
-import { ArrowLeft, Warehouse, Save, MapPin, Clock, User, Map, Navigation } from 'lucide-react';
+import { ArrowLeft, Warehouse, Save, MapPin, Clock, Map } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { GOOGLE_MAPS_LOADER_OPTIONS, DEFAULT_MAP_CENTER } from '@/config/googleMaps';

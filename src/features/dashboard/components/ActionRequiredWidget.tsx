@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useToastStore } from '@/stores/toastStore';
-import { AlertTriangle, AlertCircle, Clock, Truck, UserX, Package, MessageCircle } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Clock, UserX, Package, MessageCircle } from 'lucide-react';
 import type { ActionRequiredItem } from '../api/dashboardApi';
 
 const ICON_MAP: Record<ActionRequiredItem['type'], React.ReactNode> = {

@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Pagination } from '@/components/ui/Pagination';
-import { DollarSign, Search, Filter, CreditCard, ArrowLeftRight, Ban } from 'lucide-react';
+import { DollarSign, Search, Filter, CreditCard, Ban } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import type { Payment } from '../api/paymentsApi';
 

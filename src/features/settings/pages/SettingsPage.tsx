@@ -6,10 +6,10 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useSettings, useBulkUpdateSettings } from '../hooks/useSettings';
 import type { Setting } from '../api/settingsApi';
-// import { useCurrencyStore, type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
-import { useCurrencyStore } from '@/stores/currencyStore';
-import { useToastStore } from '@/stores/toastStore';
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, DollarSign, FileText, Menu, HelpCircle, Info } from 'lucide-react';
+// import { type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
+
+
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info } from 'lucide-react';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },

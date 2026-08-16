@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCustomerDetail, useCustomerOrders, useUpdateCustomerStatus, useUpdateCustomerNotes, customerKeys } from '../hooks/useCustomers';
+import { useCustomerDetail, useCustomerOrders, useUpdateCustomerStatus, useUpdateCustomerNotes } from '../hooks/useCustomers';
 import { type CustomerStatus } from '../api/customersApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -10,13 +10,9 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import {
-  ArrowLeft, User, Star, ShoppingCart, Phone, Mail,
-  MapPin,  Shield, ShieldAlert, AlertTriangle, CheckCircle2, Ban,
-  FileText, Calendar, Home, Hash, ClipboardList,
-} from 'lucide-react';
+import { ArrowLeft, User, Star, ShoppingCart, Phone, Mail, MapPin, Shield, ShieldAlert, AlertTriangle, CheckCircle2, Ban, FileText, Calendar, Home, Hash, ClipboardList } from 'lucide-react';
 import { mapFromBackend, ORDER_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
-import { safeFormatDate, isDateValid } from '@/utils/date';
+import { safeFormatDate } from '@/utils/date';
 
 const STATUS_BADGE: Record<CustomerStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green',

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
 import { supportApi, type SupportListResponse, type SupportTicketDetail, type SupportTicketMessage } from '../api/supportApi';

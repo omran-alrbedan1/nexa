@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Pagination } from '@/components/ui/Pagination';
-import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
+import { Image, Plus, Pencil, Trash2, Calendar, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { Banner } from '../api/settingsApi';
 
 export function BannersPage() {

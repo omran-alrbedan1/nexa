@@ -10,7 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
-import { safeFormatDate, isDateValid } from '@/utils/date';
+import { safeFormatDate } from '@/utils/date';
 import { ArrowLeft, DollarSign, CheckCircle2 } from 'lucide-react';
 
 const HANDOVER_BADGE: Record<string, 'yellow' | 'green'> = {

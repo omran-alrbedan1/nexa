@@ -13,11 +13,7 @@ import { useToastStore } from '@/stores/toastStore';
 import { useDeliveryStage } from '@/hooks/useDeliveryStage';
 import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap';
 import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
-import {
-  ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Package, Truck,
-  CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle,
-  DollarSign, FileClock, Navigation, MapPinHouse,
-} from 'lucide-react';
+import { ArrowLeft, Phone, MapPin, Calendar, Clock, Package, Truck, CreditCard, ShoppingBag, CheckCircle2, XCircle, AlertTriangle, DollarSign, FileClock, Navigation, MapPinHouse } from 'lucide-react';
 import type { DeliveryType, OrderDetail } from '../api/ordersApi';
 import { cn } from '@/lib/utils';
 import { useFormatPrice } from '@/hooks/useFormatPrice';

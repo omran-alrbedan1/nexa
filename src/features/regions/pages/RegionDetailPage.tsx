@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { ArrowLeft, MapPin, Globe, Layers, Clock, DollarSign, CheckCircle2, XCircle, Map, Zap, ShoppingCart, Calendar, Pencil, Settings2 } from 'lucide-react';
+import { ArrowLeft, Globe, Layers, Clock, DollarSign, CheckCircle2, Map, Zap, ShoppingCart, Calendar, Pencil, Settings2 } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { regionKeys } from '../hooks/useRegions';
 import { ClustersSection } from '../components/ClustersSection';

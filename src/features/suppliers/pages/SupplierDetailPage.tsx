@@ -14,11 +14,7 @@ import { DocumentsSection } from '@/components/documents/DocumentsSection';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2,
-  Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Layers, Pencil,
-  RotateCcw, Trash2,
-} from 'lucide-react';
+import { ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2, Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
 import type { Supplier } from '../api/suppliersApi';
 

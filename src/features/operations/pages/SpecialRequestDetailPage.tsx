@@ -11,10 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowLeft, FileClock, DollarSign, User, Calendar,
-  CheckCircle2, Phone, XCircle,
-} from 'lucide-react';
+import { ArrowLeft, FileClock, DollarSign, User, Calendar, CheckCircle2, Phone, XCircle } from 'lucide-react';
 import { operationsKeys } from '../hooks/useOperations';
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'teal' | 'purple'> = {

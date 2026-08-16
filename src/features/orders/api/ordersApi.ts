@@ -261,6 +261,18 @@ interface BackendOrder {
   parent_order_id?: number | null;
   is_parent?: boolean;
   children?: BackendOrderChild[];
+  trip?: BackendTrip | null;
+}
+
+interface BackendDriverLocation {
+  latitude: number;
+  longitude: number;
+  updated_at: string;
+}
+
+interface BackendTrip {
+  id: number;
+  driver_location?: BackendDriverLocation | null;
 }
 
 interface BackendOrdersResponse {
@@ -383,14 +395,14 @@ function mapBackendOrderToDetail(bo: BackendOrder): OrderDetail {
       subtotal: parseFloat(bo.price_quote.subtotal) || 0,
       deliveryFee: parseFloat(bo.price_quote.delivery_fee) || 0,
     } : null,
-    trip: (bo as Record<string, unknown>).trip
+    trip: bo.trip
       ? {
-          id: ((bo as Record<string, unknown>).trip as Record<string, unknown>).id as number,
-          driverLocation: ((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location
+          id: bo.trip.id,
+          driverLocation: bo.trip.driver_location
             ? {
-                latitude: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).latitude as number,
-                longitude: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).longitude as number,
-                updatedAt: (((bo as Record<string, unknown>).trip as Record<string, unknown>).driver_location as Record<string, unknown>).updated_at as string,
+                latitude: bo.trip.driver_location.latitude,
+                longitude: bo.trip.driver_location.longitude,
+                updatedAt: bo.trip.driver_location.updated_at,
               }
             : null,
         }

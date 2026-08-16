@@ -8,7 +8,7 @@ import { AggregationQueueSection } from '../components/AggregationQueueSection';
 import { ReadyToShipSection } from '../components/ReadyToShipSection';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Card } from '@/components/ui/Card';
-import { Package, Boxes, Ship, Users, Clock, Warehouse, Receipt, ListOrdered, Truck, Building2 } from 'lucide-react';
+import { Package, Boxes, Ship, Users, Warehouse, Receipt, ListOrdered, Truck, Building2 } from 'lucide-react';
 
 const TABS = [
   { key: 'supply', labelKey: 'warehouse.supplyReceiving.title', icon: Receipt },
