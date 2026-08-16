@@ -892,7 +892,8 @@
       "cancelled": "Отменён",
       "postponed": "Отложен",
       "suspended": "Приостановлен",
-      "refunded": "Возвращён"
+      "refunded": "Возвращён",
+      "in_progress": "В процессе"
     },
     "paymentMethods": {
       "cash_on_delivery": "Наложенный платёж",
@@ -918,7 +919,9 @@
       "fast": "Быстро",
       "scheduled": "По расписанию",
       "itemsCount_one": "{{count}} товар",
-      "itemsCount_other": "{{count}} товаров"
+      "itemsCount_other": "{{count}} товаров",
+      "parentOrder": "Мультипоставщик",
+      "suppliersCount": "{{count}} поставщиков"
     },
     "detail": {
       "back": "Назад к заказам",
@@ -1010,6 +1013,11 @@
       "receiptConfirmed": "Получение на складе подтверждено",
       "statusUpdated": "Заказ {{label}} успешно",
       "warehouseReceiptConfirmed": "Получение на складе подтверждено"
+    },
+    "multiSupplier": {
+      "partOf": "Часть мультипоставщик-заказа",
+      "allPartsRequired": "Все {{count}} частей должны быть готовы, прежде чем заказ будет готов к отправке",
+      "parts": "{{count}} частей"
     }
   },
   "products": {

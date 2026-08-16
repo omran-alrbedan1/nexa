@@ -10,6 +10,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStartProcessing, useMarkPacked, usePassQualityCheck } from '../hooks/useAggregation';
 import { ROUTES } from '@/routes/routes';
+import { Layers2 } from 'lucide-react';
 import type { AggregationOrder, AggregationStatus } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<AggregationStatus, 'yellow' | 'blue' | 'green' | 'purple'> = {
@@ -176,14 +177,6 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-900">{item.customerName}</span>
                   <span className="text-xs text-gray-400">{item.orderNumber}</span>
-                  {item.parentOrderId && (
-                    <button
-                      onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 transition-colors"
-                    >
-                      {t('orders.list.parentOrder')}
-                    </button>
-                  )}
                   <span className="text-xs text-gray-300">·</span>
                   <StatusBadge
                     status={STATUS_LABELS[item.status]}
@@ -191,6 +184,18 @@ export function AggregationQueueSection({ items, isLoading, meta, onPageChange }
                     dot
                   />
                 </div>
+                {item.parentOrderId && (
+                  <button
+                    onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
+                    className="mt-1.5 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors text-left"
+                  >
+                    <Layers2 size={12} className="flex-shrink-0" />
+                    <span>
+                      {t('orders.multiSupplier.partOf')} {item.parentOrderNumber ? `(${item.parentOrderNumber})` : ''}
+                      {item.childrenCount > 0 && ` — ${t('orders.multiSupplier.allPartsRequired', { count: item.childrenCount })}`}
+                    </span>
+                  </button>
+                )}
                 <p className="text-xs text-gray-500 mt-0.5 truncate max-w-md">{item.items}</p>
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400">
                   <span>{t('warehouse.aggregationQueue.itemsCount', { count: item.itemCount })}</span>

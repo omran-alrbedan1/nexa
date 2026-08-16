@@ -11,7 +11,7 @@ import { ListItem } from '@/components/ui/ListItem';
 import { ROUTES } from '@/routes/routes';
 import { Pagination } from '@/components/ui/Pagination';
 import { ShoppingBag, Package, CheckCircle2, AlertTriangle,
-  Search, Filter, ChevronRight, ChevronDown, TrendingUp, ListOrdered,
+  Search, Filter, ChevronRight, TrendingUp, ListOrdered,
   Download, CalendarDays, Layers,
 } from 'lucide-react';
 import type { OrderStatus, OrderType } from '@/types/marketplace';
@@ -71,18 +71,8 @@ export function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
   const updateStatus = useUpdateOrderStatus();
   const formatPrice = useFormatPrice();
-
-  const toggleParent = (id: number) => {
-    setExpandedParents((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const { data, isLoading, isError, error, refetch } = useOrdersList({
     search: search || undefined,
@@ -145,7 +135,6 @@ export function OrdersPage() {
 
   const renderOrderRow = (order: OrderSummary) => {
     const isParent = order.isParent && order.children.length > 0;
-    const expanded = expandedParents.has(order.id);
     const childStatus = isParent
       ? order.children.some((c) => c.status === 'delivered')
         ? 'delivered'
@@ -159,65 +148,38 @@ export function OrdersPage() {
       : null;
 
     return (
-      <div key={order.id}>
-        <ListItem
-          onClick={() => {
-            if (isParent) toggleParent(order.id);
-            else navigate(ROUTES.ORDER_DETAIL(order.id));
-          }}
-          icon={isParent ? <Layers size={16} className="text-brand-primary" /> : <ShoppingBag size={16} className="text-brand-accent" />}
-          iconClassName={isParent ? 'bg-brand-primary-light' : 'bg-brand-accent-light'}
-          title={<span className="text-sm font-bold text-text-primary font-body truncate">{order.orderNumber}</span>}
-          badges={<>
-            {isParent && <Badge variant="purple" size="sm">{t('orders.list.parentOrder')}</Badge>}
-            <Badge variant={TYPE_BADGE[order.type]} size="sm">{t(`orders.list.${order.type}`)}</Badge>
-            <Badge variant={STATUS_BADGE[childStatus || order.status] || 'gray'} size="sm">
-              {childStatus ? t(`orders.status.${childStatus}`) : (STATUS_LABELS[order.status] || t('common.unknown'))}
+      <ListItem
+        key={order.id}
+        onClick={() => navigate(ROUTES.ORDER_DETAIL(order.id))}
+        icon={isParent ? <Layers size={16} className="text-brand-primary" /> : <ShoppingBag size={16} className="text-brand-accent" />}
+        iconClassName={isParent ? 'bg-brand-primary-light' : 'bg-brand-accent-light'}
+        title={<span className="text-sm font-bold text-text-primary font-body truncate">{order.orderNumber}</span>}
+        badges={<>
+          {isParent && <Badge variant="purple" size="sm">{t('orders.list.parentOrder')}</Badge>}
+          <Badge variant={TYPE_BADGE[order.type]} size="sm">{t(`orders.list.${order.type}`)}</Badge>
+          <Badge variant={STATUS_BADGE[childStatus || order.status] || 'gray'} size="sm">
+            {childStatus ? t(`orders.status.${childStatus}`) : (STATUS_LABELS[order.status] || t('common.unknown'))}
+          </Badge>
+          {order.deliveryUrgency && (
+            <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
+              {order.deliveryUrgency === 'fast' ? t('orders.list.fast') : t('orders.list.scheduled')}
             </Badge>
-            {order.deliveryUrgency && (
-              <Badge variant={order.deliveryUrgency === 'fast' ? 'purple' : 'yellow'} size="sm">
-                {order.deliveryUrgency === 'fast' ? t('orders.list.fast') : t('orders.list.scheduled')}
-              </Badge>
-            )}
-          </>}
-          actions={<>
-            {isParent && (
-              <Badge variant="teal" size="sm">{t('orders.list.suppliersCount', { count: order.children.length })}</Badge>
-            )}
-            <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : t('orders.list.tbd')}</span>
-            {isParent
-              ? expanded ? <ChevronDown size={16} className="text-text-tertiary" /> : <ChevronRight size={16} className="text-text-tertiary" />
-              : <ChevronRight size={16} className="text-text-tertiary" />}
-          </>}
-        >
-          <p className="text-xs text-text-secondary font-body truncate">
-            {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {t('orders.list.itemsCount', { count: order.itemCount })}
-          </p>
-        </ListItem>
-        {isParent && expanded && (
-          <div className="space-y-1.5 mt-1.5 mr-9 border-r-2 border-brand-primary-light pr-3 rounded-r-lg bg-bg-subtle/50 py-2">
-            {order.children.map((child) => (
-              <ListItem
-                key={child.id}
-                onClick={() => navigate(ROUTES.ORDER_DETAIL(child.id))}
-                icon={<Package size={14} className="text-brand-accent" />}
-                iconClassName="bg-brand-accent-light"
-                title={<span className="text-xs font-bold text-text-primary font-body truncate">{child.orderNumber}</span>}
-                badges={
-                  <Badge variant={STATUS_BADGE[child.status] || 'gray'} size="sm">{STATUS_LABELS[child.status] || t('common.unknown')}</Badge>
-                }
-                actions={<>
-                  <span className="text-xs text-text-secondary font-body truncate max-w-40">{child.supplierName}</span>
-                  <span className="text-xs font-extrabold text-text-primary font-display">{formatPrice(child.total)}</span>
-                  <ChevronRight size={14} className="text-text-tertiary" />
-                </>}
-              >
-                <p className="text-[11px] text-text-secondary font-body truncate">{t('orders.list.itemsCount', { count: order.itemCount })}</p>
-              </ListItem>
-            ))}
-          </div>
-        )}
-      </div>
+          )}
+        </>}
+        actions={<>
+          {isParent && (
+            <Badge variant="teal" size="sm">{t('orders.list.suppliersCount', { count: order.children.length })}</Badge>
+          )}
+          <span className="text-sm font-extrabold text-text-primary font-display">{order.total > 0 ? `${formatPrice(order.total)}` : t('orders.list.tbd')}</span>
+          <ChevronRight size={16} className="text-text-tertiary" />
+        </>}
+      >
+        <p className="text-xs text-text-secondary font-body truncate">
+          {order.customerName} · {order.regionName}{order.supplierName ? ` · ${order.supplierName}` : ''} · {isParent
+            ? t('orders.list.suppliersCount', { count: order.children.length })
+            : t('orders.list.itemsCount', { count: order.itemCount })}
+        </p>
+      </ListItem>
     );
   };
 

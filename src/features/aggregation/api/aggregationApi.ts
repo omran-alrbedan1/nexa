@@ -56,6 +56,8 @@ export interface AggregationOrder {
   id: number;
   orderNumber: string;
   parentOrderId: number | null;
+  parentOrderNumber: string | null;
+  childrenCount: number;
   customerName: string;
   items: string;
   itemCount: number;
@@ -71,6 +73,8 @@ export interface ReadyToShipItem {
   id: number;
   orderNumber: string;
   parentOrderId: number | null;
+  parentOrderNumber: string | null;
+  childrenCount: number;
   customerName: string;
   items: string;
   itemCount: number;
@@ -192,6 +196,8 @@ interface BackendQueueOrder {
   id: number;
   order_number: string;
   parent_order_id: number | null;
+  parent_order_number: string | null;
+  parent_children_count: number;
   status: string;
   total: number;
   customer: BackendQueueOrderCustomer | null;
@@ -235,6 +241,8 @@ interface BackendReadyToShipOrder {
   items_summary: string | null;
   total_weight: number;
   parent_order_id?: number | null;
+  parent_order_number?: string | null;
+  parent_children_count?: number;
   created_at: string;
   delivery_scheduled_at?: string | null;
   customer: { id: number; name: string; phone: string } | null;
@@ -321,6 +329,8 @@ function mapBackendQueueItem(q: BackendAggregationQueueItem): AggregationOrder {
     id: q.id,
     orderNumber: order?.order_number || `ORD-${q.id}`,
     parentOrderId: order?.parent_order_id ?? null,
+    parentOrderNumber: order?.parent_order_number ?? null,
+    childrenCount: order?.parent_children_count ?? 0,
     customerName: order?.customer?.full_name || 'Unknown',
     items: order?.items_summary || '',
     itemCount: order?.items_count || 0,
@@ -338,6 +348,8 @@ function mapBackendReadyToShip(o: BackendReadyToShipOrder): ReadyToShipItem {
     id: o.id,
     orderNumber: o.order_number || `ORD-${o.id}`,
     parentOrderId: o.parent_order_id ?? null,
+    parentOrderNumber: o.parent_order_number ?? null,
+    childrenCount: o.parent_children_count ?? 0,
     customerName: o.customer?.name || 'Unknown',
     items: o.items_summary || '',
     itemCount: o.items_count || 0,
@@ -556,6 +568,8 @@ export const aggregationApi = {
         id: data.id || itemId,
         orderNumber: data.order_number || `ORD-${itemId}`,
         parentOrderId: data.parent_order_id ?? null,
+        parentOrderNumber: data.parent_order_number ?? null,
+        childrenCount: data.parent_children_count ?? 0,
         customerName: data.customer?.name || 'Unknown',
         items: data.items_summary || '',
         itemCount: data.items_count || 0,

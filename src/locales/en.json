@@ -882,7 +882,8 @@
       "cancelled": "Cancelled",
       "postponed": "Postponed",
       "refunded": "Refunded",
-      "suspended": "Suspended"
+      "suspended": "Suspended",
+      "in_progress": "In Progress"
     },
     "deliveryStage": {
       "pending": "Pending",
@@ -922,7 +923,9 @@
       "fast": "Fast",
       "scheduled": "Scheduled",
       "itemsCount_one": "{{count}} item",
-      "itemsCount_other": "{{count}} items"
+      "itemsCount_other": "{{count}} items",
+      "parentOrder": "Multi-supplier",
+      "suppliersCount": "{{count}} suppliers"
     },
     "detail": {
       "back": "Back to Orders",
@@ -1008,6 +1011,11 @@
       "awaitingLocation": "Awaiting driver location...",
       "loadingMap": "Loading map...",
       "mapLoadError": "Failed to load map"
+    },
+    "multiSupplier": {
+      "partOf": "Part of multi-supplier order",
+      "allPartsRequired": "All {{count}} parts must be finished before this order is ready to ship",
+      "parts": "{{count}} parts"
     }
   },
   "products": {

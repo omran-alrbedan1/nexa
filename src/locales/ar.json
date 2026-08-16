@@ -735,7 +735,8 @@
       "cancelled": "ملغي",
       "postponed": "مؤجل",
       "suspended": "موقوف",
-      "refunded": "مسترجع"
+      "refunded": "مسترجع",
+      "in_progress": "قيد التنفيذ"
     },
     "paymentMethods": {
       "cash_on_delivery": "الدفع عند الاستلام",
@@ -835,6 +836,11 @@
       "awaitingLocation": "بانتظار موقع السائق...",
       "loadingMap": "جاري تحميل الخريطة...",
       "mapLoadError": "فشل تحميل الخريطة"
+    },
+    "multiSupplier": {
+      "partOf": "جزء من طلب متعدد الموردين",
+      "allPartsRequired": "يجب تجهيز جميع الأجزاء ({{count}}) قبل أن يصبح الطلب جاهزاً للشحن",
+      "parts": "{{count}} أجزاء"
     }
   },
   "products": {

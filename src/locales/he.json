@@ -892,7 +892,8 @@
       "cancelled": "בוטלה",
       "postponed": "נדחתה",
       "suspended": "מושעה",
-      "refunded": "הוחזרה"
+      "refunded": "הוחזרה",
+      "in_progress": "בביצוע"
     },
     "paymentMethods": {
       "cash_on_delivery": "מזומן במשלוח",
@@ -918,7 +919,9 @@
       "fast": "מהיר",
       "scheduled": "מתוזמן",
       "itemsCount_one": "{{count}} פריט",
-      "itemsCount_other": "{{count}} פריטים"
+      "itemsCount_other": "{{count}} פריטים",
+      "parentOrder": "רב-ספקים",
+      "suppliersCount": "{{count}} ספקים"
     },
     "detail": {
       "back": "חזרה להזמנות",
@@ -1010,6 +1013,11 @@
       "receiptConfirmed": "קבלת המחסן אושרה",
       "statusUpdated": "ההזמנה {{label}} בהצלחה",
       "warehouseReceiptConfirmed": "קבלת המחסן אושרה"
+    },
+    "multiSupplier": {
+      "partOf": "חלק מהזמנה רב-ספקים",
+      "allPartsRequired": "יש להשלים את כל {{count}} החלקים לפני שההזמנה מוכנה למשלוח",
+      "parts": "{{count}} חלקים"
     }
   },
   "products": {

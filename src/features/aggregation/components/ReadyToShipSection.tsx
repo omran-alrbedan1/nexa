@@ -12,6 +12,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { useAssignToTrip } from '../hooks/useAggregation';
 import { tripsApi } from '@/features/trips/api/tripsApi';
 import { ROUTES } from '@/routes/routes';
+import { Layers2 } from 'lucide-react';
 import type { ReadyToShipItem, ShipmentStatus } from '../api/aggregationApi';
 
 const STATUS_COLORS: Record<ShipmentStatus, 'yellow' | 'blue' | 'purple' | 'green'> = {
@@ -133,15 +134,19 @@ export function ReadyToShipSection({ items, isLoading, meta, onPageChange }: Rea
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-900">{item.customerName}</span>
                       <span className="text-xs text-gray-400">{item.orderNumber}</span>
-                      {item.parentOrderId && (
-                        <button
-                          onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
-                          className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 transition-colors"
-                        >
-                          {t('orders.list.parentOrder')}
-                        </button>
-                      )}
                     </div>
+                    {item.parentOrderId && (
+                      <button
+                        onClick={() => navigate(ROUTES.ORDER_DETAIL(item.parentOrderId!))}
+                        className="mt-1.5 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors text-left"
+                      >
+                        <Layers2 size={12} className="flex-shrink-0" />
+                        <span>
+                          {t('orders.multiSupplier.partOf')} {item.parentOrderNumber ? `(${item.parentOrderNumber})` : ''}
+                          {item.childrenCount > 0 && ` — ${t('orders.multiSupplier.allPartsRequired', { count: item.childrenCount })}`}
+                        </span>
+                      </button>
+                    )}
                     <p className="text-xs text-gray-500 mt-0.5">{item.items}</p>
                   </div>
                   <StatusBadge
