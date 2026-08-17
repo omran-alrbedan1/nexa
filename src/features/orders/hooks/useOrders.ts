@@ -100,9 +100,9 @@ export function useUpdateDeliveryType() {
   return useMutation({
     mutationFn: ({ orderId, deliveryType }: { orderId: number; deliveryType: DeliveryType }) =>
       ordersApi.updateDeliveryType(orderId, deliveryType),
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
-      addToast('success', t('orders.toast.deliveryTypeUpdated', 'Delivery type updated'));
+      addToast('success', t('orders.toast.deliveryTypeUpdated'));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));
@@ -120,8 +120,8 @@ export function useUpdateDeliveryUrgency() {
       ordersApi.updateDeliveryUrgency(orderId, deliveryUrgency),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ordersKeys.all });
-      const label = variables.deliveryUrgency === 'fast' ? 'Fast' : 'Scheduled';
-      addToast('success', `Delivery urgency set to ${label}`);
+      const label = variables.deliveryUrgency === 'fast' ? t('orders.detail.urgencyFast') : t('orders.detail.urgencyScheduled');
+      addToast('success', t('orders.toast.deliveryUrgencyUpdated', { label }));
     },
     onError: (error) => {
       addToast('error', extractErrorMessage(error));

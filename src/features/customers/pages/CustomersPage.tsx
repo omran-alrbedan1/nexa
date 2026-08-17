@@ -12,9 +12,11 @@ import { ListItem } from '@/components/ui/ListItem';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Pagination } from '@/components/ui/Pagination';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Search, Filter, Users, UserCheck, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus } from 'lucide-react';
+import { Search, Filter, Users, UserCheck, Star, ShoppingCart, AlertTriangle, Ban, ShieldAlert, Plus, MapPin } from 'lucide-react';
 import type { CustomerStatus } from '../api/customersApi';
 import { useCreateCustomer } from '../hooks/useCustomers';
+import { regionsApi } from '@/features/regions/api/regionsApi';
+import { useQuery } from '@tanstack/react-query';
 
 const STATUS_BADGE: Record<CustomerStatus, 'green' | 'yellow' | 'red' | 'purple'> = {
   active: 'green',
@@ -39,16 +41,24 @@ export function CustomersPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | ''>('');
+  const [zoneFilter, setZoneFilter] = useState<number | ''>('');
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useCustomersPage({
     page,
     search: debouncedSearch || undefined,
     status: statusFilter || undefined,
+    zoneId: zoneFilter || undefined,
   });
+  const { data: zonesData } = useQuery({
+    queryKey: ['customers', 'zones'],
+    queryFn: () => regionsApi.getPageData().then((d) => d.regions),
+    staleTime: 60_000,
+  });
+  const zones = zonesData ?? [];
   const updateStatus = useUpdateCustomerStatus();
   const createCustomer = useCreateCustomer();
   const [createModal, setCreateModal] = useState(false);
-  const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '' });
+  const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '', zoneId: '' });
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
     customerId: number;
@@ -191,6 +201,22 @@ export function CustomersPage() {
               <option value="blocked">{t('customers.list.blocked')}</option>
             </select>
           </div>
+          <div className="relative">
+            <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <select
+              value={zoneFilter}
+              onChange={(e) => {
+                setZoneFilter(e.target.value ? Number(e.target.value) : '');
+                setPage(1);
+              }}
+              className="pl-9 pr-8 py-2 bg-bg-input border border-border-default rounded-lg text-sm font-body text-text-primary outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light transition-all appearance-none"
+            >
+              <option value="">{t('customers.list.allZones')}</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.id}>{z.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {isLoading ? (
@@ -297,13 +323,29 @@ export function CustomersPage() {
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.password')}</label>
             <input type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
           </div>
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('customers.create.zone')}</label>
+            <select value={createForm.zoneId} onChange={(e) => setCreateForm({ ...createForm, zoneId: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary">
+              <option value="">{t('customers.create.selectZone')}</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.id}>{z.name}</option>
+              ))}
+            </select>
+          </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={() => setCreateModal(false)}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" isLoading={createCustomer.isPending} onClick={() => {
-              createCustomer.mutate(createForm, {
+              createCustomer.mutate({
+                firstName: createForm.firstName,
+                lastName: createForm.lastName,
+                phone: createForm.phone,
+                email: createForm.email,
+                password: createForm.password,
+                zoneId: createForm.zoneId ? Number(createForm.zoneId) : undefined,
+              }, {
                 onSuccess: () => {
                   setCreateModal(false);
-                  setCreateForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
+                  setCreateForm({ firstName: '', lastName: '', phone: '', email: '', password: '', zoneId: '' });
                 },
               });
             }}>{t('customers.create.submit')}</Button>

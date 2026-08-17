@@ -279,6 +279,7 @@
       "registered": "{{count}} зарегистрированных клиентов",
       "searchPlaceholder": "Поиск клиентов...",
       "allStatuses": "Все статусы",
+      "allZones": "Все зоны",
       "active": "Активен",
       "inactive": "Неактивен",
       "suspended": "Приостановлен",
@@ -346,6 +347,8 @@
       "lastName": "Фамилия",
       "password": "Пароль",
       "phone": "Телефон",
+      "zone": "Зона",
+      "selectZone": "Выберите зону",
       "submit": "Создать клиента",
       "title": "Добавить клиента"
     },
@@ -1037,7 +1040,9 @@
       "orderUpdated": "Заказ {{label}} успешно",
       "receiptConfirmed": "Получение на складе подтверждено",
       "statusUpdated": "Заказ {{label}} успешно",
-      "warehouseReceiptConfirmed": "Получение на складе подтверждено"
+      "warehouseReceiptConfirmed": "Получение на складе подтверждено",
+      "deliveryTypeUpdated": "Тип доставки обновлён",
+      "deliveryUrgencyUpdated": "Срочность доставки установлена: {{label}}"
     },
     "multiSupplier": {
       "partOf": "Часть мультипоставщик-заказа",
@@ -1780,13 +1785,14 @@
       "riyadhNorth": "Север Эр-Рияда",
       "riyadhSouth": "Юг Эр-Рияда",
       "jeddahCentral": "Центр Джидды",
-      "cluster": "Кластер",
-      "generalCluster": "Общий",
       "assignmentType": "Тип назначения",
+      "assignmentTypeHint": "Вручную: диспетчер выбирает водителя. Автоматически: система назначает водителя для обычных поездок.",
       "manual": "Вручную",
       "automatic": "Автоматически",
       "minOrders": "Мин. заказов",
+      "minOrdersHint": "Минимальное количество заказов для запуска поездки",
       "maxOrders": "Макс. заказов",
+      "maxOrdersHint": "Вместимость — максимальное количество заказов в поездке",
       "deliveryFeeOverride": "Переопределить стоимость доставки",
       "feePlaceholder": "Оставьте пустым для значения по умолчанию",
       "assignOrders": "Назначить заказы",
@@ -1808,6 +1814,7 @@
       "available": "Свободен",
       "onTrip": "В поездке",
       "saveTrip": "Сохранить поездку",
+      "savingTrip": "Сохранение...",
       "cancel": "Отмена",
       "checkingAvailability": "Проверка доступности…",
       "driverBusy": "Этот водитель недоступен в выбранную дату",
@@ -1827,6 +1834,9 @@
       "optional": "Необязательно",
       "selectWarehouse": "Выберите склад",
       "validationWarehouse": "Пожалуйста, выберите склад",
+      "validationMinOrders": "Мин. заказов должно быть целым числом не менее 1",
+      "validationMaxOrders": "Макс. заказов должно быть целым числом не менее 1",
+      "validationMinMax": "Мин. заказов не может превышать макс. заказов",
       "zonesTitle": "Зоны доставки",
       "zonesHint": "Выберите одну или несколько зон доставки",
       "loadingZones": "Загрузка зон..."
@@ -2561,7 +2571,10 @@
     "undo": "Отменить",
     "user": "пользователь",
     "remove": "Удалить",
-    "manage": "Управление"
+    "manage": "Управление",
+    "dismiss": "Закрыть",
+    "networkError": "Ошибка сети. Проверьте подключение и попробуйте снова.",
+    "serverError": "Ошибка сервера ({{status}}). Попробуйте позже."
   },
   "pagination": {
     "showingTo": "Показано с {{from}} по {{to}} из {{total}}",

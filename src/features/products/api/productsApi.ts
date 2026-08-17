@@ -136,6 +136,16 @@ interface BackendProductsResponse {
 
 // ── Mapping functions ──
 
+const IMAGE_BASE = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+function toAbsoluteUrl(path: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${IMAGE_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 function mapBackendCategory(bc: BackendCategory): ProductCategory {
   return {
     id: bc.id,
@@ -164,7 +174,7 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     price: parseFloat(bp.price) || 0,
     unit: bp.unit || 'piece',
     unitId: bp.unit_id ?? null,
-    imageUrl: bp.primary_image || null,
+    imageUrl: toAbsoluteUrl(bp.primary_image),
     categoryId: bp.category?.id || 0,
     categoryName: bp.category?.name || 'Uncategorized',
     supplierId: bp.supplier?.id || null,

@@ -58,12 +58,13 @@ export function CreateTripPage() {
   const [tripType, setTripType] = useState<TripType>('delivery');
   const [form, setForm] = useState({
     tripCode: '', warehouseId: '', plannedDate: '', departureTime: '', cutoffTime: '',
-    expectedArrival: '', minOrders: '', maxCapacity: '200',
+    expectedArrival: '', minOrders: '1', maxCapacity: '200',
     assignmentType: 'manual', deliveryFeeOverride: '',
   });
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [orderTotals, setOrderTotals] = useState<Record<number, number>>({});
   const [selectedDriver, setSelectedDriver] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Order picker filters
   const [orderStatus, setOrderStatus] = useState<OrderStatus | ''>('ready_to_ship');
@@ -140,8 +141,6 @@ export function CreateTripPage() {
   const selectedCount = selectedOrders.length;
   const selectedTotal = selectedOrders.reduce((s, id) => s + (orderTotals[id] ?? 0), 0);
 
-  const activeZone = zones.find((z) => z.id === (selectedZoneIds[0] ?? 0));
-
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -183,6 +182,20 @@ export function CreateTripPage() {
       addToast('error', t('trips.create.validationWarehouse'));
       return;
     }
+    const minOrders = Number(form.minOrders);
+    if (!Number.isInteger(minOrders) || minOrders < 1) {
+      addToast('error', t('trips.create.validationMinOrders'));
+      return;
+    }
+    const maxOrders = Number(form.maxCapacity);
+    if (!Number.isInteger(maxOrders) || maxOrders < 1) {
+      addToast('error', t('trips.create.validationMaxOrders'));
+      return;
+    }
+    if (minOrders > maxOrders) {
+      addToast('error', t('trips.create.validationMinMax'));
+      return;
+    }
     if (selectedOrders.length === 0) {
       addToast('error', t(isPickup ? 'trips.create.noPickupOrdersSelected' : 'trips.create.noOrdersSelected'));
       return;
@@ -192,6 +205,7 @@ export function CreateTripPage() {
       return;
     }
     try {
+      setSubmitting(true);
       await tripsApi.createTrip({
         type: tripType,
         warehouse_id: Number(form.warehouseId),
@@ -199,8 +213,8 @@ export function CreateTripPage() {
         departure_time: form.departureTime,
         cutoff_time: form.cutoffTime || undefined,
         expected_arrival: form.expectedArrival || undefined,
-        min_orders: form.minOrders ? Number(form.minOrders) : undefined,
-        max_capacity: Number(form.maxCapacity) || 200,
+        min_orders: minOrders,
+        max_capacity: maxOrders,
         delivery_fee_override: form.deliveryFeeOverride ? Number(form.deliveryFeeOverride) : undefined,
         assignment_type: form.assignmentType === 'automatic' ? 'normal' : 'manual',
         zone_ids: selectedZoneIds.length > 0 ? selectedZoneIds : undefined,
@@ -211,6 +225,8 @@ export function CreateTripPage() {
       navigate(ROUTES.TRIPS);
     } catch (err) {
       addToast('error', getApiErrorMessage(err, t('trips.create.errorGeneric')));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -270,24 +286,29 @@ export function CreateTripPage() {
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.departureTime')}</label>
                 <input type="time" value={form.departureTime} onChange={(e) => handleChange('departureTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.departureTimeHint')}</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cutoffTime')}</label>
                 <input type="time" value={form.cutoffTime} onChange={(e) => handleChange('cutoffTime', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.cutoffTimeHint')}</p>
               </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.expectedArrival')}</label>
               <input type="time" value={form.expectedArrival} onChange={(e) => handleChange('expectedArrival', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.expectedArrivalHint')}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.minOrders')}</label>
-                <input type="number" min="0" value={form.minOrders} onChange={(e) => handleChange('minOrders', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <input type="number" min="1" value={form.minOrders} onChange={(e) => handleChange('minOrders', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.minOrdersHint')}</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.maxOrders')}</label>
-                <input type="number" min="0" value={form.maxCapacity} onChange={(e) => handleChange('maxCapacity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <input type="number" min="1" value={form.maxCapacity} onChange={(e) => handleChange('maxCapacity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+                <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.maxOrdersHint')}</p>
               </div>
             </div>
             <div>
@@ -333,24 +354,13 @@ export function CreateTripPage() {
               </div>
               <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.zonesHint')}</p>
             </div>
-            {activeZone && activeZone.clusters?.some((c) => c.isActive) && (
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.cluster')}</label>
-                <select
-                  value=""
-                  onChange={(e) => e.target.value}
-                  className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                >
-                  <option value="">{activeZone.name} — {t('trips.create.generalCluster')}</option>
-                </select>
-              </div>
-            )}
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1">{t('trips.create.assignmentType')}</label>
               <select value={form.assignmentType} onChange={(e) => handleChange('assignmentType', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
                 <option value="manual">{t('trips.create.manual')}</option>
                 <option value="automatic">{t('trips.create.automatic')}</option>
               </select>
+              <p className="text-xs text-text-tertiary font-body mt-1">{t('trips.create.assignmentTypeHint')}</p>
             </div>
           </div>
         </Card>
@@ -558,7 +568,7 @@ export function CreateTripPage() {
               return (
                 <button
                   key={driver.id}
-                  onClick={() => setSelectedDriver(driver.id)}
+                  onClick={() => setSelectedDriver((prev) => (prev === driver.id ? null : driver.id))}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     selectedDriver === driver.id
                       ? 'border-brand-primary bg-brand-primary-light'
@@ -603,11 +613,11 @@ export function CreateTripPage() {
         <Button
           variant="primary"
           size="sm"
-          leftIcon={<Save size={14} />}
+          leftIcon={submitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           onClick={handleSubmit}
-          disabled={driverBusy}
+          disabled={driverBusy || submitting}
         >
-          {t('trips.create.saveTrip')}
+          {submitting ? t('trips.create.savingTrip') : t('trips.create.saveTrip')}
         </Button>
         <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.TRIPS)}>{t('trips.create.cancel')}</Button>
       </div>

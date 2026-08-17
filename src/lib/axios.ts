@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { env } from '@/config/env';
 import { useToastStore } from '@/stores/toastStore';
+import i18n from '@/i18n';
 
 let _authToken: string | null = localStorage.getItem('auth_token');
 
@@ -53,7 +54,7 @@ apiClient.interceptors.response.use(
       if (!error.response) {
         useToastStore.getState().addToast(
           'error',
-          'Network error. Please check your connection and try again.'
+          i18n.t('common.networkError')
         );
         return Promise.reject(error);
       }
@@ -63,7 +64,7 @@ apiClient.interceptors.response.use(
       if (error.response.status >= 500 && !error.response.data?.message) {
         useToastStore.getState().addToast(
           'error',
-          `Server error (${error.response.status}). Please try again later.`
+          i18n.t('common.serverError', { status: error.response.status })
         );
       }
       // 4xx errors and 5xx with data.message are expected to be handled

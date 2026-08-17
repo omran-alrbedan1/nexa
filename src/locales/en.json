@@ -279,6 +279,7 @@
       "registered": "{{count}} registered customers",
       "searchPlaceholder": "Search customers...",
       "allStatuses": "All Statuses",
+      "allZones": "All Zones",
       "active": "Active",
       "inactive": "Inactive",
       "suspended": "Suspended",
@@ -309,9 +310,13 @@
       "phone": "Phone",
       "email": "Email",
       "password": "Password",
+      "zone": "Zone",
+      "selectZone": "Select a zone",
       "submit": "Create Customer"
     },
     "toast": {
+      "created": "Customer created successfully",
+      "createFailed": "Failed to create customer",
       "statusUpdated": "Customer status updated",
       "statusUpdateFailed": "Failed to update customer status",
       "notesUpdated": "Customer notes updated",
@@ -1027,7 +1032,9 @@
       "orderRescheduled": "Order rescheduled",
       "orderTransferred": "Order transferred",
       "statusUpdated": "Order {{label}} successfully",
-      "receiptConfirmed": "Warehouse receipt confirmed"
+      "receiptConfirmed": "Warehouse receipt confirmed",
+      "deliveryTypeUpdated": "Delivery type updated",
+      "deliveryUrgencyUpdated": "Delivery urgency set to {{label}}"
     },
     "tracking": {
       "speed": "Speed",
@@ -1932,13 +1939,14 @@
       "riyadhNorth": "Riyadh North",
       "riyadhSouth": "Riyadh South",
       "jeddahCentral": "Jeddah Central",
-      "cluster": "Cluster",
-      "generalCluster": "General",
       "assignmentType": "Assignment Type",
+      "assignmentTypeHint": "Manual: dispatcher picks the driver. Automatic: the system assigns the driver for Normal trips.",
       "manual": "Manual",
       "automatic": "Automatic",
       "minOrders": "Min Orders",
+      "minOrdersHint": "Minimum number of orders needed before this trip can run",
       "maxOrders": "Max Orders",
+      "maxOrdersHint": "Capacity limit — the maximum number of orders on this trip",
       "deliveryFeeOverride": "Delivery Fee Override",
       "feePlaceholder": "Leave empty for default",
       "assignOrders": "Assign Orders",
@@ -1960,6 +1968,7 @@
       "available": "Available",
       "onTrip": "On Trip",
       "saveTrip": "Save Trip",
+      "savingTrip": "Saving...",
       "cancel": "Cancel",
       "driverBusy": "This driver is not available on the selected date",
       "driverBusyExistingTrip": "Driver already has trip #{{tripNumber}} on {{date}}. Pick another driver or date.",
@@ -1979,6 +1988,9 @@
       "optional": "Optional",
       "selectWarehouse": "Select a warehouse",
       "validationWarehouse": "Please select a warehouse",
+      "validationMinOrders": "Min orders must be a whole number of at least 1",
+      "validationMaxOrders": "Max orders must be a whole number of at least 1",
+      "validationMinMax": "Min orders cannot be greater than max orders",
       "zonesTitle": "Delivery Zones",
       "zonesHint": "Select one or more zones this trip will deliver to",
       "loadingZones": "Loading zones..."
@@ -2735,7 +2747,10 @@
     "undo": "Undo",
     "clear": "Clear",
     "remove": "Remove",
-    "manage": "Manage"
+    "manage": "Manage",
+    "dismiss": "Dismiss",
+    "networkError": "Network error. Please check your connection and try again.",
+    "serverError": "Server error ({{status}}). Please try again later."
   },
   "auth": {
     "login": {

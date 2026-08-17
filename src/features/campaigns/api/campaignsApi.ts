@@ -166,6 +166,16 @@ interface BackendAssignedSupplier {
   business_name: string;
 }
 
+const IMAGE_BASE = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+function toAbsoluteUrl(path: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${IMAGE_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 interface BackendCampaign {
   id: number;
   name_ar: string;
@@ -271,7 +281,7 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
       ? { id: c.assigned_supplier.id, businessName: c.assigned_supplier.business_name }
       : null,
     totalOrders: c.orders_count || 0,
-    bannerUrl: c.image || null,
+    bannerUrl: toAbsoluteUrl(c.image),
     targetRegions: c.zone ? [c.zone.name_en || c.zone.name_ar] : [],
     createdAt: c.created_at,
     updatedAt: c.updated_at,

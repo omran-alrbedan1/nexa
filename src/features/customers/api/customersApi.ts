@@ -143,6 +143,7 @@ interface CreateCustomerData {
   phone: string;
   email?: string;
   password?: string;
+  zoneId?: number;
 }
 
 export const customersApi = {
@@ -154,12 +155,13 @@ export const customersApi = {
       phone: data.phone,
       email: data.email || null,
       password: data.password || undefined,
+      zone_id: data.zoneId || undefined,
     });
     return mapBackendCustomer(response.data.data);
   },
 
   /** Fetch all customers page data (stats + list) */
-  getPageData: async (params: { page?: number; search?: string; status?: string } = {}): Promise<CustomersPageData> => {
+  getPageData: async (params: { page?: number; search?: string; status?: string; zoneId?: number } = {}): Promise<CustomersPageData> => {
     try {
       const response = await apiClient.get<ApiResponse<BackendCustomersResponse>>('/api/v1/admin/customers', {
         params: {
@@ -167,6 +169,7 @@ export const customersApi = {
           per_page: 15,
           search: params.search || undefined,
           status: params.status || undefined,
+          zone_id: params.zoneId || undefined,
         },
       });
       const backendData = response.data.data;

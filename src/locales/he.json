@@ -279,6 +279,7 @@
       "registered": "{{count}} לקוחות רשומים",
       "searchPlaceholder": "חיפוש לקוחות...",
       "allStatuses": "כל הסטטוסים",
+      "allZones": "כל האזורים",
       "active": "פעיל",
       "inactive": "לא פעיל",
       "suspended": "מושעה",
@@ -346,6 +347,8 @@
       "lastName": "שם משפחה",
       "password": "סיסמה",
       "phone": "טלפון",
+      "zone": "אזור",
+      "selectZone": "בחר אזור",
       "submit": "צור לקוח",
       "title": "הוסף לקוח חדש"
     },
@@ -1037,7 +1040,9 @@
       "orderUpdated": "ההזמנה {{label}} בהצלחה",
       "receiptConfirmed": "קבלת המחסן אושרה",
       "statusUpdated": "ההזמנה {{label}} בהצלחה",
-      "warehouseReceiptConfirmed": "קבלת המחסן אושרה"
+      "warehouseReceiptConfirmed": "קבלת המחסן אושרה",
+      "deliveryTypeUpdated": "סוג המשלוח עודכן",
+      "deliveryUrgencyUpdated": "דחיפות המשלוח נקבעה: {{label}}"
     },
     "multiSupplier": {
       "partOf": "חלק מהזמנה רב-ספקים",
@@ -1780,13 +1785,14 @@
       "riyadhNorth": "צפון ריאד",
       "riyadhSouth": "דרום ריאד",
       "jeddahCentral": "מרכז ג'דה",
-      "cluster": "אשכול",
-      "generalCluster": "כללי",
       "assignmentType": "סוג שיוך",
+      "assignmentTypeHint": "ידני: המתאם בוחר את הנהג. אוטומטי: המערכת משייכת נהג לנסיעות רגילות.",
       "manual": "ידני",
       "automatic": "אוטומטי",
       "minOrders": "מינימום הזמנות",
+      "minOrdersHint": "מספר הזמנות מינימלי לפני שניתן להפעיל את הנסיעה",
       "maxOrders": "מקסימום הזמנות",
+      "maxOrdersHint": "קיבולת הנסיעה — המספר המרבי של הזמנות",
       "deliveryFeeOverride": "התאמת דמי משלוח",
       "feePlaceholder": "השאר ריק כברירת מחדל",
       "assignOrders": "שייך הזמנות",
@@ -1808,6 +1814,7 @@
       "available": "זמין",
       "onTrip": "בנסיעה",
       "saveTrip": "שמור נסיעה",
+      "savingTrip": "שומר...",
       "cancel": "ביטול",
       "checkingAvailability": "בודק זמינות…",
       "driverBusy": "הנהג הזה אינו זמין בתאריך שנבחר",
@@ -1827,6 +1834,9 @@
       "optional": "אופציונלי",
       "selectWarehouse": "בחר מחסן",
       "validationWarehouse": "אנא בחר מחסן",
+      "validationMinOrders": "מינימום ההזמנות חייב להיות מספר שלם של לפחות 1",
+      "validationMaxOrders": "מקסימום ההזמנות חייב להיות מספר שלם של לפחות 1",
+      "validationMinMax": "מינימום ההזמנות לא יכול לעלות על המקסימום",
       "zonesTitle": "אזורי משלוח",
       "zonesHint": "בחר אזור אחד או יותר למשלוח",
       "loadingZones": "טוען אזורים..."
@@ -2561,7 +2571,10 @@
     "undo": "בטל",
     "user": "משתמש",
     "remove": "הסר",
-    "manage": "ניהול"
+    "manage": "ניהול",
+    "dismiss": "סגירה",
+    "networkError": "שגיאת רשת. בדוק את החיבור ונסה שוב.",
+    "serverError": "שגיאת שרת ({{status}}). נסה שוב מאוחר יותר."
   },
   "pagination": {
     "showingTo": "מציג {{from}} עד {{to}} מתוך {{total}} תוצאות",

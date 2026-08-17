@@ -136,7 +136,7 @@ export function CampaignDetailPage() {
                 </Button>
               ))}
               <Button variant="secondary" size="sm" leftIcon={<PenLine size={14} />} onClick={() => navigate(ROUTES.CAMPAIGN_EDIT(campaign.id))}>
-                Edit
+                {t('campaigns.detail.edit')}
               </Button>
             </div>
           </div>
@@ -155,7 +155,6 @@ export function CampaignDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {STAT_CONFIG.map((s) => {
           const Icon = s.icon;
-          const val = s.key === 'isStockLimited' ? campaign.isStockLimited : campaign[s.key as keyof Campaign];
           return (
             <Card key={s.key} padding="md" hover>
               <div className="flex items-start justify-between">
@@ -306,12 +305,12 @@ export function CampaignDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-default/60 text-xs font-bold text-text-secondary uppercase tracking-wider">
-                  <th className="text-left py-2 pr-4 font-body">Name (AR)</th>
-                  <th className="text-left py-2 pr-4 font-body">Name (EN)</th>
-                  <th className="text-left py-2 pr-4 font-body">Category</th>
-                  <th className="text-left py-2 pr-4 font-body">Unit</th>
-                  <th className="text-right py-2 pr-4 font-body">Price</th>
-                  <th className="text-right py-2 pr-4 font-body">Stock</th>
+                  <th className="text-left py-2 pr-4 font-body">{t('campaigns.detail.table.nameAr')}</th>
+                  <th className="text-left py-2 pr-4 font-body">{t('campaigns.detail.table.nameEn')}</th>
+                  <th className="text-left py-2 pr-4 font-body">{t('campaigns.detail.table.category')}</th>
+                  <th className="text-left py-2 pr-4 font-body">{t('campaigns.detail.table.unit')}</th>
+                  <th className="text-right py-2 pr-4 font-body">{t('campaigns.detail.table.price')}</th>
+                  <th className="text-right py-2 pr-4 font-body">{t('campaigns.detail.table.stock')}</th>
                   <th className="text-right py-2 font-body">{t('campaigns.detail.product')}</th>
                 </tr>
               </thead>
@@ -354,7 +353,7 @@ export function CampaignDetailPage() {
         <Card padding="lg">
           <div className="flex items-center gap-2 mb-4">
             <Package size={16} className="text-brand-accent" />
-            <h3 className="text-sm font-bold text-text-primary font-display">Assigned Supplier</h3>
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('campaigns.detail.assignedSupplier')}</h3>
           </div>
           <div className="flex items-center gap-3 p-4 rounded-xl border border-border-default/60">
             <div className="w-10 h-10 rounded-full bg-brand-accent-light flex items-center justify-center">
@@ -362,7 +361,7 @@ export function CampaignDetailPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-text-primary font-body">{campaign.assignedSupplier.businessName}</p>
-              <p className="text-xs text-text-tertiary font-body">ID: {campaign.assignedSupplier.id}</p>
+              <p className="text-xs text-text-tertiary font-body">{t('campaigns.detail.supplierId', { id: campaign.assignedSupplier.id })}</p>
             </div>
           </div>
         </Card>

@@ -11,7 +11,7 @@ export const customerKeys = {
   orders: (id: number) => [...customerKeys.all, 'orders', id] as const,
 };
 
-export function useCustomersPage(params: { page?: number; search?: string; status?: string } = {}) {
+export function useCustomersPage(params: { page?: number; search?: string; status?: string; zoneId?: number } = {}) {
   return useQuery<CustomersPageData>({
     queryKey: [...customerKeys.pageData(), params],
     queryFn: () => customersApi.getPageData(params),
