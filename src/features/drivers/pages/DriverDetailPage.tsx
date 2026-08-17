@@ -87,7 +87,7 @@ export function DriverDetailPage() {
               <Button
                 variant={driver.isAvailable ? 'secondary' : 'primary'}
                 size="sm"
-                onClick={() => toggleAvailability.mutate(driver.id)}
+                onClick={() => toggleAvailability.mutate({ id: driver.id, isAvailable: !driver.isAvailable })}
                 isLoading={toggleAvailability.isPending}
               >
                 {driver.isAvailable ? t('drivers.list.setUnavailable') : t('drivers.list.setAvailable')}

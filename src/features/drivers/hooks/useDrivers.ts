@@ -22,7 +22,7 @@ export function useToggleDriverAvailability() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (id: number) => driversApi.toggleAvailability(id),
+    mutationFn: ({ id, isAvailable }: { id: number; isAvailable: boolean }) => driversApi.toggleAvailability(id, isAvailable),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: driverKeys.all });
       addToast('success', data.isAvailable ? t('drivers.toast.markedAvailable') : t('drivers.toast.markedUnavailable'));

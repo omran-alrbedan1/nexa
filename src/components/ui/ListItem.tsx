@@ -60,7 +60,7 @@ export const ListItem = memo(function ListItem({
           </div>
         </div>
         {actions && (
-          <div className="flex items-center gap-2 sm:ml-4 flex-shrink-0 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 sm:ml-4 flex-shrink-0 w-full sm:w-auto justify-end flex-wrap">
             {actions}
           </div>
         )}

@@ -843,7 +843,16 @@
       "urgencyNotSet": "لم يتم تحديد سرعة التوصيل",
       "unexpectedError": "حدث خطأ غير متوقع",
       "moveToPendingAdmin": "نقل إلى الإدارة",
-      "supplierOrders": "طلبات الموردين ({{count}})"
+      "supplierOrders": "طلبات الموردين ({{count}})",
+      "changeDeliveryType": "تغيير نوع التوصيل",
+      "deliveryTypeModalTitle": "تغيير نوع التوصيل",
+      "deliveryTypeModalDesc": "قد يؤثر تغيير نوع التوصيل على طريقة تنفيذ الطلب وتسليمه."
+    },
+    "deliveryType": {
+      "pickup": "استلام",
+      "homeDelivery": "توصيل منزلي",
+      "pickupDesc": "يستلم العميل من المستودع",
+      "homeDeliveryDesc": "يتم التوصيل إلى عنوان العميل"
     },
     "tracking": {
       "speed": "السرعة",

@@ -1010,7 +1010,16 @@
       "urgencyNotSet": "Urgency not set",
       "unexpectedError": "An unexpected error occurred",
       "moveToPendingAdmin": "Move to Pending Admin",
-      "supplierOrders": "Supplier orders ({{count}})"
+      "supplierOrders": "Supplier orders ({{count}})",
+      "changeDeliveryType": "Change Delivery Type",
+      "deliveryTypeModalTitle": "Change Delivery Type",
+      "deliveryTypeModalDesc": "Changing the delivery type may affect how this order is fulfilled and delivered."
+    },
+    "deliveryType": {
+      "pickup": "Pickup",
+      "homeDelivery": "Home Delivery",
+      "pickupDesc": "Customer collects from warehouse",
+      "homeDeliveryDesc": "Delivered to customer's address"
     },
     "toast": {
       "orderUpdated": "Order {{label}} successfully",

@@ -310,8 +310,8 @@ export const driversApi = {
   },
 
   /** Toggle driver availability — backend uses PUT /drivers/{id}/availability */
-  toggleAvailability: async (id: number): Promise<Driver> => {
-    const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`);
+  toggleAvailability: async (id: number, isAvailable: boolean): Promise<Driver> => {
+    const response = await apiClient.put<ApiResponse<BackendDriver>>(`/api/v1/admin/drivers/${id}/availability`, { is_available: isAvailable });
     return mapBackendDriver(response.data.data);
   },
 };

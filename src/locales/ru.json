@@ -1006,7 +1006,16 @@
       "urgencyNotSet": "Срочность не установлена",
       "unexpectedError": "Произошла непредвиденная ошибка",
       "moveToPendingAdmin": "Перевести на рассмотрение",
-      "supplierOrders": "Заказы поставщиков ({{count}})"
+      "supplierOrders": "Заказы поставщиков ({{count}})",
+      "changeDeliveryType": "Изменить тип доставки",
+      "deliveryTypeModalTitle": "Изменить тип доставки",
+      "deliveryTypeModalDesc": "Изменение типа доставки может повлиять на то, как будет выполнен и доставлен заказ."
+    },
+    "deliveryType": {
+      "pickup": "Самовывоз",
+      "homeDelivery": "Доставка на дом",
+      "pickupDesc": "Клиент забирает со склада",
+      "homeDeliveryDesc": "Доставляется по адресу клиента"
     },
     "tracking": {
       "speed": "Скорость",

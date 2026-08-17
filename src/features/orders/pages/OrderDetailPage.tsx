@@ -213,7 +213,7 @@ export function OrderDetailPage() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display">{order.orderNumber}</h1>
-                <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{order.orderType}</Badge>
+                <Badge variant={TYPE_BADGE[order.orderType]} size="sm">{t('orders.list.' + order.orderType)}</Badge>
                 {order.isParent && <Badge variant="purple" size="sm">{t('orders.list.parentOrder')}</Badge>}
                 <Badge variant={order.deliveryType === 'pickup' ? 'coral' : 'teal'} size="sm">{order.deliveryType === 'pickup' ? t('orders.deliveryType.pickup', 'Pickup') : t('orders.deliveryType.homeDelivery', 'Home Delivery')}</Badge>
                 {order.deliveryUrgency && (
@@ -255,7 +255,7 @@ export function OrderDetailPage() {
 
         <OrderInfoCard icon={<Package size={16} />} label={t('orders.detail.orderInfo')}>
           <p>{t('orders.detail.status')}: <span className="font-bold">{STATUS_LABELS[order.status] || t('common.unknown')}</span></p>
-          <p className="text-xs text-text-secondary">{t('orders.detail.type')}: {order.orderType}</p>
+          <p className="text-xs text-text-secondary">{t('orders.detail.type')}: {t('orders.list.' + order.orderType)}</p>
           <p className="text-xs text-text-secondary">{t('orders.detail.items', { count: order.items.length })}</p>
           <p className="text-xs text-text-secondary">{t('orders.detail.created')}: {safeFormatDate(order.createdAt, (d) => d.toLocaleDateString())}</p>
         </OrderInfoCard>

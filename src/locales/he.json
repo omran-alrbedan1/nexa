@@ -1006,7 +1006,16 @@
       "urgencyNotSet": "דחיפות לא הוגדרה",
       "unexpectedError": "אירעה שגיאה בלתי צפויה",
       "moveToPendingAdmin": "העבר להמתנה",
-      "supplierOrders": "הזמנות ספקים ({{count}})"
+      "supplierOrders": "הזמנות ספקים ({{count}})",
+      "changeDeliveryType": "שינוי סוג משלוח",
+      "deliveryTypeModalTitle": "שינוי סוג משלוח",
+      "deliveryTypeModalDesc": "שינוי סוג המשלוח עשוי להשפיע על אופן מימוש המשלוח ומסירתו."
+    },
+    "deliveryType": {
+      "pickup": "איסוף",
+      "homeDelivery": "משלוח עד הבית",
+      "pickupDesc": "הלקוח אוסף מהמחסן",
+      "homeDeliveryDesc": "נמסר לכתובת הלקוח"
     },
     "tracking": {
       "speed": "מהירות",
