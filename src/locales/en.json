@@ -2175,6 +2175,7 @@
     "ticketStatus": {
       "open": "Open",
       "in_progress": "In Progress",
+      "awaiting_customer": "Awaiting Customer",
       "resolved": "Resolved",
       "closed": "Closed",
       "unknown": "Unknown"
@@ -2192,7 +2193,8 @@
       "urgent": "Urgent",
       "high": "High",
       "medium": "Medium",
-      "low": "Low"
+      "low": "Low",
+      "normal": "Normal"
     },
     "staffIdPlaceholder": "Enter staff user ID",
     "attachmentOnly": "[Attachment only]",

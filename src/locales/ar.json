@@ -1765,6 +1765,7 @@
     "ticketStatus": {
       "open": "مفتوحة",
       "in_progress": "قيد المعالجة",
+      "awaiting_customer": "بانتظار العميل",
       "resolved": "تم الحل",
       "closed": "مغلقة",
       "unknown": "غير معروف"
@@ -1773,7 +1774,8 @@
       "urgent": "عاجل",
       "high": "عالية",
       "medium": "متوسطة",
-      "low": "منخفضة"
+      "low": "منخفضة",
+      "normal": "عادية"
     },
     "staffIdPlaceholder": "أدخل معرف الموظف",
     "attachmentOnly": "[مرفق فقط]",

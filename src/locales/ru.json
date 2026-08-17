@@ -2029,7 +2029,8 @@
       "high": "Высокий",
       "low": "Низкий",
       "medium": "Средний",
-      "urgent": "Срочный"
+      "urgent": "Срочный",
+      "normal": "Обычный"
     },
     "staffIdPlaceholder": "Введите ID сотрудника",
     "switchToInternal": "Переключить на внутреннюю заметку",
@@ -2037,6 +2038,7 @@
     "ticketStatus": {
       "closed": "Закрыт",
       "in_progress": "В обработке",
+      "awaiting_customer": "Ожидает клиента",
       "open": "Открыт",
       "resolved": "Решён",
       "unknown": "Неизвестно"

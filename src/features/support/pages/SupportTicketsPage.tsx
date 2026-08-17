@@ -23,7 +23,7 @@ const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'green'> = {
 };
 
 const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple'> = {
-  open: 'red', in_progress: 'yellow', resolved: 'green', closed: 'purple',
+  open: 'red', in_progress: 'yellow', awaiting_customer: 'purple', resolved: 'green', closed: 'purple',
 };
 
 export function SupportTicketsPage() {
@@ -143,6 +143,7 @@ export function SupportTicketsPage() {
               <option value="">{t('support.allStatuses')}</option>
               <option value="open">{t('support.ticketStatus.open')}</option>
               <option value="in_progress">{t('support.ticketStatus.in_progress')}</option>
+              <option value="awaiting_customer">{t('support.ticketStatus.awaiting_customer')}</option>
               <option value="resolved">{t('support.ticketStatus.resolved')}</option>
               <option value="closed">{t('support.ticketStatus.closed')}</option>
             </select>

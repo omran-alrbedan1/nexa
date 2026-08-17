@@ -2029,7 +2029,8 @@
       "high": "גבוה",
       "low": "נמוך",
       "medium": "בינוני",
-      "urgent": "דחוף"
+      "urgent": "דחוף",
+      "normal": "רגיל"
     },
     "staffIdPlaceholder": "הזן מזהה משתמש של צוות",
     "switchToInternal": "עבור להערה פנימית",
@@ -2037,6 +2038,7 @@
     "ticketStatus": {
       "closed": "סגור",
       "in_progress": "בטיפול",
+      "awaiting_customer": "ממתין ללקוח",
       "open": "פתוח",
       "resolved": "טופל",
       "unknown": "לא ידוע"
