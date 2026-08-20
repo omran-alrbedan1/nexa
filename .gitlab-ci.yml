@@ -1,12 +1,6 @@
-# Nexa Dashboard CI/CD Pipeline
-# Strategy: Shell executor on server → Build image locally → Deploy via docker-compose
-# Runner tag: server213 (must be registered on the target server)
-
 stages:
   - build
   - deploy
-
-# ─── DEV (develop branch) ────────────────────────────────
 
 build_dev:
   stage: build
@@ -18,12 +12,12 @@ build_dev:
     IMAGE_TAG: dev
   script:
     - docker build -t nexa-dashboard:${IMAGE_TAG}
-        --build-arg VITE_API_BASE_URL=${DEV_API_URL}
-        --build-arg VITE_REVERB_KEY=${DEV_REVERB_KEY:-nexa-tracking-key-dev}
-        --build-arg VITE_REVERB_HOST=${DEV_REVERB_HOST:-dev.nexa.futxtech.com}
-        --build-arg VITE_REVERB_PORT=${DEV_REVERB_PORT:-443}
-        --build-arg VITE_REVERB_SCHEME=${DEV_REVERB_SCHEME:-https}
-        --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
+      --build-arg VITE_API_BASE_URL=${DEV_API_URL}
+      --build-arg VITE_REVERB_KEY=${DEV_REVERB_KEY:-nexa-tracking-key-dev}
+      --build-arg VITE_REVERB_HOST=${DEV_REVERB_HOST:-dev.nexa.futxtech.com}
+      --build-arg VITE_REVERB_PORT=${DEV_REVERB_PORT:-443}
+      --build-arg VITE_REVERB_SCHEME=${DEV_REVERB_SCHEME:-https}
+      --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
 
 deploy_dev:
   stage: deploy
@@ -64,8 +58,6 @@ deploy_dev:
       docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
       docker image prune -f
 
-# ─── PROD (main branch) ─────────────────────────────────
-
 build_prod:
   stage: build
   tags:
@@ -76,12 +68,12 @@ build_prod:
     IMAGE_TAG: latest
   script:
     - docker build -t nexa-dashboard:${IMAGE_TAG}
-        --build-arg VITE_API_BASE_URL=${PROD_API_URL}
-        --build-arg VITE_REVERB_KEY=${PROD_REVERB_KEY:-nexa-tracking-key}
-        --build-arg VITE_REVERB_HOST=${PROD_REVERB_HOST:-api-nexa.futxtech.com}
-        --build-arg VITE_REVERB_PORT=${PROD_REVERB_PORT:-443}
-        --build-arg VITE_REVERB_SCHEME=${PROD_REVERB_SCHEME:-https}
-        --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
+      --build-arg VITE_API_BASE_URL=${PROD_API_URL}
+      --build-arg VITE_REVERB_KEY=${PROD_REVERB_KEY:-nexa-tracking-key}
+      --build-arg VITE_REVERB_HOST=${PROD_REVERB_HOST:-api-nexa.futxtech.com}
+      --build-arg VITE_REVERB_PORT=${PROD_REVERB_PORT:-443}
+      --build-arg VITE_REVERB_SCHEME=${PROD_REVERB_SCHEME:-https}
+      --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
 
 deploy_prod:
   stage: deploy
@@ -115,6 +107,62 @@ deploy_prod:
       fi
       echo "IMAGE_TAG=${IMAGE_TAG}" > .env
       echo "VITE_API_BASE_URL=${PROD_API_URL}" >> .env
+      echo "APP_PORT=${PORT}" >> .env
+      echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
+      echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
+      docker compose --env-file .env config
+      docker compose --env-file .env up -d --pull never --force-recreate --remove-orphans
+      docker image prune -f
+
+build_client_prod:
+  stage: build
+  tags:
+    - server245_client
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "prod"'
+  variables:
+    IMAGE_TAG: latest
+  script:
+    - docker build -t nexa-dashboard:${IMAGE_TAG}
+      --build-arg VITE_API_BASE_URL=${CLIENT_API_URL}
+      --build-arg VITE_REVERB_KEY=${CLIENT_REVERB_KEY:-nexa-tracking-key}
+      --build-arg VITE_REVERB_HOST=${CLIENT_REVERB_HOST:-api-client.futxtech.com}
+      --build-arg VITE_REVERB_PORT=${CLIENT_REVERB_PORT:-443}
+      --build-arg VITE_REVERB_SCHEME=${CLIENT_REVERB_SCHEME:-https}
+      --build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .
+
+deploy_client_prod:
+  stage: deploy
+  tags:
+    - server245_client
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "prod"'
+  variables:
+    DEPLOY_DIR: /home/gitlab-runner/nexa/dashboard-client
+    IMAGE_TAG: latest
+    PRIMARY_PORT: 3103
+    CONTAINER_NAME: nexa_dashboard_client
+    COMPOSE_PROJECT_NAME: nexa-client-prod
+  script:
+    - |
+      set -e
+      mkdir -p ${DEPLOY_DIR}
+      cp docker-compose.yml ${DEPLOY_DIR}/docker-compose.yml
+      cd ${DEPLOY_DIR}
+      FALLBACK_PORT=$((PRIMARY_PORT + 100))
+      docker compose --env-file .env down 2>/dev/null || true
+      if ! ss -tlnp 2>/dev/null | grep -q ":${PRIMARY_PORT} "; then
+        PORT=${PRIMARY_PORT}
+        echo "Port ${PRIMARY_PORT} is free — using it"
+      elif ! ss -tlnp 2>/dev/null | grep -q ":${FALLBACK_PORT} "; then
+        PORT=${FALLBACK_PORT}
+        echo "Port ${PRIMARY_PORT} occupied — using fallback ${FALLBACK_PORT}"
+      else
+        echo "ERROR: Both ports ${PRIMARY_PORT} and ${FALLBACK_PORT} are in use by other services"
+        exit 1
+      fi
+      echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+      echo "VITE_API_BASE_URL=${CLIENT_API_URL}" >> .env
       echo "APP_PORT=${PORT}" >> .env
       echo "CONTAINER_NAME=${CONTAINER_NAME}" >> .env
       echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}" >> .env
