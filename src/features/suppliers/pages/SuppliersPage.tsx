@@ -277,7 +277,7 @@ export function SuppliersPage() {
             <Button
               variant="danger"
               size="sm"
-              disabled={deleteModal.typedName !== deleteModal.supplierName}
+              disabled={deleteModal.typedName.trim() !== deleteModal.supplierName}
               isLoading={deleteSupplier.isPending}
               onClick={() => {
                 setDeleteError(null);

@@ -153,7 +153,7 @@ export function CreateSupplierPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-up max-w-4xl">
+    <div className="space-y-6 animate-fade-up max-w-4xl mx-auto w-full">
       <button onClick={() => navigate(ROUTES.SUPPLIERS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
         <ArrowLeft size={16} /> {t('suppliers.create.back')}
       </button>
