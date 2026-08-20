@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
-import type { ProductUnit } from '../api/unitsApi';
-import { Package, Plus, Pencil, Trash2, Layers, AlertTriangle } from 'lucide-react';
+import { unitsApi, type ProductUnit, type UnitGroup } from '../api/unitsApi';
+import { UnitMultiPickerModal, type BulkUnitItem } from './UnitMultiPickerModal';
+import { Package, Plus, Pencil, Trash2, Layers, AlertTriangle, Layers2 } from 'lucide-react';
 
 export interface VariantDraft {
   id?: number;
@@ -41,6 +42,8 @@ interface DraftState {
 export function VariantEditor({ value, onChange, units = [], productNames = {}, productSku = '' }: VariantEditorProps) {
   const { t, i18n } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; index?: number }>({ open: false });
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [groups, setGroups] = useState<UnitGroup[]>([]);
   const [draft, setDraft] = useState<DraftState>({
     unit_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true,
   });
@@ -131,6 +134,42 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
     ? !duplicateUnit && !!draft.price
     : !!draft.names.ar?.trim() && !!draft.price;
 
+  const handleBulkAdd = (items: BulkUnitItem[]) => {
+    const build = (item: BulkUnitItem): VariantDraft => {
+      const unit = item.unit;
+      const join = (productName: string | undefined, unitName: string): string =>
+        productName?.trim() ? `${productName.trim()} ${unitName}`.trim() : unitName;
+
+      return {
+        unit_id: unit.id,
+        name_ar: join(productNames.ar, unit.nameAr),
+        ...(productNames.en ?? productNames.ar ? { name_en: join(productNames.en ?? productNames.ar, unit.nameEn ?? unit.nameAr) } : {}),
+        ...(productNames.he && unit.nameHe ? { name_he: join(productNames.he, unit.nameHe) } : {}),
+        ...(productNames.ru && unit.nameRu ? { name_ru: join(productNames.ru, unit.nameRu) } : {}),
+        sku: `${productSku || 'PROD'}-${unit.code}`,
+        price: parseFloat(item.price) || 0,
+        stock_quantity: parseInt(item.stockQuantity || '0', 10) || 0,
+        is_active: true,
+      };
+    };
+
+    const existing = new Set(value.map((v) => v.unit_id).filter((v): v is number => v != null));
+    const next = [...value];
+    items.forEach((item) => {
+      if (existing.has(item.unit.id)) return;
+      existing.add(item.unit.id);
+      next.push(build(item));
+    });
+    onChange(next);
+  };
+
+  const openBulk = () => {
+    if (groups.length === 0) {
+      unitsApi.groupList({ page: 1 }).then((d) => setGroups(d.groups)).catch(() => setGroups([]));
+    }
+    setBulkOpen(true);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -147,6 +186,9 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
           )}
           <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={openCreate}>
             {t('products.variants.addVariant', 'Add Variant')}
+          </Button>
+          <Button variant="secondary" size="sm" leftIcon={<Layers2 size={14} />} onClick={openBulk}>
+            {t('products.variants.addMultiple', 'Add multiple')}
           </Button>
         </div>
       </div>
@@ -247,6 +289,16 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
           </div>
         </div>
       </Modal>
+
+      <UnitMultiPickerModal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        units={units}
+        groups={groups}
+        existingUnitIds={[]}
+        usedUnitIds={value.map((v) => v.unit_id).filter((v): v is number => v != null)}
+        onAdd={handleBulkAdd}
+      />
     </div>
   );
 }

@@ -1291,7 +1291,16 @@
       "skuPreview": "תצוגה מקדימה של מק״ט",
       "duplicateUnit": "ניתן להשתמש בכל יחידה פעם אחת בלבד",
       "totalStock": "סך המלאי (כל הווריאנטים)",
-      "addFirstUnit": "הוסף את היחידה הראשונה כדי להתחיל מתן שמות אוטומטי"
+      "addFirstUnit": "הוסף את היחידה הראשונה כדי להתחיל מתן שמות אוטומטי",
+      "bulkTitle": "הוסף מספר יחידות",
+      "allGroups": "כל הקבוצות",
+      "searchUnits": "חיפוש יחידות...",
+      "applyToSelected": "החל על {{count}}:",
+      "samePrice": "מחיר זהה",
+      "apply": "החל",
+      "noUnitsInGroup": "אין יחידות מתאימות",
+      "addSelected": "הוסף {{count}} יחידות",
+      "addMultiple": "הוסף כמה"
     }
   },
   "suppliers": {
@@ -2623,6 +2632,38 @@
       "deleteFailed": "מחיקת היחידה נכשלה",
       "toggled": "מצב היחידה עודכן",
       "toggleFailed": "עדכון מצב היחידה נכשל"
+    },
+    "tabs": {
+      "units": "יחידות",
+      "groups": "קבוצות"
+    },
+    "groups": {
+      "addGroup": "הוסף קבוצה",
+      "allGroups": "קבוצות יחידות",
+      "searchPlaceholder": "חיפוש קבוצות...",
+      "noGroups": "אין קבוצות עדיין",
+      "noGroupsDescription": "קבץ יחידות כדי שיהיה קל למצוא אותן בהוספת וריאציות (למשל מידות, משקלים).",
+      "unitsCount": "{{count}} יחידות",
+      "description": "קבץ יחידות להוספה מהירה יותר למוצרים",
+      "editTitle": "ערוך קבוצה",
+      "createTitle": "צור קבוצה",
+      "code": "קוד",
+      "name": "שם",
+      "namePlaceholder": "לדוגמה: מידות",
+      "memberUnits": "יחידות בקבוצה",
+      "noUnits": "אין יחידות זמינות",
+      "create": "צור",
+      "deleteTitle": "מחק קבוצה",
+      "deleteConfirm": "למחוק את הקבוצה {{name}}? המוצרים לא יושפעו.",
+      "toast": {
+        "created": "הקבוצה נוצרה.",
+        "updated": "הקבוצה עודכנה.",
+        "toggled": "מצב הקבוצה שונה.",
+        "deleted": "הקבוצה נמחקה.",
+        "saveFailed": "השמירה נכשלה.",
+        "toggleFailed": "שינוי המצב נכשל.",
+        "deleteFailed": "המחיקה נכשלה."
+      }
     }
   },
   "categories": {

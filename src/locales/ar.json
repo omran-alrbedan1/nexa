@@ -1028,7 +1028,16 @@
       "skuPreview": "معاينة الرمز",
       "duplicateUnit": "يمكن استخدام الوحدة مرة واحدة فقط",
       "totalStock": "إجمالي المخزون (كل المتغيرات)",
-      "addFirstUnit": "أضف الوحدة الأولى لبدء التسمية التلقائية للمتغيرات"
+      "addFirstUnit": "أضف الوحدة الأولى لبدء التسمية التلقائية للمتغيرات",
+      "bulkTitle": "إضافة عدة وحدات",
+      "allGroups": "كل الأصناف",
+      "searchUnits": "بحث في الوحدات...",
+      "applyToSelected": "تطبيق على {{count}}:",
+      "samePrice": "نفس السعر",
+      "apply": "تطبيق",
+      "noUnitsInGroup": "لا توجد وحدات مطابقة",
+      "addSelected": "إضافة {{count}} وحدات",
+      "addMultiple": "إضافة عدة"
     },
     "edit": {
       "name": "الاسم",
@@ -2512,6 +2521,38 @@
       "deleteFailed": "فشل حذف الوحدة",
       "toggled": "تم تحديث حالة الوحدة",
       "toggleFailed": "فشل تحديث حالة الوحدة"
+    },
+    "tabs": {
+      "units": "الوحدات",
+      "groups": "الأصناف"
+    },
+    "groups": {
+      "addGroup": "إضافة صنف",
+      "allGroups": "أصناف الوحدات",
+      "searchPlaceholder": "بحث في الأصناف...",
+      "noGroups": "لا توجد أصناف بعد",
+      "noGroupsDescription": "جمّع الوحدات لتصبح أسهل بالبحث عند إضافة بدائل المنتجات (مثل مقاسات الملابس، الأوزان).",
+      "unitsCount": "{{count}} وحدات",
+      "description": "جمّع الوحدات لإضافتها للمنتجات بشكل أسرع",
+      "editTitle": "تعديل الصنف",
+      "createTitle": "إنشاء صنف",
+      "code": "الرمز",
+      "name": "الاسم",
+      "namePlaceholder": "مثال: مقاسات الملابس",
+      "memberUnits": "الوحدات الأعضاء",
+      "noUnits": "لا توجد وحدات متاحة",
+      "create": "إنشاء",
+      "deleteTitle": "حذف الصنف",
+      "deleteConfirm": "حذف الصنف {{name}}؟ المنتجات غير متأثرة.",
+      "toast": {
+        "created": "تم إنشاء الصنف.",
+        "updated": "تم تحديث الصنف.",
+        "toggled": "تم تغيير حالة الصنف.",
+        "deleted": "تم حذف الصنف.",
+        "saveFailed": "فشل الحفظ.",
+        "toggleFailed": "فشل تغيير الحالة.",
+        "deleteFailed": "فشل الحذف."
+      }
     }
   },
   "categories": {

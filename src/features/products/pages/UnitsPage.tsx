@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { unitsApi, type ProductUnit, type UnitInput } from '../api/unitsApi';
+import { UnitGroupsSection } from '../components/UnitGroupsSection';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -12,11 +13,8 @@ import { ListItem } from '@/components/ui/ListItem';
 import { Pagination } from '@/components/ui/Pagination';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { useToastStore } from '@/stores/toastStore';
-import { Ruler, Plus, Pencil, Trash2, CheckCircle2, XCircle, Hash } from 'lucide-react';
-
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+import { Ruler, Plus, Pencil, Trash2, CheckCircle2, XCircle, Hash, Layers2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const EMPTY_FORM = {
   code: '',
@@ -29,6 +27,7 @@ export function UnitsPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
+  const [tab, setTab] = useState<'units' | 'groups'>('units');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<{ open: boolean; unit?: ProductUnit }>({ open: false });
@@ -115,7 +114,7 @@ export function UnitsPage() {
     });
   };
 
-  const units = data?.units ?? [];
+  const units = (data?.units ?? []) as ProductUnit[];
   const meta = data?.meta ?? { currentPage: 1, lastPage: 1, total: 0 };
   const activeCount = units.filter((u) => u.isActive).length;
   const inactiveCount = units.length - activeCount;
@@ -143,6 +142,30 @@ export function UnitsPage() {
         <ErrorState title={t('units.errorTitle')} message={error instanceof Error ? error.message : t('units.errorMessage')} onRetry={() => refetch()} />
       ) : (
         <>
+          {/* Tabs */}
+          <div className="flex items-center gap-2">
+            {([
+              { key: 'units' as const, label: t('units.tabs.units'), icon: Ruler },
+              { key: 'groups' as const, label: t('units.tabs.groups'), icon: Layers2 },
+            ]).map((tabDef) => (
+              <button
+                key={tabDef.key}
+                onClick={() => setTab(tabDef.key)}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors',
+                  tab === tabDef.key
+                    ? 'bg-brand-primary text-white shadow-sm'
+                    : 'text-text-secondary hover:bg-bg-section-alt'
+                )}
+              >
+                <tabDef.icon size={16} />
+                {tabDef.label}
+              </button>
+            ))}
+          </div>
+
+          {tab === 'units' ? (
+            <>
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-5">
             {[
@@ -258,6 +281,10 @@ export function UnitsPage() {
               }}
             />
           </Card>
+            </>
+          ) : (
+            <UnitGroupsSection />
+          )}
         </>
       )}
 
