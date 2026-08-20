@@ -17,11 +17,6 @@ const ROLE_GRADIENTS: Record<string, string> = {
   aggregation: 'from-purple-500/10 via-purple-50 to-transparent',
 };
 
-const ROLE_TITLE_KEYS: Record<string, string> = {
-  admin: 'dashboard.adminTitle',
-  operations: 'dashboard.operationsTitle',
-  aggregation: 'dashboard.warehouseTitle',
-};
 
 const ROLE_DESC_KEYS: Record<string, string> = {
   admin: 'dashboard.adminDescription',
@@ -51,7 +46,6 @@ export function DashboardPage() {
 
   const role = user?.role ?? 'admin';
   const gradient = ROLE_GRADIENTS[role] || ROLE_GRADIENTS.admin;
-  const titleKey = ROLE_TITLE_KEYS[role] || 'dashboard.adminTitle';
   const descKey = ROLE_DESC_KEYS[role] || 'dashboard.adminDescription';
 
   if (error) {

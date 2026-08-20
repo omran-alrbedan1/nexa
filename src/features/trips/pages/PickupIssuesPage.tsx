@@ -19,9 +19,7 @@ const ISSUE_BADGE: Record<string, 'yellow' | 'red' | 'green' | 'teal'> = {
   approved_exception: 'teal',
 };
 
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+
 
 export function PickupIssuesPage() {
   const { tripId } = useParams<{ tripId: string }>();

@@ -162,7 +162,7 @@ export function useSyncSupplierCategories(supplierId: number) {
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
     mutationFn: (categoryIds: number[]) => suppliersApi.syncSupplierCategories(supplierId, categoryIds),
-    onSuccess: (_, __, ctx) => {
+    onSuccess: (_, __) => {
       queryClient.invalidateQueries({ queryKey: supplierKeys.detail(supplierId) });
       queryClient.invalidateQueries({ queryKey: [...supplierKeys.detail(supplierId), 'categories'] });
       addToast('success', t('suppliers.toast.categoriesUpdated', 'Categories updated'));

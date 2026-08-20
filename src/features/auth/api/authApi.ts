@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/axios';
 import type { LoginRequest, LoginResponse, MeResponse } from '../types/authTypes';
-import type { ApiResponse } from '@/types/common';
+
 
 export const authApi = {
 

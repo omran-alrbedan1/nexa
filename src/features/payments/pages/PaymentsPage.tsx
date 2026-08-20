@@ -20,9 +20,7 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'purple'> = {
   paid: 'green', pending: 'yellow', failed: 'red', refunded: 'purple', partial_refunded: 'purple',
 };
 
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+
 
 export function PaymentsPage() {
   const { t } = useTranslation();

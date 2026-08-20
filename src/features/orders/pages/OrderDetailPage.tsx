@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
-import { useToastStore } from '@/stores/toastStore';
 import { useDeliveryStage } from '@/hooks/useDeliveryStage';
 import GoogleDriverTrackingMap from '@/components/maps/GoogleDriverTrackingMap';
 import DeliveryStageIndicator from '../components/DeliveryStageIndicator';
@@ -108,7 +107,6 @@ export function OrderDetailPage() {
   const { data: order, isLoading, isError, error, refetch } = useOrderDetail(id);
   const updateStatus = useUpdateOrderStatus();
   const confirmReceipt = useConfirmWarehouseReceipt();
-  const addToast = useToastStore((s) => s.addToast);
   const formatPrice = useFormatPrice();
   void useDeliveryStage(id);
   const [cancelModal, setCancelModal] = useState(false);

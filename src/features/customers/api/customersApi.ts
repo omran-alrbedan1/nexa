@@ -131,13 +131,13 @@ function mapBackendCustomer(bc: BackendCustomer): Customer {
     internalNotes: bc.internal_notes || '',
     createdAt: bc.created_at,
     addresses: bc.user?.addresses?.map(mapAddress) || [],
-    defaultZone: bc.default_zone || null,
+    defaultZone: bc.default_zone ? { id: bc.default_zone.id, nameAr: bc.default_zone.name_ar } : null,
     totalPurchases: 0,
   };
 }
 
 /** Create a new customer */
-interface CreateCustomerData {
+export interface CreateCustomerData {
   firstName: string;
   lastName?: string;
   phone: string;

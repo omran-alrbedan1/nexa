@@ -7,7 +7,6 @@ interface ListItemProps {
   iconClassName?: string;
   hideIconOnMobile?: boolean;
   title: ReactNode;
-  titleClassName?: string;
   badges?: ReactNode;
   children: ReactNode;
   actions?: ReactNode;
@@ -20,8 +19,7 @@ export const ListItem = memo(function ListItem({
   iconClassName,
   hideIconOnMobile,
   title,
-  titleClassName,
-  badges,
+    badges,
   children,
   actions,
   className,

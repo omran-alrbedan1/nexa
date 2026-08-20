@@ -10,11 +10,9 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Layers, Plus, Search, Pencil, Trash2 } from 'lucide-react';
 import { ServiceRegionForm } from '../components/ServiceRegionForm';
-import { useToastStore } from '@/stores/toastStore';
 
 export function ServiceRegionsPage() {
   const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [createModal, setCreateModal] = useState(false);

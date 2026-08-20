@@ -11,10 +11,10 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import type { Complaint } from '../api/operationsApi';
 
-const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'blue' | 'purple'> = {
+const PRIORITY_COLORS: Record<string, 'red' | 'yellow' | 'teal' | 'purple'> = {
   urgent: 'red',
   high: 'yellow',
-  medium: 'blue',
+  medium: 'teal',
   low: 'purple',
 };
 

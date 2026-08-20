@@ -1,5 +1,5 @@
 // ─── Multi-currency version (commented out) ──────────────────────────
-// import { useCurrencyStore, CURRENCY_META } from '@/stores/currencyStore';
+// import { CURRENCY_META } from '@/stores/currencyStore';
 //
 // export function useFormatPrice() {
 //   useCurrencyStore(s => s.selectedCurrency);
@@ -25,7 +25,7 @@
 // }
 // ─── End multi-currency ─────────────────────────────────────────────
 
-import { useCurrencyStore, CURRENCY_CODE, CURRENCY_LOCALE, CURRENCY_SYMBOL } from '@/stores/currencyStore';
+import { CURRENCY_CODE, CURRENCY_LOCALE, CURRENCY_SYMBOL } from '@/stores/currencyStore';
 
 export function useFormatPrice() {
   return formatPrice;

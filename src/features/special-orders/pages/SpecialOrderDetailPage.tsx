@@ -258,7 +258,7 @@ export function SpecialOrderDetailPage() {
             <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
               {order.status === 'pending_admin' && (
                 <>
-                  <Button variant="outline" size="sm" leftIcon={<Building2 size={14} />} onClick={() => setAssignSupplierModal({ open: true, supplierId: '' })}>
+                  <Button variant="outline" size="sm" leftIcon={<Building2 size={14} />} onClick={() => setAssignSupplierModal({ open: true, search: '' })}>
                     {t('specialOrders.detail.assignSupplier')}
                   </Button>
                   <Button variant="secondary" size="sm" leftIcon={<User size={14} />} onClick={() => setAssignStaffModal({ open: true, userId: '' })}>

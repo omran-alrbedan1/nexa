@@ -14,9 +14,7 @@ import { ArrowLeft, Globe, MapPin, CheckCircle2, Plus, Pencil, Trash2 } from 'lu
 import { CountryForm } from '../components/CountryForm';
 import { ProvinceForm } from '../components/ProvinceForm';
 
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+
 
 export function CountryDetailPage() {
   const { countryId } = useParams<{ countryId: string }>();

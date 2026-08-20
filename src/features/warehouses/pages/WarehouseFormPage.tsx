@@ -80,7 +80,7 @@ export function WarehouseFormPage() {
     }
   }, [isEdit, existing]);
 
-  const handleChange = (field: string, value: string | boolean) => {
+  const handleChange = (field: string, value: string | boolean | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 

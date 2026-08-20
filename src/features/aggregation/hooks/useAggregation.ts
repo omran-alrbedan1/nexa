@@ -43,8 +43,8 @@ export function useStartProcessing() {
   const addToast = useToastStore((s) => s.addToast);
 
   return useMutation({
-    mutationFn: ({ orderId, assignee }: { orderId: number; assignee: string }) =>
-      aggregationApi.startProcessing(orderId, assignee),
+    mutationFn: (orderId: number) =>
+      aggregationApi.startProcessing(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aggregationKeys.all });
       addToast('success', t('aggregation.toast.processingStarted'));

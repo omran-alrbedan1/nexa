@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { tripsApi, type CodHandover } from '../api/tripsApi';
+import { tripsApi } from '../api/tripsApi';
 import { useConfirmCodHandover, tripKeys } from '../hooks/useTrips';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -13,14 +13,8 @@ import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { safeFormatDate } from '@/utils/date';
 import { ArrowLeft, DollarSign, CheckCircle2 } from 'lucide-react';
 
-const HANDOVER_BADGE: Record<string, 'yellow' | 'green'> = {
-  pending: 'yellow',
-  confirmed: 'green',
-};
 
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+
 
 export function CodHandoversPage() {
   const { tripId } = useParams<{ tripId: string }>();

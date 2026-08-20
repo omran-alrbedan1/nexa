@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, } from '@tanstack/react-query';
 import { operationsApi, type SpecialRequest } from '../api/operationsApi';
 import { useAssignForPricing, useSubmitPriceQuote, useApproveSpecialOrder, useRejectSpecialOrder, useConvertToOrder } from '../hooks/useOperations';
 import { Card } from '@/components/ui/Card';
@@ -43,8 +43,7 @@ export function SpecialRequestDetailPage() {
     cancelled: t('operations.specialRequestStatus.cancelled'),
   };
   const formatPrice = useFormatPrice();
-  const queryClient = useQueryClient();
-
+  
   const { data: request, isLoading, isError, error, refetch } = useQuery<SpecialRequest>({
     queryKey: [...operationsKeys.all, 'special-requests', 'detail', id],
     queryFn: async () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { operationsApi, type Complaint } from '../api/operationsApi';
 import { useAssignComplaint, useResolveComplaint } from '../hooks/useOperations';
 import { Card } from '@/components/ui/Card';
@@ -22,16 +22,13 @@ const STATUS_BADGE: Record<string, 'green' | 'yellow' | 'red' | 'teal'> = {
 
 
 
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+
 
 export function ComplaintDetailPage() {
   const { complaintId } = useParams<{ complaintId: string }>();
   const navigate = useNavigate();
   const id = parseInt(complaintId || '0', 10);
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   const { data: complaint, isLoading, isError, error, refetch } = useQuery<Complaint>({
     queryKey: ['complaints-detail', id],

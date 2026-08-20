@@ -11,7 +11,7 @@
 import { apiClient } from '@/lib/axios';
 import { unwrap } from '@/lib/apiHelpers';
 import { mapFromBackend, mapPaymentMethod, ORDER_STATUS_BACKEND_TO_FRONTEND, ORDER_STATUS_FRONTEND_TO_BACKEND, ORDER_TYPE_BACKEND_TO_FRONTEND, PAYMENT_STATUS_BACKEND_TO_FRONTEND } from '@/lib/enumMappers';
-import type { PaginatedResponse, ApiResponse } from '@/types/common';
+import type { ApiResponse } from '@/types/common';
 import type { OrderType, OrderStatus, PaymentMethod, PaymentStatus } from '@/types/marketplace';
 
 // ──────────────────────────────────────────────
@@ -476,10 +476,11 @@ export const ordersApi = {
   },
 
   /** Reschedule order — uses updateStatus with POSTPONED status + notes for now */
-  rescheduleOrder: async (orderId: number, scheduledDate: string, reason: string): Promise<OrderDetail> => {
+  rescheduleOrder: async (orderId: number, reason: string, scheduledDate?: string): Promise<OrderDetail> => {
     const response = await apiClient.put<ApiResponse<BackendOrder>>(`/api/v1/admin/orders/${orderId}/status`, {
       status: 'POSTPONED',
       note: reason,
+      ...(scheduledDate ? { scheduled_date: scheduledDate } : {}),
     });
     return mapBackendOrderToDetail(unwrap(response.data));
   },

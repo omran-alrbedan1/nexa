@@ -242,7 +242,6 @@ export function CustomerDetailPage() {
                   className={cn(
                     'p-2.5 rounded-lg flex-shrink-0',
                     s.variant === 'teal' ? 'bg-brand-primary-light text-brand-primary' :
-                    s.variant === 'success' ? 'bg-green-50 text-green-600' :
                     s.variant === 'warning' ? 'bg-amber-50 text-amber-600' :
                     'bg-brand-accent-light text-brand-accent'
                   )}

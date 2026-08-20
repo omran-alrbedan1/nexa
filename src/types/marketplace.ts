@@ -212,7 +212,10 @@ export type TripStatus =
   | 'in_progress'
   | 'completed'
   | 'cancelled'
-  | 'failed';
+  | 'failed'
+  | 'pickup_pending'
+  | 'closure_pending'
+  | 'delayed';
 
 export interface Trip {
   id: number;

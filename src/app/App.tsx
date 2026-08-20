@@ -206,9 +206,6 @@ const SpecialRequestDetailPage = lazy(() =>
 );
 
 // ── Warehouse Settings & Inventory ──
-const WarehouseSettingsPage = lazy(() =>
-  import('@/features/aggregation/pages/WarehouseSettingsPage').then((m) => ({ default: m.WarehouseSettingsPage }))
-);
 const InventoryPage = lazy(() =>
   import('@/features/aggregation/pages/InventoryPage').then((m) => ({ default: m.InventoryPage }))
 );

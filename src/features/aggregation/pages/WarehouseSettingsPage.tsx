@@ -16,7 +16,7 @@ export function WarehouseSettingsPage() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
 
-  const { data: warehouses, isLoading } = useQuery({
+  const { data: warehouses } = useQuery({
     queryKey: ['warehouses'],
     queryFn: () => aggregationApi.getWarehouses(),
     staleTime: 60_000,

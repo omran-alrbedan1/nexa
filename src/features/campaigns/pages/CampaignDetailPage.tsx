@@ -163,7 +163,7 @@ export function CampaignDetailPage() {
                   <p className="text-2xl font-extrabold text-text-primary font-display mt-1">
                     {s.formatStockLimited
                       ? (campaign.isStockLimited ? t('campaigns.detail.limited') : t('campaigns.detail.unlimited'))
-                      : formatValue(s.key)
+                      : String(formatValue(s.key))
                     }
                     {!s.formatStockLimited && s.suffix}
                   </p>

@@ -225,7 +225,6 @@ export function useUpdateDeliverySlot() {
 // ── Working Days ──
 
 export function useUpdateWorkingDays() {
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({

@@ -26,7 +26,6 @@ const NEXT_STATUS: Record<string, { labelKey: string; status: string; icon: Reac
 function MessageBubble({ message, currentUserId }: { message: SupportTicketMessage; currentUserId?: number }) {
   const { t } = useTranslation();
   const isInternal = message.is_internal;
-  const isOwn = !isInternal && message.user?.id === currentUserId;
   const isOther = !isInternal && message.user?.id !== currentUserId;
   const attachments = message.attachments || [];
 

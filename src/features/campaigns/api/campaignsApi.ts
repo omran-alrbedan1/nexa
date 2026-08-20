@@ -281,7 +281,7 @@ function mapBackendCampaign(c: BackendCampaign): Campaign {
       ? { id: c.assigned_supplier.id, businessName: c.assigned_supplier.business_name }
       : null,
     totalOrders: c.orders_count || 0,
-    bannerUrl: toAbsoluteUrl(c.image),
+    bannerUrl: toAbsoluteUrl(c.image ?? null),
     targetRegions: c.zone ? [c.zone.name_en || c.zone.name_ar] : [],
     createdAt: c.created_at,
     updatedAt: c.updated_at,

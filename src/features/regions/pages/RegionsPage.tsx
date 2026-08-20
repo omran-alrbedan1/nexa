@@ -12,7 +12,6 @@ import { Pagination } from '@/components/ui/Pagination';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/routes/routes';
 import { MapPin, CheckCircle2, Layers, ShoppingCart, Map, Globe, DollarSign, Plus } from 'lucide-react';
-import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { ZoneForm } from '../components/ZoneForm';
 import { ZoneBoundaryMap } from '../components/ZoneBoundaryMap';
 import { regionsApi } from '../api/regionsApi';
@@ -24,7 +23,6 @@ import { provincesApi } from '@/features/locations/api/provincesApi';
 export function RegionsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const formatPrice = useFormatPrice();
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useRegionsPage({ page });
   const toggleActive = useToggleRegionActive();

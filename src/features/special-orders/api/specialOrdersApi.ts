@@ -331,6 +331,12 @@ export const specialOrdersApi = {
   }): Promise<void> => {
     await apiClient.post(`/api/v1/admin/special-orders/${id}/price-quotes`, data);
   },
+
+  /** Submit a price quote via the special-order notes endpoint */
+  submitPriceQuote: async (id: number, price: number, notes: string): Promise<void> => {
+    const pricingNotes = `Price Quote: ${price}. ${notes ? notes : ''}`;
+    await apiClient.put(`/api/v1/admin/special-orders/${id}/notes`, { notes: pricingNotes });
+  },
 };
 
 export type SpecialOrdersApi = typeof specialOrdersApi;

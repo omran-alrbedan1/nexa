@@ -397,7 +397,7 @@ export function SupplierDetailPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider font-body">{s.label}</p>
-                  <p className="text-xl font-extrabold text-text-primary font-display mt-1">{formatValue(s)}{s.suffix || ''}</p>
+                  <p className="text-xl font-extrabold text-text-primary font-display mt-1">{String(formatValue(s))}{s.suffix || ''}</p>
                 </div>
                 <div className={cn(
                   'p-2.5 rounded-lg flex-shrink-0',

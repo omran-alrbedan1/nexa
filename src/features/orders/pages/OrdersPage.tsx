@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useOrdersList, useUpdateOrderStatus } from '../hooks/useOrders';
+import { useOrdersList, } from '../hooks/useOrders';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -71,7 +71,6 @@ export function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const updateStatus = useUpdateOrderStatus();
   const formatPrice = useFormatPrice();
 
   const { data, isLoading, isError, error, refetch } = useOrdersList({
