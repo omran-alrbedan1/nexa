@@ -1,14 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
-import { unitsApi, type ProductUnit } from '../api/unitsApi';
-import { DollarSign, Package, Plus, Pencil, Trash2, Layers, AlertTriangle } from 'lucide-react';
-import { useProductVariants, useCreateProductVariant, useUpdateProductVariant, useToggleProductVariant, useDeleteProductVariant } from '../hooks/useProductVariants';
-import type { ProductVariant, VariantFormData } from '../api/productsApi';
+import { unitsApi, type ProductUnit, type UnitGroup } from '../api/unitsApi';
+import { DollarSign, Package, Plus, Pencil, Trash2, Layers, AlertTriangle, Layers2 } from 'lucide-react';
+import { useProductVariants, useCreateProductVariant, useUpdateProductVariant, useToggleProductVariant, useDeleteProductVariant, variantKeys } from '../hooks/useProductVariants';
+import { productVariantsApi, type ProductVariant, type VariantFormData } from '../api/productsApi';
+import { UnitMultiPickerModal, type BulkUnitItem } from './UnitMultiPickerModal';
 
 interface VariantsSectionProps {
   productId: number;
@@ -156,6 +158,7 @@ function VariantFormModal({
 
 export function VariantsSection({ productId, productNameAr, productNameEn, productNameHe, productNameRu, productSku }: VariantsSectionProps) {
   const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
   const { data: variants, isLoading } = useProductVariants(productId);
   const createVariant = useCreateProductVariant(productId);
   const updateVariant = useUpdateProductVariant(productId);
@@ -164,10 +167,21 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
 
   const [formModal, setFormModal] = useState<{ open: boolean; editing?: ProductVariant | null }>({ open: false });
   const [units, setUnits] = useState<ProductUnit[]>([]);
+  const [groups, setGroups] = useState<UnitGroup[]>([]);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   useEffect(() => {
     unitsApi.list().then((d) => setUnits(d.units)).catch(() => setUnits([]));
+    unitsApi.groupList({ page: 1 }).then((d) => setGroups(d.groups)).catch(() => setGroups([]));
   }, []);
+
+  const handleBulkAdd = async (items: BulkUnitItem[]) => {
+    await productVariantsApi.bulkCreate(
+      productId,
+      items.map((i) => ({ unit_id: i.unit.id, price: parseFloat(i.price) || 0, stock_quantity: parseInt(i.stockQuantity || '0', 10) || 0 }))
+    );
+    queryClient.invalidateQueries({ queryKey: variantKeys.all(productId) });
+  };
 
   const unitName = (unit?: ProductUnit | null): string => {
     if (!unit) return '';
@@ -197,9 +211,14 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
             <Badge variant="teal" size="sm">{list.length}</Badge>
           )}
         </div>
-        <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setFormModal({ open: true })}>
-          {t('products.variants.addVariant', 'Add Variant')}
-        </Button>
+                <div className="flex items-center gap-2">
+          <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => setFormModal({ open: true })}>
+            {t('products.variants.addVariant', 'Add Variant')}
+          </Button>
+          <Button variant="secondary" size="sm" leftIcon={<Layers2 size={14} />} onClick={() => setBulkOpen(true)}>
+            {t('products.variants.addMultiple', 'Add multiple')}
+          </Button>
+        </div>
       </div>
 
       {list.length === 0 ? (
@@ -254,6 +273,16 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
         productNames={productNames}
         productSku={productSku ?? ''}
         existing={list}
+      />
+
+      <UnitMultiPickerModal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        units={units}
+        groups={groups}
+        existingUnitIds={list.map((v) => v.unit_id).filter((v): v is number => v != null)}
+        usedUnitIds={[]}
+        onAdd={(items) => { void handleBulkAdd(items); }}
       />
     </div>
   );

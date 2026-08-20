@@ -1291,7 +1291,16 @@
       "skuPreview": "SKU preview",
       "duplicateUnit": "Each unit can be used once",
       "totalStock": "Total stock (all variants)",
-      "addFirstUnit": "Add the first unit to start auto-naming variants"
+      "addFirstUnit": "Add the first unit to start auto-naming variants",
+      "bulkTitle": "Add multiple units",
+      "allGroups": "All groups",
+      "searchUnits": "Search units...",
+      "applyToSelected": "Apply to {{count}} selected:",
+      "samePrice": "Same price",
+      "apply": "Apply",
+      "noUnitsInGroup": "No units match this filter",
+      "addSelected": "Add {{count}} units",
+      "addMultiple": "Add multiple"
     }
   },
   "units": {
@@ -1336,6 +1345,38 @@
       "deleteFailed": "Failed to delete unit",
       "toggled": "Unit status updated",
       "toggleFailed": "Failed to update unit status"
+    },
+    "tabs": {
+      "units": "Units",
+      "groups": "Groups"
+    },
+    "groups": {
+      "addGroup": "Add Group",
+      "allGroups": "Unit Groups",
+      "searchPlaceholder": "Search groups...",
+      "noGroups": "No groups yet",
+      "noGroupsDescription": "Group units so they are easy to find when adding variants (e.g. clothing sizes, weights).",
+      "unitsCount": "{{count}} units",
+      "description": "Group units to add them to products faster",
+      "editTitle": "Edit Group",
+      "createTitle": "Create Group",
+      "code": "Code",
+      "name": "Name",
+      "namePlaceholder": "e.g. Clothing Sizes",
+      "memberUnits": "Member units",
+      "noUnits": "No units available",
+      "create": "Create",
+      "deleteTitle": "Delete Group",
+      "deleteConfirm": "Delete group {{name}}? Products are not affected.",
+      "toast": {
+        "created": "Group created.",
+        "updated": "Group updated.",
+        "toggled": "Group status changed.",
+        "deleted": "Group deleted.",
+        "saveFailed": "Save failed.",
+        "toggleFailed": "Status change failed.",
+        "deleteFailed": "Delete failed."
+      }
     }
   },
   "categories": {

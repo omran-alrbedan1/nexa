@@ -444,6 +444,18 @@ export const productVariantsApi = {
     return response.data.data;
   },
 
+  bulkCreate: async (productId: number, items: { unit_id: number; price: number; stock_quantity: number }[]): Promise<{ created: ProductVariant[]; skippedUnitIds: number[]; skippedCount: number }> => {
+    const response = await apiClient.post<ApiResponse<{ created: ProductVariant[]; skipped_unit_ids: number[]; skipped_count: number }>>(`/api/v1/admin/products/${productId}/variants/bulk`, {
+      variants: items,
+    });
+    const data = response.data.data || { created: [], skipped_unit_ids: [], skipped_count: 0 };
+    return {
+      created: data.created ?? [],
+      skippedUnitIds: data.skipped_unit_ids ?? [],
+      skippedCount: data.skipped_count ?? 0,
+    };
+  },
+
   update: async (productId: number, id: number, data: Partial<VariantFormData>): Promise<ProductVariant> => {
     const response = await apiClient.put<ApiResponse<ProductVariant>>(`/api/v1/admin/products/${productId}/variants/${id}`, data);
     return response.data.data;
