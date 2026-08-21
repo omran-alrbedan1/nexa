@@ -1300,7 +1300,12 @@
       "apply": "החל",
       "noUnitsInGroup": "אין יחידות מתאימות",
       "addSelected": "הוסף {{count}} יחידות",
-      "addMultiple": "הוסף כמה"
+      "addMultiple": "הוסף כמה",
+      "selectAll": "בחר הכל",
+      "deselectAll": "בטל בחירת הכל",
+      "clear": "נקה",
+      "units": "יחידות",
+      "priceForAll": "המחיר {{price}} יחול על כל הנבחרים"
     }
   },
   "suppliers": {

@@ -1037,7 +1037,12 @@
       "apply": "تطبيق",
       "noUnitsInGroup": "لا توجد وحدات مطابقة",
       "addSelected": "إضافة {{count}} وحدات",
-      "addMultiple": "إضافة عدة"
+      "addMultiple": "إضافة عدة",
+      "selectAll": "تحديد الكل",
+      "deselectAll": "إلغاء تحديد الكل",
+      "clear": "مسح",
+      "units": "وحدات",
+      "priceForAll": "السعر {{price}} سيُطبق على كل المحدد"
     },
     "edit": {
       "name": "الاسم",

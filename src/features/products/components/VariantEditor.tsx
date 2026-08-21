@@ -44,6 +44,7 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   const [modal, setModal] = useState<{ open: boolean; index?: number }>({ open: false });
   const [bulkOpen, setBulkOpen] = useState(false);
   const [groups, setGroups] = useState<UnitGroup[]>([]);
+  const [unitSearch, setUnitSearch] = useState('');
   const [draft, setDraft] = useState<DraftState>({
     unit_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true,
   });
@@ -55,6 +56,12 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   };
 
   const selectedUnit = units.find((u) => String(u.id) === draft.unit_id);
+
+  const filteredUnits = useMemo(() => {
+    const q = unitSearch.trim().toLowerCase();
+    if (!q) return units;
+    return units.filter((u) => [u.code, u.nameAr, u.nameEn, u.nameHe, u.nameRu].filter(Boolean).some((v) => (v as string).toLowerCase().includes(q)));
+  }, [units, unitSearch]);
 
   const autoNames = useMemo(() => {
     if (!selectedUnit) return null;
@@ -83,12 +90,14 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   const totalStock = value.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
 
   const openCreate = () => {
+    setUnitSearch('');
     setDraft({ unit_id: String(units[0]?.id ?? ''), names: {}, sku: '', price: '', stock_quantity: '0', is_active: true });
     setModal({ open: true });
   };
 
   const openEdit = (index: number) => {
     const v = value[index];
+    setUnitSearch('');
     setDraft({
       unit_id: v.unit_id != null ? String(v.unit_id) : '',
       names: { ar: v?.name_ar ?? '', en: v?.name_en ?? '', he: v?.name_he ?? '', ru: v?.name_ru ?? '' },
@@ -248,13 +257,19 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.unit', 'Unit')}</label>
+            <input
+              value={unitSearch}
+              onChange={(e) => setUnitSearch(e.target.value)}
+              placeholder={t('products.variants.searchUnits', 'Search units…')}
+              className="w-full mb-2 px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+            />
             <select
               value={draft.unit_id}
               onChange={(e) => setDraft({ ...draft, unit_id: e.target.value })}
               className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
             >
               <option value="">{t('products.variants.selectUnit', 'Select a unit')}</option>
-              {units.map((unit) => (
+              {filteredUnits.map((unit) => (
                 <option key={unit.id} value={unit.id}>{unitName(unit)} ({unit.code})</option>
               ))}
             </select>

@@ -43,6 +43,7 @@ function VariantFormModal({
   existing: ProductVariant[];
 }) {
   const { t, i18n } = useTranslation();
+  const [unitSearch, setUnitSearch] = useState('');
   const [form, setForm] = useState<{ unit_id: string; names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>; sku: string; price: string; stock_quantity: string }>(() => ({
     unit_id: editing?.unit_id != null ? String(editing.unit_id) : String(units[0]?.id ?? ''),
     names: { ar: editing?.name_ar ?? '', en: editing?.name_en ?? '', he: editing?.name_he ?? '', ru: editing?.name_ru ?? '' },
@@ -50,6 +51,12 @@ function VariantFormModal({
     price: editing ? String(editing.price) : '',
     stock_quantity: editing ? String(editing.stock_quantity) : '0',
   }));
+
+  const filteredUnits = useMemo(() => {
+    const q = unitSearch.trim().toLowerCase();
+    if (!q) return units;
+    return units.filter((u) => [u.code, u.nameAr, u.nameEn, u.nameHe, u.nameRu].filter(Boolean).some((v) => (v as string).toLowerCase().includes(q)));
+  }, [units, unitSearch]);
 
   const unitName = (unit?: ProductUnit | null): string => {
     if (!unit) return '';
@@ -116,13 +123,19 @@ function VariantFormModal({
       <div className="space-y-4">
         <div>
           <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.unit', 'Unit')}</label>
+          <input
+            value={unitSearch}
+            onChange={(e) => setUnitSearch(e.target.value)}
+            placeholder={t('products.variants.searchUnits', 'Search units…')}
+            className="w-full mb-2 px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+          />
           <select
             value={form.unit_id}
             onChange={(e) => setForm({ ...form, unit_id: e.target.value })}
             className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
           >
             <option value="">{t('products.variants.selectUnit', 'Select a unit')}</option>
-            {units.map((unit) => (
+            {filteredUnits.map((unit) => (
               <option key={unit.id} value={unit.id}>{unitName(unit)} ({unit.code})</option>
             ))}
           </select>
