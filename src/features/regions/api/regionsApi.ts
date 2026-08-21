@@ -37,6 +37,7 @@ export interface Region {
   id: number;
   name: string;
   nameAr: string;
+  nameEn: string | null;
   nameHe: string | null;
   nameRu: string | null;
   code: string;
@@ -125,6 +126,7 @@ function mapBackendZone(z: BackendDeliveryZone): Region {
     id: z.id,
     name: z.name_ar || z.name_en || '',
     nameAr: z.name_ar,
+    nameEn: z.name_en ?? null,
     nameHe: z.name_he || null,
     nameRu: z.name_ru || null,
     code: z.code,
