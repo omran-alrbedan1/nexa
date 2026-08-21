@@ -1300,7 +1300,12 @@
       "apply": "Применить",
       "noUnitsInGroup": "Нет подходящих единиц",
       "addSelected": "Добавить {{count}} единиц",
-      "addMultiple": "Добавить несколько"
+      "addMultiple": "Добавить несколько",
+      "selectAll": "Выбрать все",
+      "deselectAll": "Снять выбор",
+      "clear": "Очистить",
+      "units": "единицы",
+      "priceForAll": "Цена {{price}} применится ко всем выбранным"
     }
   },
   "suppliers": {

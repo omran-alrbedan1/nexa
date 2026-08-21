@@ -1300,7 +1300,12 @@
       "apply": "Apply",
       "noUnitsInGroup": "No units match this filter",
       "addSelected": "Add {{count}} units",
-      "addMultiple": "Add multiple"
+      "addMultiple": "Add multiple",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "clear": "Clear",
+      "units": "units",
+      "priceForAll": "Price {{price}} will apply to all selected"
     }
   },
   "units": {
