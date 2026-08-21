@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useOrdersList, } from '../hooks/useOrders';
@@ -85,6 +85,8 @@ export function OrdersPage() {
   const orders = data?.orders ?? [];
   const pagination = data?.pagination;
 
+  const visibleOrders = useMemo(() => orders.filter((o) => !o.parentOrderId), [orders]);
+
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setCurrentPage(1);
@@ -112,7 +114,7 @@ export function OrdersPage() {
 
   const exportCSV = useCallback(() => {
     const headers = ['Order #','Customer','Type','Status','Total','Region','Supplier','Created At'];
-    const rows = orders.map((o) => [
+    const rows = visibleOrders.map((o) => [
       o.orderNumber,
       o.customerName,
       o.type,
@@ -130,7 +132,7 @@ export function OrdersPage() {
     a.download = `orders-export-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [orders]);
+  }, [visibleOrders]);
 
   const renderOrderRow = (order: OrderSummary) => {
     const isParent = order.isParent && order.children.length > 0;
@@ -252,14 +254,14 @@ export function OrdersPage() {
       <Card padding="lg">
         <CardHeader
           action={
-            <Button variant="secondary" size="sm" leftIcon={<Download size={14} />} onClick={exportCSV} disabled={orders.length === 0}>
+            <Button variant="secondary" size="sm" leftIcon={<Download size={14} />} onClick={exportCSV} disabled={visibleOrders.length === 0}>
               {t('orders.list.export')}
             </Button>
           }
         >
           <div>
             <h3 className="text-sm font-bold text-text-primary font-display">{t('orders.list.allOrders')}</h3>
-            <p className="text-xs text-text-secondary font-body mt-0.5">{t('orders.list.totalOrders', { count: pagination?.total ?? orders.length })}</p>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('orders.list.totalOrders', { count: pagination?.total ?? visibleOrders.length })}</p>
           </div>
         </CardHeader>
 
@@ -334,12 +336,12 @@ export function OrdersPage() {
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-24 bg-gray-100 rounded-xl" />)}</div>
-        ) : orders.length === 0 ? (
+        ) : visibleOrders.length === 0 ? (
           <EmptyState title={t('orders.list.noOrdersFound')} description={search ? t('orders.list.tryDifferentSearch') : t('orders.list.noOrdersMatch')} />
         ) : (
           <>
             <div className="space-y-2">
-              {orders.map((order) => renderOrderRow(order))}
+              {visibleOrders.map((order) => renderOrderRow(order))}
             </div>
             {pagination && (
               <Pagination

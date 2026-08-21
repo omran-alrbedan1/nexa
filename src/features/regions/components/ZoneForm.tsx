@@ -35,7 +35,7 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
     if (editing) {
       setForm({
         province_id: editing.provinceId ?? 0,
-        names: { ar: editing.nameAr || editing.name, en: editing.name === editing.nameAr ? '' : editing.name, he: editing.nameHe || '', ru: editing.nameRu || '' },
+        names: { ar: editing.nameAr || editing.name, en: editing.nameEn || '', he: editing.nameHe || '', ru: editing.nameRu || '' },
         code: editing.code ?? '',
       });
       setBoundaries(editing.boundaries ?? null);
@@ -68,20 +68,35 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
         open={open}
         onClose={onClose}
         title={editing ? t('regions.zoneForm.editTitle') : t('regions.zoneForm.createTitle')}
+        size="lg"
       >
         <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.province')} *</label>
-            <select
-              value={form.province_id}
-              onChange={(e) => setForm({ ...form, province_id: Number(e.target.value) })}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-            >
-              <option value={0} disabled>{t('regions.zoneForm.selectProvince')}</option>
-              {provinces.map((p) => (
-                <option key={p.id} value={p.id}>{p.name_ar}{p.name_en ? ` (${p.name_en})` : ''}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.province')} *</label>
+              <select
+                value={form.province_id}
+                onChange={(e) => setForm({ ...form, province_id: Number(e.target.value) })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              >
+                <option value={0} disabled>{t('regions.zoneForm.selectProvince')}</option>
+                {provinces.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name_ar}{p.name_en ? ` (${p.name_en})` : ''}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.code')}{!editing && ' *'}</label>
+              <input
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                placeholder={t('regions.zoneForm.codePlaceholder', 'e.g. RUH-01')}
+              />
+              {!editing && !form.code.trim() && (
+                <p className="text-xs text-status-error mt-1 font-body">{t('regions.zoneForm.codeRequired', 'Zone code is required (e.g. RUH-01)')}</p>
+              )}
+            </div>
           </div>
           <TranslatedField
             label={t('regions.zoneForm.nameAr')}
@@ -89,18 +104,6 @@ export function ZoneForm({ open, onClose, onSave, isSaving, editing }: ZoneFormP
             onChange={(key, value) => setForm({ ...form, names: { ...form.names, [key]: value } })}
             required
           />
-          <div>
-            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.code')}{!editing && ' *'}</label>
-            <input
-              value={form.code}
-              onChange={(e) => setForm({ ...form, code: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
-              placeholder={t('regions.zoneForm.codePlaceholder', 'e.g. RUH-01')}
-            />
-            {!editing && !form.code.trim() && (
-              <p className="text-xs text-status-error mt-1 font-body">{t('regions.zoneForm.codeRequired', 'Zone code is required (e.g. RUH-01)')}</p>
-            )}
-          </div>
 
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('regions.zoneForm.boundary', 'Zone Boundary')}</label>
