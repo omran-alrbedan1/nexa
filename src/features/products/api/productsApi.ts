@@ -12,7 +12,7 @@
 
 import { apiClient } from '@/lib/axios';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
-import type { ProductSource } from '@/types/marketplace';
+import type { ProductSource, ProductVariantType } from '@/types/marketplace';
 
 // ──────────────────────────────────────────────
 // Domain Types
@@ -47,6 +47,7 @@ export interface DashboardProduct {
   supplierId: number | null;
   supplierName: string | null;
   source: ProductSource;
+  variantType: ProductVariantType;
   isAvailable: boolean;
   stockQuantity: number;
   totalOrders: number;
@@ -98,6 +99,7 @@ interface BackendProduct {
   description_he?: string | null;
   description_ru?: string | null;
   product_type?: string | null;
+  variant_type?: string | null;
   campaign_id?: number | null;
   price: string;
   unit: string;
@@ -180,6 +182,7 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     supplierId: bp.supplier?.id || null,
     supplierName: bp.supplier?.business_name || null,
     source: (bp.product_type as ProductSource) || 'supplier',
+    variantType: bp.variant_type === 'color_size' ? 'color_size' : 'unit',
     isAvailable: bp.is_active,
     stockQuantity: Number(bp.stock_quantity),
     totalOrders: 0, // not available from backend
@@ -209,6 +212,7 @@ const PRODUCT_FIELD_MAP: Record<string, string> = {
   supplierId: 'supplier_id',
   campaignId: 'campaign_id',
   source: 'product_type',
+  variantType: 'variant_type',
 };
 
 function toBackendFields(data: Record<string, any>): Record<string, any> {

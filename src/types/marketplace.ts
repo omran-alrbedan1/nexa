@@ -83,6 +83,7 @@ export function userTypeToDashboardRole(
 // ──────────────────────────────────────────────
 
 export type ProductSource = 'internal' | 'supplier' | 'seasonal';
+export type ProductVariantType = 'unit' | 'color_size';
 
 export interface Product {
   id: number;
@@ -96,6 +97,7 @@ export interface Product {
   categoryId: number;
   supplierId: number | null;
   source: ProductSource;
+  variantType: ProductVariantType;
   isAvailable: boolean;
   stockQuantity: number;
   createdAt: string;
