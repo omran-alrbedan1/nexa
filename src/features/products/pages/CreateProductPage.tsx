@@ -1,244 +1,156 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { productsApi, type ProductCategory } from '../api/productsApi';
+import { ArrowLeft, CheckCircle2, ImageOff, Package, Palette, Save, Upload } from 'lucide-react';
+import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
-import type { ProductSource } from '@/types/marketplace';
+import type { ProductSource, ProductVariantType } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Tabs } from '@/components/ui/Tabs';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
+import { ColorSizeManagementSection } from '../components/ColorSizeManagementSection';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
+import { useDisableColorSize, useEnableColorSize } from '../hooks/useProductColors';
 import { extractErrorMessage } from '@/lib/apiHelpers';
+import { cn } from '@/utils/cn';
+
+type CreateStep = 'info' | 'options' | 'configuration' | 'review';
 
 export function CreateProductPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const addToast = useToastStore((s) => s.addToast);
+  const addToast = useToastStore((state) => state.addToast);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const resumedProductId = Number.parseInt(searchParams.get('productId') || '0', 10) || null;
+  const initialStep = (searchParams.get('step') as CreateStep | null) ?? 'info';
+  const [step, setStep] = useState<CreateStep>(initialStep);
+  const [createdProductId, setCreatedProductId] = useState<number | null>(resumedProductId);
+  const [variantType, setVariantType] = useState<ProductVariantType>('unit');
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [loadingContinuation, setLoadingContinuation] = useState(Boolean(resumedProductId));
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [units, setUnits] = useState<ProductUnit[]>([]);
+  const [productSku, setProductSku] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [variants, setVariants] = useState<VariantDraft[]>([]);
-  const [form, setForm] = useState({
-    price: '', unit: 'kg', unitId: '', stockQuantity: '',
-    categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
-  });
+  const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryId: '', supplierId: '', source: 'supplier' as ProductSource });
+  const enableMutation = useEnableColorSize(createdProductId ?? 0);
+  const disableMutation = useDisableColorSize(createdProductId ?? 0);
 
   useEffect(() => {
     Promise.all([
       productsApi.getCategories().catch(() => [] as ProductCategory[]),
       productsApi.getSuppliersList().catch(() => []),
-      unitsApi.list().then((d) => d.units).catch(() => [] as ProductUnit[]),
-    ]).then(([cats, supps, unitList]) => {
-      setCategories(cats);
-      setSuppliers(supps);
-      setUnits(unitList);
-    });
+      unitsApi.list().then((data) => data.units).catch(() => [] as ProductUnit[]),
+    ]).then(([categoryList, supplierList, unitList]) => { setCategories(categoryList); setSuppliers(supplierList); setUnits(unitList); });
   }, []);
 
-  const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  useEffect(() => {
+    if (!resumedProductId) return;
+    Promise.all([productsApi.getProduct(resumedProductId), productVariantsApi.list(resumedProductId).catch(() => [])])
+      .then(([product, variantList]) => {
+        setCreatedProductId(product.id); setVariantType(product.variantType); setProductSku(product.sku); setExistingImageUrl(product.imageUrl);
+        setNames({ ar: product.nameAr, en: product.name, he: product.nameHe ?? '', ru: product.nameRu ?? '' });
+        setDescriptions({ ar: product.descriptionAr, en: product.descriptionEn ?? '', he: product.descriptionHe ?? '', ru: product.descriptionRu ?? '' });
+        setForm({ price: String(product.price), unit: product.unit, unitId: product.unitId ? String(product.unitId) : '', stockQuantity: String(product.stockQuantity), categoryId: String(product.categoryId), supplierId: product.supplierId ? String(product.supplierId) : '', source: product.source });
+        setVariants(variantList.map((variant) => ({ id: variant.id, unit_id: variant.unit_id ?? undefined, name_ar: variant.name_ar, name_en: variant.name_en ?? undefined, name_he: variant.name_he ?? undefined, name_ru: variant.name_ru ?? undefined, sku: variant.sku ?? undefined, price: variant.price, stock_quantity: variant.stock_quantity, is_active: variant.is_active })));
+      }).catch((error) => {
+        setCreatedProductId(null);
+        setStep('info');
+        setSearchParams({}, { replace: true });
+        addToast('error', extractErrorMessage(error));
+      }).finally(() => setLoadingContinuation(false));
+  }, [resumedProductId, addToast, setSearchParams]);
 
-  const handleUnitChange = (unitId: string) => {
-    const unit = units.find((u) => String(u.id) === unitId);
-    setForm((prev) => ({
-      ...prev,
-      unitId,
-      unit: unit ? unit.code.toLowerCase() : prev.unit,
-    }));
+  const goToStep = (nextStep: CreateStep) => {
+    if (!createdProductId && nextStep !== 'info') return;
+    setStep(nextStep);
+    if (createdProductId) setSearchParams({ productId: String(createdProductId), step: nextStep }, { replace: true });
   };
+  const handleChange = (field: string, value: string) => setForm((current) => ({ ...current, [field]: value }));
+  const handleUnitChange = (unitId: string) => { const unit = units.find((item) => String(item.id) === unitId); setForm((current) => ({ ...current, unitId, unit: unit ? unit.code.toLowerCase() : current.unit })); };
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (!file) return; if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(file); setImagePreview(URL.createObjectURL(file)); };
+  const handleRemoveImage = () => { if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(null); setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+  const productPayload = (includeUnitVariants: boolean) => ({
+    name: names.en ?? '', nameAr: names.ar ?? '', nameHe: names.he, nameRu: names.ru,
+    description: descriptions.ar ?? '', descriptionAr: descriptions.ar, descriptionEn: descriptions.en, descriptionHe: descriptions.he, descriptionRu: descriptions.ru,
+    price: Number.parseFloat(form.price) || 0, unit: form.unit, unitId: form.unitId ? Number.parseInt(form.unitId, 10) : null,
+    stockQuantity: Number.parseInt(form.stockQuantity, 10) || 0, categoryId: Number.parseInt(form.categoryId, 10) || 1,
+    supplierId: form.supplierId ? Number.parseInt(form.supplierId, 10) : null, source: form.source,
+    variants: includeUnitVariants && variants.length > 0 ? variants : undefined, image: imageFile || undefined,
+  });
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleSubmit = async () => {
-    if (!names.ar?.trim() || !form.price) {
-      addToast('error', t('products.create.validationRequired'));
-      return;
-    }
+  const saveProduct = async (includeUnitVariants = false): Promise<number | null> => {
+    if (!names.ar?.trim() || !form.price) { addToast('error', t('products.create.validationRequired')); return null; }
     setSaving(true);
     try {
-      await productsApi.createProduct({
-        name: names.en ?? '',
-        nameAr: names.ar ?? '',
-        nameHe: names.he,
-        nameRu: names.ru,
-        description: descriptions.ar ?? '',
-        descriptionAr: descriptions.ar,
-        descriptionEn: descriptions.en,
-        descriptionHe: descriptions.he,
-        descriptionRu: descriptions.ru,
-        price: parseFloat(form.price) || 0,
-        unit: form.unit,
-        unitId: form.unitId ? parseInt(form.unitId) : null,
-        stockQuantity: parseInt(form.stockQuantity) || 0,
-        categoryId: parseInt(form.categoryId) || 1,
-        supplierId: form.supplierId ? parseInt(form.supplierId) : null,
-        source: form.source,
-        variants: variants.length > 0 ? variants : undefined,
-        image: imageFile || undefined,
-      });
+      const saved = createdProductId ? await productsApi.updateProduct(createdProductId, productPayload(includeUnitVariants)) : await productsApi.createProduct(productPayload(includeUnitVariants));
+      const productId = createdProductId ?? saved.id;
+      setCreatedProductId(productId); setProductSku(saved.sku); setExistingImageUrl(saved.imageUrl); setImageFile(null);
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      addToast('success', t('products.create.successMessage'));
-      navigate(ROUTES.PRODUCTS);
-    } catch (error) {
-      addToast('error', extractErrorMessage(error));
-    } finally {
-      setSaving(false);
-    }
+      addToast('success', createdProductId ? t('createFlow.productUpdated') : t('createFlow.productSaved'));
+      return productId;
+    } catch (error) { addToast('error', extractErrorMessage(error)); return null; } finally { setSaving(false); }
   };
 
-  return (
-    <div className="space-y-6 animate-fade-up max-w-4xl">
-      <button onClick={() => navigate(ROUTES.PRODUCTS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition-colors font-body">
-        <ArrowLeft size={16} /> {t('products.create.back')}
-      </button>
+  const saveAndContinue = async () => { const productId = await saveProduct(false); if (!productId) return; setStep('options'); setSearchParams({ productId: String(productId), step: 'options' }, { replace: true }); };
+  const chooseVariantType = (nextType: ProductVariantType) => {
+    if (!createdProductId || nextType === variantType) { if (createdProductId) goToStep('configuration'); return; }
+    if (nextType === 'color_size') {
+      enableMutation.mutate(undefined, { onSuccess: async () => { const refreshed = await productsApi.getProduct(createdProductId); setVariantType(refreshed.variantType); if (refreshed.variantType === 'color_size') goToStep('configuration'); } });
+    } else setDisableOpen(true);
+  };
+  const saveUnitConfiguration = async () => { const savedId = await saveProduct(true); if (savedId) goToStep('review'); };
 
-      <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center">
-            <Package size={22} className="text-brand-accent" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold text-text-primary font-display">{t('products.create.title')}</h1>
-            <p className="text-sm text-text-secondary font-body">{t('products.create.subtitle')}</p>
-          </div>
-        </div>
-      </div>
+  if (loadingContinuation) return <div className="h-72 animate-pulse rounded-2xl bg-gray-100" />;
+  const tabs = [
+    { id: 'info', label: t('createFlow.steps.info') },
+    { id: 'options', label: t('createFlow.steps.options'), disabled: !createdProductId },
+    { id: 'configuration', label: t('createFlow.steps.configuration'), disabled: !createdProductId },
+    { id: 'review', label: t('createFlow.steps.review'), disabled: !createdProductId },
+  ];
 
-      <Card padding="lg">
-        <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('products.create.imageTitle')}</h3>
-        <div className="flex items-start gap-5">
-          <div className="w-28 h-28 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center flex-shrink-0">
-            {imagePreview ? (
-              <img src={imagePreview} alt={t('products.create.preview')} className="w-full h-full object-cover" />
-            ) : (
-              <ImageOff size={28} className="text-text-secondary/40" />
-            )}
-          </div>
-          <div className="space-y-2">
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
-            <Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>
-              {imagePreview ? t('products.create.changeImage') : t('products.create.uploadImage')}
-            </Button>
-            {imagePreview && (
-              <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('products.create.removeImage')}</Button>
-            )}
-            <p className="text-xs text-text-secondary/60">{t('products.create.imageHint')}</p>
-          </div>
-        </div>
-      </Card>
+  return <div className="space-y-6 animate-fade-up max-w-4xl">
+    <button onClick={() => navigate(ROUTES.PRODUCTS)} className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary"><ArrowLeft size={16} /> {t('products.create.back')}</button>
+    <div className="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-accent/10 via-brand-accent-light to-transparent"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-white/60 flex items-center justify-center"><Package size={22} className="text-brand-accent" /></div><div className="flex-1"><h1 className="text-2xl font-extrabold text-text-primary">{t('products.create.title')}</h1><p className="text-sm text-text-secondary">{t('createFlow.subtitle')}</p></div>{createdProductId && <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700"><CheckCircle2 size={13} />{t('createFlow.savedState')}</span>}</div></div>
+    <Tabs tabs={tabs} activeTab={step} onChange={(id) => goToStep(id as CreateStep)} variant="pills" className="overflow-x-auto" />
 
+    {step === 'info' && <>
+      <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-4">{t('products.create.imageTitle')}</h3><div className="flex items-start gap-5"><div className="w-28 h-28 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center">{imagePreview || existingImageUrl ? <img src={imagePreview || existingImageUrl || ''} alt={t('products.create.preview')} className="w-full h-full object-cover" /> : <ImageOff size={28} className="text-text-secondary/40" />}</div><div className="space-y-2"><input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" /><Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>{imagePreview || existingImageUrl ? t('products.create.changeImage') : t('products.create.uploadImage')}</Button>{imagePreview && <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('products.create.removeImage')}</Button>}<p className="text-xs text-text-secondary/60">{t('products.create.imageHint')}</p></div></div></Card>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.create.basicInfo')}</h3>
-          <div className="space-y-5">
-            <TranslatedField
-              label={t('products.create.name')}
-              values={names}
-              onChange={(key, value) => setNames({ ...names, [key]: value })}
-              placeholder={t('products.create.namePlaceholder')}
-              required
-            />
-            <TranslatedField
-              label={t('products.create.description')}
-              values={descriptions}
-              onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })}
-              placeholder={t('products.create.descriptionPlaceholder')}
-              textarea
-            />
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.source')}</label>
-              <select value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="supplier">{t('products.create.sourceSupplier')}</option>
-                <option value="internal">{t('products.create.sourceInternal')}</option>
-                <option value="seasonal">{t('products.create.sourceSeasonal')}</option>
-              </select>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="lg">
-          <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('products.create.pricingInventory')}</h3>
-          <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.price')}</label>
-              <input type="number" step="0.01" min="0" value={form.price} onChange={(e) => handleChange('price', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0.00" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.unit')}</label>
-              <select value={form.unitId} onChange={(e) => handleUnitChange(e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">{t('products.create.selectUnit')}</option>
-                {units.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.nameAr}{unit.nameEn ? ` (${unit.nameEn})` : ''} — {unit.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.stockQuantity')}</label>
-              <input type="number" min="0" value={form.stockQuantity} onChange={(e) => handleChange('stockQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" placeholder="0" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.category')}</label>
-              <select value={form.categoryId} onChange={(e) => handleChange('categoryId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">{t('products.create.selectCategory')}</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.supplier')}</label>
-              <select value={form.supplierId} onChange={(e) => handleChange('supplierId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">{t('products.create.noSupplier')}</option>
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </Card>
+        <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.basicInfo')}</h3><div className="space-y-5"><TranslatedField label={t('products.create.name')} values={names} onChange={(key, value) => setNames({ ...names, [key]: value })} placeholder={t('products.create.namePlaceholder')} required /><TranslatedField label={t('products.create.description')} values={descriptions} onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })} placeholder={t('products.create.descriptionPlaceholder')} textarea /><FieldSelect label={t('products.create.source')} value={form.source} onChange={(value) => handleChange('source', value)} options={[['supplier', t('products.create.sourceSupplier')], ['internal', t('products.create.sourceInternal')], ['seasonal', t('products.create.sourceSeasonal')]]} /></div></Card>
+        <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.pricingInventory')}</h3><div className="space-y-5"><FieldInput label={t('products.create.price')} type="number" value={form.price} onChange={(value) => handleChange('price', value)} /><FieldSelect label={t('products.create.unit')} value={form.unitId} onChange={handleUnitChange} options={[['', t('products.create.selectUnit')], ...units.map((unit) => [String(unit.id), `${unit.nameAr}${unit.nameEn ? ` (${unit.nameEn})` : ''} — ${unit.code}`] as [string, string])]} /><FieldInput label={t('products.create.stockQuantity')} type="number" value={form.stockQuantity} onChange={(value) => handleChange('stockQuantity', value)} /><FieldSelect label={t('products.create.category')} value={form.categoryId} onChange={(value) => handleChange('categoryId', value)} options={[['', t('products.create.selectCategory')], ...categories.map((category) => [String(category.id), category.name] as [string, string])]} /><FieldSelect label={t('products.create.supplier')} value={form.supplierId} onChange={(value) => handleChange('supplierId', value)} options={[['', t('products.create.noSupplier')], ...suppliers.map((supplier) => [String(supplier.id), supplier.name] as [string, string])]} /></div></Card>
       </div>
+      <div className="flex gap-3"><Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={saveAndContinue} isLoading={saving}>{t('createFlow.saveContinue')}</Button><Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>{t('common.cancel')}</Button></div>
+    </>}
 
-      <Card padding="lg">
-        <VariantEditor
-          value={variants}
-          onChange={setVariants}
-          units={units}
-          productNames={names}
-        />
-      </Card>
+    {step === 'options' && <Card padding="lg"><h3 className="text-lg font-bold text-text-primary">{t('createFlow.optionsTitle')}</h3><p className="mt-1 text-sm text-text-secondary">{t('createFlow.optionsHint')}</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{([{ type: 'unit' as const, icon: Package, title: t('createFlow.unit'), hint: t('createFlow.unitHint') }, { type: 'color_size' as const, icon: Palette, title: t('colorSize.title'), hint: t('createFlow.colorSizeHint') }]).map((option) => <button key={option.type} type="button" onClick={() => chooseVariantType(option.type)} className={cn('rounded-2xl border p-5 text-start', variantType === option.type ? 'border-brand-primary bg-teal-50/50' : 'border-border-default')}><option.icon size={24} className="text-brand-primary" /><h4 className="mt-3 font-bold text-text-primary">{option.title}</h4><p className="mt-1 text-sm text-text-secondary">{option.hint}</p></button>)}</div><div className="mt-5"><Button variant="secondary" size="sm" onClick={() => goToStep('info')}>{t('createFlow.back')}</Button></div></Card>}
+    {step === 'configuration' && variantType === 'unit' && <Card padding="lg"><VariantEditor value={variants} onChange={setVariants} units={units} productNames={names} productSku={productSku} /><div className="mt-5 flex gap-3"><Button variant="primary" size="sm" onClick={saveUnitConfiguration} isLoading={saving}>{t('createFlow.saveContinue')}</Button><Button variant="secondary" size="sm" onClick={() => goToStep('options')}>{t('createFlow.back')}</Button></div></Card>}
+    {step === 'configuration' && variantType === 'color_size' && createdProductId && <><ColorSizeManagementSection productId={createdProductId} basePrice={form.price} baseStock={form.stockQuantity} onDisabled={() => { setVariantType('unit'); goToStep('options'); }} onFinish={() => goToStep('review')} /><Button variant="secondary" size="sm" onClick={() => goToStep('options')}>{t('createFlow.back')}</Button></>}
+    {step === 'review' && createdProductId && <Card padding="lg"><div className="text-center py-6"><CheckCircle2 size={42} className="mx-auto text-green-600" /><h3 className="mt-4 text-xl font-bold text-text-primary">{t('createFlow.readyTitle')}</h3><p className="mt-2 text-sm text-text-secondary">{t('createFlow.readyHint')}</p><div className="mt-6 flex justify-center gap-3"><Button variant="primary" size="sm" onClick={() => navigate(ROUTES.PRODUCT_DETAIL(createdProductId))}>{t('createFlow.finish')}</Button><Button variant="secondary" size="sm" onClick={() => goToStep('configuration')}>{t('createFlow.back')}</Button></div></div></Card>}
+    <ConfirmDialog open={disableOpen} title={t('colorSize.disableTitle')} message={t('colorSize.disableMessage')} confirmLabel={t('colorSize.disable')} cancelLabel={t('common.cancel')} isLoading={disableMutation.isPending} onCancel={() => setDisableOpen(false)} onConfirm={() => disableMutation.mutate(undefined, { onSuccess: async () => { if (!createdProductId) return; const refreshed = await productsApi.getProduct(createdProductId); setVariantType(refreshed.variantType); setDisableOpen(false); if (refreshed.variantType === 'unit') goToStep('configuration'); } })} />
+  </div>;
+}
 
-      <div className="flex items-center gap-3">
-        <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.create.save')}</Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>{t('common.cancel')}</Button>
-      </div>
-    </div>
-  );
+function FieldInput({ label, type, value, onChange }: { label: string; type: string; value: string; onChange: (value: string) => void }) {
+  return <div><label className="block text-xs font-bold text-text-secondary mb-1.5">{label}</label><input type={type} min="0" value={value} onChange={(event) => onChange(event.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm" /></div>;
+}
+
+function FieldSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <div><label className="block text-xs font-bold text-text-secondary mb-1.5">{label}</label><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm">{options.map(([optionValue, text]) => <option key={optionValue} value={optionValue}>{text}</option>)}</select></div>;
 }

@@ -4,16 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
-import type { ProductSource } from '@/types/marketplace';
+import type { ProductSource, ProductVariantType } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
+import { ColorSizeManagementSection } from '../components/ColorSizeManagementSection';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
+import { ArrowLeft, Package, Palette, Save, Upload, ImageOff } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
+import { useEnableColorSize } from '../hooks/useProductColors';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 
 export function EditProductPage() {
@@ -37,10 +39,12 @@ export function EditProductPage() {
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [variants, setVariants] = useState<VariantDraft[]>([]);
+  const [variantType, setVariantType] = useState<ProductVariantType>('unit');
   const [form, setForm] = useState({
     price: '', unit: 'kg', unitId: '', stockQuantity: '',
     categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
+  const enableColorSizeMutation = useEnableColorSize(id);
 
   useEffect(() => {
     if (!id) return;
@@ -77,6 +81,7 @@ export function EditProductPage() {
       setSuppliers(supps);
       setUnits(unitList);
       setProductSku(p.sku);
+      setVariantType(p.variantType);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
@@ -133,7 +138,8 @@ export function EditProductPage() {
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
         source: form.source,
-        variants: variants.length > 0 ? variants : undefined,
+        // Legacy unit variants remain untouched while color-size mode is active.
+        variants: variantType === 'unit' && variants.length > 0 ? variants : undefined,
         image: imageFile || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
@@ -280,15 +286,26 @@ export function EditProductPage() {
         </Card>
       </div>
 
-      <Card padding="lg">
-        <VariantEditor
-          value={variants}
-          onChange={setVariants}
-          units={units}
-          productNames={names}
-          productSku={productSku}
-        />
-      </Card>
+      {variantType === 'unit' ? (
+        <Card padding="lg">
+          <div className="mb-5 flex flex-col gap-3 border-b border-border-default pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="rounded-xl bg-teal-50 p-2.5 text-teal-600"><Palette size={18} /></span>
+              <div><h3 className="text-sm font-bold text-text-primary">{t('colorSize.enableTitle')}</h3><p className="text-xs text-text-secondary mt-1">{t('colorSize.enableHint')}</p></div>
+            </div>
+            <Button variant="secondary" size="sm" onClick={() => enableColorSizeMutation.mutate(undefined, { onSuccess: () => setVariantType('color_size') })} isLoading={enableColorSizeMutation.isPending}>{t('colorSize.enable')}</Button>
+          </div>
+          <VariantEditor
+            value={variants}
+            onChange={setVariants}
+            units={units}
+            productNames={names}
+            productSku={productSku}
+          />
+        </Card>
+      ) : (
+        <ColorSizeManagementSection productId={id} basePrice={form.price} baseStock={form.stockQuantity} onDisabled={() => setVariantType('unit')} />
+      )}
 
       <div className="flex items-center gap-3">
         <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.edit.saveChanges')}</Button>

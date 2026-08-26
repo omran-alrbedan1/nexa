@@ -67,6 +67,8 @@ export const ROUTES = {
 
   // Product units
   UNITS: '/units',
+  PRODUCT_SIZES: '/product-sizes',
+  COLORS: '/colors',
 
   // Suppliers
   SUPPLIERS: '/suppliers',
