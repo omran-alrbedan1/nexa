@@ -1408,7 +1408,8 @@
       "imageUpdated": "Product color image updated",
       "colorToggled": "Product color status changed",
       "colorDeleted": "Product color removed",
-      "generated": "Variants generated successfully"
+      "generated": "Variants generated successfully",
+      "matrixSaved": "Matrix saved."
     },
     "errors": {
       "invalid_color": "The selected color is invalid or unavailable.",
@@ -1417,7 +1418,14 @@
       "colors_required": "Link at least one color before generating variants.",
       "invalid_sizes": "One or more selected sizes are invalid or inactive.",
       "variant_type_required": "Enable Colors & Sizes mode first."
-    }
+    },
+    "matrixTitle": "Variant matrix",
+    "saveMatrix": "Save matrix",
+    "columnColorSize": "Color / Size",
+    "columnSku": "SKU",
+    "columnPrice": "Price",
+    "columnStock": "Stock",
+    "columnActive": "Active"
   },
   "productSizes": {
     "title": "Product Sizes",

@@ -2695,7 +2695,8 @@
       "imageUpdated": "תמונת הצבע עודכנה",
       "colorToggled": "סטטוס הצבע השתנה",
       "colorDeleted": "צבע המוצר הוסר",
-      "generated": "הווריאנטים נוצרו בהצלחה"
+      "generated": "הווריאנטים נוצרו בהצלחה",
+      "matrixSaved": "המטריצה נשמרה."
     },
     "errors": {
       "invalid_color": "הצבע שנבחר אינו תקין או אינו זמין.",
@@ -2704,7 +2705,14 @@
       "colors_required": "יש לקשר לפחות צבע אחד לפני היצירה.",
       "invalid_sizes": "אחת המידות אינה תקינה או אינה פעילה.",
       "variant_type_required": "יש להפעיל תחילה מצב צבעים ומידות."
-    }
+    },
+    "matrixTitle": "מטריצת וריאנטים",
+    "saveMatrix": "שמור מטריצה",
+    "columnColorSize": "צבע / מידה",
+    "columnSku": "SKU",
+    "columnPrice": "מחיר",
+    "columnStock": "מלאי",
+    "columnActive": "פעיל"
   },
   "productSizes": {
     "title": "מידות מוצרים",

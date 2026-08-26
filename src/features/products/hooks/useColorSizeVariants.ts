@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 import { useToastStore } from '@/stores/toastStore';
 import { productKeys } from './useProductsAdmin';
-import { colorSizeVariantsApi, type GenerateColorSizeVariantsInput } from '../api/colorSizeVariantsApi';
+import { colorSizeVariantsApi, type ColorSizeVariantUpsertRow, type GenerateColorSizeVariantsInput } from '../api/colorSizeVariantsApi';
 
 export const colorSizeVariantKeys = {
   all: (productId: number) => ['products', productId, 'color-size-variants'] as const,
@@ -40,6 +40,23 @@ export function useGenerateColorSizeVariants(productId: number) {
     onError: (error) => {
       const key = generateErrorKey(error);
       addToast('error', key ? t(key) : extractErrorMessage(error));
+    },
+  });
+}
+
+export function useUpsertColorSizeVariants(productId: number) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((state) => state.addToast);
+  return useMutation({
+    mutationFn: (variants: ColorSizeVariantUpsertRow[]) => colorSizeVariantsApi.upsert(productId, variants),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: colorSizeVariantKeys.all(productId) });
+      queryClient.invalidateQueries({ queryKey: productKeys.detail(productId) });
+      addToast('success', t('colorSize.toast.matrixSaved'));
+    },
+    onError: (error) => {
+      addToast('error', extractErrorMessage(error));
     },
   });
 }

@@ -57,6 +57,14 @@ function unwrapVariants(data: { variants?: BackendColorSizeVariant[] } | Backend
   return variants.map(mapVariant);
 }
 
+export interface ColorSizeVariantUpsertRow {
+  color_id: number;
+  size_id: number;
+  price: number;
+  stock_quantity: number | null;
+  is_active: boolean;
+}
+
 export const colorSizeVariantsApi = {
   enable: async (productId: number): Promise<void> => {
     await apiClient.post(`/api/v1/admin/products/${productId}/color-size/enable`);
@@ -78,5 +86,13 @@ export const colorSizeVariantsApi = {
       `/api/v1/admin/products/${productId}/color-size/generate`,
       input
     );
+  },
+
+  upsert: async (productId: number, variants: ColorSizeVariantUpsertRow[]): Promise<ColorSizeVariant[]> => {
+    const response = await apiClient.put<ApiResponse<{ variants?: BackendColorSizeVariant[] }>>(
+      `/api/v1/admin/products/${productId}/color-size/variants`,
+      { variants }
+    );
+    return unwrapVariants(response.data.data);
   },
 };

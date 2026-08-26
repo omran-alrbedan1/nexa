@@ -9,7 +9,7 @@ import { useToastStore } from '@/stores/toastStore';
 import { useColors } from '../hooks/useColors';
 import { useProductSizes } from '../hooks/useProductSizes';
 import { useProductColors, useDisableColorSize } from '../hooks/useProductColors';
-import { useColorSizeVariants, useGenerateColorSizeVariants } from '../hooks/useColorSizeVariants';
+import { useColorSizeVariants, useGenerateColorSizeVariants, useUpsertColorSizeVariants } from '../hooks/useColorSizeVariants';
 import { ProductColorsSection } from './ProductColorsSection';
 import { ProductColorSizeSelector } from './ProductColorSizeSelector';
 
@@ -35,6 +35,34 @@ export function ColorSizeManagementSection({ productId, basePrice, baseStock, on
   const variantsQuery = useColorSizeVariants(productId);
   const generateMutation = useGenerateColorSizeVariants(productId);
   const disableMutation = useDisableColorSize(productId);
+  const upsertMutation = useUpsertColorSizeVariants(productId);
+  const [drafts, setDrafts] = useState<Record<number, { price: number; stockQuantity: number; isActive: boolean }>>({});
+
+  const getRow = (variant: { id: number; price: number; stockQuantity: number; isActive: boolean }) => {
+    const draft = drafts[variant.id];
+    return {
+      price: draft ? draft.price : variant.price,
+      stockQuantity: draft ? draft.stockQuantity : variant.stockQuantity,
+      isActive: draft ? draft.isActive : variant.isActive,
+    };
+  };
+
+  const isDirty = Object.keys(drafts).length > 0;
+
+  const saveMatrix = () => {
+    const variants = variantsQuery.data ?? [];
+    const rows = variants.map((variant) => {
+      const row = getRow(variant);
+      return {
+        color_id: variant.colorId,
+        size_id: variant.sizeId,
+        price: row.price,
+        stock_quantity: row.stockQuantity,
+        is_active: row.isActive,
+      };
+    });
+    upsertMutation.mutate(rows, { onSuccess: () => setDrafts({}) });
+  };
   const productColors = productColorsQuery.data ?? [];
   const activeColors = productColors.filter((color) => color.isActive);
   const activeSizes = sizesQuery.data?.sizes.filter((size) => size.isActive) ?? [];
@@ -105,18 +133,62 @@ export function ColorSizeManagementSection({ productId, basePrice, baseStock, on
           {!variantsQuery.isLoading && <span className="text-sm text-text-secondary">{t('colorSize.generatedCount', { count: variantsQuery.data?.length ?? 0 })}</span>}
         </div>
         {(variantsQuery.data?.length ?? 0) > 0 && (
-          <div className="rounded-xl border border-border-default">
-            <div className="border-b border-border-default px-4 py-3 text-sm font-bold text-text-primary">{t('colorSize.generatedSummary')}</div>
-            <div className="divide-y divide-border-default">
-              {variantsQuery.data?.slice(0, 12).map((variant) => (
-                <div key={variant.id} className="grid grid-cols-2 gap-2 px-4 py-2 text-xs sm:grid-cols-5">
-                  <span>{variant.colorLabel || `#${variant.colorId}`} / {variant.sizeLabel || `#${variant.sizeId}`}</span>
-                  <span className="font-mono">{variant.sku || '—'}</span>
-                  <span>{t('colorSize.summaryPrice')}: {variant.price}</span>
-                  <span>{t('colorSize.summaryStock')}: {variant.stockQuantity}</span>
-                  <span>{variant.isActive ? t('common.active') : t('common.inactive')}</span>
-                </div>
-              ))}
+          <div className="rounded-xl border border-border-default overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
+              <h5 className="text-sm font-bold text-text-primary">{t('colorSize.matrixTitle')}</h5>
+              <Button variant="primary" size="sm" onClick={saveMatrix} isLoading={upsertMutation.isPending} disabled={!isDirty}>{t('colorSize.saveMatrix')}</Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-text-secondary border-b border-border-default">
+                    <th className="px-4 py-2 text-left font-body">{t('colorSize.columnColorSize')}</th>
+                    <th className="px-4 py-2 text-left font-body">{t('colorSize.columnSku')}</th>
+                    <th className="px-4 py-2 text-left font-body">{t('colorSize.columnPrice')}</th>
+                    <th className="px-4 py-2 text-left font-body">{t('colorSize.columnStock')}</th>
+                    <th className="px-4 py-2 text-left font-body">{t('colorSize.columnActive')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-default">
+                  {variantsQuery.data?.map((variant) => {
+                    const row = getRow(variant);
+                    return (
+                      <tr key={variant.id} className="font-body">
+                        <td className="px-4 py-2 whitespace-nowrap">{variant.colorLabel || `#${variant.colorId}`} / {variant.sizeLabel || `#${variant.sizeId}`}</td>
+                        <td className="px-4 py-2 font-mono whitespace-nowrap">{variant.sku || '—'}</td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={row.price}
+                            onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...getRow(variant), price: Number(event.target.value) } }))}
+                            className="w-24 px-2 py-1 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={row.stockQuantity}
+                            onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...getRow(variant), stockQuantity: Number(event.target.value) } }))}
+                            className="w-20 px-2 py-1 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={row.isActive}
+                            onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...getRow(variant), isActive: event.target.checked } }))}
+                            className="accent-brand-primary"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

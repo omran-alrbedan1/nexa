@@ -2584,7 +2584,8 @@
       "imageUpdated": "تم تحديث صورة لون المنتج",
       "colorToggled": "تم تغيير حالة لون المنتج",
       "colorDeleted": "تمت إزالة لون المنتج",
-      "generated": "تم توليد الخيارات بنجاح"
+      "generated": "تم توليد الخيارات بنجاح",
+      "matrixSaved": "تم حفظ المصفوفة."
     },
     "errors": {
       "invalid_color": "اللون المحدد غير صالح أو غير متاح.",
@@ -2593,7 +2594,14 @@
       "colors_required": "يجب ربط لون واحد على الأقل بالمنتج قبل توليد الخيارات.",
       "invalid_sizes": "يوجد مقاس غير صالح أو غير فعال.",
       "variant_type_required": "يجب تفعيل وضع الألوان والمقاسات أولًا."
-    }
+    },
+    "matrixTitle": "مصفوفة المتغيرات",
+    "saveMatrix": "حفظ المصفوفة",
+    "columnColorSize": "اللون / المقاس",
+    "columnSku": "رمز SKU",
+    "columnPrice": "السعر",
+    "columnStock": "المخزون",
+    "columnActive": "نشط"
   },
   "productSizes": {
     "title": "مقاسات المنتجات",
