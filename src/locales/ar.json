@@ -221,7 +221,14 @@
       "widthTooSmall": "يجب ألا يقل العرض عن {{min}} مم.",
       "widthTooLarge": "يجب ألا يزيد العرض عن {{max}} مم.",
       "loadError": "فشل تحميل إعدادات الطباعة.",
-      "logoLoadError": "فشل تحميل العلامة التجارية."
+      "logoLoadError": "فشل تحميل العلامة التجارية.",
+      "heightLabel": "طول الملصق",
+      "heightHint": "النطاق المسموح: {{min}}–{{max}} مم. الافتراضي: {{def}} مم.",
+      "heightTooSmall": "يجب ألا يقل الطول عن {{min}} مم.",
+      "heightTooLarge": "يجب ألا يزيد الطول عن {{max}} مم.",
+      "saveDimensions": "حفظ الأبعاد",
+      "dimensionsSaved": "تم تحديث أبعاد الطباعة.",
+      "dimensionsSaveFailed": "فشل تحديث أبعاد الطباعة."
     }
   },
   "customers": {

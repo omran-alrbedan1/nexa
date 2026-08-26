@@ -17,6 +17,7 @@ export function PrintBrandingPage() {
   const addToast = useToastStore((s) => s.addToast);
 
   const [width, setWidth] = useState<number | ''>('');
+  const [height, setHeight] = useState<number | ''>('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const { data: print, isLoading: printLoading } = useQuery({
@@ -30,8 +31,9 @@ export function PrintBrandingPage() {
   });
 
   const effectiveWidth = width === '' ? (print?.print_width_mm ?? print?.print_width_default_mm ?? 62) : Number(width);
+  const effectiveHeight = height === '' ? (print?.print_height_mm ?? print?.print_height_default_mm ?? 100) : Number(height);
 
-  const handleSaveWidth = async () => {
+  const handleSaveDimensions = async () => {
     if (print && effectiveWidth < print.print_width_min_mm) {
       addToast('error', t('settings.printBranding.widthTooSmall', { min: print.print_width_min_mm }));
       return;
@@ -40,13 +42,22 @@ export function PrintBrandingPage() {
       addToast('error', t('settings.printBranding.widthTooLarge', { max: print.print_width_max_mm }));
       return;
     }
+    if (print && effectiveHeight < print.print_height_min_mm) {
+      addToast('error', t('settings.printBranding.heightTooSmall', { min: print.print_height_min_mm }));
+      return;
+    }
+    if (print && effectiveHeight > print.print_height_max_mm) {
+      addToast('error', t('settings.printBranding.heightTooLarge', { max: print.print_height_max_mm }));
+      return;
+    }
     try {
-      await settingsApi.updatePrintSettings(effectiveWidth);
+      await settingsApi.updatePrintSettings(effectiveWidth, effectiveHeight);
       queryClient.invalidateQueries({ queryKey: ['print-settings'] });
       setWidth('');
-      addToast('success', t('settings.printBranding.widthSaved'));
+      setHeight('');
+      addToast('success', t('settings.printBranding.dimensionsSaved'));
     } catch {
-      addToast('error', t('settings.printBranding.widthSaveFailed'));
+      addToast('error', t('settings.printBranding.dimensionsSaveFailed'));
     }
   };
 
@@ -104,12 +115,28 @@ export function PrintBrandingPage() {
                   {t('settings.printBranding.widthHint', { min: print.print_width_min_mm, max: print.print_width_max_mm, def: print.print_width_default_mm })}
                 </p>
               </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary font-body mb-1">
+                  {t('settings.printBranding.heightLabel')} ({t('settings.printBranding.mm')})
+                </label>
+                <input
+                  type="number"
+                  value={effectiveHeight}
+                  min={print.print_height_min_mm}
+                  max={print.print_height_max_mm}
+                  onChange={(e) => setHeight(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light font-body"
+                />
+                <p className="text-xs text-text-tertiary font-body mt-1">
+                  {t('settings.printBranding.heightHint', { min: print.print_height_min_mm, max: print.print_height_max_mm, def: print.print_height_default_mm })}
+                </p>
+              </div>
               <div className="flex items-center gap-3">
-                <Button variant="primary" size="sm" onClick={handleSaveWidth}>
-                  {t('settings.printBranding.saveWidth')}
+                <Button variant="primary" size="sm" onClick={handleSaveDimensions}>
+                  {t('settings.printBranding.saveDimensions')}
                 </Button>
-                {width !== '' && (
-                  <Button variant="secondary" size="sm" onClick={() => setWidth('')}>
+                {(width !== '' || height !== '') && (
+                  <Button variant="secondary" size="sm" onClick={() => { setWidth(''); setHeight(''); }}>
                     {t('common.cancel')}
                   </Button>
                 )}
