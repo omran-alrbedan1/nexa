@@ -534,9 +534,10 @@ export const settingsApi = {
     const response = await apiClient.get<ApiResponse<PrintSettings>>('/api/v1/admin/print-settings');
     return response.data.data;
   },
-  updatePrintSettings: async (printWidthMm: number): Promise<PrintSettings> => {
+  updatePrintSettings: async (printWidthMm: number, printHeightMm: number): Promise<PrintSettings> => {
     const response = await apiClient.put<ApiResponse<PrintSettings>>('/api/v1/admin/print-settings', {
       print_width_mm: printWidthMm,
+      print_height_mm: printHeightMm,
     });
     return response.data.data;
   },
@@ -566,6 +567,10 @@ export interface PrintSettings {
   print_width_min_mm: number;
   print_width_max_mm: number;
   print_width_default_mm: number;
+  print_height_mm: number;
+  print_height_min_mm: number;
+  print_height_max_mm: number;
+  print_height_default_mm: number;
   features: {
     nexa_logo: boolean;
     barcode: boolean;

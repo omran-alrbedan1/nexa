@@ -287,7 +287,14 @@
       "widthTooSmall": "הרוחב חייב להיות לפחות {{min}} מ״מ.",
       "widthTooLarge": "הרוחב חייב להיות לכל היותר {{max}} מ״מ.",
       "loadError": "טעינת הגדרות ההדפסה נכשלה.",
-      "logoLoadError": "טעינת המיתוג נכשלה."
+      "logoLoadError": "טעינת המיתוג נכשלה.",
+      "heightLabel": "גובה התווית",
+      "heightHint": "טווח מותר: {{min}}–{{max}} מ״מ. ברירת מחדל: {{def}} מ״מ.",
+      "heightTooSmall": "הגובה חייב להיות לפחות {{min}} מ״מ.",
+      "heightTooLarge": "הגובה חייב להיות לכל היותר {{max}} מ״מ.",
+      "saveDimensions": "שמור מידות",
+      "dimensionsSaved": "מידות ההדפסה עודכנו.",
+      "dimensionsSaveFailed": "עדכון מידות ההדפסה נכשל."
     }
   },
   "customers": {

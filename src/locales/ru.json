@@ -287,7 +287,14 @@
       "widthTooSmall": "Ширина должна быть не менее {{min}} мм.",
       "widthTooLarge": "Ширина должна быть не более {{max}} мм.",
       "loadError": "Не удалось загрузить настройки печати.",
-      "logoLoadError": "Не удалось загрузить бренд."
+      "logoLoadError": "Не удалось загрузить бренд.",
+      "heightLabel": "Высота этикетки",
+      "heightHint": "Допустимый диапазон: {{min}}–{{max}} мм. По умолчанию: {{def}} мм.",
+      "heightTooSmall": "Высота должна быть не менее {{min}} мм.",
+      "heightTooLarge": "Высота должна быть не более {{max}} мм.",
+      "saveDimensions": "Сохранить размеры",
+      "dimensionsSaved": "Размеры печати обновлены.",
+      "dimensionsSaveFailed": "Не удалось обновить размеры печати."
     }
   },
   "customers": {

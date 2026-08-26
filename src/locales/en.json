@@ -287,7 +287,14 @@
       "widthTooSmall": "Width must be at least {{min}} mm.",
       "widthTooLarge": "Width must be at most {{max}} mm.",
       "loadError": "Failed to load print settings.",
-      "logoLoadError": "Failed to load branding."
+      "logoLoadError": "Failed to load branding.",
+      "heightLabel": "Label height",
+      "heightHint": "Allowed range: {{min}}–{{max}} mm. Default: {{def}} mm.",
+      "heightTooSmall": "Height must be at least {{min}} mm.",
+      "heightTooLarge": "Height must be at most {{max}} mm.",
+      "saveDimensions": "Save dimensions",
+      "dimensionsSaved": "Print dimensions updated.",
+      "dimensionsSaveFailed": "Failed to update print dimensions."
     }
   },
   "customers": {
