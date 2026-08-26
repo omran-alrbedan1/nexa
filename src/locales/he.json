@@ -66,7 +66,8 @@
       "privacyPolicy": "מדיניות פרטיות",
       "navigation": "תפריט ניווט",
       "aboutNexa": "אודות NEXA",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "printBranding": "הדפסה ומיתוג"
     },
     "navigation": {
       "title": "תפריט ניווט",
@@ -263,6 +264,30 @@
       "title": "תמחור",
       "description": "מרווח גלובלי המוחל על כל המחירים לצד הלקוח.",
       "hint": "אחוז זה מתווסף למחיר הבסיס של הספק בכל רכישה (קטלוג, סל וסכומי הזמנה). המחירים נשארים ללא שינוי במסד הנתונים."
+    },
+    "printBranding": {
+      "title": "הדפסה ומיתוג",
+      "description": "ניהול הגדרות הדפסת התוויות ולוגו Nexa.",
+      "printTitle": "הגדרות הדפסה",
+      "widthLabel": "רוחב התווית",
+      "mm": "מ״מ",
+      "widthHint": "טווח מותר: {{min}}–{{max}} מ״מ. ברירת מחדל: {{def}} מ״מ.",
+      "saveWidth": "שמור רוחב",
+      "previewLabel": "תצוגה מקדימה",
+      "brandingTitle": "מיתוג",
+      "brandingDescription": "העלה את לוגו Nexa המשמש בתוויות.",
+      "usingDefaultLogo": "משתמש בלוגו ברירת המחדל של Nexa.",
+      "usingCustomLogo": "משתמש בלוגו המותאם אישית שלך.",
+      "noLogo": "אין לוגו",
+      "uploadLogo": "העלה לוגו",
+      "logoUploaded": "הלוגו עודכן.",
+      "logoUploadFailed": "העלאת הלוגו נכשלה.",
+      "widthSaved": "רוחב ההדפסה עודכן.",
+      "widthSaveFailed": "עדכון רוחב ההדפסה נכשל.",
+      "widthTooSmall": "הרוחב חייב להיות לפחות {{min}} מ״מ.",
+      "widthTooLarge": "הרוחב חייב להיות לכל היותר {{max}} מ״מ.",
+      "loadError": "טעינת הגדרות ההדפסה נכשלה.",
+      "logoLoadError": "טעינת המיתוג נכשלה."
     }
   },
   "customers": {
@@ -2598,16 +2623,88 @@
     "next": "הבא"
   },
   "createFlow": {
-    "subtitle": "יצירת מוצר, בחירת סוג אפשרויות והשלמת ההגדרה בתהליך אחד.", "savedState": "המוצר נשמר", "productSaved": "המוצר נשמר. אפשר להמשיך להגדרת האפשרויות.", "productUpdated": "פרטי המוצר עודכנו", "saveContinue": "שמירה והמשך", "back": "חזרה", "optionsTitle": "אפשרויות מוצר", "optionsHint": "בחרו כיצד הלקוחות יבחרו את המוצר.", "unit": "יחידות", "unitHint": "שימוש בהגדרת היחידות והווריאנטים הקיימת.", "colorSizeHint": "הגדרת צבעים, תמונות ומידות לכל צבע.", "readyTitle": "המוצר מוכן", "readyHint": "כל העבודה שהושלמה כבר נשמרה.", "finish": "סיום המוצר",
-    "steps": { "info": "1. פרטי מוצר", "options": "2. אפשרויות מוצר", "configuration": "3. הגדרה", "review": "4. סקירה וסיום" }
+    "subtitle": "יצירת מוצר, בחירת סוג אפשרויות והשלמת ההגדרה בתהליך אחד.",
+    "savedState": "המוצר נשמר",
+    "productSaved": "המוצר נשמר. אפשר להמשיך להגדרת האפשרויות.",
+    "productUpdated": "פרטי המוצר עודכנו",
+    "saveContinue": "שמירה והמשך",
+    "back": "חזרה",
+    "optionsTitle": "אפשרויות מוצר",
+    "optionsHint": "בחרו כיצד הלקוחות יבחרו את המוצר.",
+    "unit": "יחידות",
+    "unitHint": "שימוש בהגדרת היחידות והווריאנטים הקיימת.",
+    "colorSizeHint": "הגדרת צבעים, תמונות ומידות לכל צבע.",
+    "readyTitle": "המוצר מוכן",
+    "readyHint": "כל העבודה שהושלמה כבר נשמרה.",
+    "finish": "סיום המוצר",
+    "steps": {
+      "info": "1. פרטי מוצר",
+      "options": "2. אפשרויות מוצר",
+      "configuration": "3. הגדרה",
+      "review": "4. סקירה וסיום"
+    }
   },
   "colorSize": {
-    "title": "צבעים ומידות", "description": "ניהול צבעי המוצר ויצירת שילובי מידות", "enableTitle": "צבעים ומידות", "enableHint": "העברת המוצר הקיים להגדרת צבעים ומידות.", "enable": "הפעלת צבעים ומידות", "disable": "השבתת צבעים ומידות", "disableTitle": "לחזור למצב יחידות?", "disableMessage": "המוצר יחזור למצב יחידות. נתוני הצבעים והמידות הקיימים יישמרו.",
-    "productColors": "צבעי מוצר", "productColorsHint": "קישור צבעים מהמילון הכללי והקצאת תמונת מוצר לכל צבע.", "addColor": "הוספת צבע", "editColor": "עריכת צבע מוצר", "globalColor": "צבע כללי", "selectGlobalColor": "בחירת צבע", "productImage": "תמונת המוצר בצבע זה", "imagePreview": "תצוגה מקדימה", "changeImage": "החלפת תמונה", "sortOrder": "סדר מיון", "enableColor": "הפעלה", "disableColor": "השבתה", "noProductColors": "לא קושרו צבעים למוצר", "noProductColorsHint": "קשרו צבע כללי פעיל כדי להתחיל.", "deleteColorTitle": "הסרת צבע מוצר", "deleteColorMessage": "להסיר את {{name}} מהמוצר?",
-    "selectSizes": "בחירת מידות", "selectSizesHint": "בחרו קבוצת מידות נפרדת לכל צבע מוצר פעיל.", "noActiveSizes": "אין מידות מוצר פעילות.", "generateVariants": "יצירת וריאנטים", "generateHint": "ערכי ברירת המחדל יחולו על השילובים החדשים.", "defaultPrice": "מחיר ברירת מחדל", "defaultStock": "מלאי ברירת מחדל", "generatedActive": "הווריאנטים החדשים פעילים", "generatedCount": "{{count}} וריאנטים נוצרו", "generatedSummary": "וריאנטים שנוצרו", "summaryPrice": "מחיר", "summaryStock": "מלאי",
-    "validation": { "activeColorRequired": "יש לקשר ולהפעיל לפחות צבע מוצר אחד.", "sizesRequired": "יש לבחור לפחות מידה אחת לצבע אחד.", "invalidPrice": "מחיר ברירת המחדל חייב להיות אפס ומעלה.", "invalidStock": "המלאי חייב להיות מספר שלם אפס ומעלה." },
-    "toast": { "enabled": "מצב צבעים ומידות הופעל", "disabled": "מצב יחידות שוחזר והנתונים נשמרו", "colorLinked": "הצבע קושר למוצר", "colorUpdated": "צבע המוצר עודכן", "imageUpdated": "תמונת הצבע עודכנה", "colorToggled": "סטטוס הצבע השתנה", "colorDeleted": "צבע המוצר הוסר", "generated": "הווריאנטים נוצרו בהצלחה" },
-    "errors": { "invalid_color": "הצבע שנבחר אינו תקין או אינו זמין.", "color_already_linked": "צבע זה כבר מקושר למוצר.", "color_in_use": "לא ניתן להסיר צבע זה משום שהוא בשימוש בווריאנטים.", "colors_required": "יש לקשר לפחות צבע אחד לפני היצירה.", "invalid_sizes": "אחת המידות אינה תקינה או אינה פעילה.", "variant_type_required": "יש להפעיל תחילה מצב צבעים ומידות." }
+    "title": "צבעים ומידות",
+    "description": "ניהול צבעי המוצר ויצירת שילובי מידות",
+    "enableTitle": "צבעים ומידות",
+    "enableHint": "העברת המוצר הקיים להגדרת צבעים ומידות.",
+    "enable": "הפעלת צבעים ומידות",
+    "disable": "השבתת צבעים ומידות",
+    "disableTitle": "לחזור למצב יחידות?",
+    "disableMessage": "המוצר יחזור למצב יחידות. נתוני הצבעים והמידות הקיימים יישמרו.",
+    "productColors": "צבעי מוצר",
+    "productColorsHint": "קישור צבעים מהמילון הכללי והקצאת תמונת מוצר לכל צבע.",
+    "addColor": "הוספת צבע",
+    "editColor": "עריכת צבע מוצר",
+    "globalColor": "צבע כללי",
+    "selectGlobalColor": "בחירת צבע",
+    "productImage": "תמונת המוצר בצבע זה",
+    "imagePreview": "תצוגה מקדימה",
+    "changeImage": "החלפת תמונה",
+    "sortOrder": "סדר מיון",
+    "enableColor": "הפעלה",
+    "disableColor": "השבתה",
+    "noProductColors": "לא קושרו צבעים למוצר",
+    "noProductColorsHint": "קשרו צבע כללי פעיל כדי להתחיל.",
+    "deleteColorTitle": "הסרת צבע מוצר",
+    "deleteColorMessage": "להסיר את {{name}} מהמוצר?",
+    "selectSizes": "בחירת מידות",
+    "selectSizesHint": "בחרו קבוצת מידות נפרדת לכל צבע מוצר פעיל.",
+    "noActiveSizes": "אין מידות מוצר פעילות.",
+    "generateVariants": "יצירת וריאנטים",
+    "generateHint": "ערכי ברירת המחדל יחולו על השילובים החדשים.",
+    "defaultPrice": "מחיר ברירת מחדל",
+    "defaultStock": "מלאי ברירת מחדל",
+    "generatedActive": "הווריאנטים החדשים פעילים",
+    "generatedCount": "{{count}} וריאנטים נוצרו",
+    "generatedSummary": "וריאנטים שנוצרו",
+    "summaryPrice": "מחיר",
+    "summaryStock": "מלאי",
+    "validation": {
+      "activeColorRequired": "יש לקשר ולהפעיל לפחות צבע מוצר אחד.",
+      "sizesRequired": "יש לבחור לפחות מידה אחת לצבע אחד.",
+      "invalidPrice": "מחיר ברירת המחדל חייב להיות אפס ומעלה.",
+      "invalidStock": "המלאי חייב להיות מספר שלם אפס ומעלה."
+    },
+    "toast": {
+      "enabled": "מצב צבעים ומידות הופעל",
+      "disabled": "מצב יחידות שוחזר והנתונים נשמרו",
+      "colorLinked": "הצבע קושר למוצר",
+      "colorUpdated": "צבע המוצר עודכן",
+      "imageUpdated": "תמונת הצבע עודכנה",
+      "colorToggled": "סטטוס הצבע השתנה",
+      "colorDeleted": "צבע המוצר הוסר",
+      "generated": "הווריאנטים נוצרו בהצלחה"
+    },
+    "errors": {
+      "invalid_color": "הצבע שנבחר אינו תקין או אינו זמין.",
+      "color_already_linked": "צבע זה כבר מקושר למוצר.",
+      "color_in_use": "לא ניתן להסיר צבע זה משום שהוא בשימוש בווריאנטים.",
+      "colors_required": "יש לקשר לפחות צבע אחד לפני היצירה.",
+      "invalid_sizes": "אחת המידות אינה תקינה או אינה פעילה.",
+      "variant_type_required": "יש להפעיל תחילה מצב צבעים ומידות."
+    }
   },
   "productSizes": {
     "title": "מידות מוצרים",
@@ -2625,7 +2722,9 @@
       "status": "סטטוס",
       "actions": "פעולות"
     },
-    "filters": { "all": "כל הסטטוסים" },
+    "filters": {
+      "all": "כל הסטטוסים"
+    },
     "form": {
       "createTitle": "יצירת מידת מוצר",
       "editTitle": "עריכת מידת מוצר",
@@ -2664,8 +2763,19 @@
     "enable": "הפעלה",
     "disable": "השבתה",
     "noHex": "אין ערך צבע",
-    "columns": { "color": "צבע", "code": "קוד", "nameAr": "שם בערבית", "nameEn": "שם באנגלית", "hex": "Hex", "sortOrder": "סדר מיון", "status": "סטטוס", "actions": "פעולות" },
-    "filters": { "all": "כל הסטטוסים" },
+    "columns": {
+      "color": "צבע",
+      "code": "קוד",
+      "nameAr": "שם בערבית",
+      "nameEn": "שם באנגלית",
+      "hex": "Hex",
+      "sortOrder": "סדר מיון",
+      "status": "סטטוס",
+      "actions": "פעולות"
+    },
+    "filters": {
+      "all": "כל הסטטוסים"
+    },
     "form": {
       "createTitle": "יצירת צבע",
       "editTitle": "עריכת צבע",
@@ -2678,9 +2788,20 @@
       "required": "קוד ושם בערבית הם שדות חובה.",
       "invalidHex": "יש להזין צבע תקין בפורמט #RRGGBB."
     },
-    "empty": { "title": "לא נמצאו צבעים", "description": "צרו את הצבע הראשון במילון הכללי." },
-    "delete": { "title": "מחיקת צבע", "message": "האם למחוק את {{name}}?" },
-    "toast": { "created": "הצבע נוצר", "updated": "הצבע עודכן", "toggled": "סטטוס הצבע השתנה", "deleted": "הצבע נמחק" },
+    "empty": {
+      "title": "לא נמצאו צבעים",
+      "description": "צרו את הצבע הראשון במילון הכללי."
+    },
+    "delete": {
+      "title": "מחיקת צבע",
+      "message": "האם למחוק את {{name}}?"
+    },
+    "toast": {
+      "created": "הצבע נוצר",
+      "updated": "הצבע עודכן",
+      "toggled": "סטטוס הצבע השתנה",
+      "deleted": "הצבע נמחק"
+    },
     "errors": {
       "loadTitle": "טעינת הצבעים נכשלה",
       "loadMessage": "אירעה שגיאה בלתי צפויה בטעינת הצבעים.",

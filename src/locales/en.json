@@ -66,7 +66,8 @@
       "faq": "FAQ",
       "aboutNexa": "About NEXA",
       "privacyPolicy": "Privacy Policy",
-      "navigation": "Navigation Menu"
+      "navigation": "Navigation Menu",
+      "printBranding": "Print & Branding"
     },
     "navigation": {
       "title": "Navigation Menu",
@@ -263,6 +264,30 @@
       "title": "Pricing",
       "description": "Global markup applied to all customer-facing prices.",
       "hint": "This percentage is added on top of the supplier base price at every purchase (catalog, cart and order totals). Prices stay unchanged in the database."
+    },
+    "printBranding": {
+      "title": "Print & Branding",
+      "description": "Manage label print settings and the Nexa logo.",
+      "printTitle": "Print Settings",
+      "widthLabel": "Label width",
+      "mm": "mm",
+      "widthHint": "Allowed range: {{min}}–{{max}} mm. Default: {{def}} mm.",
+      "saveWidth": "Save width",
+      "previewLabel": "Live preview",
+      "brandingTitle": "Branding",
+      "brandingDescription": "Upload the Nexa logo used on labels.",
+      "usingDefaultLogo": "Using the default Nexa logo.",
+      "usingCustomLogo": "Using your custom logo.",
+      "noLogo": "No logo",
+      "uploadLogo": "Upload logo",
+      "logoUploaded": "Logo updated.",
+      "logoUploadFailed": "Failed to upload logo.",
+      "widthSaved": "Print width updated.",
+      "widthSaveFailed": "Failed to update print width.",
+      "widthTooSmall": "Width must be at least {{min}} mm.",
+      "widthTooLarge": "Width must be at most {{max}} mm.",
+      "loadError": "Failed to load print settings.",
+      "logoLoadError": "Failed to load branding."
     }
   },
   "customers": {
@@ -1311,16 +1336,88 @@
     }
   },
   "createFlow": {
-    "subtitle": "Create the product, choose its option type, configure it, and finish in one flow.", "savedState": "Product saved", "productSaved": "Product saved. Continue with its options.", "productUpdated": "Product information updated", "saveContinue": "Save & Continue", "back": "Back", "optionsTitle": "Product Options", "optionsHint": "Choose how customers select this product.", "unit": "Unit", "unitHint": "Use the existing unit and legacy variant configuration.", "colorSizeHint": "Configure product colors, images, and sizes per color.", "readyTitle": "Product is ready", "readyHint": "All completed work has already been saved.", "finish": "Finish Product",
-    "steps": { "info": "1. Product Information", "options": "2. Product Options", "configuration": "3. Configuration", "review": "4. Review / Finish" }
+    "subtitle": "Create the product, choose its option type, configure it, and finish in one flow.",
+    "savedState": "Product saved",
+    "productSaved": "Product saved. Continue with its options.",
+    "productUpdated": "Product information updated",
+    "saveContinue": "Save & Continue",
+    "back": "Back",
+    "optionsTitle": "Product Options",
+    "optionsHint": "Choose how customers select this product.",
+    "unit": "Unit",
+    "unitHint": "Use the existing unit and legacy variant configuration.",
+    "colorSizeHint": "Configure product colors, images, and sizes per color.",
+    "readyTitle": "Product is ready",
+    "readyHint": "All completed work has already been saved.",
+    "finish": "Finish Product",
+    "steps": {
+      "info": "1. Product Information",
+      "options": "2. Product Options",
+      "configuration": "3. Configuration",
+      "review": "4. Review / Finish"
+    }
   },
   "colorSize": {
-    "title": "Colors & Sizes", "description": "Manage product colors and generate size combinations", "enableTitle": "Colors & Sizes", "enableHint": "Switch this existing product to color and size configuration.", "enable": "Enable Colors & Sizes", "disable": "Disable Colors & Sizes", "disableTitle": "Return to Unit mode?", "disableMessage": "The product will return to Unit mode. Existing color and size data will be preserved.",
-    "productColors": "Product Colors", "productColorsHint": "Link colors from the global dictionary and assign a product-specific image.", "addColor": "Add Color", "editColor": "Edit Product Color", "globalColor": "Global Color", "selectGlobalColor": "Select a color", "productImage": "Product image for this color", "imagePreview": "Product color image preview", "changeImage": "Change Image", "sortOrder": "Sort Order", "enableColor": "Enable", "disableColor": "Disable", "noProductColors": "No product colors linked", "noProductColorsHint": "Link an active global color to start configuring this product.", "deleteColorTitle": "Remove Product Color", "deleteColorMessage": "Remove {{name}} from this product?",
-    "selectSizes": "Select Sizes", "selectSizesHint": "Choose a separate set of active product sizes for each active product color.", "noActiveSizes": "No active Product Sizes are available.", "generateVariants": "Generate Variants", "generateHint": "These defaults apply to newly generated color and size combinations.", "defaultPrice": "Default Price", "defaultStock": "Default Stock Quantity", "generatedActive": "New variants are active", "generatedCount": "{{count}} generated variants", "generatedSummary": "Generated variants", "summaryPrice": "Price", "summaryStock": "Stock",
-    "validation": { "activeColorRequired": "Link and enable at least one product color first.", "sizesRequired": "Select at least one size for at least one color.", "invalidPrice": "Default price must be zero or greater.", "invalidStock": "Default stock must be a whole number zero or greater." },
-    "toast": { "enabled": "Colors & Sizes mode enabled", "disabled": "Unit mode restored; saved color and size data was preserved", "colorLinked": "Color linked to product", "colorUpdated": "Product color updated", "imageUpdated": "Product color image updated", "colorToggled": "Product color status changed", "colorDeleted": "Product color removed", "generated": "Variants generated successfully" },
-    "errors": { "invalid_color": "The selected color is invalid or unavailable.", "color_already_linked": "This color is already linked to this product.", "color_in_use": "This color cannot be removed because it is used by product variants.", "colors_required": "Link at least one color before generating variants.", "invalid_sizes": "One or more selected sizes are invalid or inactive.", "variant_type_required": "Enable Colors & Sizes mode first." }
+    "title": "Colors & Sizes",
+    "description": "Manage product colors and generate size combinations",
+    "enableTitle": "Colors & Sizes",
+    "enableHint": "Switch this existing product to color and size configuration.",
+    "enable": "Enable Colors & Sizes",
+    "disable": "Disable Colors & Sizes",
+    "disableTitle": "Return to Unit mode?",
+    "disableMessage": "The product will return to Unit mode. Existing color and size data will be preserved.",
+    "productColors": "Product Colors",
+    "productColorsHint": "Link colors from the global dictionary and assign a product-specific image.",
+    "addColor": "Add Color",
+    "editColor": "Edit Product Color",
+    "globalColor": "Global Color",
+    "selectGlobalColor": "Select a color",
+    "productImage": "Product image for this color",
+    "imagePreview": "Product color image preview",
+    "changeImage": "Change Image",
+    "sortOrder": "Sort Order",
+    "enableColor": "Enable",
+    "disableColor": "Disable",
+    "noProductColors": "No product colors linked",
+    "noProductColorsHint": "Link an active global color to start configuring this product.",
+    "deleteColorTitle": "Remove Product Color",
+    "deleteColorMessage": "Remove {{name}} from this product?",
+    "selectSizes": "Select Sizes",
+    "selectSizesHint": "Choose a separate set of active product sizes for each active product color.",
+    "noActiveSizes": "No active Product Sizes are available.",
+    "generateVariants": "Generate Variants",
+    "generateHint": "These defaults apply to newly generated color and size combinations.",
+    "defaultPrice": "Default Price",
+    "defaultStock": "Default Stock Quantity",
+    "generatedActive": "New variants are active",
+    "generatedCount": "{{count}} generated variants",
+    "generatedSummary": "Generated variants",
+    "summaryPrice": "Price",
+    "summaryStock": "Stock",
+    "validation": {
+      "activeColorRequired": "Link and enable at least one product color first.",
+      "sizesRequired": "Select at least one size for at least one color.",
+      "invalidPrice": "Default price must be zero or greater.",
+      "invalidStock": "Default stock must be a whole number zero or greater."
+    },
+    "toast": {
+      "enabled": "Colors & Sizes mode enabled",
+      "disabled": "Unit mode restored; saved color and size data was preserved",
+      "colorLinked": "Color linked to product",
+      "colorUpdated": "Product color updated",
+      "imageUpdated": "Product color image updated",
+      "colorToggled": "Product color status changed",
+      "colorDeleted": "Product color removed",
+      "generated": "Variants generated successfully"
+    },
+    "errors": {
+      "invalid_color": "The selected color is invalid or unavailable.",
+      "color_already_linked": "This color is already linked to this product.",
+      "color_in_use": "This color cannot be removed because it is used by product variants.",
+      "colors_required": "Link at least one color before generating variants.",
+      "invalid_sizes": "One or more selected sizes are invalid or inactive.",
+      "variant_type_required": "Enable Colors & Sizes mode first."
+    }
   },
   "productSizes": {
     "title": "Product Sizes",
@@ -1338,7 +1435,9 @@
       "status": "Status",
       "actions": "Actions"
     },
-    "filters": { "all": "All statuses" },
+    "filters": {
+      "all": "All statuses"
+    },
     "form": {
       "createTitle": "Create Product Size",
       "editTitle": "Edit Product Size",
@@ -1377,8 +1476,19 @@
     "enable": "Enable",
     "disable": "Disable",
     "noHex": "No hex value",
-    "columns": { "color": "Color", "code": "Code", "nameAr": "Arabic Name", "nameEn": "English Name", "hex": "Hex", "sortOrder": "Sort Order", "status": "Status", "actions": "Actions" },
-    "filters": { "all": "All statuses" },
+    "columns": {
+      "color": "Color",
+      "code": "Code",
+      "nameAr": "Arabic Name",
+      "nameEn": "English Name",
+      "hex": "Hex",
+      "sortOrder": "Sort Order",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "filters": {
+      "all": "All statuses"
+    },
     "form": {
       "createTitle": "Create Color",
       "editTitle": "Edit Color",
@@ -1391,9 +1501,20 @@
       "required": "Code and Arabic name are required.",
       "invalidHex": "Enter a valid hex color in #RRGGBB format."
     },
-    "empty": { "title": "No colors found", "description": "Create the first color in the global dictionary." },
-    "delete": { "title": "Delete Color", "message": "Are you sure you want to delete {{name}}?" },
-    "toast": { "created": "Color created", "updated": "Color updated", "toggled": "Color status changed", "deleted": "Color deleted" },
+    "empty": {
+      "title": "No colors found",
+      "description": "Create the first color in the global dictionary."
+    },
+    "delete": {
+      "title": "Delete Color",
+      "message": "Are you sure you want to delete {{name}}?"
+    },
+    "toast": {
+      "created": "Color created",
+      "updated": "Color updated",
+      "toggled": "Color status changed",
+      "deleted": "Color deleted"
+    },
     "errors": {
       "loadTitle": "Failed to load colors",
       "loadMessage": "An unexpected error occurred while loading colors.",

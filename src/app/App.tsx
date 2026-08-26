@@ -202,6 +202,9 @@ const AboutNexaPage = lazy(() =>
 const SettingsNavigationPage = lazy(() =>
   import('@/features/settings/pages/SettingsNavigationPage').then((m) => ({ default: m.SettingsNavigationPage }))
 );
+const PrintBrandingPage = lazy(() =>
+  import('@/features/settings/pages/PrintBrandingPage').then((m) => ({ default: m.PrintBrandingPage }))
+);
 
 // ── Complaints & Special Requests ──
 const ComplaintDetailPage = lazy(() =>
@@ -374,6 +377,7 @@ export function App() {
                 <Route path={ROUTES.SETTINGS_NAVIGATION} element={<SettingsNavigationPage />} />
                 <Route path={ROUTES.SETTINGS_FAQ} element={<FaqSettingsPage />} />
                 <Route path={ROUTES.SETTINGS_ABOUT_NEXA} element={<AboutNexaPage />} />
+                <Route path={ROUTES.SETTINGS_PRINT} element={<PrintBrandingPage />} />
               </Route>
 
               {/* Delivery Slots — removed; trips are scheduled per day instead */}

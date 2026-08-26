@@ -118,4 +118,5 @@ export const ROUTES = {
   SETTINGS_NAVIGATION: '/settings/navigation',
   SETTINGS_FAQ: '/settings/faq',
   SETTINGS_ABOUT_NEXA: '/settings/about-nexa',
+  SETTINGS_PRINT: '/settings/print-branding',
 } as const;
