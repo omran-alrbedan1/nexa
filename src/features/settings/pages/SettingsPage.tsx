@@ -9,7 +9,7 @@ import type { Setting } from '../api/settingsApi';
 // import { type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
 
 
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer } from 'lucide-react';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -21,6 +21,7 @@ const SETTINGS_TABS = [
   { key: 'about-nexa', label: 'settings.tabs.aboutNexa', icon: Info, route: ROUTES.SETTINGS_ABOUT_NEXA },
   { key: 'privacy-policy', label: 'settings.tabs.privacyPolicy', icon: FileText, route: ROUTES.SETTINGS_PRIVACY_POLICY },
   { key: 'navigation', label: 'settings.tabs.navigation', icon: Menu, route: ROUTES.SETTINGS_NAVIGATION },
+  { key: 'print-branding', label: 'settings.tabs.printBranding', icon: Printer, route: ROUTES.SETTINGS_PRINT },
 ];
 
 function SettingRow({ setting, value, onChange }: { setting: Setting; value: string; onChange: (value: string) => void }) {

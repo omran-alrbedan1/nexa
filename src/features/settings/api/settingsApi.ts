@@ -528,4 +528,54 @@ export const settingsApi = {
       throw new Error('Failed to fetch audit logs');
     }
   },
+
+  // ── Print Settings ──
+  getPrintSettings: async (): Promise<PrintSettings> => {
+    const response = await apiClient.get<ApiResponse<PrintSettings>>('/api/v1/admin/print-settings');
+    return response.data.data;
+  },
+  updatePrintSettings: async (printWidthMm: number): Promise<PrintSettings> => {
+    const response = await apiClient.put<ApiResponse<PrintSettings>>('/api/v1/admin/print-settings', {
+      print_width_mm: printWidthMm,
+    });
+    return response.data.data;
+  },
+
+  // ── Branding (Nexa Logo) ──
+  getBrandingLogo: async (): Promise<BrandingLogo> => {
+    const response = await apiClient.get<ApiResponse<BrandingLogo>>('/api/v1/admin/branding/logo');
+    return response.data.data;
+  },
+  uploadBrandingLogo: async (file: File): Promise<BrandingLogo> => {
+    const form = new FormData();
+    form.append('logo', file);
+    const response = await apiClient.post<ApiResponse<BrandingLogo>>('/api/v1/admin/branding/logo', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data;
+  },
 };
+
+export interface PrintSettings {
+  title: string;
+  description: string;
+  preview_url: string;
+  logo_url: string | null;
+  logo_is_default: boolean;
+  print_width_mm: number;
+  print_width_min_mm: number;
+  print_width_max_mm: number;
+  print_width_default_mm: number;
+  features: {
+    nexa_logo: boolean;
+    barcode: boolean;
+    sample_data: boolean;
+    direct_print: boolean;
+    dynamic_width: boolean;
+  };
+}
+
+export interface BrandingLogo {
+  logo_url: string;
+  is_default: boolean;
+}
