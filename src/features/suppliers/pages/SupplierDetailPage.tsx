@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories, useToggleSupplier, useDeleteSupplier } from '../hooks/useSuppliers';
+import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories, useToggleSupplier, useDeleteSupplier, useUpdateSupplier } from '../hooks/useSuppliers';
 import { suppliersApi } from '../api/suppliersApi';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +11,9 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 import { DocumentsSection } from '@/components/documents/DocumentsSection';
+import { regionsApi } from '@/features/regions/api/regionsApi';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import axios from 'axios';
 import { ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2, Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
@@ -274,6 +275,23 @@ export function SupplierDetailPage() {
     staleTime: 60_000,
   });
 
+  // ── Edit supplier (info + cover image) ──
+  const updateSupplierMutation = useUpdateSupplier();
+  const { data: zonesData } = useQuery({
+    queryKey: ['zones', 'all'],
+    queryFn: () => regionsApi.getPageData({ perPage: 200 }),
+    staleTime: 60_000,
+  });
+  const zones = zonesData?.regions ?? [];
+
+  const [editModal, setEditModal] = useState(false);
+  const [editForm, setEditForm] = useState<{
+    name: string; nameAr: string; nameHe: string; nameRu: string;
+    address: string; zoneId: number | null; shortDescription: string; longDescription: string; minimumOrderAmount: number;
+  }>({ name: '', nameAr: '', nameHe: '', nameRu: '', address: '', zoneId: null, shortDescription: '', longDescription: '', minimumOrderAmount: 0 });
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [editPreview, setEditPreview] = useState<string | null>(null);
+
   useEffect(() => {
     if (selectedCategoryIds) {
       setCatSelection(selectedCategoryIds);
@@ -327,6 +345,46 @@ export function SupplierDetailPage() {
     return val ?? '—';
   };
 
+  // ── Edit supplier handlers (after the loading guard so `supplier` is defined) ──
+  const openEdit = () => {
+    setEditForm({
+      name: supplier.name,
+      nameAr: supplier.nameAr,
+      nameHe: supplier.nameHe,
+      nameRu: supplier.nameRu,
+      address: supplier.address,
+      zoneId: supplier.zoneId,
+      shortDescription: supplier.shortDescription ?? '',
+      longDescription: supplier.longDescription ?? '',
+      minimumOrderAmount: supplier.minimumOrderAmount ?? 0,
+    });
+    setEditFile(null);
+    setEditPreview(supplier.coverImage ?? null);
+    setEditModal(true);
+  };
+
+  const handleCoverFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (editPreview && editPreview.startsWith('blob:')) URL.revokeObjectURL(editPreview);
+    if (file) {
+      setEditFile(file);
+      setEditPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const clearCover = () => {
+    if (editPreview && editPreview.startsWith('blob:')) URL.revokeObjectURL(editPreview);
+    setEditFile(null);
+    setEditPreview(supplier.coverImage ?? null);
+  };
+
+  const handleSave = () => {
+    updateSupplierMutation.mutate(
+      { id: supplier.id, data: editForm, file: editFile },
+      { onSuccess: () => setEditModal(false) },
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Back */}
@@ -339,8 +397,12 @@ export function SupplierDetailPage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="relative z-10">
           <div className="flex flex-wrap items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Building2 size={28} className="text-brand-primary" />
+            <div className="w-14 h-14 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm overflow-hidden">
+              {supplier.coverImage ? (
+                <img src={supplier.coverImage} alt={supplier.name} className="w-full h-full object-cover" />
+              ) : (
+                <Building2 size={28} className="text-brand-primary" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
@@ -353,6 +415,9 @@ export function SupplierDetailPage() {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <Button variant="secondary" size="sm" leftIcon={<Pencil size={14} />} onClick={openEdit}>
+                {t('suppliers.edit.button', 'Edit')}
+              </Button>
               {supplier.status === 'pending_approval' && (
                 <>
                   <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approvingId === supplier.id} onClick={() => { setApprovingId(supplier.id); approveSupplier.mutate(supplier.id, { onSettled: () => setApprovingId(null) }); }}>
@@ -546,6 +611,89 @@ export function SupplierDetailPage() {
             <Button variant="primary" size="sm" isLoading={syncCategories.isPending} onClick={() => {
               syncCategories.mutate(catSelection, { onSuccess: () => setCatModal(false) });
             }}>{t('common.save')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Supplier Modal */}
+      <Modal open={editModal} onClose={() => setEditModal(false)} title={t('suppliers.edit.title', 'Edit Supplier')}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameEn')}</label>
+              <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameAr')}</label>
+              <input value={editForm.nameAr} onChange={(e) => setEditForm({ ...editForm, nameAr: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameHe')}</label>
+              <input value={editForm.nameHe} onChange={(e) => setEditForm({ ...editForm, nameHe: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameRu')}</label>
+              <input value={editForm.nameRu} onChange={(e) => setEditForm({ ...editForm, nameRu: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.address')}</label>
+            <textarea value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} rows={2} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.zone')}</label>
+            <select value={editForm.zoneId ?? ''} onChange={(e) => setEditForm({ ...editForm, zoneId: e.target.value ? Number(e.target.value) : null })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
+              <option value="">{t('suppliers.edit.noZone', 'No zone')}</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.id}>{z.nameAr || z.nameEn || z.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.shortDescription')}</label>
+              <input value={editForm.shortDescription} onChange={(e) => setEditForm({ ...editForm, shortDescription: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.minimumOrder')}</label>
+              <input type="number" min={0} value={editForm.minimumOrderAmount} onChange={(e) => setEditForm({ ...editForm, minimumOrderAmount: e.target.value === '' ? 0 : Number(e.target.value) })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.longDescription')}</label>
+            <textarea value={editForm.longDescription} onChange={(e) => setEditForm({ ...editForm, longDescription: e.target.value })} rows={3} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.coverImage')}</label>
+            <div className="flex items-center gap-3">
+              <div className="w-20 h-20 rounded-xl border border-border-default overflow-hidden bg-bg-input flex items-center justify-center flex-shrink-0">
+                {editPreview ? (
+                  <img src={editPreview} alt="cover" className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 size={24} className="text-text-secondary/40" />
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <input id="supplier-cover-input" type="file" accept="image/*" onChange={handleCoverFile} className="hidden" />
+                <label htmlFor="supplier-cover-input" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl border border-border-default bg-white text-text-primary hover:bg-gray-50 transition-all font-display cursor-pointer">
+                  {t('suppliers.edit.uploadImage', 'Upload image')}
+                </label>
+                {editFile && (
+                  <Button variant="ghost" size="sm" onClick={clearCover}>{t('common.remove')}</Button>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-text-tertiary mt-1">{t('suppliers.edit.coverImageHint', 'JPG, PNG or WEBP, max 5 MB.')}</p>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="secondary" size="sm" onClick={() => setEditModal(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" isLoading={updateSupplierMutation.isPending} onClick={handleSave}>{t('suppliers.edit.save', 'Save')}</Button>
           </div>
         </div>
       </Modal>

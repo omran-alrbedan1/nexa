@@ -56,6 +56,11 @@ export interface Supplier {
   contactPerson: string;
   contactPhone: string;
   address: string;
+  zoneId: number | null;
+  coverImage: string | null;
+  shortDescription: string | null;
+  longDescription: string | null;
+  minimumOrderAmount: number | null;
   notes: string;
   documents: SupplierDocument[];
   createdAt: string;
@@ -225,6 +230,11 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     contactPerson: bs.user?.full_name || '',
     contactPhone: bs.user?.phone || '',
     address: bs.address || '',
+    zoneId: bs.zone?.id ?? null,
+    coverImage: bs.cover_image ?? null,
+    shortDescription: bs.short_description ?? null,
+    longDescription: bs.long_description ?? null,
+    minimumOrderAmount: bs.minimum_order_amount != null ? Number(bs.minimum_order_amount) : null,
     notes: bs.rejection_reason || '',
     documents: (bs.documents || []).map((d) => ({
       id: d.id,
@@ -323,8 +333,24 @@ export const suppliersApi = {
     return response.data.data;
   },
 
-  /** Update an existing supplier */
-  updateSupplier: async (id: number, data: Partial<Supplier>): Promise<Supplier> => {
+  /** Update an existing supplier (optionally with a cover image file) */
+  updateSupplier: async (id: number, data: Partial<Supplier>, file?: File | null): Promise<Supplier> => {
+    if (file) {
+      const formData = new FormData();
+      if (data.name) formData.append('business_name', data.name);
+      if (data.nameAr) formData.append('name_ar', data.nameAr);
+      if (data.nameHe) formData.append('name_he', data.nameHe);
+      if (data.nameRu) formData.append('name_ru', data.nameRu);
+      if (data.address) formData.append('address', data.address);
+      if (data.zoneId != null) formData.append('zone_id', String(data.zoneId));
+      if (data.shortDescription) formData.append('short_description', data.shortDescription);
+      if (data.longDescription) formData.append('long_description', data.longDescription);
+      if (data.minimumOrderAmount != null) formData.append('minimum_order_amount', String(data.minimumOrderAmount));
+      formData.append('store_cover_image', file);
+      const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, formData);
+      return mapBackendSupplier(response.data.data);
+    }
+
     const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
     return mapBackendSupplier(response.data.data);
   },

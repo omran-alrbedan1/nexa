@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { suppliersApi, type SuppliersPageData } from '../api/suppliersApi';
+import { suppliersApi, type SuppliersPageData, type Supplier } from '../api/suppliersApi';
 import type { DashboardProduct } from '@/features/products/api/productsApi';
 
 export const supplierKeys = {
@@ -168,5 +168,21 @@ export function useSyncSupplierCategories(supplierId: number) {
       addToast('success', t('suppliers.toast.categoriesUpdated', 'Categories updated'));
     },
     onError: () => addToast('error', t('suppliers.toast.categoriesUpdateFailed', 'Failed to update categories')),
+  });
+}
+
+export function useUpdateSupplier() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, data, file }: { id: number; data: Partial<Supplier>; file?: File | null }) =>
+      suppliersApi.updateSupplier(id, data, file),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.pageData() });
+      addToast('success', t('suppliers.edit.success', 'Supplier updated'));
+    },
+    onError: () => addToast('error', t('suppliers.edit.failed', 'Failed to update supplier')),
   });
 }

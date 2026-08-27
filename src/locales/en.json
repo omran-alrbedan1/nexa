@@ -1870,6 +1870,26 @@
       "businessName": "Business Name *",
       "businessNamePlaceholder": "e.g. Fresh Farm Co."
     },
+    "edit": {
+      "button": "Edit",
+      "title": "Edit Supplier",
+      "businessNameEn": "Business Name (EN)",
+      "businessNameAr": "Business Name (AR)",
+      "businessNameHe": "Business Name (HE)",
+      "businessNameRu": "Business Name (RU)",
+      "address": "Address",
+      "zone": "Delivery Zone",
+      "noZone": "No zone",
+      "shortDescription": "Short Description",
+      "minimumOrder": "Minimum Order Amount",
+      "longDescription": "Long Description",
+      "coverImage": "Store Cover Image",
+      "uploadImage": "Upload image",
+      "coverImageHint": "JPG, PNG or WEBP, max 5 MB.",
+      "save": "Save",
+      "success": "Supplier updated successfully",
+      "failed": "Failed to update supplier"
+    },
     "delete": {
       "button": "Delete account",
       "title": "Delete {{name}}",
