@@ -36,7 +36,7 @@ export function CreateProductPage() {
   const [units, setUnits] = useState<ProductUnit[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  const [existingImageUrl] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryId: '', supplierId: '', source: 'supplier' as ProductSource });

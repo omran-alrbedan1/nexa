@@ -192,6 +192,7 @@ function mapBackendProductToDashboard(bp: BackendSupplierProduct): DashboardProd
     totalOrders: 0,
     createdAt: bp.updated_at,
     updatedAt: bp.updated_at,
+    variantType: 'unit',
   };
 }
 

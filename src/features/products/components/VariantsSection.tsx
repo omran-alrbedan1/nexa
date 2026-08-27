@@ -30,6 +30,7 @@ function VariantFormModal({
   isSaving,
   editing,
   units,
+  colors,
   productNames,
   productSku,
   existing,

@@ -5,11 +5,6 @@ import { settingsApi } from '../api/settingsApi';
 import { useToastStore } from '@/stores/toastStore';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ROUTES } from '@/routes/routes';
-
-function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ');
-}
 
 export function PrintBrandingPage() {
   const { t } = useTranslation();

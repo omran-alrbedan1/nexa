@@ -10,20 +10,22 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  componentStack: string | null;
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, componentStack: null };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error, componentStack: null };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[ErrorBoundary] Unhandled error:', error.message, errorInfo.componentStack);
+    this.setState({ componentStack: errorInfo.componentStack ?? null });
   }
 
   handleReset = () => {
@@ -66,8 +68,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <summary className="text-xs text-text-tertiary font-body cursor-pointer hover:text-text-secondary transition-colors">
                   Error details
                 </summary>
-                <pre className="mt-2 p-3 rounded-xl bg-bg-section-alt border border-border-default text-xs text-text-secondary font-mono overflow-auto max-h-32 whitespace-pre-wrap">
-                  {this.state.error.message}
+                <pre className="mt-2 p-3 rounded-xl bg-bg-section-alt border border-border-default text-xs text-text-secondary font-mono overflow-auto max-h-48 whitespace-pre-wrap">
+{`message: ${this.state.error.message}\n\nstack:\n${this.state.error.stack ?? ''}\n\ncomponentStack:${this.state.componentStack ?? ''}`}
                 </pre>
               </details>
             )}
