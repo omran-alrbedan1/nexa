@@ -398,6 +398,7 @@ export const productsApi = {
 export interface ProductVariantInput {
   id?: number;
   unit_id?: number;
+  color_id?: number;
   name_ar?: string;
   name_en?: string;
   name_he?: string;
@@ -409,10 +410,29 @@ export interface ProductVariantInput {
   _delete?: boolean;
 }
 
+export interface ProductVariantUnit {
+  id: number;
+  code: string;
+  name_ar: string;
+  name_en?: string | null;
+  name_he?: string | null;
+  name_ru?: string | null;
+}
+
+export interface ProductVariantColor {
+  id: number;
+  global_color_id: number;
+  code: string | null;
+  name_ar: string | null;
+  name_en?: string | null;
+  hex: string | null;
+}
+
 export interface ProductVariant {
   id: number;
   product_id: number;
   unit_id: number | null;
+  color_id: number | null;
   sku: string | null;
   name_ar: string;
   name_en: string | null;
@@ -422,11 +442,14 @@ export interface ProductVariant {
   stock_quantity: number;
   available_stock: number;
   is_active: boolean;
+  color?: ProductVariantColor | null;
+  unit?: ProductVariantUnit | null;
   created_at: string;
 }
 
 export type VariantFormData = {
   unit_id?: number;
+  color_id?: number;
   name_ar?: string;
   name_en?: string;
   name_he?: string;

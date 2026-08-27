@@ -1,25 +1,28 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/utils/cn';
 import type { ProductColor } from '../api/productColorsApi';
-import type { ProductSize } from '../api/productSizesApi';
+import type { ProductUnit } from '../api/unitsApi';
 
-interface ProductColorSizeSelectorProps {
+interface ProductColorUnitSelectorProps {
   colors: ProductColor[];
-  sizes: ProductSize[];
+  units: ProductUnit[];
   selections: Record<number, number[]>;
-  onChange: (colorId: number, sizeIds: number[]) => void;
+  onChange: (colorId: number, unitIds: number[]) => void;
 }
 
-export function ProductColorSizeSelector({ colors, sizes, selections, onChange }: ProductColorSizeSelectorProps) {
+export function ProductColorUnitSelector({ colors, units, selections, onChange }: ProductColorUnitSelectorProps) {
   const { t, i18n } = useTranslation();
   const colorName = (color: ProductColor) => i18n.language === 'ar' ? color.nameAr || color.nameEn || color.code : color.nameEn || color.nameAr || color.code;
-  const sizeName = (size: ProductSize) => i18n.language === 'ar' ? size.nameAr : size.nameEn || size.nameAr;
+  const unitName = (unit: ProductUnit) => {
+    const lang: keyof ProductUnit = i18n.language === 'ar' ? 'nameAr' : i18n.language === 'he' ? 'nameHe' : i18n.language === 'ru' ? 'nameRu' : 'nameEn';
+    return unit[lang] || unit.nameEn || unit.nameAr || unit.code;
+  };
 
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-sm font-bold text-text-primary">{t('colorSize.selectSizes')}</h4>
-        <p className="text-xs text-text-secondary mt-1">{t('colorSize.selectSizesHint')}</p>
+        <h4 className="text-sm font-bold text-text-primary">{t('colorSize.selectUnits')}</h4>
+        <p className="text-xs text-text-secondary mt-1">{t('colorSize.selectUnitsHint')}</p>
       </div>
       {colors.map((color) => {
         const selected = selections[color.id] ?? [];
@@ -31,20 +34,20 @@ export function ProductColorSizeSelector({ colors, sizes, selections, onChange }
               <span className="font-mono text-xs text-text-secondary">{color.code}</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {sizes.map((size) => {
-                const checked = selected.includes(size.id);
+              {units.map((unit) => {
+                const checked = selected.includes(unit.id);
                 return (
                   <button
-                    key={size.id}
+                    key={unit.id}
                     type="button"
-                    onClick={() => onChange(color.id, checked ? selected.filter((id) => id !== size.id) : [...selected, size.id])}
+                    onClick={() => onChange(color.id, checked ? selected.filter((id) => id !== unit.id) : [...selected, unit.id])}
                     className={cn(
                       'rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors',
                       checked ? 'border-brand-primary bg-brand-primary text-white' : 'border-border-default bg-white text-text-secondary hover:border-brand-primary'
                     )}
                     aria-pressed={checked}
                   >
-                    {checked ? '✓ ' : ''}{size.code} · {sizeName(size)}
+                    {checked ? '✓ ' : ''}{unit.code} · {unitName(unit)}
                   </button>
                 );
               })}

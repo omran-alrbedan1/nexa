@@ -5,12 +5,14 @@ import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { unitsApi, type ProductUnit, type UnitGroup } from '../api/unitsApi';
+import type { ProductColor } from '../api/productColorsApi';
 import { UnitMultiPickerModal, type BulkUnitItem } from './UnitMultiPickerModal';
 import { Package, Plus, Pencil, Trash2, Layers, AlertTriangle, Layers2 } from 'lucide-react';
 
 export interface VariantDraft {
   id?: number;
   unit_id?: number;
+  color_id?: number;
   name_ar: string;
   name_en?: string;
   name_he?: string;
@@ -26,12 +28,14 @@ interface VariantEditorProps {
   value: VariantDraft[];
   onChange: (variants: VariantDraft[]) => void;
   units?: ProductUnit[];
+  colors?: ProductColor[];
   productNames?: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   productSku?: string;
 }
 
 interface DraftState {
   unit_id: string;
+  color_id: string;
   names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   sku: string;
   price: string;
@@ -39,14 +43,14 @@ interface DraftState {
   is_active: boolean;
 }
 
-export function VariantEditor({ value, onChange, units = [], productNames = {}, productSku = '' }: VariantEditorProps) {
+export function VariantEditor({ value, onChange, units = [], colors = [], productNames = {}, productSku = '' }: VariantEditorProps) {
   const { t, i18n } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; index?: number }>({ open: false });
   const [bulkOpen, setBulkOpen] = useState(false);
   const [groups, setGroups] = useState<UnitGroup[]>([]);
   const [unitSearch, setUnitSearch] = useState('');
   const [draft, setDraft] = useState<DraftState>({
-    unit_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true,
+    unit_id: '', color_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true,
   });
 
   const unitName = (unit?: ProductUnit | null): string => {
@@ -56,6 +60,10 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   };
 
   const selectedUnit = units.find((u) => String(u.id) === draft.unit_id);
+  const selectedColor = colors.find((c) => String(c.id) === draft.color_id);
+  const colorLabel = selectedColor
+    ? (i18n.language === 'ar' ? selectedColor.nameAr || selectedColor.nameEn || selectedColor.code : selectedColor.nameEn || selectedColor.nameAr || selectedColor.code)
+    : null;
 
   const filteredUnits = useMemo(() => {
     const q = unitSearch.trim().toLowerCase();
@@ -64,16 +72,18 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
   }, [units, unitSearch]);
 
   const autoNames = useMemo(() => {
-    if (!selectedUnit) return null;
-    const join = (productName: string | undefined, unitName: string): string =>
-      productName?.trim() ? `${productName.trim()} ${unitName}`.trim() : unitName;
-    return {
-      ar: join(productNames.ar, selectedUnit.nameAr),
-      en: join(productNames.en ?? productNames.ar, selectedUnit.nameEn ?? selectedUnit.nameAr),
-      he: productNames.he ? join(productNames.he, selectedUnit.nameHe ?? selectedUnit.nameEn ?? '') : undefined,
-      ru: productNames.ru ? join(productNames.ru, selectedUnit.nameRu ?? selectedUnit.nameEn ?? '') : undefined,
+    if (!selectedUnit && !colorLabel) return null;
+    const join = (productName: string | undefined, color: string | null, unitName: string | null): string => {
+      const parts = [productName?.trim(), color, unitName].filter(Boolean);
+      return parts.length ? parts.join(' ').trim() : (unitName ?? '');
     };
-  }, [selectedUnit, productNames]);
+    return {
+      ar: join(productNames.ar, colorLabel, selectedUnit?.nameAr ?? null),
+      en: join(productNames.en ?? productNames.ar, colorLabel, selectedUnit?.nameEn ?? selectedUnit?.nameAr ?? null),
+      he: productNames.he ? join(productNames.he, colorLabel, selectedUnit?.nameHe ?? selectedUnit?.nameEn ?? null) : undefined,
+      ru: productNames.ru ? join(productNames.ru, colorLabel, selectedUnit?.nameRu ?? selectedUnit?.nameEn ?? null) : undefined,
+    };
+  }, [selectedUnit, colorLabel, productNames]);
 
   const autoSku = useMemo(() => {
     if (!selectedUnit) return null;
@@ -82,16 +92,17 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
     return collision ? `${base}-2` : base;
   }, [selectedUnit, productSku, value, modal.index]);
 
-  const duplicateUnit = useMemo(() => {
-    if (!selectedUnit) return false;
-    return value.some((v, i) => (modal.index == null || i !== modal.index) && v.unit_id === selectedUnit.id);
-  }, [selectedUnit, value, modal.index]);
+  const duplicateCombo = useMemo(() => {
+    const unitId = selectedUnit?.id ?? null;
+    const colorId = selectedColor?.id ?? null;
+    return value.some((v, i) => (modal.index == null || i !== modal.index) && (v.unit_id ?? null) === unitId && (v.color_id ?? null) === colorId);
+  }, [selectedUnit, selectedColor, value, modal.index]);
 
   const totalStock = value.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
 
   const openCreate = () => {
     setUnitSearch('');
-    setDraft({ unit_id: String(units[0]?.id ?? ''), names: {}, sku: '', price: '', stock_quantity: '0', is_active: true });
+    setDraft({ unit_id: String(units[0]?.id ?? ''), color_id: '', names: {}, sku: '', price: '', stock_quantity: '0', is_active: true });
     setModal({ open: true });
   };
 
@@ -100,6 +111,7 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
     setUnitSearch('');
     setDraft({
       unit_id: v.unit_id != null ? String(v.unit_id) : '',
+      color_id: v.color_id != null ? String(v.color_id) : '',
       names: { ar: v?.name_ar ?? '', en: v?.name_en ?? '', he: v?.name_he ?? '', ru: v?.name_ru ?? '' },
       sku: v?.sku ?? '',
       price: v?.price != null ? String(v.price) : '',
@@ -113,7 +125,8 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
     const variant: VariantDraft = {
       ...(modal.index != null ? { id: value[modal.index].id } : {}),
       ...(selectedUnit ? { unit_id: selectedUnit.id } : {}),
-      ...(selectedUnit && autoNames ? {
+      ...(selectedColor ? { color_id: selectedColor.id } : {}),
+      ...(autoNames ? {
         name_ar: autoNames.ar,
         ...(autoNames.en ? { name_en: autoNames.en } : {}),
         ...(autoNames.he ? { name_he: autoNames.he } : {}),
@@ -139,8 +152,8 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
     setModal({ open: false });
   };
 
-  const canSave = selectedUnit
-    ? !duplicateUnit && !!draft.price
+  const canSave = selectedUnit || selectedColor
+    ? !duplicateCombo && !!draft.price
     : !!draft.names.ar?.trim() && !!draft.price;
 
   const handleBulkAdd = (items: BulkUnitItem[]) => {
@@ -211,6 +224,10 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
         <div className="space-y-2">
           {value.map((variant, index) => {
             const unit = units.find((u) => u.id === variant.unit_id);
+            const variantColor = colors.find((c) => c.id === variant.color_id);
+            const variantColorLabel = variantColor
+              ? (i18n.language === 'ar' ? variantColor.nameAr || variantColor.nameEn || variantColor.code : variantColor.nameEn || variantColor.nameAr || variantColor.code)
+              : null;
             return (
               <div
                 key={variant.id ?? `new-${index}`}
@@ -220,7 +237,11 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
                   <Package size={14} className="text-brand-primary shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-text-primary font-body truncate">
-                      {unit ? unitName(unit) : (variant.name_ar || t('products.variants.selectUnit', 'Select a unit'))}
+                      {[
+                        variantColorLabel,
+                        unit ? unitName(unit) : null,
+                        !variantColorLabel && !unit ? (variant.name_ar || t('products.variants.selectUnit', 'Select a unit')) : null,
+                      ].filter(Boolean).join(' · ')}
                     </p>
                     <p className="text-xs text-text-secondary font-body">
                       {variant.price} · {t('products.variants.stock', 'Stock')}: {variant.stock_quantity}
@@ -275,7 +296,23 @@ export function VariantEditor({ value, onChange, units = [], productNames = {}, 
             </select>
           </div>
 
-          {duplicateUnit && (
+          {colors.length > 0 && (
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.color', 'Color')}</label>
+              <select
+                value={draft.color_id}
+                onChange={(e) => setDraft({ ...draft, color_id: e.target.value })}
+                className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+              >
+                <option value="">{t('products.variants.selectColor', 'Select a color')}</option>
+                {colors.map((color) => (
+                  <option key={color.id} value={color.id}>{i18n.language === 'ar' ? color.nameAr || color.nameEn || color.code : color.nameEn || color.nameAr || color.code} ({color.code})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {duplicateCombo && (
             <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
               <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>

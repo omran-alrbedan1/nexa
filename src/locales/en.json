@@ -1087,6 +1087,7 @@
   "products": {
     "title": "Products",
     "description": "Manage product catalog, categories, and inventory",
+    "manageHint": "Manage product variants by unit, color, or both. Link colors separately to build a color × unit matrix.",
     "stats": {
       "totalProducts": "Total Products",
       "available": "Available",
@@ -1321,6 +1322,8 @@
       "toggleFailed": "Failed to update variant status",
       "unit": "Unit",
       "selectUnit": "Select unit (auto name & SKU)",
+      "color": "Color",
+      "selectColor": "Select color (optional)",
       "autoName": "Auto name & SKU",
       "skuPreview": "SKU preview",
       "duplicateUnit": "Each unit can be used once",
@@ -1365,8 +1368,8 @@
     }
   },
   "colorSize": {
-    "title": "Colors & Sizes",
-    "description": "Manage product colors and generate size combinations",
+    "title": "Colors & Units",
+    "description": "Manage product colors and generate color × unit combinations",
     "enableTitle": "Colors & Sizes",
     "enableHint": "Switch this existing product to color and size configuration.",
     "enable": "Enable Colors & Sizes",
@@ -1389,9 +1392,10 @@
     "noProductColorsHint": "Link an active global color to start configuring this product.",
     "deleteColorTitle": "Remove Product Color",
     "deleteColorMessage": "Remove {{name}} from this product?",
-    "selectSizes": "Select Sizes",
-    "selectSizesHint": "Choose a separate set of active product sizes for each active product color.",
-    "noActiveSizes": "No active Product Sizes are available.",
+    "selectUnits": "Select Units",
+    "selectUnitsHint": "Choose a separate set of active product units for each active product color.",
+    "noActiveUnits": "No active Product Units are available.",
+    "colorOnly": "Color only",
     "generateVariants": "Generate Variants",
     "generateHint": "These defaults apply to newly generated color and size combinations.",
     "defaultPrice": "Default Price",
@@ -1404,6 +1408,7 @@
     "validation": {
       "activeColorRequired": "Link and enable at least one product color first.",
       "sizesRequired": "Select at least one size for at least one color.",
+      "unitsRequired": "Select at least one unit for at least one color.",
       "invalidPrice": "Default price must be zero or greater.",
       "invalidStock": "Default stock must be a whole number zero or greater."
     },
@@ -1424,10 +1429,12 @@
       "color_in_use": "This color cannot be removed because it is used by product variants.",
       "colors_required": "Link at least one color before generating variants.",
       "invalid_sizes": "One or more selected sizes are invalid or inactive.",
+      "invalid_units": "One or more selected units are invalid or inactive.",
       "variant_type_required": "Enable Colors & Sizes mode first."
     },
     "matrixTitle": "Variant matrix",
     "saveMatrix": "Save matrix",
+    "columnColorUnit": "Color / Unit",
     "columnColorSize": "Color / Size",
     "columnSku": "SKU",
     "columnPrice": "Price",

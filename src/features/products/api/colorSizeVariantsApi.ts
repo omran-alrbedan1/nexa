@@ -4,11 +4,15 @@ import type { ApiResponse } from '@/types/common';
 export interface ColorSizeGenerateItem {
   /** product_colors.id, never colors.id. */
   color_id: number;
-  size_ids: number[];
+  /** Empty array = color-only variant for this color. */
+  unit_ids: number[];
 }
 
 export interface GenerateColorSizeVariantsInput {
-  items: ColorSizeGenerateItem[];
+  /** Per linked product-color → chosen units. */
+  items?: ColorSizeGenerateItem[];
+  /** Same units for all linked colors (omit = color-only for each). */
+  unit_ids?: number[];
   price: number;
   stock_quantity: number;
   is_active: boolean;
@@ -17,38 +21,38 @@ export interface GenerateColorSizeVariantsInput {
 export interface ColorSizeVariant {
   id: number;
   colorId: number;
-  sizeId: number;
+  unitId: number | null;
   price: number;
   stockQuantity: number;
   isActive: boolean;
   sku: string | null;
   colorLabel: string | null;
-  sizeLabel: string | null;
+  unitLabel: string | null;
 }
 
 interface BackendColorSizeVariant {
   id: number;
   color_id: number;
-  size_id: number;
+  unit_id: number | null;
   price: string | number;
   stock_quantity: number;
   is_active: boolean;
   sku?: string | null;
   color?: { code?: string | null; name_ar?: string | null; name_en?: string | null } | null;
-  size?: { code?: string | null; name_ar?: string | null; name_en?: string | null } | null;
+  unit?: { code?: string | null; name_ar?: string | null; name_en?: string | null } | null;
 }
 
 function mapVariant(variant: BackendColorSizeVariant): ColorSizeVariant {
   return {
     id: variant.id,
     colorId: variant.color_id,
-    sizeId: variant.size_id,
+    unitId: variant.unit_id ?? null,
     price: Number(variant.price),
     stockQuantity: Number(variant.stock_quantity),
     isActive: variant.is_active,
     sku: variant.sku ?? null,
     colorLabel: variant.color?.code ?? variant.color?.name_en ?? variant.color?.name_ar ?? null,
-    sizeLabel: variant.size?.code ?? variant.size?.name_en ?? variant.size?.name_ar ?? null,
+    unitLabel: variant.unit?.code ?? variant.unit?.name_en ?? variant.unit?.name_ar ?? null,
   };
 }
 
@@ -59,7 +63,7 @@ function unwrapVariants(data: { variants?: BackendColorSizeVariant[] } | Backend
 
 export interface ColorSizeVariantUpsertRow {
   color_id: number;
-  size_id: number;
+  unit_id: number | null;
   price: number;
   stock_quantity: number | null;
   is_active: boolean;

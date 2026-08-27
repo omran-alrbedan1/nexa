@@ -73,9 +73,6 @@ const EditProductPage = lazy(() =>
 const UnitsPage = lazy(() =>
   import('@/features/products/pages/UnitsPage').then((m) => ({ default: m.UnitsPage }))
 );
-const ProductSizesPage = lazy(() =>
-  import('@/features/products/pages/ProductSizesPage').then((m) => ({ default: m.ProductSizesPage }))
-);
 const ColorsPage = lazy(() =>
   import('@/features/products/pages/ColorsPage').then((m) => ({ default: m.ColorsPage }))
 );
@@ -329,7 +326,6 @@ export function App() {
                 <Route path={ROUTES.PRODUCT_EDIT(':productId')} element={<EditProductPage />} />
                 <Route path={ROUTES.PRODUCT_DETAIL(':productId')} element={<ProductDetailPage />} />
                 <Route path={ROUTES.UNITS} element={<UnitsPage />} />
-                <Route path={ROUTES.PRODUCT_SIZES} element={<ProductSizesPage />} />
                 <Route path={ROUTES.COLORS} element={<ColorsPage />} />
                 <Route path={ROUTES.CAMPAIGNS} element={<CampaignsPage />} />
                 <Route path={ROUTES.CAMPAIGN_DETAIL(':campaignId')} element={<CampaignDetailPage />} />
