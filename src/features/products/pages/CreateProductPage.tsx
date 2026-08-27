@@ -89,6 +89,7 @@ export function CreateProductPage() {
     try {
       const saved = createdProductId ? await productsApi.updateProduct(createdProductId, productPayload()) : await productsApi.createProduct(productPayload());
       const productId = createdProductId ?? saved.id;
+      setCreatedProductId(productId);
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       addToast('success', createdProductId ? t('createFlow.productUpdated') : t('createFlow.productSaved'));
       return productId;

@@ -1346,7 +1346,7 @@
     }
   },
   "createFlow": {
-    "subtitle": "Create the product, choose its option type, configure it, and finish in one flow.",
+    "subtitle": "Create the product, configure its colors and units, and finish in one flow.",
     "savedState": "Product saved",
     "productSaved": "Product saved. Continue with its options.",
     "productUpdated": "Product information updated",
@@ -1362,9 +1362,8 @@
     "finish": "Finish Product",
     "steps": {
       "info": "1. Product Information",
-      "options": "2. Product Options",
-      "configuration": "3. Configuration",
-      "review": "4. Review / Finish"
+      "configuration": "2. Configuration",
+      "review": "3. Review / Finish"
     }
   },
   "colorSize": {
