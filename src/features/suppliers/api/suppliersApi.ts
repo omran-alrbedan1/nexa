@@ -329,7 +329,7 @@ export const suppliersApi = {
     const formData = new FormData();
     formData.append('document_type', documentType);
     formData.append('file', file);
-    const response = await apiClient.post<ApiResponse<SupplierDocument>>(`/api/v1/admin/suppliers/${supplierId}/documents`, formData);
+    const response = await apiClient.post<ApiResponse<SupplierDocument>>(`/api/v1/admin/suppliers/${supplierId}/documents`, formData, { headers: { 'Content-Type': undefined } });
     return response.data.data;
   },
 
@@ -347,7 +347,7 @@ export const suppliersApi = {
       if (data.longDescription) formData.append('long_description', data.longDescription);
       if (data.minimumOrderAmount != null) formData.append('minimum_order_amount', String(data.minimumOrderAmount));
       formData.append('store_cover_image', file);
-      const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, formData);
+      const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, formData, { headers: { 'Content-Type': undefined } });
       return mapBackendSupplier(response.data.data);
     }
 
