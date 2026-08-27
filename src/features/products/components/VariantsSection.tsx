@@ -7,6 +7,8 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
 import { unitsApi, type ProductUnit, type UnitGroup } from '../api/unitsApi';
+import type { ProductColor } from '../api/productColorsApi';
+import { useProductColors } from '../hooks/useProductColors';
 import { DollarSign, Package, Plus, Pencil, Trash2, Layers, AlertTriangle, Layers2 } from 'lucide-react';
 import { useProductVariants, useCreateProductVariant, useUpdateProductVariant, useToggleProductVariant, useDeleteProductVariant, variantKeys } from '../hooks/useProductVariants';
 import { productVariantsApi, type ProductVariant, type VariantFormData } from '../api/productsApi';
@@ -38,14 +40,16 @@ function VariantFormModal({
   isSaving: boolean;
   editing?: ProductVariant | null;
   units: ProductUnit[];
+  colors: ProductColor[];
   productNames: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>;
   productSku: string;
   existing: ProductVariant[];
 }) {
   const { t, i18n } = useTranslation();
   const [unitSearch, setUnitSearch] = useState('');
-  const [form, setForm] = useState<{ unit_id: string; names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>; sku: string; price: string; stock_quantity: string }>(() => ({
+  const [form, setForm] = useState<{ unit_id: string; color_id: string; names: Partial<Record<'ar' | 'en' | 'he' | 'ru', string>>; sku: string; price: string; stock_quantity: string }>(() => ({
     unit_id: editing?.unit_id != null ? String(editing.unit_id) : String(units[0]?.id ?? ''),
+    color_id: editing?.color_id != null ? String(editing.color_id) : '',
     names: { ar: editing?.name_ar ?? '', en: editing?.name_en ?? '', he: editing?.name_he ?? '', ru: editing?.name_ru ?? '' },
     sku: editing?.sku ?? '',
     price: editing ? String(editing.price) : '',
@@ -65,6 +69,7 @@ function VariantFormModal({
   };
 
   const selectedUnit = units.find((u) => String(u.id) === form.unit_id);
+  const selectedColor = colors.find((c) => String(c.id) === form.color_id);
 
   const autoNames = useMemo(() => {
     if (!selectedUnit) return null;
@@ -93,6 +98,7 @@ function VariantFormModal({
   const handleSave = () => {
     onSave({
       ...(selectedUnit ? { unit_id: selectedUnit.id } : {}),
+      ...(selectedColor ? { color_id: selectedColor.id } : {}),
       ...(selectedUnit && autoNames ? {
         name_ar: autoNames.ar,
         ...(autoNames.en ? { name_en: autoNames.en } : {}),
@@ -138,10 +144,26 @@ function VariantFormModal({
             {filteredUnits.map((unit) => (
               <option key={unit.id} value={unit.id}>{unitName(unit)} ({unit.code})</option>
             ))}
-          </select>
-        </div>
+              </select>
+            </div>
 
-        {duplicateUnit && (
+            {colors.length > 0 && (
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('products.variants.color', 'Color')}</label>
+                <select
+                  value={form.color_id}
+                  onChange={(e) => setForm({ ...form, color_id: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary"
+                >
+                  <option value="">{t('products.variants.selectColor', 'Select a color')}</option>
+                  {colors.map((color) => (
+                    <option key={color.id} value={color.id}>{i18n.language === 'ar' ? color.nameAr || color.nameEn || color.code : color.nameEn || color.nameAr || color.code} ({color.code})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {duplicateUnit && (
             <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
               <AlertTriangle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-red-600 font-body">{t('products.variants.duplicateUnit', 'Another variant already uses this unit')}</p>
@@ -173,6 +195,8 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { data: variants, isLoading } = useProductVariants(productId);
+  const productColorsQuery = useProductColors(productId);
+  const productColors = productColorsQuery.data ?? [];
   const createVariant = useCreateProductVariant(productId);
   const updateVariant = useUpdateProductVariant(productId);
   const toggleVariant = useToggleProductVariant(productId);
@@ -241,13 +265,21 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
         />
       ) : (
         <div className="space-y-2">
-          {list.map((variant) => {
-            const unit = units.find((u) => u.id === variant.unit_id);
-            return (
-              <ListItem
-                key={variant.id}
-                icon={<Package size={14} className="text-brand-primary" />}
-                title={<span className="text-sm font-bold text-text-primary font-body">{unit ? unitName(unit) : variant.name_ar}</span>}
+           {list.map((variant) => {
+             const unit = units.find((u) => u.id === variant.unit_id);
+             const variantColorLabel = variant.color
+               ? (i18n.language === 'ar' ? variant.color.name_ar || variant.color.code : variant.color.name_en || variant.color.name_ar || variant.color.code)
+               : null;
+             const title = [
+               variantColorLabel,
+               unit ? unitName(unit) : null,
+               !variantColorLabel && !unit ? variant.name_ar : null,
+             ].filter(Boolean).join(' · ');
+             return (
+               <ListItem
+                 key={variant.id}
+                 icon={<Package size={14} className="text-brand-primary" />}
+                 title={<span className="text-sm font-bold text-text-primary font-body">{title}</span>}
                 badges={<>
                   {variant.is_active ? <Badge variant="green" size="sm">{t('common.active')}</Badge> : <Badge variant="red" size="sm">{t('common.inactive')}</Badge>}
                 </>}
@@ -283,6 +315,7 @@ export function VariantsSection({ productId, productNameAr, productNameEn, produ
         isSaving={createVariant.isPending || updateVariant.isPending}
         editing={formModal.editing}
         units={units}
+        colors={productColors}
         productNames={productNames}
         productSku={productSku ?? ''}
         existing={list}

@@ -13,7 +13,7 @@ function generateErrorKey(error: unknown): string | null {
   if (!error || typeof error !== 'object' || !('response' in error)) return null;
   const data = (error as { response?: { data?: { error_code?: string; code?: string } } }).response?.data;
   const code = data?.error_code ?? data?.code;
-  return code && ['colors_required', 'invalid_sizes', 'invalid_color', 'variant_type_required'].includes(code)
+  return code && ['colors_required', 'invalid_units', 'invalid_color', 'variant_type_required', 'variant_combo_exists'].includes(code)
     ? `colorSize.errors.${code}`
     : null;
 }

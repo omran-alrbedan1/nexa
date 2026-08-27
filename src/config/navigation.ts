@@ -129,7 +129,6 @@ export const DEFAULT_NAV_CONFIG: NavGroupConfig[] = [
     items: [
       { id: 'products', label: 'nav.products', icon: 'Package', type: 'item', to: ROUTES.PRODUCTS },
       { id: 'units', label: 'nav.units', icon: 'Ruler', type: 'item', to: ROUTES.UNITS },
-      { id: 'product-sizes', label: 'nav.productSizes', icon: 'Ruler', type: 'item', to: ROUTES.PRODUCT_SIZES },
       { id: 'colors', label: 'nav.colors', icon: 'Palette', type: 'item', to: ROUTES.COLORS },
       { id: 'campaigns', label: 'nav.campaigns', icon: 'Megaphone', type: 'item', to: ROUTES.CAMPAIGNS },
       { id: 'categories', label: 'nav.categories', icon: 'FolderTree', type: 'item', to: ROUTES.CATEGORIES },
