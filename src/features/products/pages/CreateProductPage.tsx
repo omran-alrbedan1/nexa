@@ -2,25 +2,21 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, ImageOff, Package, Palette, Save, Upload } from 'lucide-react';
-import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
+import { ArrowLeft, CheckCircle2, ImageOff, Package, Save, Upload } from 'lucide-react';
+import { productsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
-import type { ProductSource, ProductVariantType } from '@/types/marketplace';
+import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Tabs } from '@/components/ui/Tabs';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
-import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
-import { ColorSizeManagementSection } from '../components/ColorSizeManagementSection';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { productKeys } from '../hooks/useProductsAdmin';
-import { useDisableColorSize, useEnableColorSize } from '../hooks/useProductColors';
 import { extractErrorMessage } from '@/lib/apiHelpers';
-import { cn } from '@/utils/cn';
+import { ProductVariantsSection } from '../components/ProductVariantsSection';
 
-type CreateStep = 'info' | 'options' | 'configuration' | 'review';
+type CreateStep = 'info' | 'configuration' | 'review';
 
 export function CreateProductPage() {
   const navigate = useNavigate();
@@ -33,23 +29,17 @@ export function CreateProductPage() {
   const initialStep = (searchParams.get('step') as CreateStep | null) ?? 'info';
   const [step, setStep] = useState<CreateStep>(initialStep);
   const [createdProductId, setCreatedProductId] = useState<number | null>(resumedProductId);
-  const [variantType, setVariantType] = useState<ProductVariantType>('unit');
-  const [disableOpen, setDisableOpen] = useState(false);
   const [loadingContinuation, setLoadingContinuation] = useState(Boolean(resumedProductId));
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [units, setUnits] = useState<ProductUnit[]>([]);
-  const [productSku, setProductSku] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
-  const [variants, setVariants] = useState<VariantDraft[]>([]);
   const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryId: '', supplierId: '', source: 'supplier' as ProductSource });
-  const enableMutation = useEnableColorSize(createdProductId ?? 0);
-  const disableMutation = useDisableColorSize(createdProductId ?? 0);
 
   useEffect(() => {
     Promise.all([
@@ -61,13 +51,11 @@ export function CreateProductPage() {
 
   useEffect(() => {
     if (!resumedProductId) return;
-    Promise.all([productsApi.getProduct(resumedProductId), productVariantsApi.list(resumedProductId).catch(() => [])])
-      .then(([product, variantList]) => {
-        setCreatedProductId(product.id); setVariantType(product.variantType); setProductSku(product.sku); setExistingImageUrl(product.imageUrl);
+    productsApi.getProduct(resumedProductId)
+      .then((product) => {
         setNames({ ar: product.nameAr, en: product.name, he: product.nameHe ?? '', ru: product.nameRu ?? '' });
         setDescriptions({ ar: product.descriptionAr, en: product.descriptionEn ?? '', he: product.descriptionHe ?? '', ru: product.descriptionRu ?? '' });
         setForm({ price: String(product.price), unit: product.unit, unitId: product.unitId ? String(product.unitId) : '', stockQuantity: String(product.stockQuantity), categoryId: String(product.categoryId), supplierId: product.supplierId ? String(product.supplierId) : '', source: product.source });
-        setVariants(variantList.map((variant) => ({ id: variant.id, unit_id: variant.unit_id ?? undefined, name_ar: variant.name_ar, name_en: variant.name_en ?? undefined, name_he: variant.name_he ?? undefined, name_ru: variant.name_ru ?? undefined, sku: variant.sku ?? undefined, price: variant.price, stock_quantity: variant.stock_quantity, is_active: variant.is_active })));
       }).catch((error) => {
         setCreatedProductId(null);
         setStep('info');
@@ -86,41 +74,32 @@ export function CreateProductPage() {
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (!file) return; if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(file); setImagePreview(URL.createObjectURL(file)); };
   const handleRemoveImage = () => { if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(null); setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; };
 
-  const productPayload = (includeUnitVariants: boolean) => ({
+  const productPayload = () => ({
     name: names.en ?? '', nameAr: names.ar ?? '', nameHe: names.he, nameRu: names.ru,
     description: descriptions.ar ?? '', descriptionAr: descriptions.ar, descriptionEn: descriptions.en, descriptionHe: descriptions.he, descriptionRu: descriptions.ru,
     price: Number.parseFloat(form.price) || 0, unit: form.unit, unitId: form.unitId ? Number.parseInt(form.unitId, 10) : null,
     stockQuantity: Number.parseInt(form.stockQuantity, 10) || 0, categoryId: Number.parseInt(form.categoryId, 10) || 1,
     supplierId: form.supplierId ? Number.parseInt(form.supplierId, 10) : null, source: form.source,
-    variants: includeUnitVariants && variants.length > 0 ? variants : undefined, image: imageFile || undefined,
+    image: imageFile || undefined,
   });
 
-  const saveProduct = async (includeUnitVariants = false): Promise<number | null> => {
+  const saveProduct = async (): Promise<number | null> => {
     if (!names.ar?.trim() || !form.price) { addToast('error', t('products.create.validationRequired')); return null; }
     setSaving(true);
     try {
-      const saved = createdProductId ? await productsApi.updateProduct(createdProductId, productPayload(includeUnitVariants)) : await productsApi.createProduct(productPayload(includeUnitVariants));
+      const saved = createdProductId ? await productsApi.updateProduct(createdProductId, productPayload()) : await productsApi.createProduct(productPayload());
       const productId = createdProductId ?? saved.id;
-      setCreatedProductId(productId); setProductSku(saved.sku); setExistingImageUrl(saved.imageUrl); setImageFile(null);
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       addToast('success', createdProductId ? t('createFlow.productUpdated') : t('createFlow.productSaved'));
       return productId;
     } catch (error) { addToast('error', extractErrorMessage(error)); return null; } finally { setSaving(false); }
   };
 
-  const saveAndContinue = async () => { const productId = await saveProduct(false); if (!productId) return; setStep('options'); setSearchParams({ productId: String(productId), step: 'options' }, { replace: true }); };
-  const chooseVariantType = (nextType: ProductVariantType) => {
-    if (!createdProductId || nextType === variantType) { if (createdProductId) goToStep('configuration'); return; }
-    if (nextType === 'color_size') {
-      enableMutation.mutate(undefined, { onSuccess: async () => { const refreshed = await productsApi.getProduct(createdProductId); setVariantType(refreshed.variantType); if (refreshed.variantType === 'color_size') goToStep('configuration'); } });
-    } else setDisableOpen(true);
-  };
-  const saveUnitConfiguration = async () => { const savedId = await saveProduct(true); if (savedId) goToStep('review'); };
+  const saveAndContinue = async () => { const productId = await saveProduct(); if (!productId) return; setStep('configuration'); setSearchParams({ productId: String(productId), step: 'configuration' }, { replace: true }); };
 
   if (loadingContinuation) return <div className="h-72 animate-pulse rounded-2xl bg-gray-100" />;
   const tabs = [
     { id: 'info', label: t('createFlow.steps.info') },
-    { id: 'options', label: t('createFlow.steps.options'), disabled: !createdProductId },
     { id: 'configuration', label: t('createFlow.steps.configuration'), disabled: !createdProductId },
     { id: 'review', label: t('createFlow.steps.review'), disabled: !createdProductId },
   ];
@@ -139,11 +118,11 @@ export function CreateProductPage() {
       <div className="flex gap-3"><Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={saveAndContinue} isLoading={saving}>{t('createFlow.saveContinue')}</Button><Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>{t('common.cancel')}</Button></div>
     </>}
 
-    {step === 'options' && <Card padding="lg"><h3 className="text-lg font-bold text-text-primary">{t('createFlow.optionsTitle')}</h3><p className="mt-1 text-sm text-text-secondary">{t('createFlow.optionsHint')}</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{([{ type: 'unit' as const, icon: Package, title: t('createFlow.unit'), hint: t('createFlow.unitHint') }, { type: 'color_size' as const, icon: Palette, title: t('colorSize.title'), hint: t('createFlow.colorSizeHint') }]).map((option) => <button key={option.type} type="button" onClick={() => chooseVariantType(option.type)} className={cn('rounded-2xl border p-5 text-start', variantType === option.type ? 'border-brand-primary bg-teal-50/50' : 'border-border-default')}><option.icon size={24} className="text-brand-primary" /><h4 className="mt-3 font-bold text-text-primary">{option.title}</h4><p className="mt-1 text-sm text-text-secondary">{option.hint}</p></button>)}</div><div className="mt-5"><Button variant="secondary" size="sm" onClick={() => goToStep('info')}>{t('createFlow.back')}</Button></div></Card>}
-    {step === 'configuration' && variantType === 'unit' && <Card padding="lg"><VariantEditor value={variants} onChange={setVariants} units={units} productNames={names} productSku={productSku} /><div className="mt-5 flex gap-3"><Button variant="primary" size="sm" onClick={saveUnitConfiguration} isLoading={saving}>{t('createFlow.saveContinue')}</Button><Button variant="secondary" size="sm" onClick={() => goToStep('options')}>{t('createFlow.back')}</Button></div></Card>}
-    {step === 'configuration' && variantType === 'color_size' && createdProductId && <><ColorSizeManagementSection productId={createdProductId} basePrice={form.price} baseStock={form.stockQuantity} onDisabled={() => { setVariantType('unit'); goToStep('options'); }} onFinish={() => goToStep('review')} /><Button variant="secondary" size="sm" onClick={() => goToStep('options')}>{t('createFlow.back')}</Button></>}
+    {step === 'configuration' && createdProductId && <>
+      <ProductVariantsSection productId={createdProductId} basePrice={form.price} baseStock={form.stockQuantity} onFinish={() => goToStep('review')} />
+      <Button variant="secondary" size="sm" onClick={() => goToStep('info')}>{t('createFlow.back')}</Button>
+    </>}
     {step === 'review' && createdProductId && <Card padding="lg"><div className="text-center py-6"><CheckCircle2 size={42} className="mx-auto text-green-600" /><h3 className="mt-4 text-xl font-bold text-text-primary">{t('createFlow.readyTitle')}</h3><p className="mt-2 text-sm text-text-secondary">{t('createFlow.readyHint')}</p><div className="mt-6 flex justify-center gap-3"><Button variant="primary" size="sm" onClick={() => navigate(ROUTES.PRODUCT_DETAIL(createdProductId))}>{t('createFlow.finish')}</Button><Button variant="secondary" size="sm" onClick={() => goToStep('configuration')}>{t('createFlow.back')}</Button></div></div></Card>}
-    <ConfirmDialog open={disableOpen} title={t('colorSize.disableTitle')} message={t('colorSize.disableMessage')} confirmLabel={t('colorSize.disable')} cancelLabel={t('common.cancel')} isLoading={disableMutation.isPending} onCancel={() => setDisableOpen(false)} onConfirm={() => disableMutation.mutate(undefined, { onSuccess: async () => { if (!createdProductId) return; const refreshed = await productsApi.getProduct(createdProductId); setVariantType(refreshed.variantType); setDisableOpen(false); if (refreshed.variantType === 'unit') goToStep('configuration'); } })} />
   </div>;
 }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ImageOff, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { ImageOff, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -12,7 +12,6 @@ import {
   useLinkProductColor,
   useToggleProductColor,
   useUpdateProductColor,
-  useUploadProductColorImage,
 } from '../hooks/useProductColors';
 import { ProductColorLinkModal } from './ProductColorLinkModal';
 
@@ -29,7 +28,6 @@ export function ProductColorsSection({ productId, colors, globalColors, isLoadin
   const [deleteTarget, setDeleteTarget] = useState<ProductColor | null>(null);
   const linkMutation = useLinkProductColor(productId);
   const updateMutation = useUpdateProductColor(productId);
-  const imageMutation = useUploadProductColorImage(productId);
   const toggleMutation = useToggleProductColor(productId);
   const deleteMutation = useDeleteProductColor(productId);
   const linkedGlobalIds = new Set(colors.map((color) => color.globalColorId));
@@ -60,10 +58,6 @@ export function ProductColorsSection({ productId, colors, globalColors, isLoadin
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-1">
-                <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-text-secondary hover:bg-bg-section-alt">
-                  <Upload size={12} /> {t('colorSize.changeImage')}
-                  <input type="file" accept="image/*" className="hidden" onChange={(event) => { const image = event.target.files?.[0]; if (image) imageMutation.mutate({ linkId: color.id, image }); event.target.value = ''; }} />
-                </label>
                 <Button variant="ghost" size="sm" onClick={() => toggleMutation.mutate(color.id)}>{color.isActive ? t('colorSize.disableColor') : t('colorSize.enableColor')}</Button>
                 <Button variant="ghost" size="sm" leftIcon={<Pencil size={12} />} onClick={() => setModal({ open: true, color })}>{t('common.edit')}</Button>
                 <Button variant="ghost" size="sm" leftIcon={<Trash2 size={12} />} className="text-red-500" onClick={() => setDeleteTarget(color)}>{t('common.delete')}</Button>

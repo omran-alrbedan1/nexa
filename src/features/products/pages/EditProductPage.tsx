@@ -2,21 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { productsApi, productVariantsApi, type ProductCategory } from '../api/productsApi';
+import { productsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
-import type { ProductSource, ProductVariantType } from '@/types/marketplace';
+import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
-import { VariantEditor, type VariantDraft } from '../components/VariantEditor';
-import { ColorSizeManagementSection } from '../components/ColorSizeManagementSection';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Package, Palette, Save, Upload, ImageOff } from 'lucide-react';
+import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
-import { useEnableColorSize, useProductColors } from '../hooks/useProductColors';
 import { extractErrorMessage } from '@/lib/apiHelpers';
+import { ProductVariantsSection } from '../components/ProductVariantsSection';
 
 export function EditProductPage() {
   const { t } = useTranslation();
@@ -32,47 +30,27 @@ export function EditProductPage() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [units, setUnits] = useState<ProductUnit[]>([]);
-  const [productSku, setProductSku] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
-  const [variants, setVariants] = useState<VariantDraft[]>([]);
-  const [variantType, setVariantType] = useState<ProductVariantType>('unit');
   const [form, setForm] = useState({
     price: '', unit: 'kg', unitId: '', stockQuantity: '',
     categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
   });
-  const enableColorSizeMutation = useEnableColorSize(id);
-  const productColorsQuery = useProductColors(id);
-  const productColors = productColorsQuery.data ?? [];
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     Promise.all([
       productsApi.getProduct(id),
-      productVariantsApi.list(id).catch(() => []),
       productsApi.getCategories().catch(() => [] as ProductCategory[]),
       productsApi.getSuppliersList().catch(() => []),
       unitsApi.list().then((d) => d.units).catch(() => [] as ProductUnit[]),
-    ]).then(([p, variantList, cats, supps, unitList]) => {
+    ]).then(([p, cats, supps, unitList]) => {
       setNames({ ar: p.nameAr, en: p.name, he: p.nameHe ?? '', ru: p.nameRu ?? '' });
       setDescriptions({ ar: p.descriptionAr, en: p.descriptionEn ?? '', he: p.descriptionHe ?? '', ru: p.descriptionRu ?? '' });
-      setVariants(variantList.map((v) => ({
-        id: v.id,
-        unit_id: v.unit_id ?? undefined,
-        color_id: v.color_id ?? undefined,
-        name_ar: v.name_ar,
-        name_en: v.name_en ?? undefined,
-        name_he: v.name_he ?? undefined,
-        name_ru: v.name_ru ?? undefined,
-        sku: v.sku ?? undefined,
-        price: v.price,
-        stock_quantity: v.stock_quantity,
-        is_active: v.is_active,
-      })));
       setForm({
         price: String(p.price), unit: p.unit, unitId: p.unitId ? String(p.unitId) : '',
         stockQuantity: String(p.stockQuantity), categoryId: String(p.categoryId),
@@ -83,8 +61,6 @@ export function EditProductPage() {
       setCategories(cats);
       setSuppliers(supps);
       setUnits(unitList);
-      setProductSku(p.sku);
-      setVariantType(p.variantType);
     }).catch((e) => {
       setError(e.message);
     }).finally(() => setLoading(false));
@@ -141,8 +117,6 @@ export function EditProductPage() {
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
         source: form.source,
-        // Unit/color variants are persisted here; color × unit matrix is managed via its own endpoints.
-        variants: variants.length > 0 ? variants : undefined,
         image: imageFile || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
@@ -289,25 +263,7 @@ export function EditProductPage() {
         </Card>
       </div>
 
-      <Card padding="lg">
-        <div className="mb-5 flex flex-col gap-3 border-b border-border-default pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="rounded-xl bg-teal-50 p-2.5 text-teal-600"><Palette size={18} /></span>
-            <div><h3 className="text-sm font-bold text-text-primary">{t('products.variants.title')}</h3><p className="text-xs text-text-secondary mt-1">{t('products.variants.manageHint')}</p></div>
-          </div>
-          <Button variant="secondary" size="sm" onClick={() => enableColorSizeMutation.mutate(undefined, { onSuccess: () => setVariantType('color_size') })} isLoading={enableColorSizeMutation.isPending}>{t('colorSize.enable')}</Button>
-        </div>
-        <VariantEditor
-          value={variants}
-          onChange={setVariants}
-          units={units}
-          colors={productColors}
-          productNames={names}
-          productSku={productSku}
-        />
-      </Card>
-
-      <ColorSizeManagementSection productId={id} basePrice={form.price} baseStock={form.stockQuantity} onDisabled={() => setVariantType('unit')} />
+      <ProductVariantsSection productId={id} basePrice={form.price} baseStock={form.stockQuantity} />
 
       <div className="flex items-center gap-3">
         <Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={handleSubmit} isLoading={saving}>{t('products.edit.saveChanges')}</Button>
