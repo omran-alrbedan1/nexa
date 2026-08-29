@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/axios';
+import { toAbsoluteUrl } from '@/features/products/api/productsApi';
 import type { ApiResponse } from '@/types/common';
 
 /** A product_colors link. Its id is the link id used by color-size generation. */
@@ -59,7 +60,7 @@ function mapProductColor(link: BackendProductColor): ProductColor {
     nameAr: link.name_ar ?? link.color?.name_ar ?? null,
     nameEn: link.name_en ?? link.color?.name_en ?? null,
     hex: link.hex ?? link.color?.hex ?? null,
-    imageUrl: link.image_url ?? link.image ?? null,
+    imageUrl: toAbsoluteUrl(link.image_url ?? link.image ?? null),
     sortOrder: link.sort_order ?? 0,
     isActive: link.is_active ?? true,
   };

@@ -142,9 +142,18 @@ const IMAGE_BASE = import.meta.env.DEV
   ? ''
   : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
-function toAbsoluteUrl(path: string | null): string | null {
+export function toAbsoluteUrl(path: string | null): string | null {
   if (!path) return null;
-  if (/^https?:\/\//.test(path)) return path;
+  // Backend may return an absolute URL built from APP_URL (e.g. http://localhost/...).
+  // Normalize it to IMAGE_BASE by keeping only the path portion so it loads on the web.
+  if (/^https?:\/\//.test(path)) {
+    try {
+      const u = new URL(path);
+      path = u.pathname + u.search;
+    } catch {
+      return path;
+    }
+  }
   return `${IMAGE_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 }
 

@@ -13,6 +13,7 @@
 import { apiClient } from '@/lib/axios';
 import { mapSupplierApprovalStatus } from '@/lib/enumMappers';
 import type { PaginatedResponse, ApiResponse } from '@/types/common';
+import { toAbsoluteUrl } from '@/features/products/api/productsApi';
 import type { DashboardProduct } from '@/features/products/api/productsApi';
 
 // ──────────────────────────────────────────────
@@ -231,7 +232,7 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     contactPhone: bs.user?.phone || '',
     address: bs.address || '',
     zoneId: bs.zone?.id ?? null,
-    coverImage: bs.cover_image ?? null,
+    coverImage: toAbsoluteUrl(bs.cover_image ?? null),
     shortDescription: bs.short_description ?? null,
     longDescription: bs.long_description ?? null,
     minimumOrderAmount: bs.minimum_order_amount != null ? Number(bs.minimum_order_amount) : null,
@@ -239,7 +240,7 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     documents: (bs.documents || []).map((d) => ({
       id: d.id,
       type: d.type,
-      filePath: d.file_path,
+      filePath: toAbsoluteUrl(d.file_path),
       status: d.status,
       expiresAt: d.expires_at,
     })),

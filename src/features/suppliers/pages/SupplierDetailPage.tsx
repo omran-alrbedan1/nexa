@@ -393,7 +393,11 @@ export function SupplierDetailPage() {
       </button>
 
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent">
+      <div
+        className="relative overflow-hidden rounded-2xl p-6 md:p-8 bg-gradient-to-br from-brand-primary/10 via-brand-primary-light to-transparent"
+        style={supplier.coverImage ? { backgroundImage: `url(${supplier.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
+        {supplier.coverImage && <div className="absolute inset-0 bg-black/30" />}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
         <div className="relative z-10">
           <div className="flex flex-wrap items-start gap-4">
