@@ -5,6 +5,8 @@ export interface Category {
   id: number;
   nameAr: string;
   nameEn: string | null;
+  nameHe: string | null;
+  nameRu: string | null;
   image: string | null;
   parentId: number | null;
   sortOrder: number;
@@ -18,6 +20,8 @@ interface BackendCategory {
   id: number;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   image: string | null;
   parent_id: number | null;
   sort_order: number;
@@ -32,6 +36,8 @@ function mapBackendCategory(c: BackendCategory): Category {
     id: c.id,
     nameAr: c.name_ar,
     nameEn: c.name_en,
+    nameHe: c.name_he ?? null,
+    nameRu: c.name_ru ?? null,
     image: c.image,
     parentId: c.parent_id,
     sortOrder: c.sort_order,
@@ -104,13 +110,13 @@ export const categoriesApi = {
     return mapBackendCategory(response.data.data);
   },
 
-  create: async (data: { name_ar: string; name_en?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean }): Promise<Category> => {
+  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean }): Promise<Category> => {
     const formData = buildFormData(data);
     const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, { headers: { 'Content-Type': undefined } });
     return mapBackendCategory(response.data.data);
   },
 
-  update: async (id: number, data: { name_ar?: string; name_en?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean }): Promise<Category> => {
+  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean }): Promise<Category> => {
     const { image, ...rest } = data;
     const formData = buildFormData({ _method: 'PUT', ...rest });
     if (image === null) {

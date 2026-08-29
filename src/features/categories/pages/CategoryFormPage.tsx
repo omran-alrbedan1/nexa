@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { categoriesApi, type Category } from '../api/categoriesApi';
+import { toAbsoluteUrl } from '@/features/products/api/productsApi';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
 import { ArrowLeft, FolderTree, Save, Upload, ImageOff } from 'lucide-react';
-
-const BASE_URL = import.meta.env.DEV ? '' : import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
 
 export function CategoryFormPage() {
   const { t } = useTranslation();
@@ -30,13 +30,10 @@ export function CategoryFormPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
-  const [form, setForm] = useState({
-    nameAr: '',
-    nameEn: '',
-    parentId: '',
-    sortOrder: '0',
-    isActive: true,
-  });
+  const [names, setNames] = useState<Record<TranslatedLang, string>>({ ar: '', en: '', he: '', ru: '' });
+  const [parentId, setParentId] = useState('');
+  const [sortOrder, setSortOrder] = useState('0');
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     categoriesApi.list().then((res) => {
@@ -50,23 +47,25 @@ export function CategoryFormPage() {
     Promise.all([
       categoriesApi.get(id),
     ]).then(([cat]) => {
-      setForm({
-        nameAr: cat.nameAr,
-        nameEn: cat.nameEn ?? '',
-        parentId: cat.parentId ? String(cat.parentId) : '',
-        sortOrder: String(cat.sortOrder),
-        isActive: cat.isActive,
+      setNames({
+        ar: cat.nameAr,
+        en: cat.nameEn ?? '',
+        he: cat.nameHe ?? '',
+        ru: cat.nameRu ?? '',
       });
+      setParentId(cat.parentId ? String(cat.parentId) : '');
+      setSortOrder(String(cat.sortOrder));
+      setIsActive(cat.isActive);
       if (cat.image) {
-        setExistingImageUrl(cat.image.startsWith('http') ? cat.image : `${BASE_URL}/storage/${cat.image}`);
+        setExistingImageUrl(toAbsoluteUrl(cat.image));
       }
     }).catch((err) => {
       setError(err?.response?.data?.message || t('categories.form.errorLoading'));
     }).finally(() => setLoading(false));
   }, [isEdit, id]);
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleNameChange = (lang: TranslatedLang, value: string) => {
+    setNames((prev) => ({ ...prev, [lang]: value }));
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,18 +83,20 @@ export function CategoryFormPage() {
   };
 
   const handleSubmit = async () => {
-    if (!form.nameAr.trim()) {
+    if (!names.ar.trim()) {
       addToast('error', t('categories.form.validationRequired'));
       return;
     }
     setSaving(true);
     try {
       const payload = {
-        name_ar: form.nameAr,
-        name_en: form.nameEn || undefined,
-        parent_id: form.parentId ? Number(form.parentId) : null,
-        sort_order: parseInt(form.sortOrder) || 0,
-        is_active: form.isActive,
+        name_ar: names.ar,
+        name_en: names.en || undefined,
+        name_he: names.he || undefined,
+        name_ru: names.ru || undefined,
+        parent_id: parentId ? Number(parentId) : null,
+        sort_order: parseInt(sortOrder) || 0,
+        is_active: isActive,
         image: imageFile || undefined,
       };
 
@@ -155,30 +156,17 @@ export function CategoryFormPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('categories.form.basicInfo')}</h3>
           <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.nameAr')}</label>
-              <input
-                value={form.nameAr}
-                onChange={(e) => handleChange('nameAr', e.target.value)}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder={t('categories.form.nameArPlaceholder')}
-                dir="rtl"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.nameEn')}</label>
-              <input
-                value={form.nameEn}
-                onChange={(e) => handleChange('nameEn', e.target.value)}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder={t('categories.form.namePlaceholder')}
-              />
-            </div>
+            <TranslatedField
+              label={t('categories.form.name')}
+              values={{ ar: names.ar, en: names.en, he: names.he, ru: names.ru }}
+              onChange={handleNameChange}
+              required
+            />
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.parentCategory')}</label>
               <select
-                value={form.parentId}
-                onChange={(e) => handleChange('parentId', e.target.value)}
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
               >
                 <option value="">{t('categories.form.noneTopLevel')}</option>
@@ -196,8 +184,8 @@ export function CategoryFormPage() {
               <input
                 type="number"
                 min="0"
-                value={form.sortOrder}
-                onChange={(e) => handleChange('sortOrder', e.target.value)}
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
               />
             </div>
@@ -206,8 +194,8 @@ export function CategoryFormPage() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={form.isActive}
-                  onChange={(e) => handleChange('isActive', e.target.checked)}
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
                   className="sr-only peer"
                 />
                 <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer-checked:bg-brand-primary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />

@@ -13,6 +13,8 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Pagination } from '@/components/ui/Pagination';
 import { Tabs } from '@/components/ui/Tabs';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import { useToastStore } from '@/stores/toastStore';
 import { ROUTES } from '@/routes/routes';
 import {
@@ -34,10 +36,12 @@ export function CategoriesPage() {
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; category: Category | null }>({ open: false, category: null });
   const [deleteBusinessModal, setDeleteBusinessModal] = useState<{ open: boolean; category: BusinessCategory | null }>({ open: false, category: null });
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<'sortOrder' | 'name' | 'count'>('sortOrder');
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['categories', page],
-    queryFn: () => categoriesApi.getPageData({ page }),
+    queryKey: ['categories', page, search],
+    queryFn: () => categoriesApi.getPageData({ page, search }),
     enabled: tab === 'product',
   });
 
@@ -48,8 +52,8 @@ export function CategoriesPage() {
     error: businessError,
     refetch: businessRefetch,
   } = useQuery({
-    queryKey: ['business-categories', page],
-    queryFn: () => businessCategoriesApi.getPageData({ page }),
+    queryKey: ['business-categories', page, search],
+    queryFn: () => businessCategoriesApi.getPageData({ page, search }),
     enabled: tab === 'business',
   });
 
@@ -84,10 +88,26 @@ export function CategoriesPage() {
 
   const categories = data?.categories ?? [];
   const productMeta = data?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
-  const topLevelCategories = categories.filter((c) => !c.parentId);
 
   const businessCategories = businessData?.businessCategories ?? [];
   const businessMeta = businessData?.meta ?? { currentPage: 1, lastPage: 1, perPage: 15, total: 0 };
+
+  const sortCategories = (list: Category[]): Category[] =>
+    [...list].sort((a, b) => {
+      if (sort === 'name') return a.nameAr.localeCompare(b.nameAr);
+      if (sort === 'count') return b.productsCount - a.productsCount;
+      return a.sortOrder - b.sortOrder;
+    });
+
+  const sortBusiness = (list: BusinessCategory[]): BusinessCategory[] =>
+    [...list].sort((a, b) => {
+      if (sort === 'name') return a.nameAr.localeCompare(b.nameAr);
+      if (sort === 'count') return b.suppliersCount - a.suppliersCount;
+      return a.sortOrder - b.sortOrder;
+    });
+
+  const topLevelCategories = sortCategories(categories).filter((c) => !c.parentId);
+  const sortedBusinessCategories = sortBusiness(businessCategories);
 
   const stats = {
     total: categories.length,
@@ -130,6 +150,28 @@ export function CategoriesPage() {
         onChange={setTab}
         variant="pills"
       />
+
+      {/* Search + Sort */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <SearchInput
+            value={search}
+            onChange={(v) => { setSearch(v); setPage(1); }}
+            placeholder={t('categories.searchPlaceholder')}
+          />
+        </div>
+        <div className="w-full sm:w-48">
+          <Select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as 'sortOrder' | 'name' | 'count')}
+            options={[
+              { value: 'sortOrder', label: t('categories.sort.order') },
+              { value: 'name', label: t('categories.sort.name') },
+              { value: 'count', label: t('categories.sort.count') },
+            ]}
+          />
+        </div>
+      </div>
 
       {/* Product Categories Content */}
       {tab === 'product' && (
@@ -308,7 +350,7 @@ export function CategoriesPage() {
 
                 {businessLoading ? (
                   <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
-                ) : businessCategories.length === 0 ? (
+                ) : sortedBusinessCategories.length === 0 ? (
                   <EmptyState title={t('categories.list.noBusinessCategories')} description={t('categories.list.noBusinessCategoriesDescription')} action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.BUSINESS_CATEGORIES_CREATE)}>
                       {t('categories.list.addBusinessCategory')}
@@ -316,7 +358,7 @@ export function CategoriesPage() {
                   } />
                 ) : (
                   <div className="space-y-2">
-                    {businessCategories.map((cat) => (
+                    {sortedBusinessCategories.map((cat) => (
                       <BusinessCategoryListItem
                         key={cat.id}
                         category={cat}

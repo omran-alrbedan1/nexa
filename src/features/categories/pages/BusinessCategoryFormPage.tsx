@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { businessCategoriesApi, slugify } from '../api/businessCategoriesApi';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -23,13 +24,10 @@ export function BusinessCategoryFormPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [form, setForm] = useState({
-    nameAr: '',
-    nameEn: '',
-    code: '',
-    sortOrder: '0',
-    isActive: true,
-  });
+  const [names, setNames] = useState<Record<TranslatedLang, string>>({ ar: '', en: '', he: '', ru: '' });
+  const [code, setCode] = useState('');
+  const [sortOrder, setSortOrder] = useState('0');
+  const [isActive, setIsActive] = useState(true);
 
   const [suppliersCount, setSuppliersCount] = useState(0);
 
@@ -38,13 +36,15 @@ export function BusinessCategoryFormPage() {
     setLoading(true);
     businessCategoriesApi.get(id)
       .then((cat) => {
-        setForm({
-          nameAr: cat.nameAr,
-          nameEn: cat.nameEn ?? '',
-          code: cat.code,
-          sortOrder: String(cat.sortOrder),
-          isActive: cat.isActive,
+        setNames({
+          ar: cat.nameAr,
+          en: cat.nameEn ?? '',
+          he: cat.nameHe ?? '',
+          ru: cat.nameRu ?? '',
         });
+        setCode(cat.code);
+        setSortOrder(String(cat.sortOrder));
+        setIsActive(cat.isActive);
         setSuppliersCount(cat.suppliersCount);
       })
       .catch((err) => {
@@ -53,37 +53,36 @@ export function BusinessCategoryFormPage() {
       .finally(() => setLoading(false));
   }, [isEdit, id]);
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setForm((prev) => {
-      const updated = { ...prev, [field]: value };
-      if (field === 'nameEn') {
-        updated.code = slugify(value as string);
-      }
-      return updated;
-    });
+  const handleNameChange = (lang: TranslatedLang, value: string) => {
+    setNames((prev) => ({ ...prev, [lang]: value }));
+    if (lang === 'en') {
+      setCode(slugify(value));
+    }
   };
 
   const handleSubmit = async () => {
-    if (!form.nameAr.trim()) {
+    if (!names.ar.trim()) {
       addToast('error', t('categories.businessForm.validationArRequired'));
       return;
     }
-    if (!form.nameEn.trim()) {
+    if (!names.en.trim()) {
       addToast('error', t('categories.businessForm.validationEnRequired'));
       return;
     }
-    if (!form.code) {
+    if (!code) {
       addToast('error', t('categories.businessForm.validationCodeRequired'));
       return;
     }
     setSaving(true);
     try {
       const payload = {
-        code: form.code,
-        name_ar: form.nameAr,
-        name_en: form.nameEn,
-        sort_order: parseInt(form.sortOrder) || 0,
-        is_active: form.isActive,
+        code,
+        name_ar: names.ar,
+        name_en: names.en,
+        name_he: names.he || undefined,
+        name_ru: names.ru || undefined,
+        sort_order: parseInt(sortOrder) || 0,
+        is_active: isActive,
       };
 
       if (isEdit) {
@@ -144,30 +143,17 @@ export function BusinessCategoryFormPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-text-primary font-display mb-5">{t('categories.businessForm.basicInfo')}</h3>
           <div className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.businessForm.nameAr')}</label>
-              <input
-                value={form.nameAr}
-                onChange={(e) => handleChange('nameAr', e.target.value)}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder={t('categories.businessForm.nameArPlaceholder')}
-                dir="rtl"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.businessForm.nameEn')}</label>
-              <input
-                value={form.nameEn}
-                onChange={(e) => handleChange('nameEn', e.target.value)}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-                placeholder={t('categories.businessForm.namePlaceholder')}
-              />
-            </div>
+            <TranslatedField
+              label={t('categories.businessForm.name')}
+              values={{ ar: names.ar, en: names.en, he: names.he, ru: names.ru }}
+              onChange={handleNameChange}
+              required
+            />
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.businessForm.code')}</label>
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-border-default rounded-lg text-sm text-text-secondary">
                 <Hash size={14} className="text-text-tertiary flex-shrink-0" />
-                <span className="font-mono">{form.code || t('categories.businessForm.autoGeneratedHint')}</span>
+                <span className="font-mono">{code || t('categories.businessForm.autoGeneratedHint')}</span>
               </div>
               <p className="text-xs text-text-tertiary mt-1">{t('categories.businessForm.autoGeneratedDesc')}</p>
             </div>
@@ -176,8 +162,8 @@ export function BusinessCategoryFormPage() {
               <input
                 type="number"
                 min="0"
-                value={form.sortOrder}
-                onChange={(e) => handleChange('sortOrder', e.target.value)}
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
                 className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
               />
             </div>
@@ -186,8 +172,8 @@ export function BusinessCategoryFormPage() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={form.isActive}
-                  onChange={(e) => handleChange('isActive', e.target.checked)}
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
                   className="sr-only peer"
                 />
                 <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer-checked:bg-brand-primary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />

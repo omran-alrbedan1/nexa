@@ -1654,6 +1654,7 @@
       "editDescription": "Update category details",
       "addDescription": "Create a new product category",
       "basicInfo": "Basic Information",
+      "name": "Name",
       "nameAr": "Name (Arabic) *",
       "nameArPlaceholder": "اسم التصنيف",
       "nameEn": "Name (English)",
@@ -1685,6 +1686,7 @@
       "editDescription": "Update business category details",
       "addDescription": "Create a new business category",
       "basicInfo": "Basic Information",
+      "name": "Name",
       "nameAr": "Name (Arabic) *",
       "nameArPlaceholder": "اسم التصنيف التجاري",
       "nameEn": "Name (English) *",
@@ -1731,7 +1733,13 @@
     },
     "subLabel": "Sub: {{name}}",
     "productsCount": "{{count}} product",
-    "suppliersCount": "{{count}} supplier"
+    "suppliersCount": "{{count}} supplier",
+    "searchPlaceholder": "Search categories...",
+    "sort": {
+      "order": "Sort Order",
+      "name": "Name",
+      "count": "Item Count"
+    }
   },
   "suppliers": {
     "title": "Suppliers",

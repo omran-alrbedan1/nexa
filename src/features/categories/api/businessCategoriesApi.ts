@@ -6,6 +6,8 @@ export interface BusinessCategory {
   code: string;
   nameAr: string;
   nameEn: string | null;
+  nameHe: string | null;
+  nameRu: string | null;
   isActive: boolean;
   sortOrder: number;
   suppliersCount: number;
@@ -18,6 +20,8 @@ interface BackendBusinessCategory {
   code: string;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
   sort_order: number;
   suppliers_count: number;
@@ -31,6 +35,8 @@ function mapBackendBusinessCategory(c: BackendBusinessCategory): BusinessCategor
     code: c.code,
     nameAr: c.name_ar,
     nameEn: c.name_en,
+    nameHe: c.name_he ?? null,
+    nameRu: c.name_ru ?? null,
     isActive: c.is_active,
     sortOrder: c.sort_order,
     suppliersCount: c.suppliers_count,
@@ -96,12 +102,12 @@ export const businessCategoriesApi = {
     return mapBackendBusinessCategory(response.data.data);
   },
 
-  create: async (data: { code: string; name_ar: string; name_en?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
+  create: async (data: { code: string; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
     const response = await apiClient.post<ApiResponse<BackendBusinessCategory>>('/api/v1/admin/business-categories', data);
     return mapBackendBusinessCategory(response.data.data);
   },
 
-  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
+  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
     const response = await apiClient.put<ApiResponse<BackendBusinessCategory>>(`/api/v1/admin/business-categories/${id}`, data);
     return mapBackendBusinessCategory(response.data.data);
   },

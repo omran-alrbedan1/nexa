@@ -187,7 +187,7 @@ function mapBackendProductToDashboard(bp: BackendSupplierProduct): DashboardProd
     price: parseFloat(bp.price) || 0,
     unit: bp.unit || 'piece',
     sku: bp.sku ?? '',
-    imageUrl: bp.primary_image || null,
+    imageUrl: toAbsoluteUrl(bp.primary_image),
     categoryId: bp.category?.id || 0,
     categoryName: bp.category?.name || 'Uncategorized',
     supplierId: bp.supplier?.id || null,
