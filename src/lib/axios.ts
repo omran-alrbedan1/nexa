@@ -18,16 +18,8 @@ export function getAuthToken(): string | null {
   return _authToken;
 }
 
-const cachedBaseUrl = (() => {
-  try {
-    return localStorage.getItem('nexa-api-base-url');
-  } catch {
-    return null;
-  }
-})();
-
 export const apiClient = axios.create({
-  baseURL: import.meta.env.DEV ? '' : (cachedBaseUrl || env.API_BASE_URL),
+  baseURL: import.meta.env.DEV ? '' : env.API_BASE_URL,
   timeout: 15_000,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },

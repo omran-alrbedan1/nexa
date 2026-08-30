@@ -13,7 +13,6 @@ import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, M
 import { useQuery, useMutation, useQueryClient as useQC } from '@tanstack/react-query';
 import { apiBaseUrlApi } from '../api/apiBaseUrlApi';
 import { useToastStore as useToast } from '@/stores/toastStore';
-import { applyBaseUrl } from '@/lib/apiBaseUrl';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -90,9 +89,8 @@ export function SettingsPage() {
   const baseUrlValue = baseUrlInput !== null ? baseUrlInput : (baseUrlData?.base_url ?? '');
   const baseUrlMutation = useMutation({
     mutationFn: (url: string) => apiBaseUrlApi.updateAdmin(url),
-    onSuccess: (data) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['api-base-url'] });
-      applyBaseUrl(data.base_url);
       toast('success', t('settings.apiBaseUrl.saveSuccess'));
     },
     onError: (err: any) => toast('error', err?.response?.data?.message || t('settings.apiBaseUrl.saveFailed')),
