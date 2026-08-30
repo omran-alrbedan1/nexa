@@ -28,6 +28,7 @@ export function BusinessCategoryFormPage() {
   const [code, setCode] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [isActive, setIsActive] = useState(true);
+  const [showOnHome, setShowOnHome] = useState(true);
 
   const [suppliersCount, setSuppliersCount] = useState(0);
 
@@ -45,6 +46,7 @@ export function BusinessCategoryFormPage() {
         setCode(cat.code);
         setSortOrder(String(cat.sortOrder));
         setIsActive(cat.isActive);
+        setShowOnHome(cat.showOnHome ?? true);
         setSuppliersCount(cat.suppliersCount);
       })
       .catch((err) => {
@@ -83,6 +85,7 @@ export function BusinessCategoryFormPage() {
         name_ru: names.ru || undefined,
         sort_order: parseInt(sortOrder) || 0,
         is_active: isActive,
+        show_on_home: showOnHome,
       };
 
       if (isEdit) {
@@ -174,6 +177,18 @@ export function BusinessCategoryFormPage() {
                   type="checkbox"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer-checked:bg-brand-primary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+              </label>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.businessForm.showOnHome')}</label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOnHome}
+                  onChange={(e) => setShowOnHome(e.target.checked)}
                   className="sr-only peer"
                 />
                 <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer-checked:bg-brand-primary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />

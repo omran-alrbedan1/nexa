@@ -18,7 +18,7 @@ import { Select } from '@/components/ui/Select';
 import { useToastStore } from '@/stores/toastStore';
 import { ROUTES } from '@/routes/routes';
 import {
-  FolderTree, Plus, Pencil, Trash2, Layers, CheckCircle2, XCircle, Building2, Hash,
+  FolderTree, Plus, Pencil, Trash2, Layers, CheckCircle2, XCircle, Building2, Hash, Eye, EyeOff,
 } from 'lucide-react';
 
 function cn(...classes: (string | false | undefined | null)[]) {
@@ -38,10 +38,13 @@ export function CategoriesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'sortOrder' | 'name' | 'count'>('sortOrder');
+  const [homeFilter, setHomeFilter] = useState<'all' | 'shown' | 'hidden'>('all');
+
+  const showOnHomeParam = homeFilter === 'all' ? undefined : homeFilter === 'shown' ? 1 : 0;
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['categories', page, search],
-    queryFn: () => categoriesApi.getPageData({ page, search }),
+    queryKey: ['categories', page, search, showOnHomeParam],
+    queryFn: () => categoriesApi.getPageData({ page, search, show_on_home: showOnHomeParam }),
     enabled: tab === 'product',
   });
 
@@ -52,8 +55,8 @@ export function CategoriesPage() {
     error: businessError,
     refetch: businessRefetch,
   } = useQuery({
-    queryKey: ['business-categories', page, search],
-    queryFn: () => businessCategoriesApi.getPageData({ page, search }),
+    queryKey: ['business-categories', page, search, showOnHomeParam],
+    queryFn: () => businessCategoriesApi.getPageData({ page, search, show_on_home: showOnHomeParam }),
     enabled: tab === 'business',
   });
 
@@ -151,13 +154,24 @@ export function CategoriesPage() {
         variant="pills"
       />
 
-      {/* Search + Sort */}
+      {/* Search + Sort + Home filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
           <SearchInput
             value={search}
             onChange={(v) => { setSearch(v); setPage(1); }}
             placeholder={t('categories.searchPlaceholder')}
+          />
+        </div>
+        <div className="w-full sm:w-40">
+          <Select
+            value={homeFilter}
+            onChange={(e) => { setHomeFilter(e.target.value as 'all' | 'shown' | 'hidden'); setPage(1); }}
+            options={[
+              { value: 'all', label: t('categories.filter.all') },
+              { value: 'shown', label: t('categories.filter.shown') },
+              { value: 'hidden', label: t('categories.filter.hidden') },
+            ]}
           />
         </div>
         <div className="w-full sm:w-48">
@@ -448,6 +462,10 @@ function CategoryListItem({ category, allCategories, onEdit, onDelete }: Categor
           <Badge variant={category.isActive ? 'green' : 'red'} size="sm">
             {category.isActive ? t('common.active') : t('common.inactive')}
           </Badge>
+          <Badge variant={category.showOnHome ? 'purple' : 'gray'} size="sm" className="inline-flex items-center gap-1">
+            {category.showOnHome ? <Eye size={10} /> : <EyeOff size={10} />}
+            {category.showOnHome ? t('categories.showOnHome') : t('categories.hiddenOnHome')}
+          </Badge>
         </>}
         actions={<>
           {children.length > 0 && (
@@ -495,6 +513,10 @@ function BusinessCategoryListItem({ category, onEdit, onDelete }: BusinessCatego
           </span>
           <Badge variant={category.isActive ? 'green' : 'red'} size="sm">
             {category.isActive ? t('common.active') : t('common.inactive')}
+          </Badge>
+          <Badge variant={category.showOnHome ? 'purple' : 'gray'} size="sm" className="inline-flex items-center gap-1">
+            {category.showOnHome ? <Eye size={10} /> : <EyeOff size={10} />}
+            {category.showOnHome ? t('categories.showOnHome') : t('categories.hiddenOnHome')}
           </Badge>
         </>}
         actions={<>

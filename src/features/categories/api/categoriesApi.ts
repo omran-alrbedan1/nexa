@@ -11,6 +11,7 @@ export interface Category {
   parentId: number | null;
   sortOrder: number;
   isActive: boolean;
+  showOnHome: boolean;
   productsCount: number;
   parent?: { id: number; name_ar: string } | null;
   children?: Category[];
@@ -26,6 +27,7 @@ interface BackendCategory {
   parent_id: number | null;
   sort_order: number;
   is_active: boolean;
+  show_on_home: boolean;
   products_count: number;
   parent?: { id: number; name_ar: string } | null;
   children?: BackendCategory[];
@@ -42,6 +44,7 @@ function mapBackendCategory(c: BackendCategory): Category {
     parentId: c.parent_id,
     sortOrder: c.sort_order,
     isActive: c.is_active,
+    showOnHome: c.show_on_home ?? true,
     productsCount: c.products_count,
     parent: c.parent,
     children: c.children?.map(mapBackendCategory),
@@ -84,12 +87,13 @@ export const categoriesApi = {
     };
   },
 
-  getPageData: async (params: { page?: number; search?: string } = {}): Promise<CategoriesPageData> => {
+  getPageData: async (params: { page?: number; search?: string; show_on_home?: number } = {}): Promise<CategoriesPageData> => {
     const response = await apiClient.get<ApiResponse<{ categories: BackendCategory[]; meta: BackendListMeta }>>('/api/v1/admin/categories', {
       params: {
         page: params.page ?? 1,
         per_page: 15,
         search: params.search || undefined,
+        show_on_home: params.show_on_home,
       },
     });
     const data = response.data.data;
@@ -110,13 +114,13 @@ export const categoriesApi = {
     return mapBackendCategory(response.data.data);
   },
 
-  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean }): Promise<Category> => {
+  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
     const formData = buildFormData(data);
     const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, { headers: { 'Content-Type': undefined } });
     return mapBackendCategory(response.data.data);
   },
 
-  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean }): Promise<Category> => {
+  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
     const { image, ...rest } = data;
     const formData = buildFormData({ _method: 'PUT', ...rest });
     if (image === null) {

@@ -3,9 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';
 import '@/i18n';
 import '@/styles/globals.css';
+import { initApiBaseUrl } from '@/lib/apiBaseUrl';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+initApiBaseUrl().finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+});

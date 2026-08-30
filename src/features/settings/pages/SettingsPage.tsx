@@ -9,7 +9,11 @@ import type { Setting } from '../api/settingsApi';
 // import { type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
 
 
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer, Globe, Link2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient as useQC } from '@tanstack/react-query';
+import { apiBaseUrlApi } from '../api/apiBaseUrlApi';
+import { useToastStore as useToast } from '@/stores/toastStore';
+import { applyBaseUrl } from '@/lib/apiBaseUrl';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -74,6 +78,25 @@ export function SettingsPage() {
 
   const generalSettings = (settings || []).filter((s) => s.group === 'general' || !s.group);
   const pricingSettings = (settings || []).filter((s) => s.group === 'pricing');
+
+  const qc = useQC();
+  const toast = useToast((s) => s.addToast);
+  const { data: baseUrlData, isLoading: baseUrlLoading } = useQuery({
+    queryKey: ['api-base-url'],
+    queryFn: () => apiBaseUrlApi.getAdmin(),
+    retry: false,
+  });
+  const [baseUrlInput, setBaseUrlInput] = useState<string | null>(null);
+  const baseUrlValue = baseUrlInput !== null ? baseUrlInput : (baseUrlData?.base_url ?? '');
+  const baseUrlMutation = useMutation({
+    mutationFn: (url: string) => apiBaseUrlApi.updateAdmin(url),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['api-base-url'] });
+      applyBaseUrl(data.base_url);
+      toast('success', t('settings.apiBaseUrl.saveSuccess'));
+    },
+    onError: (err: any) => toast('error', err?.response?.data?.message || t('settings.apiBaseUrl.saveFailed')),
+  });
 
   // ─── Multi-currency state (commented out) ──────────────────────────
   // const storeCurrency = useCurrencyStore((s) => s.selectedCurrency);
@@ -160,6 +183,47 @@ export function SettingsPage() {
           );
         })}
       </div>
+
+      <Card padding="lg">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
+            <Globe size={16} className="text-brand-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('settings.apiBaseUrl.title')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('settings.apiBaseUrl.description')}</p>
+          </div>
+        </div>
+        {baseUrlLoading ? (
+          <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Link2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+                <input
+                  value={baseUrlValue}
+                  onChange={(e) => setBaseUrlInput(e.target.value)}
+                  placeholder="https://api.example.com/api/v1"
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-border-default rounded-lg font-body outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary-light bg-bg-input"
+                />
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                isLoading={baseUrlMutation.isPending}
+                onClick={() => baseUrlMutation.mutate(baseUrlValue.trim())}
+              >
+                {t('common.save')}
+              </Button>
+            </div>
+            <p className="text-xs text-text-tertiary font-body">{t('settings.apiBaseUrl.hint')}</p>
+            {baseUrlData?.updated_at && (
+              <p className="text-xs text-text-tertiary font-body">{t('settings.apiBaseUrl.updatedAt', { date: new Date(baseUrlData.updated_at).toLocaleString() })}</p>
+            )}
+          </div>
+        )}
+      </Card>
 
       {/* General Settings */}
       <Card padding="lg">

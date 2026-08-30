@@ -9,6 +9,7 @@ export interface BusinessCategory {
   nameHe: string | null;
   nameRu: string | null;
   isActive: boolean;
+  showOnHome: boolean;
   sortOrder: number;
   suppliersCount: number;
   createdAt: string;
@@ -23,6 +24,7 @@ interface BackendBusinessCategory {
   name_he: string | null;
   name_ru: string | null;
   is_active: boolean;
+  show_on_home: boolean;
   sort_order: number;
   suppliers_count: number;
   created_at: string;
@@ -38,6 +40,7 @@ function mapBackendBusinessCategory(c: BackendBusinessCategory): BusinessCategor
     nameHe: c.name_he ?? null,
     nameRu: c.name_ru ?? null,
     isActive: c.is_active,
+    showOnHome: c.show_on_home ?? true,
     sortOrder: c.sort_order,
     suppliersCount: c.suppliers_count,
     createdAt: c.created_at,
@@ -76,12 +79,13 @@ export const businessCategoriesApi = {
     };
   },
 
-  getPageData: async (params: { page?: number; search?: string } = {}): Promise<BusinessCategoriesPageData> => {
+  getPageData: async (params: { page?: number; search?: string; show_on_home?: number } = {}): Promise<BusinessCategoriesPageData> => {
     const response = await apiClient.get<ApiResponse<{ categories: BackendBusinessCategory[]; meta: BackendListMeta }>>('/api/v1/admin/business-categories', {
       params: {
         page: params.page ?? 1,
         per_page: 15,
         search: params.search || undefined,
+        show_on_home: params.show_on_home,
       },
     });
     const data = response.data.data;
@@ -102,12 +106,12 @@ export const businessCategoriesApi = {
     return mapBackendBusinessCategory(response.data.data);
   },
 
-  create: async (data: { code: string; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
+  create: async (data: { code: string; name_ar: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<BusinessCategory> => {
     const response = await apiClient.post<ApiResponse<BackendBusinessCategory>>('/api/v1/admin/business-categories', data);
     return mapBackendBusinessCategory(response.data.data);
   },
 
-  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean }): Promise<BusinessCategory> => {
+  update: async (id: number, data: { code?: string; name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<BusinessCategory> => {
     const response = await apiClient.put<ApiResponse<BackendBusinessCategory>>(`/api/v1/admin/business-categories/${id}`, data);
     return mapBackendBusinessCategory(response.data.data);
   },
