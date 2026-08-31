@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { productsApi, type ProductCategory } from '../api/productsApi';
+import { productsApi, type ProductCategory, type ProductImage } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import type { ProductSource } from '@/types/marketplace';
 import { Card } from '@/components/ui/Card';
@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Package, Save, Upload, ImageOff } from 'lucide-react';
+import { ArrowLeft, Package, Save, Upload, ImageOff, X, Film, GripVertical } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 import { ProductVariantsSection } from '../components/ProductVariantsSection';
@@ -23,6 +23,7 @@ export function EditProductPage() {
   const queryClient = useQueryClient();
   const addToast = useToastStore((s) => s.addToast);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const id = parseInt(productId || '0', 10);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,9 +31,13 @@ export function EditProductPage() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [units, setUnits] = useState<ProductUnit[]>([]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [existingVideoUrl, setExistingVideoUrl] = useState<string | null>(null);
+  const [removeVideo, setRemoveVideo] = useState(false);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [form, setForm] = useState({
@@ -57,7 +62,8 @@ export function EditProductPage() {
         supplierId: p.supplierId ? String(p.supplierId) : '',
         source: p.source,
       });
-      setExistingImageUrl(p.imageUrl);
+      setExistingImages(p.images || []);
+      setExistingVideoUrl(p.videoUrl || null);
       setCategories(cats);
       setSuppliers(supps);
       setUnits(unitList);
@@ -80,17 +86,36 @@ export function EditProductPage() {
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
+    setImageFiles((prev) => [...prev, ...newFiles]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleRemoveNewImage = (index: number) => {
+    URL.revokeObjectURL(imagePreviews[index]);
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+    setRemoveVideo(false);
+  };
+
+  const handleRemoveVideo = () => {
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoFile(null);
+    setVideoPreview(null);
+    if (existingVideoUrl) setRemoveVideo(true);
+    if (videoInputRef.current) videoInputRef.current.value = '';
   };
 
   const handleSubmit = async () => {
@@ -117,7 +142,9 @@ export function EditProductPage() {
         categoryId: parseInt(form.categoryId) || 1,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
         source: form.source,
-        image: imageFile || undefined,
+        imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
+        videoFile: videoFile || undefined,
+        removeVideo: removeVideo || undefined,
       });
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       addToast('success', t('products.edit.successMessage'));
@@ -166,26 +193,55 @@ export function EditProductPage() {
       </div>
 
       <Card padding="lg">
-        <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('products.edit.productImage')}</h3>
-        <div className="flex items-start gap-5">
-          <div className="w-28 h-28 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center flex-shrink-0">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-            ) : existingImageUrl ? (
-              <img src={existingImageUrl} alt="Current" className="w-full h-full object-cover" />
-            ) : (
-              <ImageOff size={28} className="text-text-secondary/40" />
-            )}
+        <h3 className="text-sm font-bold text-text-primary font-display mb-4">{t('products.edit.mediaTitle')}</h3>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-bold text-text-secondary mb-2">{t('products.edit.imagesLabel')}</p>
+            <div className="flex flex-wrap gap-3">
+              {existingImages.map((img, i) => (
+                <div key={img.id} className="relative w-24 h-24 rounded-xl overflow-hidden border border-border-default bg-bg-input group">
+                  <img src={img.url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                  {img.is_primary && <span className="absolute top-1 left-1 bg-brand-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Primary</span>}
+                  <div className="absolute bottom-1 left-1 text-white/70"><GripVertical size={12} /></div>
+                </div>
+              ))}
+              {imagePreviews.map((preview, i) => (
+                <div key={`new-${i}`} className="relative w-24 h-24 rounded-xl overflow-hidden border border-brand-primary bg-bg-input group">
+                  <img src={preview} alt={`New ${i + 1}`} className="w-full h-full object-cover" />
+                  <span className="absolute top-1 left-1 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">New</span>
+                  <button type="button" onClick={() => handleRemoveNewImage(i)} className="absolute top-1 right-1 p-0.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                </div>
+              ))}
+              <label className="w-24 h-24 rounded-xl border-2 border-dashed border-border-default bg-bg-input flex flex-col items-center justify-center cursor-pointer hover:border-brand-primary transition-colors">
+                <Upload size={20} className="text-text-secondary/40 mb-1" />
+                <span className="text-[10px] text-text-secondary/60">{t('products.edit.addImage')}</span>
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleImageSelect} className="hidden" />
+              </label>
+            </div>
+            <p className="text-xs text-text-secondary/60 mt-2">{t('products.edit.imageHint')}</p>
           </div>
-          <div className="space-y-2">
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
-            <Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>
-              {existingImageUrl || imagePreview ? t('products.edit.changeImage') : t('products.edit.uploadImage')}
-            </Button>
-            {(imagePreview || existingImageUrl) && (
-              <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('products.edit.remove')}</Button>
+          <div>
+            <p className="text-xs font-bold text-text-secondary mb-2">{t('products.edit.videoLabel')}</p>
+            {videoPreview ? (
+              <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-border-default bg-bg-input">
+                <video src={videoPreview} controls className="w-full h-48 object-cover" />
+                <button type="button" onClick={handleRemoveVideo} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X size={14} /></button>
+              </div>
+            ) : existingVideoUrl && !removeVideo ? (
+              <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-border-default bg-bg-input">
+                <video src={existingVideoUrl} controls className="w-full h-48 object-cover" />
+                <button type="button" onClick={handleRemoveVideo} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X size={14} /></button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border-default bg-bg-input cursor-pointer hover:border-brand-primary transition-colors">
+                <Film size={24} className="text-text-secondary/40" />
+                <div>
+                  <p className="text-sm font-bold text-text-primary">{t('products.edit.uploadVideo')}</p>
+                  <p className="text-xs text-text-secondary/60">{t('products.edit.videoHint')}</p>
+                </div>
+                <input ref={videoInputRef} type="file" accept="video/mp4,video/mov,video/webm,video/m4v" onChange={handleVideoSelect} className="hidden" />
+              </label>
             )}
-            <p className="text-xs text-text-secondary/60">{t('products.edit.imageFormatHint')}</p>
           </div>
         </div>
       </Card>

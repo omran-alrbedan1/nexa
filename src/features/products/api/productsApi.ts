@@ -26,6 +26,13 @@ export interface ProductCategory {
   children?: ProductCategory[];
 }
 
+export interface ProductImage {
+  id: number;
+  url: string;
+  is_primary: boolean;
+  sort_order: number;
+}
+
 export interface DashboardProduct {
   id: number;
   sku: string;
@@ -42,6 +49,8 @@ export interface DashboardProduct {
   unit: string;
   unitId?: number | null;
   imageUrl: string | null;
+  images: ProductImage[];
+  videoUrl: string | null;
   categoryId: number;
   categoryName: string;
   supplierId: number | null;
@@ -109,6 +118,8 @@ interface BackendProduct {
   rejection_reason: string | null;
   is_active: boolean;
   primary_image: string | null;
+  images?: Array<{ id: number; url: string; is_primary: boolean; sort_order: number }>;
+  video_url?: string | null;
   updated_at: string;
   supplier: BackendProductSupplier | null;
   category: BackendProductCategory | null;
@@ -186,6 +197,13 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     unit: bp.unit || 'piece',
     unitId: bp.unit_id ?? null,
     imageUrl: toAbsoluteUrl(bp.primary_image),
+    images: (bp.images ?? []).map((img) => ({
+      id: img.id,
+      url: toAbsoluteUrl(img.url) || img.url,
+      is_primary: img.is_primary,
+      sort_order: img.sort_order,
+    })),
+    videoUrl: bp.video_url ? toAbsoluteUrl(bp.video_url) : null,
     categoryId: bp.category?.id || 0,
     categoryName: bp.category?.name || 'Uncategorized',
     supplierId: bp.supplier?.id || null,
@@ -194,8 +212,8 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
     variantType: bp.variant_type === 'color_size' ? 'color_size' : 'unit',
     isAvailable: bp.is_active,
     stockQuantity: Number(bp.stock_quantity),
-    totalOrders: 0, // not available from backend
-    createdAt: bp.updated_at, // backend has no created_at on products
+    totalOrders: 0,
+    createdAt: bp.updated_at,
     updatedAt: bp.updated_at,
   };
 }
@@ -328,11 +346,17 @@ export const productsApi = {
   },
 
   /** Create a new product */
-  createProduct: async (data: Partial<DashboardProduct> & { image?: File; variants?: ProductVariantInput[] }): Promise<DashboardProduct> => {
+  createProduct: async (data: Partial<DashboardProduct> & { imageFiles?: File[]; videoFile?: File }): Promise<DashboardProduct> => {
       const backendData = toBackendFields(data);
-      if (data.image instanceof File) {
+      const hasFiles = (data.imageFiles && data.imageFiles.length > 0) || data.videoFile instanceof File;
+      if (hasFiles) {
         const formData = buildProductFormData(backendData);
-        formData.append('image', data.image);
+        if (data.imageFiles && data.imageFiles.length > 0) {
+          data.imageFiles.forEach((file, i) => { formData.append(`images[${i}]`, file); });
+        }
+        if (data.videoFile instanceof File) {
+          formData.append('video', data.videoFile);
+        }
         const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, { headers: { 'Content-Type': undefined } });
         return mapBackendProduct(response.data.data);
       }
@@ -341,11 +365,20 @@ export const productsApi = {
   },
 
   /** Update product */
-  updateProduct: async (id: number, data: Partial<DashboardProduct> & { image?: File; variants?: ProductVariantInput[] }): Promise<DashboardProduct> => {
+  updateProduct: async (id: number, data: Partial<DashboardProduct> & { imageFiles?: File[]; videoFile?: File; removeVideo?: boolean }): Promise<DashboardProduct> => {
       const backendData = toBackendFields(data);
-      if (data.image instanceof File) {
+      const hasFiles = (data.imageFiles && data.imageFiles.length > 0) || data.videoFile instanceof File || data.removeVideo;
+      if (hasFiles) {
         const formData = buildProductFormData({ _method: 'PUT', ...backendData });
-        formData.append('image', data.image);
+        if (data.imageFiles && data.imageFiles.length > 0) {
+          data.imageFiles.forEach((file, i) => { formData.append(`images[${i}]`, file); });
+        }
+        if (data.videoFile instanceof File) {
+          formData.append('video', data.videoFile);
+        }
+        if (data.removeVideo) {
+          formData.append('remove_video', '1');
+        }
         const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, { headers: { 'Content-Type': undefined } });
         return mapBackendProduct(response.data.data);
       }

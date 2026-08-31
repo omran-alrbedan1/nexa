@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, ImageOff, Package, Save, Upload } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ImageOff, Package, Save, Upload, X, Film, GripVertical } from 'lucide-react';
 import { productsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import type { ProductSource } from '@/types/marketplace';
@@ -25,6 +25,7 @@ export function CreateProductPage() {
   const { t } = useTranslation();
   const addToast = useToastStore((state) => state.addToast);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const resumedProductId = Number.parseInt(searchParams.get('productId') || '0', 10) || null;
   const initialStep = (searchParams.get('step') as CreateStep | null) ?? 'info';
   const [step, setStep] = useState<CreateStep>(initialStep);
@@ -34,9 +35,10 @@ export function CreateProductPage() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [suppliers, setSuppliers] = useState<Array<{ id: number; name: string }>>([]);
   const [units, setUnits] = useState<ProductUnit[]>([]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [existingImageUrl] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryId: '', supplierId: '', source: 'supplier' as ProductSource });
@@ -71,8 +73,37 @@ export function CreateProductPage() {
   };
   const handleChange = (field: string, value: string) => setForm((current) => ({ ...current, [field]: value }));
   const handleUnitChange = (unitId: string) => { const unit = units.find((item) => String(item.id) === unitId); setForm((current) => ({ ...current, unitId, unit: unit ? unit.code.toLowerCase() : current.unit })); };
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (!file) return; if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(file); setImagePreview(URL.createObjectURL(file)); };
-  const handleRemoveImage = () => { if (imagePreview) URL.revokeObjectURL(imagePreview); setImageFile(null); setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
+    setImageFiles((prev) => [...prev, ...newFiles]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleRemoveImage = (index: number) => {
+    URL.revokeObjectURL(imagePreviews[index]);
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveVideo = () => {
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoFile(null);
+    setVideoPreview(null);
+    if (videoInputRef.current) videoInputRef.current.value = '';
+  };
 
   const productPayload = () => ({
     name: names.en ?? '', nameAr: names.ar ?? '', nameHe: names.he, nameRu: names.ru,
@@ -80,7 +111,8 @@ export function CreateProductPage() {
     price: Number.parseFloat(form.price) || 0, unit: form.unit, unitId: form.unitId ? Number.parseInt(form.unitId, 10) : null,
     stockQuantity: Number.parseInt(form.stockQuantity, 10) || 0, categoryId: Number.parseInt(form.categoryId, 10) || 1,
     supplierId: form.supplierId ? Number.parseInt(form.supplierId, 10) : null, source: form.source,
-    image: imageFile || undefined,
+    imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
+    videoFile: videoFile || undefined,
   });
 
   const saveProduct = async (): Promise<number | null> => {
@@ -111,7 +143,48 @@ export function CreateProductPage() {
     <Tabs tabs={tabs} activeTab={step} onChange={(id) => goToStep(id as CreateStep)} variant="pills" className="overflow-x-auto" />
 
     {step === 'info' && <>
-      <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-4">{t('products.create.imageTitle')}</h3><div className="flex items-start gap-5"><div className="w-28 h-28 rounded-xl overflow-hidden border border-border-default bg-bg-input flex items-center justify-center">{imagePreview || existingImageUrl ? <img src={imagePreview || existingImageUrl || ''} alt={t('products.create.preview')} className="w-full h-full object-cover" /> : <ImageOff size={28} className="text-text-secondary/40" />}</div><div className="space-y-2"><input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" /><Button variant="secondary" size="sm" leftIcon={<Upload size={14} />} onClick={() => fileInputRef.current?.click()}>{imagePreview || existingImageUrl ? t('products.create.changeImage') : t('products.create.uploadImage')}</Button>{imagePreview && <Button variant="ghost" size="sm" onClick={handleRemoveImage}>{t('products.create.removeImage')}</Button>}<p className="text-xs text-text-secondary/60">{t('products.create.imageHint')}</p></div></div></Card>
+      <Card padding="lg">
+        <h3 className="text-sm font-bold text-text-primary mb-4">{t('products.create.mediaTitle')}</h3>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-bold text-text-secondary mb-2">{t('products.create.imagesLabel')}</p>
+            <div className="flex flex-wrap gap-3">
+              {imagePreviews.map((preview, i) => (
+                <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border border-border-default bg-bg-input group">
+                  <img src={preview} alt={`Preview ${i + 1}`} className="w-full h-full object-cover" />
+                  {i === 0 && <span className="absolute top-1 left-1 bg-brand-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Primary</span>}
+                  <button type="button" onClick={() => handleRemoveImage(i)} className="absolute top-1 right-1 p-0.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                  <div className="absolute bottom-1 left-1 text-white/70"><GripVertical size={12} /></div>
+                </div>
+              ))}
+              <label className="w-24 h-24 rounded-xl border-2 border-dashed border-border-default bg-bg-input flex flex-col items-center justify-center cursor-pointer hover:border-brand-primary transition-colors">
+                <Upload size={20} className="text-text-secondary/40 mb-1" />
+                <span className="text-[10px] text-text-secondary/60">{t('products.create.addImage')}</span>
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleImageSelect} className="hidden" />
+              </label>
+            </div>
+            <p className="text-xs text-text-secondary/60 mt-2">{t('products.create.imageHint')}</p>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-text-secondary mb-2">{t('products.create.videoLabel')}</p>
+            {videoPreview ? (
+              <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-border-default bg-bg-input">
+                <video src={videoPreview} controls className="w-full h-48 object-cover" />
+                <button type="button" onClick={handleRemoveVideo} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X size={14} /></button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border-default bg-bg-input cursor-pointer hover:border-brand-primary transition-colors">
+                <Film size={24} className="text-text-secondary/40" />
+                <div>
+                  <p className="text-sm font-bold text-text-primary">{t('products.create.uploadVideo')}</p>
+                  <p className="text-xs text-text-secondary/60">{t('products.create.videoHint')}</p>
+                </div>
+                <input ref={videoInputRef} type="file" accept="video/mp4,video/mov,video/webm,video/m4v" onChange={handleVideoSelect} className="hidden" />
+              </label>
+            )}
+          </div>
+        </div>
+      </Card>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.basicInfo')}</h3><div className="space-y-5"><TranslatedField label={t('products.create.name')} values={names} onChange={(key, value) => setNames({ ...names, [key]: value })} placeholder={t('products.create.namePlaceholder')} required /><TranslatedField label={t('products.create.description')} values={descriptions} onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })} placeholder={t('products.create.descriptionPlaceholder')} textarea /><FieldSelect label={t('products.create.source')} value={form.source} onChange={(value) => handleChange('source', value)} options={[['supplier', t('products.create.sourceSupplier')], ['internal', t('products.create.sourceInternal')], ['seasonal', t('products.create.sourceSeasonal')]]} /></div></Card>
         <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.pricingInventory')}</h3><div className="space-y-5"><FieldInput label={t('products.create.price')} type="number" value={form.price} onChange={(value) => handleChange('price', value)} /><FieldSelect label={t('products.create.unit')} value={form.unitId} onChange={handleUnitChange} options={[['', t('products.create.selectUnit')], ...units.map((unit) => [String(unit.id), `${unit.nameAr}${unit.nameEn ? ` (${unit.nameEn})` : ''} — ${unit.code}`] as [string, string])]} /><FieldInput label={t('products.create.stockQuantity')} type="number" value={form.stockQuantity} onChange={(value) => handleChange('stockQuantity', value)} /><FieldSelect label={t('products.create.category')} value={form.categoryId} onChange={(value) => handleChange('categoryId', value)} options={[['', t('products.create.selectCategory')], ...categories.map((category) => [String(category.id), category.name] as [string, string])]} /><FieldSelect label={t('products.create.supplier')} value={form.supplierId} onChange={(value) => handleChange('supplierId', value)} options={[['', t('products.create.noSupplier')], ...suppliers.map((supplier) => [String(supplier.id), supplier.name] as [string, string])]} /></div></Card>

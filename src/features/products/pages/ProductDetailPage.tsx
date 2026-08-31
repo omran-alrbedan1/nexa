@@ -9,7 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { ROUTES } from '@/routes/routes';
 import { productKeys } from '../hooks/useProductsAdmin';
 import { VariantsSection } from '../components/VariantsSection';
-import { ArrowLeft, Package, ShoppingCart, TrendingUp, Building2, Tag, Hash, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users } from 'lucide-react';
+import { ArrowLeft, Package, ShoppingCart, TrendingUp, Building2, Tag, Hash, Image, CheckCircle2, XCircle, AlertTriangle, Layers, Users, Film } from 'lucide-react';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const SOURCE_BADGE: Record<string, 'teal' | 'purple' | 'yellow'> = {
@@ -106,6 +106,39 @@ export function ProductDetailPage() {
         </div>
         <div className="absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-brand-accent via-brand-primary to-brand-accent rounded-full opacity-30" />
       </div>
+
+      {/* Image Gallery + Video */}
+      {(product.images.length > 0 || product.videoUrl) && (
+        <Card padding="lg">
+          <div className="flex items-center gap-2 mb-4">
+            <Image size={16} className="text-brand-accent" />
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('products.detail.media')}</h3>
+          </div>
+          <div className="space-y-4">
+            {product.images.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-text-secondary mb-2">{t('products.detail.imagesCount', { count: product.images.length })}</p>
+                <div className="flex flex-wrap gap-3">
+                  {product.images.map((img, i) => (
+                    <div key={img.id} className="relative w-28 h-28 rounded-xl overflow-hidden border border-border-default">
+                      <img src={img.url} alt={`Product ${i + 1}`} className="w-full h-full object-cover" />
+                      {img.is_primary && <span className="absolute top-1 left-1 bg-brand-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{t('products.detail.primary')}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {product.videoUrl && (
+              <div>
+                <p className="text-xs font-bold text-text-secondary mb-2 flex items-center gap-1"><Film size={12} /> {t('products.detail.video')}</p>
+                <div className="w-full max-w-md rounded-xl overflow-hidden border border-border-default">
+                  <video src={product.videoUrl} controls className="w-full h-64 object-cover" />
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
