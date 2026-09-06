@@ -32,6 +32,8 @@ export function CategoryFormPage() {
 
   const [names, setNames] = useState<Record<TranslatedLang, string>>({ ar: '', en: '', he: '', ru: '' });
   const [parentId, setParentId] = useState('');
+  const [sectionId, setSectionId] = useState('');
+  const [slug, setSlug] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [isActive, setIsActive] = useState(true);
   const [showOnHome, setShowOnHome] = useState(true);
@@ -55,6 +57,8 @@ export function CategoryFormPage() {
         ru: cat.nameRu ?? '',
       });
       setParentId(cat.parentId ? String(cat.parentId) : '');
+      setSectionId(cat.sectionId ? String(cat.sectionId) : '');
+      setSlug(cat.slug ?? '');
       setSortOrder(String(cat.sortOrder));
       setIsActive(cat.isActive);
       setShowOnHome(cat.showOnHome ?? true);
@@ -97,6 +101,8 @@ export function CategoryFormPage() {
         name_he: names.he || undefined,
         name_ru: names.ru || undefined,
         parent_id: parentId ? Number(parentId) : null,
+        section_id: sectionId ? Number(sectionId) : null,
+        slug: slug || undefined,
         sort_order: parseInt(sortOrder) || 0,
         is_active: isActive,
         show_on_home: showOnHome,
@@ -181,6 +187,27 @@ export function CategoryFormPage() {
                     </option>
                   ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.sectionId')}</label>
+              <input
+                type="number"
+                min="0"
+                value={sectionId}
+                onChange={(e) => setSectionId(e.target.value)}
+                placeholder={t('categories.form.sectionIdPlaceholder')}
+                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.slug')}</label>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder={t('categories.form.slugPlaceholder')}
+                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
+              />
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.sortOrder')}</label>

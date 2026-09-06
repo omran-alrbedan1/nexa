@@ -53,6 +53,8 @@ export interface DashboardProduct {
   videoUrl: string | null;
   categoryId: number;
   categoryName: string;
+  categoryIds: number[];
+  categories: Array<{ id: number; name: string }>;
   supplierId: number | null;
   supplierName: string | null;
   source: ProductSource;
@@ -120,6 +122,9 @@ interface BackendProduct {
   primary_image: string | null;
   images?: Array<{ id: number; url: string; is_primary: boolean; sort_order: number }>;
   video_url?: string | null;
+  category_id?: number;
+  category_ids?: number[];
+  categories?: Array<{ id: number; name_ar?: string; name_en?: string; name?: string }>;
   updated_at: string;
   supplier: BackendProductSupplier | null;
   category: BackendProductCategory | null;
@@ -181,6 +186,17 @@ function mapBackendCategory(bc: BackendCategory): ProductCategory {
 // ── Mapping: BackendProduct → frontend DashboardProduct ──
 
 function mapBackendProduct(bp: BackendProduct): DashboardProduct {
+  const categoryIds = bp.category_ids?.length
+    ? bp.category_ids
+    : bp.category_id
+      ? [bp.category_id]
+      : bp.category
+        ? [bp.category.id]
+        : [];
+  const categories = (bp.categories ?? []).map((c) => ({
+    id: c.id,
+    name: c.name ?? c.name_en ?? c.name_ar ?? '',
+  }));
   return {
     id: bp.id,
     sku: bp.sku ?? '',
@@ -204,8 +220,10 @@ function mapBackendProduct(bp: BackendProduct): DashboardProduct {
       sort_order: img.sort_order,
     })),
     videoUrl: bp.video_url ? toAbsoluteUrl(bp.video_url) : null,
-    categoryId: bp.category?.id || 0,
-    categoryName: bp.category?.name || 'Uncategorized',
+    categoryId: categoryIds[0] ?? bp.category?.id ?? 0,
+    categoryName: bp.category?.name ?? categories[0]?.name ?? 'Uncategorized',
+    categoryIds,
+    categories,
     supplierId: bp.supplier?.id || null,
     supplierName: bp.supplier?.business_name || null,
     source: (bp.product_type as ProductSource) || 'supplier',
@@ -236,6 +254,7 @@ const PRODUCT_FIELD_MAP: Record<string, string> = {
   unitId: 'unit_id',
   stockQuantity: 'stock_quantity',
   categoryId: 'category_id',
+  categoryIds: 'category_ids',
   supplierId: 'supplier_id',
   campaignId: 'campaign_id',
   source: 'product_type',

@@ -42,7 +42,7 @@ export function EditProductPage() {
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [form, setForm] = useState({
     price: '', unit: 'kg', unitId: '', stockQuantity: '',
-    categoryId: '', supplierId: '', source: 'supplier' as ProductSource,
+    categoryIds: [] as number[], supplierId: '', source: 'supplier' as ProductSource,
   });
 
   useEffect(() => {
@@ -58,7 +58,8 @@ export function EditProductPage() {
       setDescriptions({ ar: p.descriptionAr, en: p.descriptionEn ?? '', he: p.descriptionHe ?? '', ru: p.descriptionRu ?? '' });
       setForm({
         price: String(p.price), unit: p.unit, unitId: p.unitId ? String(p.unitId) : '',
-        stockQuantity: String(p.stockQuantity), categoryId: String(p.categoryId),
+        stockQuantity: String(p.stockQuantity),
+        categoryIds: p.categoryIds.length > 0 ? p.categoryIds : p.categoryId ? [p.categoryId] : [],
         supplierId: p.supplierId ? String(p.supplierId) : '',
         source: p.source,
       });
@@ -74,6 +75,15 @@ export function EditProductPage() {
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCategoryToggle = (catId: number) => {
+    setForm((prev) => {
+      const ids = prev.categoryIds.includes(catId)
+        ? prev.categoryIds.filter((id) => id !== catId)
+        : [...prev.categoryIds, catId];
+      return { ...prev, categoryIds: ids };
+    });
   };
 
   const handleUnitChange = (unitId: string) => {
@@ -139,7 +149,8 @@ export function EditProductPage() {
         unit: form.unit,
         unitId: form.unitId ? parseInt(form.unitId) : null,
         stockQuantity: parseInt(form.stockQuantity) || 0,
-        categoryId: parseInt(form.categoryId) || 1,
+        categoryId: form.categoryIds[0] || 1,
+        categoryIds: form.categoryIds.length > 0 ? form.categoryIds : undefined,
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
         source: form.source,
         imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
@@ -298,13 +309,16 @@ export function EditProductPage() {
               <input type="number" min="0" value={form.stockQuantity} onChange={(e) => handleChange('stockQuantity', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.category')}</label>
-              <select value={form.categoryId} onChange={(e) => handleChange('categoryId', e.target.value)} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary">
-                <option value="">{t('products.edit.selectCategory')}</option>
+              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.categories')} *</label>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto border border-border-default rounded-lg p-2">
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <label key={cat.id} className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded hover:bg-gray-50">
+                    <input type="checkbox" checked={form.categoryIds.includes(cat.id)} onChange={() => handleCategoryToggle(cat.id)} className="accent-brand-primary" />
+                    <span className="text-sm text-text-primary">{cat.name}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {form.categoryIds.length > 0 && <p className="text-xs text-text-secondary mt-1">{t('products.edit.primaryCategory')}: {categories.find((c) => c.id === form.categoryIds[0])?.name ?? '—'}</p>}
             </div>
             <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.edit.supplier')}</label>

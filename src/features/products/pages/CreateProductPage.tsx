@@ -41,7 +41,7 @@ export function CreateProductPage() {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [names, setNames] = useState<Partial<Record<TranslatedLang, string>>>({});
   const [descriptions, setDescriptions] = useState<Partial<Record<TranslatedLang, string>>>({});
-  const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryId: '', supplierId: '', source: 'supplier' as ProductSource });
+  const [form, setForm] = useState({ price: '', unit: 'kg', unitId: '', stockQuantity: '', categoryIds: [] as number[], supplierId: '', source: 'supplier' as ProductSource });
 
   useEffect(() => {
     Promise.all([
@@ -57,7 +57,7 @@ export function CreateProductPage() {
       .then((product) => {
         setNames({ ar: product.nameAr, en: product.name, he: product.nameHe ?? '', ru: product.nameRu ?? '' });
         setDescriptions({ ar: product.descriptionAr, en: product.descriptionEn ?? '', he: product.descriptionHe ?? '', ru: product.descriptionRu ?? '' });
-        setForm({ price: String(product.price), unit: product.unit, unitId: product.unitId ? String(product.unitId) : '', stockQuantity: String(product.stockQuantity), categoryId: String(product.categoryId), supplierId: product.supplierId ? String(product.supplierId) : '', source: product.source });
+        setForm({ price: String(product.price), unit: product.unit, unitId: product.unitId ? String(product.unitId) : '', stockQuantity: String(product.stockQuantity), categoryIds: product.categoryIds.length > 0 ? product.categoryIds : product.categoryId ? [product.categoryId] : [], supplierId: product.supplierId ? String(product.supplierId) : '', source: product.source });
       }).catch((error) => {
         setCreatedProductId(null);
         setStep('info');
@@ -73,6 +73,14 @@ export function CreateProductPage() {
   };
   const handleChange = (field: string, value: string) => setForm((current) => ({ ...current, [field]: value }));
   const handleUnitChange = (unitId: string) => { const unit = units.find((item) => String(item.id) === unitId); setForm((current) => ({ ...current, unitId, unit: unit ? unit.code.toLowerCase() : current.unit })); };
+  const handleCategoryToggle = (catId: number) => {
+    setForm((current) => {
+      const ids = current.categoryIds.includes(catId)
+        ? current.categoryIds.filter((id) => id !== catId)
+        : [...current.categoryIds, catId];
+      return { ...current, categoryIds: ids };
+    });
+  };
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -109,7 +117,9 @@ export function CreateProductPage() {
     name: names.en ?? '', nameAr: names.ar ?? '', nameHe: names.he, nameRu: names.ru,
     description: descriptions.ar ?? '', descriptionAr: descriptions.ar, descriptionEn: descriptions.en, descriptionHe: descriptions.he, descriptionRu: descriptions.ru,
     price: Number.parseFloat(form.price) || 0, unit: form.unit, unitId: form.unitId ? Number.parseInt(form.unitId, 10) : null,
-    stockQuantity: Number.parseInt(form.stockQuantity, 10) || 0, categoryId: Number.parseInt(form.categoryId, 10) || 1,
+    stockQuantity: Number.parseInt(form.stockQuantity, 10) || 0,
+    categoryIds: form.categoryIds.length > 0 ? form.categoryIds : undefined,
+    categoryId: form.categoryIds.length > 0 ? form.categoryIds[0] : undefined,
     supplierId: form.supplierId ? Number.parseInt(form.supplierId, 10) : null, source: form.source,
     imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
     videoFile: videoFile || undefined,
@@ -187,7 +197,7 @@ export function CreateProductPage() {
       </Card>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.basicInfo')}</h3><div className="space-y-5"><TranslatedField label={t('products.create.name')} values={names} onChange={(key, value) => setNames({ ...names, [key]: value })} placeholder={t('products.create.namePlaceholder')} required /><TranslatedField label={t('products.create.description')} values={descriptions} onChange={(key, value) => setDescriptions({ ...descriptions, [key]: value })} placeholder={t('products.create.descriptionPlaceholder')} textarea /><FieldSelect label={t('products.create.source')} value={form.source} onChange={(value) => handleChange('source', value)} options={[['supplier', t('products.create.sourceSupplier')], ['internal', t('products.create.sourceInternal')], ['seasonal', t('products.create.sourceSeasonal')]]} /></div></Card>
-        <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.pricingInventory')}</h3><div className="space-y-5"><FieldInput label={t('products.create.price')} type="number" value={form.price} onChange={(value) => handleChange('price', value)} /><FieldSelect label={t('products.create.unit')} value={form.unitId} onChange={handleUnitChange} options={[['', t('products.create.selectUnit')], ...units.map((unit) => [String(unit.id), `${unit.nameAr}${unit.nameEn ? ` (${unit.nameEn})` : ''} — ${unit.code}`] as [string, string])]} /><FieldInput label={t('products.create.stockQuantity')} type="number" value={form.stockQuantity} onChange={(value) => handleChange('stockQuantity', value)} /><FieldSelect label={t('products.create.category')} value={form.categoryId} onChange={(value) => handleChange('categoryId', value)} options={[['', t('products.create.selectCategory')], ...categories.map((category) => [String(category.id), category.name] as [string, string])]} /><FieldSelect label={t('products.create.supplier')} value={form.supplierId} onChange={(value) => handleChange('supplierId', value)} options={[['', t('products.create.noSupplier')], ...suppliers.map((supplier) => [String(supplier.id), supplier.name] as [string, string])]} /></div></Card>
+        <Card padding="lg"><h3 className="text-sm font-bold text-text-primary mb-5">{t('products.create.pricingInventory')}</h3><div className="space-y-5"><FieldInput label={t('products.create.price')} type="number" value={form.price} onChange={(value) => handleChange('price', value)} /><FieldSelect label={t('products.create.unit')} value={form.unitId} onChange={handleUnitChange} options={[['', t('products.create.selectUnit')], ...units.map((unit) => [String(unit.id), `${unit.nameAr}${unit.nameEn ? ` (${unit.nameEn})` : ''} — ${unit.code}`] as [string, string])]} /><FieldInput label={t('products.create.stockQuantity')} type="number" value={form.stockQuantity} onChange={(value) => handleChange('stockQuantity', value)} /><div><label className="block text-xs font-bold text-text-secondary mb-1.5">{t('products.create.categories')} *</label><div className="space-y-1.5 max-h-40 overflow-y-auto border border-border-default rounded-lg p-2">{categories.map((category) => (<label key={category.id} className="flex items-center gap-2 cursor-pointer py-1 px-1 rounded hover:bg-gray-50"><input type="checkbox" checked={form.categoryIds.includes(category.id)} onChange={() => handleCategoryToggle(category.id)} className="accent-brand-primary" /><span className="text-sm text-text-primary">{category.name}</span></label>))}</div>{form.categoryIds.length > 0 && <p className="text-xs text-text-secondary mt-1">{t('products.create.primaryCategory')}: {categories.find((c) => c.id === form.categoryIds[0])?.name ?? '—'}</p>}</div><FieldSelect label={t('products.create.supplier')} value={form.supplierId} onChange={(value) => handleChange('supplierId', value)} options={[['', t('products.create.noSupplier')], ...suppliers.map((supplier) => [String(supplier.id), supplier.name] as [string, string])]} /></div></Card>
       </div>
       <div className="flex gap-3"><Button variant="primary" size="sm" leftIcon={<Save size={14} />} onClick={saveAndContinue} isLoading={saving}>{t('createFlow.saveContinue')}</Button><Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.PRODUCTS)}>{t('common.cancel')}</Button></div>
     </>}

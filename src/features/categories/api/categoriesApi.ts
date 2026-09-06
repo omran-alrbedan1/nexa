@@ -9,6 +9,8 @@ export interface Category {
   nameRu: string | null;
   image: string | null;
   parentId: number | null;
+  sectionId: number | null;
+  slug: string | null;
   sortOrder: number;
   isActive: boolean;
   showOnHome: boolean;
@@ -25,6 +27,8 @@ interface BackendCategory {
   name_ru: string | null;
   image: string | null;
   parent_id: number | null;
+  section_id: number | null;
+  slug: string | null;
   sort_order: number;
   is_active: boolean;
   show_on_home: boolean;
@@ -42,6 +46,8 @@ function mapBackendCategory(c: BackendCategory): Category {
     nameRu: c.name_ru ?? null,
     image: c.image,
     parentId: c.parent_id,
+    sectionId: c.section_id ?? null,
+    slug: c.slug ?? null,
     sortOrder: c.sort_order,
     isActive: c.is_active,
     showOnHome: c.show_on_home ?? true,
@@ -114,13 +120,13 @@ export const categoriesApi = {
     return mapBackendCategory(response.data.data);
   },
 
-  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
+  create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; section_id?: number | null; slug?: string | null; image?: File; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
     const formData = buildFormData(data);
     const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, { headers: { 'Content-Type': undefined } });
     return mapBackendCategory(response.data.data);
   },
 
-  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; image?: File | null; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
+  update: async (id: number, data: { name_ar?: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; section_id?: number | null; slug?: string | null; image?: File | null; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
     const { image, ...rest } = data;
     const formData = buildFormData({ _method: 'PUT', ...rest });
     if (image === null) {
