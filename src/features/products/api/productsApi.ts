@@ -384,11 +384,14 @@ export const productsApi = {
   },
 
   /** Update product */
-  updateProduct: async (id: number, data: Partial<DashboardProduct> & { imageFiles?: File[]; videoFile?: File; removeVideo?: boolean }): Promise<DashboardProduct> => {
+  updateProduct: async (id: number, data: Partial<DashboardProduct> & { imageFiles?: File[]; existingImageIds?: number[]; videoFile?: File; removeVideo?: boolean }): Promise<DashboardProduct> => {
       const backendData = toBackendFields(data);
-      const hasFiles = (data.imageFiles && data.imageFiles.length > 0) || data.videoFile instanceof File || data.removeVideo;
+      const hasFiles = (data.imageFiles && data.imageFiles.length > 0) || data.videoFile instanceof File || data.removeVideo || data.existingImageIds !== undefined;
       if (hasFiles) {
         const formData = buildProductFormData({ _method: 'PUT', ...backendData });
+        if (data.existingImageIds !== undefined) {
+          data.existingImageIds.forEach((imgId, i) => { formData.append(`existing_image_ids[${i}]`, String(imgId)); });
+        }
         if (data.imageFiles && data.imageFiles.length > 0) {
           data.imageFiles.forEach((file, i) => { formData.append(`images[${i}]`, file); });
         }

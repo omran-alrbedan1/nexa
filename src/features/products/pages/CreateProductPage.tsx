@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, ImageOff, Package, Save, Upload, X, Film, GripVertical } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Package, Save, Upload, X, Film, GripVertical } from 'lucide-react';
 import { productsApi, type ProductCategory } from '../api/productsApi';
 import { unitsApi, type ProductUnit } from '../api/unitsApi';
 import type { ProductSource } from '@/types/marketplace';
@@ -98,6 +98,12 @@ export function CreateProductPage() {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleRemoveAllImages = () => {
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setImageFiles([]);
+    setImagePreviews([]);
+  };
+
   const handleVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -174,6 +180,9 @@ export function CreateProductPage() {
               </label>
             </div>
             <p className="text-xs text-text-secondary/60 mt-2">{t('products.create.imageHint')}</p>
+            {imagePreviews.length > 0 && (
+              <button type="button" onClick={handleRemoveAllImages} className="text-xs text-red-500 hover:text-red-700 font-bold mt-1">{t('products.create.removeAllImages')}</button>
+            )}
           </div>
           <div>
             <p className="text-xs font-bold text-text-secondary mb-2">{t('products.create.videoLabel')}</p>

@@ -11,7 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import { ROUTES } from '@/routes/routes';
 import { useToastStore } from '@/stores/toastStore';
-import { ArrowLeft, Package, Save, Upload, ImageOff, X, Film, GripVertical } from 'lucide-react';
+import { ArrowLeft, Package, Save, Upload, X, Film, GripVertical } from 'lucide-react';
 import { productKeys } from '../hooks/useProductsAdmin';
 import { extractErrorMessage } from '@/lib/apiHelpers';
 import { ProductVariantsSection } from '../components/ProductVariantsSection';
@@ -111,6 +111,17 @@ export function EditProductPage() {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleRemoveExistingImage = (imgId: number) => {
+    setExistingImages((prev) => prev.filter((img) => img.id !== imgId));
+  };
+
+  const handleRemoveAllImages = () => {
+    setExistingImages([]);
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setImageFiles([]);
+    setImagePreviews([]);
+  };
+
   const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -154,6 +165,7 @@ export function EditProductPage() {
         supplierId: form.supplierId ? parseInt(form.supplierId) : null,
         source: form.source,
         imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
+        existingImageIds: existingImages.length > 0 ? existingImages.map((img) => img.id) : [],
         videoFile: videoFile || undefined,
         removeVideo: removeVideo || undefined,
       });
@@ -213,6 +225,7 @@ export function EditProductPage() {
                 <div key={img.id} className="relative w-24 h-24 rounded-xl overflow-hidden border border-border-default bg-bg-input group">
                   <img src={img.url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
                   {img.is_primary && <span className="absolute top-1 left-1 bg-brand-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Primary</span>}
+                  <button type="button" onClick={() => handleRemoveExistingImage(img.id)} className="absolute top-1 right-1 p-0.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
                   <div className="absolute bottom-1 left-1 text-white/70"><GripVertical size={12} /></div>
                 </div>
               ))}
@@ -230,6 +243,9 @@ export function EditProductPage() {
               </label>
             </div>
             <p className="text-xs text-text-secondary/60 mt-2">{t('products.edit.imageHint')}</p>
+            {(existingImages.length > 0 || imagePreviews.length > 0) && (
+              <button type="button" onClick={handleRemoveAllImages} className="text-xs text-red-500 hover:text-red-700 font-bold mt-1">{t('products.edit.removeAllImages')}</button>
+            )}
           </div>
           <div>
             <p className="text-xs font-bold text-text-secondary mb-2">{t('products.edit.videoLabel')}</p>
