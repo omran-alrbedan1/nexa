@@ -391,6 +391,9 @@ export const productsApi = {
         const formData = buildProductFormData({ _method: 'PUT', ...backendData });
         if (data.existingImageIds !== undefined) {
           data.existingImageIds.forEach((imgId, i) => { formData.append(`existing_image_ids[${i}]`, String(imgId)); });
+          if (data.existingImageIds.length === 0) {
+            formData.append('replace_images', '1');
+          }
         }
         if (data.imageFiles && data.imageFiles.length > 0) {
           data.imageFiles.forEach((file, i) => { formData.append(`images[${i}]`, file); });
