@@ -530,7 +530,7 @@ export const campaignsApi = {
       });
     }
 
-    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData, { headers: { 'Content-Type': undefined } });
+    const response = await apiClient.post<ApiResponse<BackendCampaign>>(`/api/v1/admin/campaigns/${id}`, formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
     return mapBackendCampaign(response.data.data);
   },
 

@@ -425,6 +425,7 @@ export const settingsApi = {
       const isFormData = data instanceof FormData;
       const response = await apiClient.post<ApiResponse<BackendBanner>>('/api/v1/admin/banners', data, {
         headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined,
+        timeout: 300_000,
       });
       return mapBanner(response.data.data);
     } catch {
@@ -437,6 +438,7 @@ export const settingsApi = {
       const isFormData = data instanceof FormData;
       const response = await apiClient.post<ApiResponse<BackendBanner>>(`/api/v1/admin/banners/${id}`, data, {
         headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined,
+        timeout: 300_000,
       });
       return mapBanner(response.data.data);
     } catch {

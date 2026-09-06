@@ -376,7 +376,7 @@ export const productsApi = {
         if (data.videoFile instanceof File) {
           formData.append('video', data.videoFile);
         }
-        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, { headers: { 'Content-Type': undefined } });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.post<ApiResponse<BackendProduct>>('/api/v1/admin/products', backendData);
@@ -404,7 +404,7 @@ export const productsApi = {
         if (data.removeVideo) {
           formData.append('remove_video', '1');
         }
-        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, { headers: { 'Content-Type': undefined } });
+        const response = await apiClient.post<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
         return mapBackendProduct(response.data.data);
       }
       const response = await apiClient.put<ApiResponse<BackendProduct>>(`/api/v1/admin/products/${id}`, backendData);

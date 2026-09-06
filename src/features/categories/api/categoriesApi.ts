@@ -122,7 +122,7 @@ export const categoriesApi = {
 
   create: async (data: { name_ar: string; name_en?: string; name_he?: string; name_ru?: string; parent_id?: number | null; section_id?: number | null; slug?: string | null; image?: File; sort_order?: number; is_active?: boolean; show_on_home?: boolean }): Promise<Category> => {
     const formData = buildFormData(data);
-    const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, { headers: { 'Content-Type': undefined } });
+    const response = await apiClient.post<ApiResponse<BackendCategory>>('/api/v1/admin/categories', formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
     return mapBackendCategory(response.data.data);
   },
 
@@ -134,7 +134,7 @@ export const categoriesApi = {
     } else if (image instanceof File) {
       formData.append('image', image);
     }
-    const response = await apiClient.post<ApiResponse<BackendCategory>>(`/api/v1/admin/categories/${id}`, formData, { headers: { 'Content-Type': undefined } });
+    const response = await apiClient.post<ApiResponse<BackendCategory>>(`/api/v1/admin/categories/${id}`, formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
     return mapBackendCategory(response.data.data);
   },
 

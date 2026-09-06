@@ -90,7 +90,7 @@ export const productColorsApi = {
     const response = await apiClient.post<ApiResponse<BackendProductColor>>(
       `/api/v1/admin/products/${productId}/colors`,
       createFormData(input),
-      { headers: { 'Content-Type': undefined } }
+      { headers: { 'Content-Type': undefined }, timeout: 300_000 }
     );
     return mapProductColor(response.data.data);
   },
@@ -112,7 +112,7 @@ export const productColorsApi = {
     const response = await apiClient.post<ApiResponse<BackendProductColor>>(
       `/api/v1/admin/products/${productId}/colors/${linkId}/image`,
       data,
-      { headers: { 'Content-Type': undefined } }
+      { headers: { 'Content-Type': undefined }, timeout: 300_000 }
     );
     return mapProductColor(response.data.data);
   },
