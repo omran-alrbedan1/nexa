@@ -35,7 +35,7 @@ export function CategoriesPage() {
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; category: Category | null }>({ open: false, category: null });
   const [deleteBusinessModal, setDeleteBusinessModal] = useState<{ open: boolean; category: BusinessCategory | null }>({ open: false, category: null });
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => Number.parseInt(searchParams.get('page') || '1', 10));
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'sortOrder' | 'name' | 'count'>('sortOrder');
   const [homeFilter, setHomeFilter] = useState<'all' | 'shown' | 'hidden'>('all');
@@ -109,17 +109,17 @@ export function CategoriesPage() {
       return a.sortOrder - b.sortOrder;
     });
 
-  const topLevelCategories = sortCategories(categories).filter((c) => !c.parentId);
+  const sortedCategories = sortCategories(categories);
   const sortedBusinessCategories = sortBusiness(businessCategories);
 
   const stats = {
-    total: categories.length,
+    total: productMeta.total,
     active: categories.filter((c) => c.isActive).length,
     inactive: categories.filter((c) => !c.isActive).length,
   };
 
   const businessStats = {
-    total: businessCategories.length,
+    total: businessMeta.total,
     active: businessCategories.filter((c) => c.isActive).length,
     inactive: businessCategories.filter((c) => !c.isActive).length,
   };
@@ -242,7 +242,7 @@ export function CategoriesPage() {
 
                 {isLoading ? (
                   <div className="space-y-3 animate-pulse">{[1, 2, 3, 4].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}</div>
-                ) : topLevelCategories.length === 0 ? (
+                ) : sortedCategories.length === 0 ? (
                   <EmptyState title={t('categories.list.noCategories')} description={t('categories.list.noCategoriesDescription')} action={
                     <Button variant="primary" size="sm" leftIcon={<Plus size={14} />} onClick={() => navigate(ROUTES.CATEGORIES_CREATE)}>
                       {t('categories.list.addCategory')}
@@ -250,7 +250,7 @@ export function CategoriesPage() {
                   } />
                 ) : (
                   <div className="space-y-2">
-                    {topLevelCategories.map((cat) => (
+                    {sortedCategories.map((cat) => (
                       <CategoryListItem
                         key={cat.id}
                         category={cat}
