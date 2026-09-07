@@ -189,27 +189,6 @@ export function CategoryFormPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.sectionId')}</label>
-              <input
-                type="number"
-                min="0"
-                value={sectionId}
-                onChange={(e) => setSectionId(e.target.value)}
-                placeholder={t('categories.form.sectionIdPlaceholder')}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.slug')}</label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder={t('categories.form.slugPlaceholder')}
-                className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
-              />
-            </div>
-            <div>
               <label className="block text-xs font-bold text-text-secondary mb-1.5">{t('categories.form.sortOrder')}</label>
               <input
                 type="number"
