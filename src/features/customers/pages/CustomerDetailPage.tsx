@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCustomerDetail, useCustomerOrders, useUpdateCustomerStatus, useUpdateCustomerNotes } from '../hooks/useCustomers';
+import { useCustomerDetail, useCustomerOrders, useUpdateCustomerStatus, useUpdateCustomerNotes, useCancelDeletion } from '../hooks/useCustomers';
+import { useAuth } from '@/contexts/AuthContext';
 import { type CustomerStatus } from '../api/customersApi';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -41,6 +42,10 @@ export function CustomerDetailPage() {
   const { data: ordersData } = useCustomerOrders(id);
   const updateStatus = useUpdateCustomerStatus();
   const updateNotes = useUpdateCustomerNotes();
+  const cancelDeletion = useCancelDeletion();
+  const { user } = useAuth();
+  const canCancelDeletion = user?.permissions.includes('customers.manage') ?? false;
+  const [cancelDeletionModal, setCancelDeletionModal] = useState(false);
 
   const [notesModal, setNotesModal] = useState<{ open: boolean; notes: string }>({
     open: false,
@@ -172,12 +177,34 @@ export function CustomerDetailPage() {
                 <Badge variant={STATUS_BADGE[customer.status]} size="sm">
                   {STATUS_LABELS[customer.status]}
                 </Badge>
+                {customer.deletionRequested && (
+                  <Badge variant="red" size="sm">
+                    {t('customers.deletion.pendingBadge')}
+                  </Badge>
+                )}
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {customer.email} · {customer.phone}
               </p>
+              {customer.deletionRequested && customer.deletionScheduledAt && (
+                <p className="text-xs text-red-600 font-body mt-1">
+                  {t('customers.deletion.scheduledFor', {
+                    date: safeFormatDate(customer.deletionScheduledAt, (d) => d.toLocaleDateString()),
+                  })}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {customer.deletionRequested && canCancelDeletion && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<CheckCircle2 size={14} />}
+                  onClick={() => setCancelDeletionModal(true)}
+                >
+                  {t('customers.deletion.cancel')}
+                </Button>
+              )}
               {customer.status === 'active' && (
                 <Button
                   variant="danger"
@@ -444,6 +471,43 @@ export function CustomerDetailPage() {
               onClick={saveNotes}
             >
               {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Cancel Deletion Request Modal */}
+      <Modal
+        open={cancelDeletionModal}
+        onClose={() => setCancelDeletionModal(false)}
+        title={t('customers.deletion.cancelTitle', { name: customer.fullName })}
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <AlertTriangle size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-text-secondary font-body">
+              {t('customers.deletion.cancelDescription')}
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCancelDeletionModal(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              isLoading={cancelDeletion.isPending}
+              onClick={() => {
+                cancelDeletion.mutate(customer.id, {
+                  onSuccess: () => setCancelDeletionModal(false),
+                });
+              }}
+            >
+              {t('customers.deletion.confirmCancel')}
             </Button>
           </div>
         </div>

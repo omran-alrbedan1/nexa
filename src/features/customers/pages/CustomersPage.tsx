@@ -238,7 +238,12 @@ export function CustomersPage() {
                 onClick={() => navigate(ROUTES.CUSTOMER_DETAIL(customer.id))}
                 icon={<Users size={16} className="text-brand-primary" />}
                 title={<span className="text-sm font-bold text-text-primary font-body truncate">{customer.fullName}</span>}
-                badges={<Badge variant={STATUS_BADGE[customer.status]} size="sm">{STATUS_LABELS[customer.status]}</Badge>}
+                badges={<>
+                  <Badge variant={STATUS_BADGE[customer.status]} size="sm">{STATUS_LABELS[customer.status]}</Badge>
+                  {customer.deletionRequested && (
+                    <Badge variant="red" size="sm">{t('customers.deletion.pendingBadge')}</Badge>
+                  )}
+                </>}
                 actions={<>
                   {customer.status === 'active' && (
                     <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleStatusChange(customer.id, customer.fullName, 'suspended'); }}>

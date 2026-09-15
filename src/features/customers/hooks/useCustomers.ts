@@ -68,6 +68,21 @@ export function useCreateCustomer() {
   });
 }
 
+export function useCancelDeletion() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => customersApi.cancelDeletion(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: customerKeys.pageData() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.detail(id) });
+      addToast('success', t('customers.deletion.cancelSuccess'));
+    },
+    onError: () => addToast('error', t('customers.deletion.cancelFailed')),
+  });
+}
+
 export function useUpdateCustomerNotes() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();

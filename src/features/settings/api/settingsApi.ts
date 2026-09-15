@@ -389,6 +389,28 @@ export const settingsApi = {
     }
   },
 
+  // ── Customer App: Account Deletion ──
+  getAccountDeletion: async (): Promise<{ buttonVisible: boolean; graceDays: number }> => {
+    const response = await apiClient.get<ApiResponse<{ button_visible: boolean; grace_days: number }>>(
+      '/api/v1/admin/customer-app/account-deletion'
+    );
+    return {
+      buttonVisible: response.data.data?.button_visible ?? true,
+      graceDays: response.data.data?.grace_days ?? 7,
+    };
+  },
+
+  updateAccountDeletion: async (buttonVisible: boolean): Promise<{ buttonVisible: boolean; graceDays: number }> => {
+    const response = await apiClient.put<ApiResponse<{ button_visible: boolean; grace_days: number }>>(
+      '/api/v1/admin/customer-app/account-deletion',
+      { button_visible: buttonVisible }
+    );
+    return {
+      buttonVisible: response.data.data?.button_visible ?? buttonVisible,
+      graceDays: response.data.data?.grace_days ?? 7,
+    };
+  },
+
   // ── Banners ──
   getBanners: async (page: number = 1): Promise<{ banners: Banner[]; meta: { currentPage: number; lastPage: number; perPage: number; total: number } }> => {
     try {

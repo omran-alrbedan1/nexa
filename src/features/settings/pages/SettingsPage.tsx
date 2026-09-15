@@ -12,7 +12,10 @@ import type { Setting } from '../api/settingsApi';
 import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer, Globe, Link2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient as useQC } from '@tanstack/react-query';
 import { apiBaseUrlApi } from '../api/apiBaseUrlApi';
+import { settingsApi } from '../api/settingsApi';
 import { useToastStore as useToast } from '@/stores/toastStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserX } from 'lucide-react';
 
 const SETTINGS_TABS = [
   { key: 'general', label: 'settings.tabs.general', icon: SettingsIcon },
@@ -94,6 +97,26 @@ export function SettingsPage() {
       toast('success', t('settings.apiBaseUrl.saveSuccess'));
     },
     onError: (err: any) => toast('error', err?.response?.data?.message || t('settings.apiBaseUrl.saveFailed')),
+  });
+
+  // ─── Customer App: Account Deletion ──────────────────────────────
+  const { user } = useAuth();
+  const canManageDeletionButton = user?.permissions.includes('settings.manage') ?? false;
+  const { data: deletionData, isLoading: deletionLoading } = useQuery({
+    queryKey: ['customer-app', 'account-deletion'],
+    queryFn: () => settingsApi.getAccountDeletion(),
+    retry: false,
+  });
+  const [deletionVisible, setDeletionVisible] = useState<boolean | null>(null);
+  const deletionValue = deletionVisible !== null ? deletionVisible : (deletionData?.buttonVisible ?? true);
+  const deletionMutation = useMutation({
+    mutationFn: (visible: boolean) => settingsApi.updateAccountDeletion(visible),
+    onSuccess: (data) => {
+      setDeletionVisible(data.buttonVisible);
+      qc.invalidateQueries({ queryKey: ['customer-app', 'account-deletion'] });
+      toast('success', t('settings.accountDeletion.saveSuccess'));
+    },
+    onError: () => toast('error', t('settings.accountDeletion.saveFailed')),
   });
 
   // ─── Multi-currency state (commented out) ──────────────────────────
@@ -219,6 +242,49 @@ export function SettingsPage() {
             {baseUrlData?.updated_at && (
               <p className="text-xs text-text-tertiary font-body">{t('settings.apiBaseUrl.updatedAt', { date: new Date(baseUrlData.updated_at).toLocaleString() })}</p>
             )}
+          </div>
+        )}
+      </Card>
+
+      {/* Customer App: Account Deletion */}
+      <Card padding="lg">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
+            <UserX size={16} className="text-brand-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-text-primary font-display">{t('settings.accountDeletion.title')}</h3>
+            <p className="text-xs text-text-secondary font-body mt-0.5">{t('settings.accountDeletion.description')}</p>
+          </div>
+        </div>
+        {deletionLoading ? (
+          <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border-default/60">
+              <div className="flex-1 min-w-0 mr-4">
+                <p className="text-sm font-bold text-text-primary font-body">{t('settings.accountDeletion.showButton')}</p>
+                {deletionData && (
+                  <p className="text-xs text-text-tertiary font-body mt-0.5">
+                    {t('settings.accountDeletion.graceDays', { days: deletionData.graceDays })}
+                  </p>
+                )}
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={deletionValue}
+                  disabled={!canManageDeletionButton || deletionMutation.isPending}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setDeletionVisible(next);
+                    deletionMutation.mutate(next);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary" />
+              </label>
+            </div>
           </div>
         )}
       </Card>

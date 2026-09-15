@@ -303,6 +303,14 @@
       "saveDimensions": "Save dimensions",
       "dimensionsSaved": "Print dimensions updated.",
       "dimensionsSaveFailed": "Failed to update print dimensions."
+    },
+    "accountDeletion": {
+      "title": "Customer App — Account Deletion",
+      "description": "Control the Delete Account button in the customer app",
+      "showButton": "Show Delete Account button in the app",
+      "graceDays": "Grace period: {{days}} days",
+      "saveSuccess": "Account deletion setting updated",
+      "saveFailed": "Failed to update account deletion setting"
     }
   },
   "customers": {
@@ -362,7 +370,9 @@
       "statusUpdated": "Customer status updated",
       "statusUpdateFailed": "Failed to update customer status",
       "notesUpdated": "Customer notes updated",
-      "notesUpdateFailed": "Failed to update customer notes"
+      "notesUpdateFailed": "Failed to update customer notes",
+      "cancelSuccess": "Deletion request cancelled",
+      "cancelFailed": "Failed to cancel deletion request"
     },
     "detail": {
       "back": "Back to Customers",
@@ -401,6 +411,17 @@
       "inactive": "Inactive",
       "suspended": "Suspended",
       "blocked": "Blocked"
+    },
+    "deletion": {
+      "pendingBadge": "Pending deletion",
+      "scheduledFor": "Scheduled deletion: {{date}}",
+      "requestedAt": "Requested: {{date}}",
+      "cancel": "Cancel deletion request",
+      "cancelTitle": "Cancel deletion request for {{name}}?",
+      "cancelDescription": "This will cancel the pending account-deletion request. The customer account will remain active.",
+      "confirmCancel": "Confirm Cancel",
+      "cancelSuccess": "Deletion request cancelled",
+      "cancelFailed": "Failed to cancel deletion request"
     }
   },
   "dashboard": {

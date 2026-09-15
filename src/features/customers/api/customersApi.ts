@@ -32,6 +32,9 @@ export interface Customer {
   phone: string;
   email: string;
   status: CustomerStatus;
+  deletionRequested: boolean;
+  deletionRequestedAt: string | null;
+  deletionScheduledAt: string | null;
   ratingAvg: number;
   ordersCount: number;
   internalNotes: string;
@@ -75,6 +78,9 @@ interface BackendUser {
   phone: string;
   email: string;
   status: string;
+  deletion_requested?: boolean;
+  deletion_requested_at?: string | null;
+  deletion_scheduled_at?: string | null;
   addresses?: BackendAddress[];
 }
 
@@ -126,6 +132,9 @@ function mapBackendCustomer(bc: BackendCustomer): Customer {
     phone: bc.user?.phone || '',
     email: bc.user?.email || '',
     status: mapStatus(bc.user?.status || 'inactive'),
+    deletionRequested: bc.user?.deletion_requested ?? false,
+    deletionRequestedAt: bc.user?.deletion_requested_at ?? null,
+    deletionScheduledAt: bc.user?.deletion_scheduled_at ?? null,
     ratingAvg: Number(bc.rating_avg ?? 0),
     ordersCount: Number(bc.orders_count ?? 0),
     internalNotes: bc.internal_notes || '',
@@ -239,6 +248,16 @@ export const customersApi = {
       return mapBackendCustomer(response.data.data);
     } catch {
       throw new Error('Failed to update customer status');
+    }
+  },
+
+  /** Cancel a pending account-deletion request */
+  cancelDeletion: async (id: number): Promise<Customer> => {
+    try {
+      const response = await apiClient.post<ApiResponse<BackendCustomer>>(`/api/v1/admin/customers/${id}/cancel-deletion`);
+      return mapBackendCustomer(response.data.data);
+    } catch {
+      throw new Error('Failed to cancel deletion request');
     }
   },
 
