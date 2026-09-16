@@ -285,6 +285,34 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
   };
 }
 
+export interface SupplierUpdateInput {
+  name?: string;
+  nameAr?: string;
+  nameHe?: string;
+  nameRu?: string;
+  address?: string;
+  zoneId?: number | null;
+  shortDescription?: string;
+  longDescription?: string;
+  minimumOrderAmount?: number | null;
+}
+
+function toSnakeCasePayload(data: SupplierUpdateInput): Record<string, string | number> {
+  const payload: Record<string, string | number> = {};
+  if (data.name !== undefined) payload.business_name = data.name;
+  if (data.nameAr !== undefined) payload.name_ar = data.nameAr;
+  if (data.nameHe !== undefined) payload.name_he = data.nameHe;
+  if (data.nameRu !== undefined) payload.name_ru = data.nameRu;
+  if (data.address !== undefined) payload.address = data.address;
+  if (data.zoneId !== undefined && data.zoneId !== null) payload.zone_id = data.zoneId;
+  if (data.shortDescription !== undefined) payload.short_description = data.shortDescription;
+  if (data.longDescription !== undefined) payload.long_description = data.longDescription;
+  if (data.minimumOrderAmount !== undefined && data.minimumOrderAmount !== null) {
+    payload.minimum_order_amount = data.minimumOrderAmount;
+  }
+  return payload;
+}
+
 export const suppliersApi = {
   /** Fetch all suppliers page data (stats + list) */
   getPageData: async (params: { page?: number; search?: string; approval_status?: string; status?: string } = {}): Promise<SuppliersPageData> => {
@@ -369,34 +397,6 @@ export const suppliersApi = {
     const response = await apiClient.post<ApiResponse<SupplierDocument>>(`/api/v1/admin/suppliers/${supplierId}/documents`, formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
     return response.data.data;
   },
-
-export interface SupplierUpdateInput {
-  name?: string;
-  nameAr?: string;
-  nameHe?: string;
-  nameRu?: string;
-  address?: string;
-  zoneId?: number | null;
-  shortDescription?: string;
-  longDescription?: string;
-  minimumOrderAmount?: number | null;
-}
-
-function toSnakeCasePayload(data: SupplierUpdateInput): Record<string, string | number> {
-  const payload: Record<string, string | number> = {};
-  if (data.name !== undefined) payload.business_name = data.name;
-  if (data.nameAr !== undefined) payload.name_ar = data.nameAr;
-  if (data.nameHe !== undefined) payload.name_he = data.nameHe;
-  if (data.nameRu !== undefined) payload.name_ru = data.nameRu;
-  if (data.address !== undefined) payload.address = data.address;
-  if (data.zoneId !== undefined && data.zoneId !== null) payload.zone_id = data.zoneId;
-  if (data.shortDescription !== undefined) payload.short_description = data.shortDescription;
-  if (data.longDescription !== undefined) payload.long_description = data.longDescription;
-  if (data.minimumOrderAmount !== undefined && data.minimumOrderAmount !== null) {
-    payload.minimum_order_amount = data.minimumOrderAmount;
-  }
-  return payload;
-}
 
   /** Update an existing supplier (optionally with a cover image file) */
   updateSupplier: async (id: number, data: SupplierUpdateInput, file?: File | null): Promise<Supplier> => {
