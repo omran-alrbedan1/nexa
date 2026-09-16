@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories, useToggleSupplier, useDeleteSupplier, useUpdateSupplier } from '../hooks/useSuppliers';
-import { suppliersApi } from '../api/suppliersApi';
+import { useApproveSupplier, useSuspendSupplier, useSupplierProducts, useSupplierCategories, useSyncSupplierCategories, useToggleSupplier, useDeleteSupplier, useUpdateSupplier, useUpdateOpeningHours } from '../hooks/useSuppliers';
+import { suppliersApi, WEEK_DAYS, type OpeningHours, type OpeningPeriod } from '../api/suppliersApi';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
+import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/Card';
@@ -15,7 +17,7 @@ import { regionsApi } from '@/features/regions/api/regionsApi';
 
 import { useState, useEffect, type ChangeEvent } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2, Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowLeft, Building2, Star, ShoppingCart, TrendingUp, CheckCircle2, Percent, Phone, Mail, MapPin, FileText, Package, AlertTriangle, Pencil, RotateCcw, Trash2, Clock, X, Plus, Copy } from 'lucide-react';
 import { supplierKeys } from '../hooks/useSuppliers';
 import type { Supplier } from '../api/suppliersApi';
 
@@ -240,6 +242,132 @@ function SupplierProductsSection({ supplierId, t }: { supplierId: number; t: (ke
   );
 }
 
+// ── Opening Hours Editor (per-day periods, HH:mm) ──
+
+function OpeningHoursEditor({ value, onChange }: { value: OpeningHours; onChange: (h: OpeningHours) => void }) {
+  const { t } = useTranslation();
+
+  const setDay = (day: string, periods: OpeningPeriod[] | null) => {
+    const next = { ...value };
+    if (!periods || periods.length === 0) {
+      delete next[day];
+    } else {
+      next[day] = periods;
+    }
+    onChange(next);
+  };
+
+  const copyToAll = () => {
+    const source = WEEK_DAYS.map((d) => value[d]).find((p) => p && p.length > 0) ?? [{ open: '08:00', close: '22:00' }];
+    const next: OpeningHours = {};
+    for (const day of WEEK_DAYS) next[day] = source.map((p) => ({ ...p }));
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-end">
+        <Button variant="ghost" size="sm" leftIcon={<Copy size={12} />} onClick={copyToAll}>
+          {t('suppliers.hours.copyToAll')}
+        </Button>
+      </div>
+      {WEEK_DAYS.map((day) => {
+        const periods = value[day] ?? [];
+        const isOpen = periods.length > 0;
+        return (
+          <div key={day} className="p-3 rounded-xl border border-border-default/60 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-text-primary font-body">{t(`suppliers.hours.days.${day}`)}</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isOpen}
+                  onChange={(e) => setDay(day, e.target.checked ? [{ open: '08:00', close: '22:00' }] : null)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary" />
+              </label>
+            </div>
+            {isOpen && (
+              <div className="space-y-2">
+                {periods.map((p, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="time"
+                      value={p.open}
+                      onChange={(e) => setDay(day, periods.map((x, xi) => (xi === i ? { ...x, open: e.target.value } : x)))}
+                      className="flex-1 px-2 py-1.5 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
+                    />
+                    <span className="text-xs text-text-tertiary">–</span>
+                    <input
+                      type="time"
+                      value={p.close}
+                      onChange={(e) => setDay(day, periods.map((x, xi) => (xi === i ? { ...x, close: e.target.value } : x)))}
+                      className="flex-1 px-2 py-1.5 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setDay(day, periods.filter((_, xi) => xi !== i))}
+                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setDay(day, [...periods, { open: '08:00', close: '22:00' }])}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-brand-primary hover:underline font-body"
+                >
+                  <Plus size={12} /> {t('suppliers.hours.addPeriod')}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Opening Hours Read-only Card ──
+
+function OpeningHoursCard({ supplier, t }: { supplier: Supplier; t: (key: string, opts?: any) => string }) {
+  const hours = supplier.openingHours;
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2 mb-4">
+        <Clock size={16} className="text-brand-primary" />
+        <h3 className="text-sm font-bold text-text-primary font-display">{t('suppliers.hours.title')}</h3>
+      </div>
+      {!hours || Object.keys(hours).length === 0 ? (
+        <p className="text-sm text-text-secondary font-body">{t('suppliers.hours.noHours')}</p>
+      ) : (
+        <div className="space-y-2">
+          {WEEK_DAYS.map((day) => {
+            const periods = hours[day] ?? [];
+            return (
+              <div key={day} className="flex items-center justify-between py-2 border-b border-border-default/50 last:border-0 text-sm font-body">
+                <span className="font-bold text-text-primary">{t(`suppliers.hours.days.${day}`)}</span>
+                {periods.length === 0 ? (
+                  <Badge variant="yellow" size="sm">{t('suppliers.hours.closed')}</Badge>
+                ) : (
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <Badge variant="green" size="sm">{t('suppliers.hours.open')}</Badge>
+                    <span className="text-text-secondary">
+                      {periods.map((p) => `${p.open} – ${p.close}`).join(' · ')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function SupplierDetailPage() {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
@@ -277,6 +405,9 @@ export function SupplierDetailPage() {
 
   // ── Edit supplier (info + cover image) ──
   const updateSupplierMutation = useUpdateSupplier();
+  const updateHoursMutation = useUpdateOpeningHours();
+  const { user } = useAuth();
+  const canManage = user?.permissions.includes('suppliers.manage') ?? false;
   const { data: zonesData } = useQuery({
     queryKey: ['zones', 'all'],
     queryFn: () => regionsApi.getPageData({ perPage: 200 }),
@@ -291,6 +422,8 @@ export function SupplierDetailPage() {
   }>({ name: '', nameAr: '', nameHe: '', nameRu: '', address: '', zoneId: null, shortDescription: '', longDescription: '', minimumOrderAmount: 0 });
   const [editFile, setEditFile] = useState<File | null>(null);
   const [editPreview, setEditPreview] = useState<string | null>(null);
+  const [editHours, setEditHours] = useState<OpeningHours>({});
+  const [hoursDirty, setHoursDirty] = useState(false);
 
   useEffect(() => {
     if (selectedCategoryIds) {
@@ -360,6 +493,8 @@ export function SupplierDetailPage() {
     });
     setEditFile(null);
     setEditPreview(supplier.coverImage ?? null);
+    setEditHours(supplier.openingHours ?? {});
+    setHoursDirty(false);
     setEditModal(true);
   };
 
@@ -381,8 +516,22 @@ export function SupplierDetailPage() {
   const handleSave = () => {
     updateSupplierMutation.mutate(
       { id: supplier.id, data: editForm, file: editFile },
-      { onSuccess: () => setEditModal(false) },
+      {
+        onSuccess: () => {
+          if (hoursDirty) {
+            updateHoursMutation.mutate({ id: supplier.id, hours: editHours });
+          }
+          setEditModal(false);
+        },
+      },
     );
+  };
+
+  const handleNameChange = (lang: TranslatedLang, value: string) => {
+    setEditForm((prev) => ({
+      ...prev,
+      ...(lang === 'en' ? { name: value } : lang === 'ar' ? { nameAr: value } : lang === 'he' ? { nameHe: value } : { nameRu: value }),
+    }));
   };
 
   return (
@@ -413,15 +562,22 @@ export function SupplierDetailPage() {
                 <h1 className="text-2xl md:text-3xl font-extrabold text-text-primary font-display truncate">{supplier.name}</h1>
                 <span className="text-sm text-text-tertiary truncate hidden sm:inline">{supplier.nameAr}</span>
                 <Badge variant={STATUS_BADGE[supplier.status]} size="sm">{t('suppliers.status.' + (supplier.status ?? 'unknown'))}</Badge>
+                {supplier.isOpenNow !== null && (
+                  <Badge variant={supplier.isOpenNow ? 'green' : 'yellow'} size="sm">
+                    {supplier.isOpenNow ? t('suppliers.hours.openNow') : t('suppliers.hours.closedNow')}
+                  </Badge>
+                )}
               </div>
               <p className="text-sm text-text-secondary font-body mt-1 truncate">
                 {supplier.email} · {supplier.phone}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button variant="secondary" size="sm" leftIcon={<Pencil size={14} />} onClick={openEdit}>
-                {t('suppliers.edit.button', 'Edit')}
-              </Button>
+              {canManage && (
+                <Button variant="secondary" size="sm" leftIcon={<Pencil size={14} />} onClick={openEdit}>
+                  {t('suppliers.edit.button', 'Edit')}
+                </Button>
+              )}
               {supplier.status === 'pending_approval' && (
                 <>
                   <Button variant="primary" size="sm" leftIcon={<CheckCircle2 size={14} />} isLoading={approvingId === supplier.id} onClick={() => { setApprovingId(supplier.id); approveSupplier.mutate(supplier.id, { onSettled: () => setApprovingId(null) }); }}>
@@ -571,6 +727,9 @@ export function SupplierDetailPage() {
           </div>
         </Card>
       </div>
+      {/* Opening Hours */}
+      <OpeningHoursCard supplier={supplier} t={t} />
+
       {/* Documents */}
       <DocumentsSection
         documents={supplier.documents}
@@ -622,24 +781,11 @@ export function SupplierDetailPage() {
       {/* Edit Supplier Modal */}
       <Modal open={editModal} onClose={() => setEditModal(false)} title={t('suppliers.edit.title', 'Edit Supplier')}>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameEn')}</label>
-              <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameAr')}</label>
-              <input value={editForm.nameAr} onChange={(e) => setEditForm({ ...editForm, nameAr: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameHe')}</label>
-              <input value={editForm.nameHe} onChange={(e) => setEditForm({ ...editForm, nameHe: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.businessNameRu')}</label>
-              <input value={editForm.nameRu} onChange={(e) => setEditForm({ ...editForm, nameRu: e.target.value })} className="w-full px-3 py-2 bg-bg-input border border-border-default rounded-lg text-sm outline-none focus:border-brand-primary" />
-            </div>
-          </div>
+          <TranslatedField
+            label={t('suppliers.edit.businessName')}
+            values={{ ar: editForm.nameAr, en: editForm.name, he: editForm.nameHe, ru: editForm.nameRu }}
+            onChange={handleNameChange}
+          />
 
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.address')}</label>
@@ -673,6 +819,17 @@ export function SupplierDetailPage() {
           </div>
 
           <div>
+            <label className="block text-xs font-bold text-text-secondary mb-1.5 font-body">{t('suppliers.hours.title')}</label>
+            <OpeningHoursEditor
+              value={editHours}
+              onChange={(h) => {
+                setEditHours(h);
+                setHoursDirty(true);
+              }}
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('suppliers.edit.coverImage')}</label>
             <div className="flex items-center gap-3">
               <div className="w-20 h-20 rounded-xl border border-border-default overflow-hidden bg-bg-input flex items-center justify-center flex-shrink-0">
@@ -697,7 +854,7 @@ export function SupplierDetailPage() {
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button variant="secondary" size="sm" onClick={() => setEditModal(false)}>{t('common.cancel')}</Button>
-            <Button variant="primary" size="sm" isLoading={updateSupplierMutation.isPending} onClick={handleSave}>{t('suppliers.edit.save', 'Save')}</Button>
+            <Button variant="primary" size="sm" isLoading={updateSupplierMutation.isPending || updateHoursMutation.isPending} onClick={handleSave}>{t('suppliers.edit.save', 'Save')}</Button>
           </div>
         </div>
       </Modal>

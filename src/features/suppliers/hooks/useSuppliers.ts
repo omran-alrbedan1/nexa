@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { suppliersApi, type SuppliersPageData, type Supplier } from '../api/suppliersApi';
+import { suppliersApi, type SuppliersPageData, type OpeningHours, type SupplierUpdateInput } from '../api/suppliersApi';
 import type { DashboardProduct } from '@/features/products/api/productsApi';
 
 export const supplierKeys = {
@@ -176,7 +176,7 @@ export function useUpdateSupplier() {
   const { t } = useTranslation();
   const addToast = useToastStore((s) => s.addToast);
   return useMutation({
-    mutationFn: ({ id, data, file }: { id: number; data: Partial<Supplier>; file?: File | null }) =>
+    mutationFn: ({ id, data, file }: { id: number; data: SupplierUpdateInput; file?: File | null }) =>
       suppliersApi.updateSupplier(id, data, file),
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
@@ -184,5 +184,19 @@ export function useUpdateSupplier() {
       addToast('success', t('suppliers.edit.success', 'Supplier updated'));
     },
     onError: () => addToast('error', t('suppliers.edit.failed', 'Failed to update supplier')),
+  });
+}
+
+export function useUpdateOpeningHours() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, hours }: { id: number; hours: OpeningHours }) =>
+      suppliersApi.updateOpeningHours(id, hours),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.detail(id) });
+    },
+    onError: () => addToast('error', t('suppliers.hours.saveFailed', 'Failed to save opening hours')),
   });
 }

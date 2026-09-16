@@ -31,6 +31,38 @@ export interface SupplierDocument {
   expiresAt: string | null;
 }
 
+export interface OpeningPeriod {
+  open: string;
+  close: string;
+}
+
+export type OpeningHours = Record<string, OpeningPeriod[]>;
+
+export const WEEK_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+
+export function parseOpeningHours(raw: unknown): OpeningHours | null {
+  if (raw == null) return null;
+  let obj: unknown = raw;
+  if (typeof raw === 'string') {
+    try {
+      obj = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (typeof obj !== 'object' || Array.isArray(obj)) return null;
+  const out: OpeningHours = {};
+  for (const [day, periods] of Object.entries(obj as Record<string, unknown>)) {
+    if (!Array.isArray(periods)) continue;
+    const clean = periods
+      .filter((p): p is { open: unknown; close: unknown } => typeof p === 'object' && p !== null)
+      .map((p) => ({ open: String(p.open ?? ''), close: String(p.close ?? '') }))
+      .filter((p) => p.open !== '' && p.close !== '');
+    if (clean.length > 0) out[day] = clean;
+  }
+  return out;
+}
+
 export interface Supplier {
   id: number;
   name: string;
@@ -62,6 +94,8 @@ export interface Supplier {
   shortDescription: string | null;
   longDescription: string | null;
   minimumOrderAmount: number | null;
+  openingHours: OpeningHours | null;
+  isOpenNow: boolean | null;
   notes: string;
   documents: SupplierDocument[];
   createdAt: string;
@@ -130,7 +164,7 @@ interface BackendSupplier {
   minimum_order_amount: number | null;
   delivery_time_min: number | null;
   delivery_time_max: number | null;
-  opening_hours: string | null;
+  opening_hours: Record<string, Array<{ open: string; close: string }>> | string | null;
   is_open_now: boolean | null;
   created_at: string;
   approval_status: 'approved' | 'pending' | 'rejected';
@@ -236,6 +270,8 @@ function mapBackendSupplier(bs: BackendSupplier): Supplier {
     shortDescription: bs.short_description ?? null,
     longDescription: bs.long_description ?? null,
     minimumOrderAmount: bs.minimum_order_amount != null ? Number(bs.minimum_order_amount) : null,
+    openingHours: parseOpeningHours(bs.opening_hours),
+    isOpenNow: bs.is_open_now ?? null,
     notes: bs.rejection_reason || '',
     documents: (bs.documents || []).map((d) => ({
       id: d.id,
@@ -334,25 +370,56 @@ export const suppliersApi = {
     return response.data.data;
   },
 
+export interface SupplierUpdateInput {
+  name?: string;
+  nameAr?: string;
+  nameHe?: string;
+  nameRu?: string;
+  address?: string;
+  zoneId?: number | null;
+  shortDescription?: string;
+  longDescription?: string;
+  minimumOrderAmount?: number | null;
+}
+
+function toSnakeCasePayload(data: SupplierUpdateInput): Record<string, string | number> {
+  const payload: Record<string, string | number> = {};
+  if (data.name !== undefined) payload.business_name = data.name;
+  if (data.nameAr !== undefined) payload.name_ar = data.nameAr;
+  if (data.nameHe !== undefined) payload.name_he = data.nameHe;
+  if (data.nameRu !== undefined) payload.name_ru = data.nameRu;
+  if (data.address !== undefined) payload.address = data.address;
+  if (data.zoneId !== undefined && data.zoneId !== null) payload.zone_id = data.zoneId;
+  if (data.shortDescription !== undefined) payload.short_description = data.shortDescription;
+  if (data.longDescription !== undefined) payload.long_description = data.longDescription;
+  if (data.minimumOrderAmount !== undefined && data.minimumOrderAmount !== null) {
+    payload.minimum_order_amount = data.minimumOrderAmount;
+  }
+  return payload;
+}
+
   /** Update an existing supplier (optionally with a cover image file) */
-  updateSupplier: async (id: number, data: Partial<Supplier>, file?: File | null): Promise<Supplier> => {
+  updateSupplier: async (id: number, data: SupplierUpdateInput, file?: File | null): Promise<Supplier> => {
     if (file) {
       const formData = new FormData();
-      if (data.name) formData.append('business_name', data.name);
-      if (data.nameAr) formData.append('name_ar', data.nameAr);
-      if (data.nameHe) formData.append('name_he', data.nameHe);
-      if (data.nameRu) formData.append('name_ru', data.nameRu);
-      if (data.address) formData.append('address', data.address);
-      if (data.zoneId != null) formData.append('zone_id', String(data.zoneId));
-      if (data.shortDescription) formData.append('short_description', data.shortDescription);
-      if (data.longDescription) formData.append('long_description', data.longDescription);
-      if (data.minimumOrderAmount != null) formData.append('minimum_order_amount', String(data.minimumOrderAmount));
+      const payload = toSnakeCasePayload(data);
+      for (const [key, value] of Object.entries(payload)) {
+        formData.append(key, String(value));
+      }
       formData.append('store_cover_image', file);
       const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, formData, { headers: { 'Content-Type': undefined }, timeout: 300_000 });
       return mapBackendSupplier(response.data.data);
     }
 
-    const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, data);
+    const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, toSnakeCasePayload(data));
+    return mapBackendSupplier(response.data.data);
+  },
+
+  /** Save opening hours via a separate JSON request (never send is_open_now) */
+  updateOpeningHours: async (id: number, hours: OpeningHours): Promise<Supplier> => {
+    const response = await apiClient.put<ApiResponse<BackendSupplier>>(`/api/v1/admin/suppliers/${id}`, {
+      opening_hours: hours,
+    });
     return mapBackendSupplier(response.data.data);
   },
 

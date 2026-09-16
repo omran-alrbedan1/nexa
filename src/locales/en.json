@@ -1963,7 +1963,8 @@
       "coverImageHint": "JPG, PNG or WEBP, max 5 MB.",
       "save": "Save",
       "success": "Supplier updated successfully",
-      "failed": "Failed to update supplier"
+      "failed": "Failed to update supplier",
+      "businessName": "Business Name"
     },
     "delete": {
       "button": "Delete account",
@@ -1998,6 +1999,31 @@
       "removeTrusted": "Remove trust",
       "toastTrusted": "Supplier marked as trusted — future registrations with this phone are auto-approved",
       "toastUntrusted": "Trust removed from supplier"
+    },
+    "hours": {
+      "title": "Opening Hours",
+      "noHours": "No opening hours set — the store always appears closed.",
+      "day": "Day",
+      "status": "Status",
+      "periods": "Hours",
+      "open": "Open",
+      "closed": "Closed",
+      "openNow": "Open now",
+      "closedNow": "Closed",
+      "from": "From",
+      "to": "To",
+      "addPeriod": "Add period",
+      "copyToAll": "Copy to all days",
+      "saveFailed": "Failed to save opening hours",
+      "days": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      }
     }
   },
   "regions": {
