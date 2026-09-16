@@ -256,6 +256,47 @@ function mapAuditLog(a: BackendAuditLog): AuditLog {
 }
 
 // ──────────────────────────────────────────────
+// Cancellation Reason Types
+// ──────────────────────────────────────────────
+
+export interface CancellationReason {
+  id: number;
+  code: string;
+  nameAr: string;
+  nameEn: string | null;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+interface BackendCancellationReason {
+  id: number;
+  code: string;
+  name_ar: string;
+  name_en: string | null;
+  is_active: boolean;
+  sort_order: number;
+}
+
+function mapCancellationReason(r: BackendCancellationReason): CancellationReason {
+  return {
+    id: r.id,
+    code: r.code,
+    nameAr: r.name_ar,
+    nameEn: r.name_en,
+    isActive: Boolean(r.is_active),
+    sortOrder: Number(r.sort_order ?? 0),
+  };
+}
+
+export interface CancellationReasonInput {
+  code: string;
+  nameAr: string;
+  nameEn?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
+// ──────────────────────────────────────────────
 // API Service
 // ──────────────────────────────────────────────
 
@@ -409,6 +450,46 @@ export const settingsApi = {
       buttonVisible: response.data.data?.button_visible ?? buttonVisible,
       graceDays: response.data.data?.grace_days ?? 7,
     };
+  },
+
+  // ── Cancellation Reasons ──
+  getCancellationReasons: async (): Promise<CancellationReason[]> => {
+    const response = await apiClient.get<ApiResponse<{ reasons: BackendCancellationReason[] }>>(
+      '/api/v1/admin/cancellation-reasons'
+    );
+    return (response.data.data?.reasons || []).map(mapCancellationReason);
+  },
+
+  createCancellationReason: async (input: CancellationReasonInput): Promise<CancellationReason> => {
+    const response = await apiClient.post<ApiResponse<BackendCancellationReason>>(
+      '/api/v1/admin/cancellation-reasons',
+      {
+        code: input.code,
+        name_ar: input.nameAr,
+        name_en: input.nameEn || undefined,
+        is_active: input.isActive ?? true,
+        sort_order: input.sortOrder,
+      }
+    );
+    return mapCancellationReason(response.data.data);
+  },
+
+  updateCancellationReason: async (id: number, input: Partial<CancellationReasonInput>): Promise<CancellationReason> => {
+    const body: Record<string, unknown> = {};
+    if (input.code !== undefined) body.code = input.code;
+    if (input.nameAr !== undefined) body.name_ar = input.nameAr;
+    if (input.nameEn !== undefined) body.name_en = input.nameEn;
+    if (input.isActive !== undefined) body.is_active = input.isActive;
+    if (input.sortOrder !== undefined) body.sort_order = input.sortOrder;
+    const response = await apiClient.put<ApiResponse<BackendCancellationReason>>(
+      `/api/v1/admin/cancellation-reasons/${id}`,
+      body
+    );
+    return mapCancellationReason(response.data.data);
+  },
+
+  deleteCancellationReason: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/admin/cancellation-reasons/${id}`);
   },
 
   // ── Banners ──

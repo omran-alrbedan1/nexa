@@ -67,7 +67,8 @@
       "aboutNexa": "About NEXA",
       "privacyPolicy": "Privacy Policy",
       "navigation": "Navigation Menu",
-      "printBranding": "Print & Branding"
+      "printBranding": "Print & Branding",
+      "cancellationReasons": "Cancellation Reasons"
     },
     "navigation": {
       "title": "Navigation Menu",
@@ -311,6 +312,28 @@
       "graceDays": "Grace period: {{days}} days",
       "saveSuccess": "Account deletion setting updated",
       "saveFailed": "Failed to update account deletion setting"
+    },
+    "cancellationReasons": {
+      "title": "Cancellation Reasons",
+      "description": "Manage order cancellation and rejection reasons used in the apps",
+      "add": "Add Reason",
+      "noReasons": "No cancellation reasons yet",
+      "addFirst": "Add the first reason to populate the apps",
+      "create": "Add Reason",
+      "edit": "Edit Reason",
+      "code": "Code",
+      "nameAr": "Name (AR)",
+      "nameEn": "Name (EN)",
+      "sortOrder": "Sort Order",
+      "order": "Order",
+      "deleteTitle": "Delete reason?",
+      "deleteDescription": "Delete \"{{name}}\"? Reasons linked to orders cannot be deleted — deactivate them instead.",
+      "created": "Reason added",
+      "createFailed": "Failed to add reason",
+      "updated": "Reason updated",
+      "updateFailed": "Failed to update reason",
+      "deleted": "Reason deleted",
+      "deleteFailed": "Failed to delete reason"
     }
   },
   "customers": {

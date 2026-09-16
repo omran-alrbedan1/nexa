@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToastStore } from '@/stores/toastStore';
-import { settingsApi, type Role, type Setting, type Banner } from '../api/settingsApi';
+import { settingsApi, type Role, type Setting, type Banner, type CancellationReasonInput } from '../api/settingsApi';
 
 // ── Query Keys ──
 
@@ -14,6 +14,7 @@ export const settingsKeys = {
   settingsList: () => [...settingsKeys.all, 'list'] as const,
   banners: () => [...settingsKeys.all, 'banners'] as const,
   banner: (id: number) => [...settingsKeys.all, 'banners', id] as const,
+  cancellationReasons: () => [...settingsKeys.all, 'cancellation-reasons'] as const,
   notifications: () => [...settingsKeys.all, 'notifications'] as const,
   notificationStats: () => [...settingsKeys.all, 'notifications', 'stats'] as const,
   auditLogs: () => [...settingsKeys.all, 'audit-logs'] as const,
@@ -194,6 +195,59 @@ export function useDeleteBanner() {
       addToast('success', 'Banner deleted');
     },
     onError: () => addToast('error', 'Failed to delete banner'),
+  });
+}
+
+// ── Cancellation Reasons ──
+
+export function useCancellationReasons() {
+  return useQuery({
+    queryKey: settingsKeys.cancellationReasons(),
+    queryFn: () => settingsApi.getCancellationReasons(),
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateCancellationReason() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (data: CancellationReasonInput) => settingsApi.createCancellationReason(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.cancellationReasons() });
+      addToast('success', t('settings.cancellationReasons.created'));
+    },
+    onError: () => addToast('error', t('settings.cancellationReasons.createFailed')),
+  });
+}
+
+export function useUpdateCancellationReason() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<CancellationReasonInput> }) =>
+      settingsApi.updateCancellationReason(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.cancellationReasons() });
+      addToast('success', t('settings.cancellationReasons.updated'));
+    },
+    onError: () => addToast('error', t('settings.cancellationReasons.updateFailed')),
+  });
+}
+
+export function useDeleteCancellationReason() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const addToast = useToastStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: number) => settingsApi.deleteCancellationReason(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.cancellationReasons() });
+      addToast('success', t('settings.cancellationReasons.deleted'));
+    },
+    onError: () => addToast('error', t('settings.cancellationReasons.deleteFailed')),
   });
 }
 

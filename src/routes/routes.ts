@@ -111,6 +111,7 @@ export const ROUTES = {
   SETTINGS_ROLES: '/settings/roles',
   SETTINGS_STAFF: '/settings/staff',
   SETTINGS_BANNERS: '/settings/banners',
+  SETTINGS_CANCELLATION_REASONS: '/settings/cancellation-reasons',
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
   SETTINGS_AUDIT: '/settings/audit',
   SETTINGS_PRIVACY_POLICY: '/settings/privacy-policy',

@@ -181,6 +181,9 @@ const StaffPage = lazy(() =>
 const BannersPage = lazy(() =>
   import('@/features/settings/pages/BannersPage').then((m) => ({ default: m.BannersPage }))
 );
+const CancellationReasonsPage = lazy(() =>
+  import('@/features/settings/pages/CancellationReasonsPage').then((m) => ({ default: m.CancellationReasonsPage }))
+);
 const NotificationsPage = lazy(() =>
   import('@/features/settings/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage }))
 );
@@ -367,6 +370,7 @@ export function App() {
                 <Route path={ROUTES.SETTINGS_ROLES} element={<RolesPage />} />
                 <Route path={ROUTES.SETTINGS_STAFF} element={<StaffPage />} />
                 <Route path={ROUTES.SETTINGS_BANNERS} element={<BannersPage />} />
+                <Route path={ROUTES.SETTINGS_CANCELLATION_REASONS} element={<CancellationReasonsPage />} />
                 <Route path={ROUTES.SETTINGS_NOTIFICATIONS} element={<NotificationsPage />} />
                 <Route path={ROUTES.SETTINGS_AUDIT} element={<AuditLogsPage />} />
                 <Route path={ROUTES.SETTINGS_PRIVACY_POLICY} element={<PrivacyPolicyPage />} />

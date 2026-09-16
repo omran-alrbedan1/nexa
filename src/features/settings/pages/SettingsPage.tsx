@@ -9,7 +9,7 @@ import type { Setting } from '../api/settingsApi';
 // import { type CurrencyCode, type ExchangeRates } from '@/stores/currencyStore';
 
 
-import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer, Globe, Link2 } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, Users, Image, Bell, Save, FileText, Menu, HelpCircle, Info, Printer, Globe, Link2, Ban } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient as useQC } from '@tanstack/react-query';
 import { apiBaseUrlApi } from '../api/apiBaseUrlApi';
 import { settingsApi } from '../api/settingsApi';
@@ -22,6 +22,7 @@ const SETTINGS_TABS = [
   { key: 'roles', label: 'settings.tabs.roles', icon: Shield, route: ROUTES.SETTINGS_ROLES },
   { key: 'staff', label: 'settings.tabs.staff', icon: Users, route: ROUTES.SETTINGS_STAFF },
   { key: 'banners', label: 'settings.tabs.banners', icon: Image, route: ROUTES.SETTINGS_BANNERS },
+  { key: 'cancellation-reasons', label: 'settings.tabs.cancellationReasons', icon: Ban, route: ROUTES.SETTINGS_CANCELLATION_REASONS },
   { key: 'notifications', label: 'settings.tabs.notifications', icon: Bell, route: ROUTES.SETTINGS_NOTIFICATIONS },
   { key: 'faq', label: 'settings.tabs.faq', icon: HelpCircle, route: ROUTES.SETTINGS_FAQ },
   { key: 'about-nexa', label: 'settings.tabs.aboutNexa', icon: Info, route: ROUTES.SETTINGS_ABOUT_NEXA },
