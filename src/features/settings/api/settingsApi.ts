@@ -264,6 +264,8 @@ export interface CancellationReason {
   code: string;
   nameAr: string;
   nameEn: string | null;
+  nameHe: string | null;
+  nameRu: string | null;
   isActive: boolean;
   sortOrder: number;
 }
@@ -273,6 +275,8 @@ interface BackendCancellationReason {
   code: string;
   name_ar: string;
   name_en: string | null;
+  name_he: string | null;
+  name_ru: string | null;
   is_active: boolean;
   sort_order: number;
 }
@@ -283,6 +287,8 @@ function mapCancellationReason(r: BackendCancellationReason): CancellationReason
     code: r.code,
     nameAr: r.name_ar,
     nameEn: r.name_en,
+    nameHe: r.name_he ?? null,
+    nameRu: r.name_ru ?? null,
     isActive: Boolean(r.is_active),
     sortOrder: Number(r.sort_order ?? 0),
   };
@@ -292,6 +298,8 @@ export interface CancellationReasonInput {
   code: string;
   nameAr: string;
   nameEn?: string;
+  nameHe?: string;
+  nameRu?: string;
   isActive?: boolean;
   sortOrder?: number;
 }
@@ -467,6 +475,8 @@ export const settingsApi = {
         code: input.code,
         name_ar: input.nameAr,
         name_en: input.nameEn || undefined,
+        name_he: input.nameHe || undefined,
+        name_ru: input.nameRu || undefined,
         is_active: input.isActive ?? true,
         sort_order: input.sortOrder,
       }
@@ -479,6 +489,8 @@ export const settingsApi = {
     if (input.code !== undefined) body.code = input.code;
     if (input.nameAr !== undefined) body.name_ar = input.nameAr;
     if (input.nameEn !== undefined) body.name_en = input.nameEn;
+    if (input.nameHe !== undefined) body.name_he = input.nameHe;
+    if (input.nameRu !== undefined) body.name_ru = input.nameRu;
     if (input.isActive !== undefined) body.is_active = input.isActive;
     if (input.sortOrder !== undefined) body.sort_order = input.sortOrder;
     const response = await apiClient.put<ApiResponse<BackendCancellationReason>>(

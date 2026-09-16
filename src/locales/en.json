@@ -333,7 +333,8 @@
       "updated": "Reason updated",
       "updateFailed": "Failed to update reason",
       "deleted": "Reason deleted",
-      "deleteFailed": "Failed to delete reason"
+      "deleteFailed": "Failed to delete reason",
+      "name": "Name"
     }
   },
   "customers": {

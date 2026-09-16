@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Ban, Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { TranslatedField, type TranslatedLang } from '@/components/ui/TranslatedField';
 import type { CancellationReason } from '../api/settingsApi';
 
 export function CancellationReasonsPage() {
@@ -20,18 +21,25 @@ export function CancellationReasonsPage() {
 
   const [modal, setModal] = useState<{ open: boolean; editing: CancellationReason | null }>({ open: false, editing: null });
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; reason: CancellationReason | null }>({ open: false, reason: null });
-  const [form, setForm] = useState<{ code: string; nameAr: string; nameEn: string; sortOrder: number; isActive: boolean }>(
-    { code: '', nameAr: '', nameEn: '', sortOrder: 1, isActive: true }
+  const [form, setForm] = useState<{ code: string; nameAr: string; nameEn: string; nameHe: string; nameRu: string; sortOrder: number; isActive: boolean }>(
+    { code: '', nameAr: '', nameEn: '', nameHe: '', nameRu: '', sortOrder: 1, isActive: true }
   );
 
   const openCreate = () => {
-    setForm({ code: '', nameAr: '', nameEn: '', sortOrder: (data?.length ?? 0) + 1, isActive: true });
+    setForm({ code: '', nameAr: '', nameEn: '', nameHe: '', nameRu: '', sortOrder: (data?.length ?? 0) + 1, isActive: true });
     setModal({ open: true, editing: null });
   };
 
   const openEdit = (reason: CancellationReason) => {
-    setForm({ code: reason.code, nameAr: reason.nameAr, nameEn: reason.nameEn ?? '', sortOrder: reason.sortOrder, isActive: reason.isActive });
+    setForm({ code: reason.code, nameAr: reason.nameAr, nameEn: reason.nameEn ?? '', nameHe: reason.nameHe ?? '', nameRu: reason.nameRu ?? '', sortOrder: reason.sortOrder, isActive: reason.isActive });
     setModal({ open: true, editing: reason });
+  };
+
+  const handleNameChange = (lang: TranslatedLang, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      ...(lang === 'ar' ? { nameAr: value } : lang === 'en' ? { nameEn: value } : lang === 'he' ? { nameHe: value } : { nameRu: value }),
+    }));
   };
 
   const handleSave = () => {
@@ -132,16 +140,11 @@ export function CancellationReasonsPage() {
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.cancellationReasons.code')}</label>
             <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" placeholder="out_of_stock" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.cancellationReasons.nameAr')}</label>
-              <input value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.cancellationReasons.nameEn')}</label>
-              <input value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
-            </div>
-          </div>
+          <TranslatedField
+            label={t('settings.cancellationReasons.name')}
+            values={{ ar: form.nameAr, en: form.nameEn, he: form.nameHe, ru: form.nameRu }}
+            onChange={handleNameChange}
+          />
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1 font-body">{t('settings.cancellationReasons.sortOrder')}</label>
             <input type="number" min={0} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 text-sm border border-border-default rounded-lg bg-bg-input outline-none focus:border-brand-primary" />
