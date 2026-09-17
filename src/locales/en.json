@@ -2087,7 +2087,12 @@
       "dragForRect": "Drag on the map to draw a rectangle",
       "squareLocked": "Square locked (Shift)",
       "currentZone": "This zone",
-      "otherZones": "Existing zones"
+      "otherZones": "Existing zones",
+      "panTool": "Pan",
+      "polygonTool": "Polygon",
+      "panHint": "Pan mode — drag the map to move around, clicks do nothing",
+      "vertexHint": "Drag the white dots to fine-tune the shape",
+      "searchPlaceholder": "Search for a city or area…"
     },
     "map": {
       "listView": "List",

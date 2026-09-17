@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { GOOGLE_MAPS_LOADER_OPTIONS, DEFAULT_MAP_CENTER, MAP_CONTAINER_STYLE } from '@/config/googleMaps';
 import { regionsApi, type Region } from '../api/regionsApi';
-import { Map, MapPin, Square, Undo2, Trash2, Save } from 'lucide-react';
+import { Map, Hand, PenTool, Square, Undo2, Trash2, Save, Search } from 'lucide-react';
 
 interface PolygonEditorProps {
   open: boolean;
@@ -34,7 +34,7 @@ const OTHER_ZONE_OPTIONS: google.maps.PolygonOptions = {
   zIndex: 0,
 };
 
-type ToolMode = 'points' | 'rectangle';
+type ToolMode = 'pan' | 'polygon' | 'rectangle';
 
 interface LatLng {
   lat: number;
@@ -88,7 +88,7 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
   const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const [mode, setMode] = useState<ToolMode>('points');
+  const [mode, setMode] = useState<ToolMode>('polygon');
   const [points, setPoints] = useState<LatLng[]>(() => {
     if (initialBoundaries && initialBoundaries.length > 0) {
       return initialBoundaries[0];
@@ -108,8 +108,47 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
       .catch(() => setOtherZones([]));
   }, [open]);
 
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const polyRef = useRef<google.maps.Polygon | null>(null);
+
+  // Google Places search — pan/zoom the map to the chosen city or place.
+  useEffect(() => {
+    if (!isLoaded || !open) return;
+    const input = searchInputRef.current;
+    if (!input || !window.google?.maps?.places) return;
+    const autocomplete = new window.google.maps.places.Autocomplete(input, {
+      fields: ['geometry', 'name', 'formatted_address'],
+    });
+    const listener = autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      const map = mapRef.current;
+      if (!place?.geometry || !map) return;
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else if (place.geometry.location) {
+        map.panTo(place.geometry.location);
+        map.setZoom(15);
+      }
+    });
+    return () => {
+      window.google.maps.event.removeListener(listener);
+    };
+  }, [isLoaded, open]);
+
+  // Sync dragged vertices back to state once the drag ends (no live-sync → no jitter).
+  const syncPolygonPath = useCallback(() => {
+    const path = polyRef.current?.getPath();
+    if (!path) return;
+    const next: LatLng[] = [];
+    for (let i = 0; i < path.getLength() && i < 50; i++) {
+      const ll = path.getAt(i);
+      next.push({ lat: ll.lat(), lng: ll.lng() });
+    }
+    if (next.length >= 3) setPoints(next);
+  }, []);
+
   const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (mode !== 'points') return;
+    if (mode !== 'polygon') return;
     if (!e.latLng) return;
     setPoints((prev) => (prev.length < 50 ? [...prev, { lat: e.latLng!.lat(), lng: e.latLng!.lng() }] : prev));
   }, [mode]);
@@ -172,6 +211,7 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
     : DEFAULT_MAP_CENTER;
 
   const maxPointsReached = points.length >= 50;
+  const showEditablePolygon = points.length >= 3 && mode !== 'rectangle';
 
   return (
     <Modal open={open} onClose={onClose} size="full" title={t('regions.zoneForm.boundaryTitle', 'Define Zone Boundary')}>
@@ -179,11 +219,14 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
         <div className="flex items-center justify-between gap-2 text-sm text-text-secondary">
           <div className="flex items-center gap-2">
             <Map size={16} className="text-purple-600" />
-            {mode === 'points' ? (
+            {mode === 'pan' ? (
+              <span>{t('regions.zoneForm.panHint', 'Pan mode — drag the map to move around, clicks do nothing')}</span>
+            ) : mode === 'polygon' ? (
               <span>
                 {points.length === 0
                   ? t('regions.zoneForm.clickToAdd', 'Click on the map to add boundary points')
                   : t('regions.zoneForm.pointsCount', '{{count}} points', { count: points.length })}
+                {points.length >= 3 && ' · ' + t('regions.zoneForm.vertexHint', 'Drag the white dots to fine-tune the shape')}
               </span>
             ) : (
               <span>
@@ -195,12 +238,20 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 rounded-lg border border-border-default p-1">
               <Button
-                variant={mode === 'points' ? 'primary' : 'ghost'}
+                variant={mode === 'pan' ? 'primary' : 'ghost'}
                 size="sm"
-                leftIcon={<MapPin size={14} />}
-                onClick={() => setMode('points')}
+                leftIcon={<Hand size={14} />}
+                onClick={() => setMode('pan')}
               >
-                {t('regions.zoneForm.pointsTool', 'Points')}
+                {t('regions.zoneForm.panTool', 'Pan')}
+              </Button>
+              <Button
+                variant={mode === 'polygon' ? 'primary' : 'ghost'}
+                size="sm"
+                leftIcon={<PenTool size={14} />}
+                onClick={() => setMode('polygon')}
+              >
+                {t('regions.zoneForm.polygonTool', 'Polygon')}
               </Button>
               <Button
                 variant={mode === 'rectangle' ? 'primary' : 'ghost'}
@@ -220,53 +271,80 @@ export function PolygonEditor({ open, onClose, onSave, initialBoundaries }: Poly
           </div>
         </div>
 
-        <div className="h-96 rounded-xl overflow-hidden border border-border-default">
+        <div className="relative h-96 rounded-xl overflow-hidden border border-border-default">
           {!isLoaded ? (
             <div className="h-full flex items-center justify-center bg-gray-100 text-sm text-text-secondary">
               {t('common.loading', 'Loading...')}
             </div>
           ) : (
-            <GoogleMap
-              mapContainerStyle={{ ...MAP_CONTAINER_STYLE, height: '100%' }}
-              center={polyCenter}
-              zoom={12}
-              options={{
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-                draggableCursor: !maxPointsReached ? 'crosshair' : 'default',
-              }}
-              onClick={!maxPointsReached ? handleMapClick : undefined}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={commitDrag}
-              onLoad={(map) => {
-                mapRef.current = map;
-              }}
-            >
-              {otherZones.map((zone) =>
-                zone.boundaries!.map((ring, ringIdx) => (
-                  <Polygon key={`other-${zone.id}-${ringIdx}`} paths={ring} options={OTHER_ZONE_OPTIONS} />
-                )),
-              )}
-              {points.map((point, i) => (
-                <Marker
-                  key={`${i}-${point.lat.toFixed(6)}-${point.lng.toFixed(6)}`}
-                  position={point}
-                  label={{
-                    text: String(i + 1),
-                    color: '#7c3aed',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                  }}
-                  zIndex={2}
-                />
-              ))}
-              {pendingRect && <Polygon paths={pendingRect} options={{ ...POLYGON_OPTIONS, fillOpacity: 0.15, zIndex: 3 }} />}
-              {points.length >= 3 && (
-                <Polygon paths={points} options={{ ...POLYGON_OPTIONS, zIndex: 2 }} />
-              )}
-            </GoogleMap>
+            <>
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[min(420px,90%)]">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none" />
+                  <input
+                    ref={searchInputRef}
+                    placeholder={t('regions.zoneForm.searchPlaceholder', 'Search for a city or area…')}
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-border-default rounded-xl font-body bg-white shadow-lg outline-none focus:border-brand-primary"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.preventDefault();
+                    }}
+                  />
+                </div>
+              </div>
+              <GoogleMap
+                mapContainerStyle={{ ...MAP_CONTAINER_STYLE, height: '100%' }}
+                center={polyCenter}
+                zoom={12}
+                options={{
+                  streetViewControl: false,
+                  mapTypeControl: false,
+                  fullscreenControl: false,
+                  draggable: mode !== 'rectangle',
+                  draggableCursor: mode === 'pan' ? 'grab' : !maxPointsReached ? 'crosshair' : 'default',
+                }}
+                onClick={mode === 'polygon' && !maxPointsReached ? handleMapClick : undefined}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={commitDrag}
+                onLoad={(map) => {
+                  mapRef.current = map;
+                }}
+              >
+                {otherZones.map((zone) =>
+                  zone.boundaries!.map((ring, ringIdx) => (
+                    <Polygon key={`other-${zone.id}-${ringIdx}`} paths={ring} options={OTHER_ZONE_OPTIONS} />
+                  )),
+                )}
+                {!showEditablePolygon && points.map((point, i) => (
+                  <Marker
+                    key={`${i}-${point.lat.toFixed(6)}-${point.lng.toFixed(6)}`}
+                    position={point}
+                    label={{
+                      text: String(i + 1),
+                      color: '#7c3aed',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                    }}
+                    zIndex={2}
+                  />
+                ))}
+                {pendingRect && <Polygon paths={pendingRect} options={{ ...POLYGON_OPTIONS, fillOpacity: 0.15, zIndex: 3 }} />}
+                {points.length >= 3 && (
+                  <Polygon
+                    paths={points}
+                    options={{ ...POLYGON_OPTIONS, editable: showEditablePolygon, zIndex: 2 }}
+                    onLoad={(poly) => {
+                      polyRef.current = poly;
+                    }}
+                    onUnmount={() => {
+                      polyRef.current = null;
+                    }}
+                    onMouseUp={syncPolygonPath}
+                    onRightClick={syncPolygonPath}
+                  />
+                )}
+              </GoogleMap>
+            </>
           )}
         </div>
 
