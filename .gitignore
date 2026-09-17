@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 *.pdf
 *.md
+!DEVELOPER_GUIDE_AR.md
 *.png
 *.webm
 *.zip
